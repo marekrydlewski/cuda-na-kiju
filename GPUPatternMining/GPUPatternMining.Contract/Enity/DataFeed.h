@@ -12,7 +12,7 @@ struct Coords
 
 struct DataFeed
 {
-	short* type;
+	int* type;
 	int* instanceId;
 	Coords* xy;
 };

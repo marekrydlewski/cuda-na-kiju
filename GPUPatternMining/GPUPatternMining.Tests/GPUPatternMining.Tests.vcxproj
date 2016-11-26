@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
+    <ClCompile Include="Tests\HashMapTests.cpp" />
     <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
     <ClCompile Include="Tests\PairColocationsFilteringTests.cpp" />
     <ClCompile Include="Tests\DataProviderTests.cpp" />

@@ -6,7 +6,7 @@
 //--------------------------------------------------------------
 
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "ComputeArraysSum", "HashMapInsertAndGetValuesTests")
+TEST_CASE_METHOD(BaseCudaTestHandler, "ComputeArraysSum", "DataProviderTests")
 {
 	const int arraySize = 5;
 	const int a[arraySize] = { 1, 2, 3, 4, 5 };
@@ -17,7 +17,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "ComputeArraysSum", "HashMapInsertAndGetVa
 	cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
 
 	REQUIRE(cudaStatus == cudaSuccess);
-	
+
 	int expected[] = { 11, 22, 33, 44, 55 };
 
 	REQUIRE(std::equal(std::begin(c), std::end(c), std::begin(expected)));

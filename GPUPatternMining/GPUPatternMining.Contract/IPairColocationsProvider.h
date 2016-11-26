@@ -12,6 +12,8 @@ public:
 
 	virtual PairColocation* getPairColocations() = 0;
 
+	virtual int getPairColocationsCount() = 0;
+
 	virtual ~IPairColocationsProvider()
 	{
 	}

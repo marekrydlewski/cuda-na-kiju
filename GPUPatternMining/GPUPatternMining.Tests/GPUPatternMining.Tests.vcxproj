@@ -20,9 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="tests.cpp" />
+    <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
+    <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
+    <ClCompile Include="Tests\PairColocationsFilteringTests.cpp" />
+    <ClCompile Include="Tests\DataProviderTests.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseCudaTestHandler.h" />
     <ClInclude Include="catch.hpp" />
   </ItemGroup>
   <ItemGroup>

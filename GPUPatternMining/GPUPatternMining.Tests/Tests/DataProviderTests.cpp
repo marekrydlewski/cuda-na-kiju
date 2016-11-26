@@ -1,21 +1,12 @@
-#include "catch.hpp"
+#include "../catch.hpp"
 
-#include "../GPUPatternMining/SimpleOperations.h"
 
-struct DefaultTeardown
-{
-	DefaultTeardown() { }
+#include "../BaseCudaTestHandler.h"
+#include "../../GPUPatternMining/SimpleOperations.h"
+//--------------------------------------------------------------
 
-	~DefaultTeardown()
-	{
-		if (cudaDeviceReset() != cudaSuccess)
-		{
-			fprintf(stderr, "cudaDeviceReset failed!");
-		}
-	}
-};
 
-TEST_CASE_METHOD(DefaultTeardown, "SimpleOperations", "Init")
+TEST_CASE_METHOD(BaseCudaTestHandler, "ComputeArraysSum", "DataProviderTests")
 {
 	const int arraySize = 5;
 	const int a[arraySize] = { 1, 2, 3, 4, 5 };

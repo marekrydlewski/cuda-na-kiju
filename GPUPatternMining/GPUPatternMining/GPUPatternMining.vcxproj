@@ -160,12 +160,16 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
     <ClInclude Include="SimpleOperations.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="SimpleOperations.cu">
       <FileType>CppCode</FileType>
     </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

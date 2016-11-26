@@ -9,6 +9,7 @@ class IPairColocationsProvider
 public:
 
 	virtual void* getPairColocations() = 0;
+	virtual int getPairColocationsCount() = 0;
 
 	virtual ~IPairColocationsProvider()
 	{

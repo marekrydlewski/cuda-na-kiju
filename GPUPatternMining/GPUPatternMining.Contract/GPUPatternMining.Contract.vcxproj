@@ -19,11 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Entity\DataFeed.h" />
+    <ClInclude Include="Enity\DataFeed.h" />
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h" />
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Enity\PairColocation.h">
+      <FileType>CppCode</FileType>
+    </ClInclude>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>

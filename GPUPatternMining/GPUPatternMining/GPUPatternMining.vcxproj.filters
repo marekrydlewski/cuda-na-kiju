@@ -6,6 +6,9 @@
   <ItemGroup>
     <ClInclude Include="SimpleOperations.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
+    <ClInclude Include="HashMap\gpuhashmapper.h" />
+    <ClInclude Include="HashMap\gpuutils.h" />
+    <ClInclude Include="HashMap\gpuutils.cuh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />

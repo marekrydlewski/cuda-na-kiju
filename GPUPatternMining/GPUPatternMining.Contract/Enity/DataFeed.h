@@ -10,6 +10,7 @@ struct Coords
 };
 //-------------------------------------------------------------------
 
+// ONE instance of DataFeed contains ALL given data  
 struct DataFeed
 {
 	int* type;

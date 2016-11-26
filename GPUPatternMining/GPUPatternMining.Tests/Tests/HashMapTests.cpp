@@ -2,23 +2,21 @@
 
 
 #include "../BaseCudaTestHandler.h"
-#include "../../GPUPatternMining/SimpleOperations.h"
+#include "../../GPUPatternMining/HashMap/gpuhashmapper.h"
 //--------------------------------------------------------------
 
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "ComputeArraysSum", "DataProviderTests")
+TEST_CASE_METHOD(BaseCudaTestHandler, "HashMapBasicTestInsertValues", "HashMapTests")
 {
-	const int arraySize = 5;
-	const int a[arraySize] = { 1, 2, 3, 4, 5 };
-	const int b[arraySize] = { 10, 20, 30, 40, 50 };
-	int c[arraySize] = { 0 };
+	GPUUIntKeyProcessor *intKeyProcessor = new GPUUIntKeyProcessor();
+	unsigned int hashSize = 4;
 
-	// Add vectors in parallel.
-	cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
+	GPUHashMapper<unsigned int, unsigned int, GPUUIntKeyProcessor> mapper(hashSize, intKeyProcessor);
+	mapper.setKeyProcessor(intKeyProcessor);
 
-	REQUIRE(cudaStatus == cudaSuccess);
+	unsigned int keys[] = { 1, 2, 3 }, values[] = { 10, 100, 1000 };
 
-	int expected[] = { 11, 22, 33, 44, 55 };
+	mapper.insertKeyValuePairs(keys, values, 3);
 
-	REQUIRE(std::equal(std::begin(c), std::end(c), std::begin(expected)));
+	REQUIRE(true);
 }

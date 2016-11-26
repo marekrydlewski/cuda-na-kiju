@@ -16,6 +16,6 @@ public:
 };
 //-------------------------------------------------------------------
 
-std::shared_ptr<IPairColocationsFilter> IPairColocationsFilterPtr;
+typedef std::shared_ptr<IPairColocationsFilter> IPairColocationsFilterPtr;
 //-------------------------------------------------------------------
 

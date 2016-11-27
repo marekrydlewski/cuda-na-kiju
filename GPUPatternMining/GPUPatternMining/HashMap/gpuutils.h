@@ -8,9 +8,6 @@
 *      Author: witek
 */
 
-#ifndef UTILS_GPU_H_
-#define UTILS_GPU_H_
-
 #include <stdio.h>
 #include <map>
 
@@ -374,5 +371,3 @@ template <class T> void compactSequenceArray(T* array, T *output, unsigned int *
 }
 
 void eatDelay();
-
-#endif /* UTILS_GPU_H_ */

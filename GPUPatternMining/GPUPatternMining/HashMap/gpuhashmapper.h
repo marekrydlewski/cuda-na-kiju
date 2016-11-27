@@ -1,15 +1,5 @@
 #pragma once
 
-/*
-* gpuhashmapper.h
-*
-*  Created on: 27-02-2013
-*      Author: witek
-*/
-
-#ifndef GPUHASHMAPPER_H_
-#define GPUHASHMAPPER_H_
-
 #include "gpuutils.h"
 #include <stdlib.h>
 
@@ -460,29 +450,33 @@ template <class K, class V, class KP> GPUHashMapper<K, V, KP>::GPUHashMapper(uns
 {
 	this->hashSize = hashSize;
 
-
 #ifdef HASHMAPPER_DEBUG_OUTPUT
 	printf("Allocating hashmap keytable\n");
 #endif
+
 	d_hashTable = cudaAllocArray<K>(hashSize, FL);
+
 #ifdef HASHMAPPER_DEBUG_OUTPUT
 	printf("Allocated a hash map for hashsize %d, keysize %d, value size %d at %.8x\n", hashSize, sizeof(K), sizeof(V), d_hashTable);
 	printf("Allocating hashmap valuetable\n");
 #endif
+
 	d_values = cudaAllocArray<V>(hashSize, FL);
+
 #ifdef HASHMAPPER_DEBUG_OUTPUT
 	printf("Allocated hashmap valuetable\n");
 #endif
 
-
 #ifdef HASHMAPPER_DEBUG_OUTPUT
 	printf("Before setting of key processor \n");
 #endif
+
 	setKeyProcessor(kp);
 
 #ifdef HASHMAPPER_DEBUG_OUTPUT
 	printf("Before cleaning of keytable\n");
 #endif
+
 	clean();
 
 #ifdef HASHMAPPER_DEBUG_OUTPUT
@@ -650,7 +644,3 @@ template <class K, class V, class KP> __device__ __inline__ bool GPUHashMapperPr
 }
 
 
-
-
-
-#endif /* GPUHASHMAPPER_H_ */

@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <CudaCompile Include="SimpleOperations.cu" />
+    <CudaCompile Include="HashMap\gpuutils.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SimpleOperations.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h" />
     <ClInclude Include="HashMap\gpuutils.h" />
-    <ClInclude Include="HashMap\gpuutils.cuh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />

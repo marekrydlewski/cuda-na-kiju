@@ -1,6 +1,5 @@
 #include "RandomDataProvider.h"
-
-
+#include <vector>
 
 RandomDataProvider::RandomDataProvider()
 {
@@ -15,6 +14,8 @@ DataFeed* RandomDataProvider::getData(size_t s)
 	std::uniform_real_distribution<float> disY(0, y);
 	std::uniform_int_distribution<> disType(1, numberOfTypes);
 
+	std::vector<int> instances(numberOfTypes);
+
 	//DataFeedPtr sp(new DataFeed[s], array_deleter<DataFeed>());
 	DataFeed* dataArray = new DataFeed[s];
 
@@ -22,7 +23,9 @@ DataFeed* RandomDataProvider::getData(size_t s)
 	{
 		DataFeed dataFeed;
 		dataFeed.type = disType(rdev);
-		dataFeed.xy = new Coords(disX(rdev), disY(rdev));
+		dataFeed.xy = Coords(disX(rdev), disY(rdev));
+		dataFeed.instanceId = ++instances[dataFeed.type];
+
 		dataArray[i] = dataFeed;
 	}
 

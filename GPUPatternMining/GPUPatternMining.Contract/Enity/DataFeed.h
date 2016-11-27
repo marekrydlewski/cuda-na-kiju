@@ -8,6 +8,7 @@ struct Coords
 	float x;
 	float y;
 
+	Coords() {}
 	Coords(float x, float y) : x(x), y(y) {}
 };
 //-------------------------------------------------------------------
@@ -17,7 +18,9 @@ struct DataFeed
 {
 	int type;
 	int instanceId;
-	Coords* xy;
+	Coords xy;
+
+	DataFeed() {}
 };
 //-------------------------------------------------------------------
 

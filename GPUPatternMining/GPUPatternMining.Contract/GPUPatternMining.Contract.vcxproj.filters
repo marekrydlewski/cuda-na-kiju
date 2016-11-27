@@ -36,5 +36,13 @@
     <ClInclude Include="Enity\PairColocation.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="RandomDataProvider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="RandomDataProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

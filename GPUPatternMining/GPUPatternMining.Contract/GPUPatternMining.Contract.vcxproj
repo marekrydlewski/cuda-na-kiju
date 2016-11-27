@@ -24,11 +24,15 @@
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
+    <ClInclude Include="RandomDataProvider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\PairColocation.h">
       <FileType>CppCode</FileType>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="RandomDataProvider.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>

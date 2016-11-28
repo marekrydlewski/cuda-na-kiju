@@ -5,13 +5,14 @@
     <ClCompile Include="Tests\BasicRequirementsTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="Tests\DataProviderTests.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="Tests\PairColocationsFilteringTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\SimpleOperationsTests.cpp" />
+    <ClCompile Include="DataProviderTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
   </ItemGroup>

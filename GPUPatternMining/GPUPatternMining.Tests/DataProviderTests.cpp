@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
 #include "BaseCudaTestHandler.h"
-#include "../GPUPatternMining.Contract/RandomDataProvider.cpp"
+#include "../GPUPatternMining.Contract/RandomDataProvider.h"
 #include "../GPUPatternMining.Contract/Enity/DataFeed.h"
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Eeee", "DataProviderTests")
@@ -13,10 +13,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Eeee", "DataProviderTests")
 
 	DataFeed* data = rdp.getData(10);
 
-	/*for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 10; i++)
 	{
-		REQUIRE(data[i].xy.x <= 5);
-	}*/
+		REQUIRE(data[i].xy.x <= 10);
+	}
 
 	REQUIRE(true);
 }

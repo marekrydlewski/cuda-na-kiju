@@ -168,6 +168,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="Tests\PairColocationsFilteringTests.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GPUPatternMining.Contract\GPUPatternMining.Contract.vcxproj">
+      <Project>{9875bacf-2709-46a9-abd3-2cfa01256025}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\GPUPatternMining\GPUPatternMining.vcxproj">
       <Project>{ae2fa75a-5535-460c-8632-6fb973b87817}</Project>
     </ProjectReference>

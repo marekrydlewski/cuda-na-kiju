@@ -12,15 +12,10 @@ private:
 public:
 	RandomDataProvider();
 
-	void setRange(unsigned int x, unsigned int y)
-	{
-		x = x;
-		y = y;
-	}
-	void setNumberOfTypes(unsigned int numberOfTypes)
-	{
-		numberOfTypes = numberOfTypes;
-	}
+	void setRange(unsigned int x, unsigned int y);
+
+	void setNumberOfTypes(unsigned int numberOfTypes);
+
 
 	DataFeed* getData(size_t s);
 	virtual ~RandomDataProvider();

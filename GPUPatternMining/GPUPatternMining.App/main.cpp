@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "../GPUPatternMining/SimpleOperations.h"
+#include "../GPUPatternMining.Contract/RandomDataProvider.h"
 
 
 int main()

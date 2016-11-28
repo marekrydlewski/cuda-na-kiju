@@ -162,7 +162,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
-    <ClCompile Include="Tests\DataProviderTests.cpp" />
+    <ClCompile Include="Tests\SimpleOperationsTests.cpp" />
     <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
     <ClCompile Include="Tests\PairColocationsFilteringTests.cpp" />
   </ItemGroup>

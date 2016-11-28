@@ -6,6 +6,7 @@
  */
 
 #include "gpuutils.h"
+#include <cmath>
 
 void eatDelay() {
 	int* d_a;
@@ -17,6 +18,11 @@ void eatDelay() {
 }
 
 std::map<void*, struct AllocInfo > memoryAllocs;
+
+unsigned int intDivCeil(unsigned int x, unsigned int y)
+{
+	return ceil(x / (float)y);
+}
 
 void findSmallest2D(unsigned int size,unsigned int blockSize,unsigned int &x,unsigned int &y) {
 	x=intDivCeil(size,blockSize);

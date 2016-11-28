@@ -21,7 +21,7 @@ public:
 		
 	}
 
-	void* getPairColocations() override
+	PairColocation* getPairColocations() override
 	{
 		return data;
 	}
@@ -33,7 +33,7 @@ public:
 
 private:
 
-	void* data;
+	PairColocation* data;
 };
 //--------------------------------------------------------------
 

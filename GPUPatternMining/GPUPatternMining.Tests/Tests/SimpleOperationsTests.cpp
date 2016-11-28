@@ -6,7 +6,7 @@
 //--------------------------------------------------------------
 
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "ComputeArraysSum", "DataProviderTests")
+TEST_CASE_METHOD(BaseCudaTestHandler, "ComputeArraysSum", "SimpleOperationsTests")
 {
 	const int arraySize = 5;
 	const int a[arraySize] = { 1, 2, 3, 4, 5 };

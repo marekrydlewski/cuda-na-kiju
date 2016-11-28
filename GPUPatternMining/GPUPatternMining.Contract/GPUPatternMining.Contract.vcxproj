@@ -24,11 +24,15 @@
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
+    <ClInclude Include="RandomDataProvider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\PairColocation.h">
       <FileType>CppCode</FileType>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="RandomDataProvider.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>
@@ -83,11 +87,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)\..\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\bin\obj\$(Configuration)$(ProjectName)</IntDir>
+    <IntDir>$(SolutionDir)..\bin\obj\$(Configuration)$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\..\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\bin\obj\$(Configuration)$(ProjectName)</IntDir>
+    <IntDir>$(SolutionDir)..\bin\obj\$(Configuration)$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

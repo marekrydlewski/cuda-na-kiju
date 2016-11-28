@@ -6,7 +6,7 @@ __declspec(align(16)) struct PairColocation
 		:firstType(0), firstId(0), secondType(0), secondId(0)
 	{
 		
-	};
+	}
 	
 	PairColocation(int firstType, int firstId, int secondType, int secondId)
 		: firstType(firstType), firstId(firstId), secondType(secondType), secondId(secondId)

@@ -11,7 +11,8 @@
     <ClCompile Include="Tests\PairColocationsFilteringTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="Tests\SimpleOperationsTests.cpp">
+    <ClCompile Include="Tests\SimpleOperationsTests.cpp" />
+    <ClCompile Include="DataProviderTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
   </ItemGroup>

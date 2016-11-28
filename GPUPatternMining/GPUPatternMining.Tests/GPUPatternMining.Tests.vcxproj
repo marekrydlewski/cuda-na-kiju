@@ -163,9 +163,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
     <ClCompile Include="Tests\DataProviderTests.cpp" />
-    <CudaCompile Include="Tests\HashMapTests.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
     <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
     <ClCompile Include="Tests\PairColocationsFilteringTests.cpp" />
   </ItemGroup>
@@ -173,6 +170,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ProjectReference Include="..\GPUPatternMining\GPUPatternMining.vcxproj">
       <Project>{ae2fa75a-5535-460c-8632-6fb973b87817}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="Tests\HashMapTests.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

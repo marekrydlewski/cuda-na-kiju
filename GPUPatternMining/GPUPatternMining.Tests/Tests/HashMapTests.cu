@@ -1,13 +1,15 @@
 #include "../catch.hpp"
 
+#include <map>
+
+#include "../../GPUPatternMining/HashMap/gpuhashmapper.h"
 
 #include "../BaseCudaTestHandler.h"
-#include "../../GPUPatternMining/HashMap/gpuhashmapper.h"
 //--------------------------------------------------------------
 
-
-TEST_CASE_METHOD(BaseCudaTestHandler, "HashMapBasicTestInsertValues", "HashMapTests")
+TEST_CASE_METHOD(BaseCudaTestHandler, "InsertTest", "HashMap")
 {
+
 	GPUUIntKeyProcessor *intKeyProcessor = new GPUUIntKeyProcessor();
 	unsigned int hashSize = 4;
 
@@ -19,4 +21,5 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "HashMapBasicTestInsertValues", "HashMapTe
 	mapper.insertKeyValuePairs(keys, values, 3);
 
 	REQUIRE(true);
+
 }

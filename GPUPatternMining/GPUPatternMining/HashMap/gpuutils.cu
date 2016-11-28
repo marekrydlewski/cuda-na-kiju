@@ -21,7 +21,7 @@ std::map<void*, struct AllocInfo > memoryAllocs;
 
 unsigned int intDivCeil(unsigned int x, unsigned int y)
 {
-	return ceil(x / (float)y);
+	return (x + y - 1) / y;
 }
 
 void findSmallest2D(unsigned int size,unsigned int blockSize,unsigned int &x,unsigned int &y) {

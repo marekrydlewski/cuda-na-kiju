@@ -19,5 +19,5 @@ public:
 };
 //-------------------------------------------------------------------
 
-std::shared_ptr<IDataProvider> IDataProviderPtr;
+//std::shared_ptr<IDataProvider> IDataProviderPtr;
 //-------------------------------------------------------------------

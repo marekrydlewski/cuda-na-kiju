@@ -30,7 +30,7 @@ DataFeed* RandomDataProvider::getData(size_t s)
 	//DataFeedPtr sp(new DataFeed[s], array_deleter<DataFeed>());
 	DataFeed* dataArray = new DataFeed[s];
 
-	for (int i = 0; i < s; ++i)
+	for (size_t i = 0; i < s; ++i)
 	{
 		DataFeed dataFeed;
 		dataFeed.type = disType(rdev);

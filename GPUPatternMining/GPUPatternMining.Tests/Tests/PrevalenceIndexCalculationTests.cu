@@ -15,7 +15,7 @@
 	Memory allocated on device will be released in onTeardown method by cudaDeviceReset so we don't
 	have to worry about that in tests
 */
-void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMapPtr& colocationInstancesCountMap)
+void initData(UIntTableGpuHashMapPtr& pairColocationInstancesListMap, UIntGpuHashMapPtr& pairColocationInstancesCountMap)
 {
 	constexpr size_t ntc = 6; // nodesTypesCount
 
@@ -23,8 +23,8 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 	constexpr size_t hashSize = (ntc * ntc - ntc) / 2 + ntc;
 
 	auto intKeyProcessor = std::make_shared<GPUUIntKeyProcessor>();
-	colocationInstancesListMap = std::make_shared<UIntTableGpuHashMap>(hashSize, intKeyProcessor.get());
-	colocationInstancesCountMap = std::make_shared<UIntGpuHashMap>(hashSize, intKeyProcessor.get());
+	pairColocationInstancesListMap = std::make_shared<UIntTableGpuHashMap>(hashSize, intKeyProcessor.get());
+	pairColocationInstancesCountMap = std::make_shared<UIntGpuHashMap>(hashSize, intKeyProcessor.get());
 	
 	// keys
 	size_t keyTableSize = 15 * uintSize;
@@ -34,15 +34,15 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 	cudaMemcpy(c_keys, h_keys, keyTableSize, cudaMemcpyHostToDevice);
 
 	// instances count
-	size_t neighboursCountSize = 15 * uintSize;
+	size_t pairColocationsCountSize = 15 * uintSize;
 	
-	//values in this table are {instances count} * 2 beacuse of one instance is represented as two uInts
+	//values in this table are {instances count} * 2 beacuse one instance is represented as two uInts
 	unsigned int h_pairColocationsInstancesCount[15] = { 0, 6, 12, 4, 6, 0, 6, 2, 2, 0, 0, 0, 0, 4, 0 };
 	
 	unsigned int *c_pairColocationsInstancesCount;
-	cudaMalloc(reinterpret_cast<void**>(&c_pairColocationsInstancesCount), neighboursCountSize);
-	cudaMemcpy(c_pairColocationsInstancesCount, h_pairColocationsInstancesCount, neighboursCountSize, cudaMemcpyHostToDevice);
-	colocationInstancesCountMap->insertKeyValuePairs(c_keys,  c_pairColocationsInstancesCount, 15);
+	cudaMalloc(reinterpret_cast<void**>(&c_pairColocationsInstancesCount), pairColocationsCountSize);
+	cudaMemcpy(c_pairColocationsInstancesCount, h_pairColocationsInstancesCount, pairColocationsCountSize, cudaMemcpyHostToDevice);
+	pairColocationInstancesCountMap->insertKeyValuePairs(c_keys,  c_pairColocationsInstancesCount, 15);
 
 	// instances lists
 	constexpr size_t instancesCount = 42;
@@ -91,7 +91,7 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 	UInt** c_keyInstanceListTable;
 	CUDA_CHECK_RETURN(cudaMalloc(reinterpret_cast<void**>(&c_keyInstanceListTable), keyInstanceListTableSize));
 	CUDA_CHECK_RETURN(cudaMemcpy(c_keyInstanceListTable, h_keyInstanceListTable, keyInstanceListTableSize, cudaMemcpyHostToDevice));
-	colocationInstancesListMap->insertKeyValuePairs(c_keys, c_keyInstanceListTable, 15);
+	pairColocationInstancesListMap->insertKeyValuePairs(c_keys, c_keyInstanceListTable, 15);
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Simple initial data test 00", "Prevalence index test data test")

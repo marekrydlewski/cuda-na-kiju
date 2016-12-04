@@ -27,14 +27,14 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 	colocationInstancesCountMap = std::make_shared<UIntGpuHashMap>(hashSize, intKeyProcessor.get());
 	
 	// keys
-	size_t keyTableSize = 15 * sizeof(unsigned int);
+	size_t keyTableSize = 15 * uintSize;
 	unsigned int h_keys[15] = { 0xAA, 0xAB, 0xAC, 0xAD, 0xAF, 0xBB, 0xBC, 0xBD, 0xBF, 0xCC, 0xCD, 0xCF, 0xDD, 0xDF, 0xFF };
 	unsigned int* c_keys;
 	cudaMalloc(reinterpret_cast<void**>(&c_keys), keyTableSize);
 	cudaMemcpy(c_keys, h_keys, keyTableSize, cudaMemcpyHostToDevice);
 
 	// instances count
-	size_t neighboursCountSize = 15 * sizeof(unsigned int);
+	size_t neighboursCountSize = 15 * uintSize;
 	
 	//values in this table are {instances count} * 2 beacuse of one instance is represented as two uInts
 	unsigned int h_pairColocationsInstancesCount[15] = { 0, 6, 12, 4, 6, 0, 6, 2, 2, 0, 0, 0, 0, 4, 0 };
@@ -46,7 +46,7 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 
 	// instances lists
 	constexpr size_t instancesCount = 42;
-	size_t pairColocationsSize = instancesCount * sizeof(unsigned int);
+	size_t pairColocationsSize = instancesCount * uintSize;
 	unsigned int h_instancesLists[instancesCount] = {
 		//AA
 		1,2, 2,4, 3,4,  //AB
@@ -69,8 +69,8 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 	cudaMalloc(reinterpret_cast<void**>(&c_instancesList), pairColocationsSize);
 	cudaMemcpy(c_instancesList, h_instancesLists, pairColocationsSize, cudaMemcpyHostToDevice);
 
-	size_t keyInstanceListTableSize = 15 * sizeof(unsigned int*);
-	UIntPtr h_keyInstanceListTable[15] = {
+	size_t keyInstanceListTableSize = 15 * uintPtrSize;
+	UInt* h_keyInstanceListTable[15] = {
 		NULL,					//AA
 		c_instancesList,		//AB
 		c_instancesList + 6,	//AC
@@ -88,7 +88,7 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 		NULL,					//FF
 	};
 
-	UIntPtr* c_keyInstanceListTable;
+	UInt** c_keyInstanceListTable;
 	CUDA_CHECK_RETURN(cudaMalloc(reinterpret_cast<void**>(&c_keyInstanceListTable), keyInstanceListTableSize));
 	CUDA_CHECK_RETURN(cudaMemcpy(c_keyInstanceListTable, h_keyInstanceListTable, keyInstanceListTableSize, cudaMemcpyHostToDevice));
 	colocationInstancesListMap->insertKeyValuePairs(c_keys, c_keyInstanceListTable, 15);
@@ -103,20 +103,20 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Simple initial data test 00", "Prevalence
 
 	unsigned int h_key[] = { 0xCC };
 	unsigned int* c_key;
-	cudaMalloc(reinterpret_cast<void**>(&c_key), sizeof(unsigned int));
-	cudaMemcpy(c_key, h_key, sizeof(unsigned int), cudaMemcpyHostToDevice);
+	cudaMalloc(reinterpret_cast<void**>(&c_key), uintSize);
+	cudaMemcpy(c_key, h_key, uintSize, cudaMemcpyHostToDevice);
 
 	unsigned int h_instanceCount;
 	unsigned int* c_instancesCount;
-	cudaMalloc(reinterpret_cast<void**>(&c_instancesCount), sizeof(unsigned int));
+	cudaMalloc(reinterpret_cast<void**>(&c_instancesCount), uintSize);
 
 	colocationInstancesCountMap->getValues(c_key, c_instancesCount, 1);
-	cudaMemcpy(&h_instanceCount, c_instancesCount, sizeof(unsigned int), cudaMemcpyDeviceToHost);
+	cudaMemcpy(&h_instanceCount, c_instancesCount, uintSize, cudaMemcpyDeviceToHost);
 
 	REQUIRE(h_instanceCount == 0);
 
 	unsigned int** c_instancesListPtr;
-	cudaMalloc(reinterpret_cast<void**>(&c_instancesListPtr), sizeof(unsigned int*));
+	cudaMalloc(reinterpret_cast<void**>(&c_instancesListPtr), uintPtrSize);
 	colocationInstancesListMap->getValues(c_key, c_instancesListPtr, 1);
 
 	unsigned int* h_instanceListPtr;
@@ -135,15 +135,15 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Simple initial data test 01", "Prevalence
 
 	unsigned int h_key[] = { 0xAC };
 	unsigned int* c_key;
-	cudaMalloc(reinterpret_cast<void**>(&c_key), sizeof(unsigned int));
-	cudaMemcpy(c_key, h_key, sizeof(unsigned int), cudaMemcpyHostToDevice);
+	cudaMalloc(reinterpret_cast<void**>(&c_key), uintSize);
+	cudaMemcpy(c_key, h_key, uintSize, cudaMemcpyHostToDevice);
 
 	unsigned int h_instanceCount;
 	unsigned int* c_instancesCount;
-	cudaMalloc(reinterpret_cast<void**>(&c_instancesCount), sizeof(unsigned int));
+	cudaMalloc(reinterpret_cast<void**>(&c_instancesCount), uintSize);
 		
 	colocationInstancesCountMap->getValues(c_key, c_instancesCount, 1);	
-	cudaMemcpy(&h_instanceCount, c_instancesCount, sizeof(unsigned int), cudaMemcpyDeviceToHost);
+	cudaMemcpy(&h_instanceCount, c_instancesCount, uintSize, cudaMemcpyDeviceToHost);
 
 	REQUIRE(h_instanceCount == 6 * 2);
 
@@ -151,13 +151,13 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Simple initial data test 01", "Prevalence
 	unsigned int* h_instances = new unsigned int[h_instanceCount];
 
 	unsigned int** c_instancesListPtr;
-	cudaMalloc(reinterpret_cast<void**>(&c_instancesListPtr), sizeof(unsigned int*));
+	cudaMalloc(reinterpret_cast<void**>(&c_instancesListPtr), uintPtrSize);
 	colocationInstancesListMap->getValues(c_key, c_instancesListPtr, 1);
 
 	unsigned int* h_instanceListPtr;
 	cudaMemcpy(&h_instanceListPtr, c_instancesListPtr, uintPtrSize, cudaMemcpyDeviceToHost);
 
-	cudaMemcpy(h_instances, h_instanceListPtr, h_instanceCount * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+	cudaMemcpy(h_instances, h_instanceListPtr, h_instanceCount * uintSize, cudaMemcpyDeviceToHost);
 
 	unsigned int expected[] = { 1,1, 1,2, 2,3, 3,1, 3,2, 3,3 };
 

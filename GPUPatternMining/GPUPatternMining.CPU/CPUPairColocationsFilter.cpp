@@ -15,7 +15,11 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size)
 			if ((*it1).type > (*it2).type)
 				std::swap(it1, it2);
 
-			insTable[(*it1).type][(*it2).type]
+			if (insTable[(*it1).type][(*it2).type][(*it1).instanceId] == nullptr)
+			{
+				insTable[(*it1).type][(*it2).type][(*it1).instanceId] = new std::vector<int>();
+			}
+			insTable[(*it1).type][(*it2).type][(*it1).instanceId]->push_back((*it2).instanceId);
 		}
 	}
 }

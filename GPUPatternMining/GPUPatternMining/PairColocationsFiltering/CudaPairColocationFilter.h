@@ -1,25 +1,27 @@
 #pragma once
 
-#include "..\..\GPUPatternMining.Contract\IPairColocationsFilter.h"
-#include "..\..\GPUPatternMining.Contract\IPairColocationsProvider.h"
+#include <thrust/device_vector.h>
+
+#include "../HashMap/gpuhashmapper.h"
 //-------------------------------------------------------------------------------
 
-class CudaPairColocationFilter : public IPairColocationsFilter
+typedef thrust::device_vector<unsigned int> ThrustUIntVector;
+typedef GPUHashMapper<unsigned int, unsigned int*, GPUUIntKeyProcessor> UIntTableGpuHashMap;
+typedef std::shared_ptr<UIntTableGpuHashMap> UIntTableGpuHashMapPtr;
+typedef GPUHashMapper<unsigned int, unsigned int, GPUUIntKeyProcessor> UIntGpuHashMap;
+typedef std::shared_ptr<UIntGpuHashMap> UIntGpuHashMapPtr;
+
+
+class CudaPairColocationFilter
 {
 public:
 
-	CudaPairColocationFilter(
-		IPairColocationsProviderPtr pairColocationsProvider);
+	CudaPairColocationFilter(UIntTableGpuHashMapPtr* neighboursMap);
 
 	virtual ~CudaPairColocationFilter();
 
-	void filterPairColocations() override
-	{
-		
-	}
-
 private:
 
-	IPairColocationsProviderPtr pairColocationsProvider;
+	UIntTableGpuHashMapPtr* neighboursMap;
 };
 //-------------------------------------------------------------------------------

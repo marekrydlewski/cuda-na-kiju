@@ -147,8 +147,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Simple initial data test 01", "Prevalence
 
 	REQUIRE(h_instanceCount == 6 * 2);
 
-	//std::shared_ptr<unsigned int> h_instances(new unsigned int[h_instanceCount], std::default_delete<unsigned int[]>());
-	unsigned int* h_instances = new unsigned int[h_instanceCount];
+	std::shared_ptr<unsigned int> h_instances(new unsigned int[h_instanceCount], std::default_delete<unsigned int[]>());
 
 	unsigned int** c_instancesListPtr;
 	cudaMalloc(reinterpret_cast<void**>(&c_instancesListPtr), uintPtrSize);
@@ -157,11 +156,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Simple initial data test 01", "Prevalence
 	unsigned int* h_instanceListPtr;
 	cudaMemcpy(&h_instanceListPtr, c_instancesListPtr, uintPtrSize, cudaMemcpyDeviceToHost);
 
-	cudaMemcpy(h_instances, h_instanceListPtr, h_instanceCount * uintSize, cudaMemcpyDeviceToHost);
+	cudaMemcpy(h_instances.get(), h_instanceListPtr, h_instanceCount * uintSize, cudaMemcpyDeviceToHost);
 
 	unsigned int expected[] = { 1,1, 1,2, 2,3, 3,1, 3,2, 3,3 };
 
-	REQUIRE(std::equal(std::begin(expected), std::end(expected), h_instances) == true);
+	REQUIRE(std::equal(std::begin(expected), std::end(expected), h_instances.get()) == true);
 }
 
 

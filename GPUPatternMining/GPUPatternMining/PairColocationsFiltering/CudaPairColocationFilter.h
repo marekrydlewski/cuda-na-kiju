@@ -5,12 +5,17 @@
 #include "../HashMap/gpuhashmapper.h"
 //-------------------------------------------------------------------------------
 
-typedef thrust::device_vector<unsigned int> ThrustUIntVector;
-typedef GPUHashMapper<unsigned int, unsigned int*, GPUUIntKeyProcessor> UIntTableGpuHashMap;
+typedef unsigned int UInt;
+typedef UInt* UIntPtr;
+typedef UInt* UIntTab;
+
+typedef GPUHashMapper<UInt, UIntTab, GPUUIntKeyProcessor> UIntTableGpuHashMap;
 typedef std::shared_ptr<UIntTableGpuHashMap> UIntTableGpuHashMapPtr;
-typedef GPUHashMapper<unsigned int, unsigned int, GPUUIntKeyProcessor> UIntGpuHashMap;
+typedef GPUHashMapper<UInt, UInt, GPUUIntKeyProcessor> UIntGpuHashMap;
 typedef std::shared_ptr<UIntGpuHashMap> UIntGpuHashMapPtr;
 
+constexpr size_t uintSize = sizeof(unsigned int);
+constexpr size_t uintPtrSize = sizeof(unsigned int*);
 
 class CudaPairColocationFilter
 {

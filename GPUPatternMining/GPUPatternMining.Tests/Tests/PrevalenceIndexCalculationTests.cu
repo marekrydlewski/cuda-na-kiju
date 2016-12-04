@@ -9,12 +9,6 @@
 #include "../../GPUPatternMining/PairColocationsFiltering/CudaPairColocationFilter.h"
 //--------------------------------------------------------------
 
-
-typedef thrust::host_vector<unsigned int> HostUIntVector;
-typedef thrust::device_vector<unsigned int> DeviceUIntVector;
-typedef std::vector<unsigned int > UIntVector;
-//--------------------------------------------------------------
-
 /*
 	Initializes data according to grap in PB.pdf on page 117
 
@@ -76,7 +70,7 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 	cudaMemcpy(c_instancesList, h_instancesLists, pairColocationsSize, cudaMemcpyHostToDevice);
 
 	size_t keyInstanceListTableSize = 15 * sizeof(unsigned int*);
-	unsigned int* h_keyInstanceListTable[15] = {
+	UIntPtr h_keyInstanceListTable[15] = {
 		NULL,					//AA
 		c_instancesList,		//AB
 		c_instancesList + 6,	//AC
@@ -94,9 +88,9 @@ void initData(UIntTableGpuHashMapPtr& colocationInstancesListMap, UIntGpuHashMap
 		NULL,					//FF
 	};
 
-	unsigned int** c_keyInstanceListTable;
-	cudaMalloc(reinterpret_cast<void**>(&c_keyInstanceListTable), keyInstanceListTableSize);
-	cudaMemcpy(c_keyInstanceListTable, h_keyInstanceListTable, keyInstanceListTableSize, cudaMemcpyHostToDevice);
+	UIntPtr* c_keyInstanceListTable;
+	CUDA_CHECK_RETURN(cudaMalloc(reinterpret_cast<void**>(&c_keyInstanceListTable), keyInstanceListTableSize));
+	CUDA_CHECK_RETURN(cudaMemcpy(c_keyInstanceListTable, h_keyInstanceListTable, keyInstanceListTableSize, cudaMemcpyHostToDevice));
 	colocationInstancesListMap->insertKeyValuePairs(c_keys, c_keyInstanceListTable, 15);
 }
 
@@ -125,7 +119,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Simple initial data test 00", "Prevalence
 	cudaMalloc(reinterpret_cast<void**>(&c_instancesListPtr), sizeof(unsigned int*));
 	colocationInstancesListMap->getValues(c_key, c_instancesListPtr, 1);
 
-	REQUIRE(c_instancesListPtr == NULL);
+	unsigned int* h_instanceListPtr;
+	cudaMemcpy(&h_instanceListPtr, c_instancesListPtr, uintPtrSize, cudaMemcpyDeviceToHost);
+
+	REQUIRE(h_instanceListPtr == NULL);
 }
 
 

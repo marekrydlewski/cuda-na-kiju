@@ -1,18 +1,36 @@
 #include "CPUPairColocationsFilter.h"
 #include<iostream>
 #include<math.h>
+#include<vector>
 
-void CPUPairColocationsFilter::FilterPairColocations(DataFeed * data)
+CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size)
 {
-	std::cout << "First item: type - " << data[0].type << ", coords: " << data[0].xy.x << " | " << data[0].xy.y << ", instance number - " << data[0].instanceId << ", distance from next one: " << CalculateDistance(data[0], data[1]) << std::endl;
+	std::vector<DataFeed>source(data, data + size);
+
+	for (auto it1 = source.begin(); (it1 != source.end()); ++it1)
+	{
+		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
+		{
+			//smaller value always first
+			if ((*it1).type > (*it2).type)
+				std::swap(it1, it2);
+
+			insTable[(*it1).type][(*it2).type]
+		}
+	}
 }
 
-double CPUPairColocationsFilter::CalculateDistance(DataFeed first, DataFeed second)
+void CPUPairColocationsFilter::filterPairColocations(DataFeed * data)
+{
+	std::cout << "First item: type - " << data[0].type << ", coords: " << data[0].xy.x << " | " << data[0].xy.y << ", instance number - " << data[0].instanceId << ", distance from next one: " << calculateDistance(data[0], data[1]) << std::endl;
+}
+
+float CPUPairColocationsFilter::calculateDistance(DataFeed first, DataFeed second)
 {
 	return sqrt(pow(second.xy.x - first.xy.x, 2) + pow(second.xy.y - first.xy.y, 2));
 }
 
-DataFeed ** CPUPairColocationsFilter::DivideAndOrderDataByType(DataFeed * data)
+DataFeed** CPUPairColocationsFilter::divideAndOrderDataByType(DataFeed * data)
 {
 	return nullptr;
 }

@@ -13,7 +13,7 @@ public:
 
 	virtual ~CudaPairColocationFilter();
 
-	void filterPairColocations() override
+	void filterPairColocations(DataFeed* x) override
 	{
 		
 	}

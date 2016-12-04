@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include"Enity\DataFeed.h"
 //-------------------------------------------------------------------
 
 
@@ -8,7 +9,7 @@ class IPairColocationsFilter
 {
 public:
 
-	virtual void filterPairColocations() = 0;
+	virtual void FilterPairColocations(DataFeed* data) = 0;
 
 	virtual ~IPairColocationsFilter()
 	{

@@ -154,7 +154,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Simple initial data test 01", "Prevalence
 	cudaMalloc(reinterpret_cast<void**>(&c_instancesListPtr), sizeof(unsigned int*));
 	colocationInstancesListMap->getValues(c_key, c_instancesListPtr, 1);
 
-	cudaMemcpy(h_instances, c_instancesListPtr, h_instanceCount * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+	unsigned int* h_instanceListPtr;
+	cudaMemcpy(&h_instanceListPtr, c_instancesListPtr, uintPtrSize, cudaMemcpyDeviceToHost);
+
+	cudaMemcpy(h_instances, h_instanceListPtr, h_instanceCount * sizeof(unsigned int), cudaMemcpyDeviceToHost);
 
 	unsigned int expected[] = { 1,1, 1,2, 2,3, 3,1, 3,2, 3,3 };
 

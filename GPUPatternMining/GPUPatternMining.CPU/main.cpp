@@ -1,5 +1,5 @@
-#include"../GPUPatternMining.Contract/RandomDataProvider.h"
-#include"CPUPairColocationsFilter.h"
+#include "../GPUPatternMining.Contract/RandomDataProvider.h"
+#include "PairColocationsFiltering/CPUPairColocationsFilter.h"
 
 int main()
 {

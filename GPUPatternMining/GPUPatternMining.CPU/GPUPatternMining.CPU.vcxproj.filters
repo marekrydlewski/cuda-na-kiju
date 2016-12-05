@@ -10,13 +10,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CPUPairColocationsFilter.cpp">
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="PairColocationsFiltering\CPUPairColocationsFilter.cpp">
       <Filter>PairColocationsFiltering</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CPUPairColocationsFilter.h">
+    <ClInclude Include="PairColocationsFiltering\CPUPairColocationsFilter.h">
       <Filter>PairColocationsFiltering</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #include "CPUPairColocationsFilter.h"
-#include<iostream>
-#include<math.h>
-#include<vector>
+#include <iostream>
+#include <math.h>
+#include <vector>
 
 CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size, float threshold)
 {
@@ -24,7 +24,7 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 
 				if (insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
 				{
-					insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<int>();
+					insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned int>();
 				}
 				insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 			}
@@ -32,9 +32,9 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 	}
 }
 
-void CPUPairColocationsFilter::filterPairColocations(DataFeed * data)
+void CPUPairColocationsFilter::filterByPrevalence()
 {
-	std::cout << "First item: type - " << data[0].type << ", coords: " << data[0].xy.x << " | " << data[0].xy.y << ", instance number - " << data[0].instanceId << ", distance from next one: " << calculateDistance(data[0], data[1]) << std::endl;
+
 }
 
 inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first, const DataFeed & second)

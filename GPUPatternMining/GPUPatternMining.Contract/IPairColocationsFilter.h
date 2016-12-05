@@ -8,9 +8,6 @@
 class IPairColocationsFilter
 {
 public:
-
-	virtual void filterPairColocations(DataFeed* data) = 0;
-
 	virtual ~IPairColocationsFilter()
 	{
 	}

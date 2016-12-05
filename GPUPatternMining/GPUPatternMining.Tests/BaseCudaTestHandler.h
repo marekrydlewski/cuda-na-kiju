@@ -9,7 +9,7 @@ public:
 	{
 	}
 
-	~BaseCudaTestHandler()
+	virtual ~BaseCudaTestHandler()
 	{
 		if (cudaDeviceReset() != cudaSuccess)
 		{

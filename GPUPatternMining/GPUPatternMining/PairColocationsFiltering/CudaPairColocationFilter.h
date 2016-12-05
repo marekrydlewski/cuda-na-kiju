@@ -1,25 +1,19 @@
 #pragma once
 
-#include "..\..\GPUPatternMining.Contract\IPairColocationsFilter.h"
-#include "..\..\GPUPatternMining.Contract\IPairColocationsProvider.h"
+#include "../MiningCommon.h"
 //-------------------------------------------------------------------------------
 
-class CudaPairColocationFilter : public IPairColocationsFilter
+
+class CudaPairColocationFilter
 {
 public:
 
-	CudaPairColocationFilter(
-		IPairColocationsProviderPtr pairColocationsProvider);
+	CudaPairColocationFilter(UIntTableGpuHashMapPtr* neighboursMap);
 
 	virtual ~CudaPairColocationFilter();
 
-	void filterPairColocations() override
-	{
-		
-	}
-
 private:
 
-	IPairColocationsProviderPtr pairColocationsProvider;
+	UIntTableGpuHashMapPtr* neighboursMap;
 };
 //-------------------------------------------------------------------------------

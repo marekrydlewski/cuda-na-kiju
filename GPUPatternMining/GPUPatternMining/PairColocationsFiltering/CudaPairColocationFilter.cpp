@@ -2,9 +2,8 @@
 
 
 
-CudaPairColocationFilter::CudaPairColocationFilter(
-	IPairColocationsProviderPtr pairColocationsProvider)
-	:pairColocationsProvider(pairColocationsProvider)
+CudaPairColocationFilter::CudaPairColocationFilter(UIntTableGpuHashMapPtr* neighboursMap)
+	:neighboursMap(neighboursMap)
 {
 }
 

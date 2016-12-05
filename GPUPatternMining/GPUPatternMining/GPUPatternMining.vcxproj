@@ -165,6 +165,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="HashMap\gpuhashmapper.h" />
     <CudaCompile Include="HashMap\gpuutils.cu" />
     <ClInclude Include="HashMap\gpuutils.h" />
+    <ClInclude Include="MiningCommon.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
     <ClInclude Include="SimpleOperations.h" />
   </ItemGroup>

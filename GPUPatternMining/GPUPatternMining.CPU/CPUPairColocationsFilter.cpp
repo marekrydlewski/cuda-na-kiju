@@ -3,8 +3,10 @@
 #include<math.h>
 #include<vector>
 
-CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size)
+CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size, float threshold)
 {
+	this->effectiveThreshold = pow(threshold, 2);
+
 	std::vector<DataFeed>source(data, data + size);
 
 	for (auto it1 = source.begin(); (it1 != source.end()); ++it1)
@@ -31,7 +33,8 @@ void CPUPairColocationsFilter::filterPairColocations(DataFeed * data)
 
 float CPUPairColocationsFilter::calculateDistance(DataFeed first, DataFeed second)
 {
-	return sqrt(pow(second.xy.x - first.xy.x, 2) + pow(second.xy.y - first.xy.y, 2));
+	/// no sqrt coz it is expensive function, there's no need to compute euclides distance, we need only compare values
+	return pow(second.xy.x - first.xy.x, 2) + pow(second.xy.y - first.xy.y, 2);
 }
 
 DataFeed** CPUPairColocationsFilter::divideAndOrderDataByType(DataFeed * data)

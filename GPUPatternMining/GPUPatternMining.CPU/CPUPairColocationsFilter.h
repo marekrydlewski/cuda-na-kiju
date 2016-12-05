@@ -10,11 +10,12 @@ class CPUPairColocationsFilter : public IPairColocationsFilter
 public:
 	/// InsTable - 2 dimensional hashtable, where frist 2 indexes are types
 	/// the value is a map, where key is number of 1st facility's instanceId and value is a vector of 2nd facility's instancesId 
+	float effectiveThreshold;
 	std::map<int, std::map<int, std::map<int, std::vector<int>*>>> insTable;
 
-	CPUPairColocationsFilter(DataFeed* data, size_t size);
+	CPUPairColocationsFilter(DataFeed* data, size_t size, float threshold);
 	void filterPairColocations(DataFeed* data);
 private:
-	float calculateDistance(DataFeed first, DataFeed second);
+	float inline calculateDistance(DataFeed first, DataFeed second);
 	DataFeed** divideAndOrderDataByType(DataFeed* data);
 };

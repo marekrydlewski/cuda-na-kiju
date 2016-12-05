@@ -39,10 +39,11 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 	}
 }
 
+//Filters by prevalence, mutates insTable !!!
 void CPUPairColocationsFilter::filterByPrevalence(float prevalence)
 {
 	auto countedInstances = countUniqueInstances();
-	///filtering
+	//filtering
 	for (auto& a : insTable)
 	{
 		for (auto& b : a.second)
@@ -53,14 +54,24 @@ void CPUPairColocationsFilter::filterByPrevalence(float prevalence)
 			bool isPrevalence = countPrevalence(
 				countedInstances[std::make_pair(aType, bType)],
 				std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
+
+			if (!isPrevalence)
+			{
+				for (auto& c : b.second)
+				{
+					delete c.second;
+					//clear vectors' memeory firstly
+				}
+				insTable[aType][bType].clear();
+				//clear all keys
+			}
 		}
 	}
-
 }
 
 inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first, const DataFeed & second) const
 {
-	/// no sqrt coz it is expensive function, there's no need to compute euclides distance, we need only compare values
+	// no sqrt coz it is expensive function, there's no need to compute euclides distance, we need only compare values
 	return std::pow(second.xy.x - first.xy.x, 2) + std::pow(second.xy.y - first.xy.y, 2);
 }
 
@@ -73,7 +84,7 @@ bool CPUPairColocationsFilter::countPrevalence(const std::pair<unsigned int, uns
 {
 	float aPrev = particularInstance.first / (float)generalInstance.first;
 	float bPrev = particularInstance.first / (float)generalInstance.second;
-	return ( prevalence < std::min(aPrev, bPrev));
+	return (prevalence < std::min(aPrev, bPrev));
 }
 
 std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> CPUPairColocationsFilter::countUniqueInstances()

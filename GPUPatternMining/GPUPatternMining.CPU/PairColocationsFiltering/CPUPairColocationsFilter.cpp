@@ -3,9 +3,10 @@
 #include <math.h>
 #include <vector>
 
-CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size, float threshold)
+CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size, float threshold, unsigned int types)
 {
 	this->effectiveThreshold = pow(threshold, 2);
+	this->typeIncidenceCounter.resize(types + 1, 0);
 
 	std::vector<DataFeed>source(data, data + size);
 
@@ -13,6 +14,8 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 	{
 		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 		{
+			++this->typeIncidenceCounter[(*it1).type];
+
 			if (checkDistance(*it1, *it2))
 			{
 				//smaller value always first
@@ -34,7 +37,41 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 
 void CPUPairColocationsFilter::filterByPrevalence()
 {
+	std::vector<int> typeIncidenceCounterColocations;
+	typeIncidenceCounterColocations.resize(typeIncidenceCounter.size(), 0);
 
+	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> typeIncidenceColocations;
+
+	for (auto& a: insTable)
+	{
+		for (auto& b : a.second)
+		{
+			auto aType = a.first;
+			auto bType = b.first;
+
+			unsigned int aElements = b.second.size();
+			unsigned int bElements = 0;
+
+			std::map<unsigned int, bool> inIncidenceColocations;
+
+			for (auto& c : b.second)
+			{
+				auto aInstance = c.first;
+				auto bInstances = c.second;
+
+				for (auto &bInstance : *bInstances)
+				{
+					if (inIncidenceColocations[bInstance] != true)
+					{
+						inIncidenceColocations[bInstance] = true;
+						++bElements;
+					}
+				}
+			}
+
+			typeIncidenceColocations[std::make_pair(aType, bType)] = std::make_pair(aElements, bElements);
+		}
+	}
 }
 
 inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first, const DataFeed & second) const

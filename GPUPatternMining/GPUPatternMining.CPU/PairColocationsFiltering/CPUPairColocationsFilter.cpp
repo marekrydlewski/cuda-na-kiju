@@ -1,7 +1,8 @@
 #include "CPUPairColocationsFilter.h"
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <vector>
+#include <algorithm>
 
 CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size, float threshold, unsigned int types)
 {
@@ -38,11 +39,49 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 	}
 }
 
-void CPUPairColocationsFilter::filterByPrevalence()
+void CPUPairColocationsFilter::filterByPrevalence(float prevalence)
+{
+	auto countedInstances = countUniqueInstances();
+	///filtering
+	for (auto& a : insTable)
+	{
+		for (auto& b : a.second)
+		{
+			auto aType = a.first;
+			auto bType = b.first;
+
+			bool isPrevalence = countPrevalence(
+				countedInstances[std::make_pair(aType, bType)],
+				std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
+		}
+	}
+
+}
+
+inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first, const DataFeed & second) const
+{
+	/// no sqrt coz it is expensive function, there's no need to compute euclides distance, we need only compare values
+	return std::pow(second.xy.x - first.xy.x, 2) + std::pow(second.xy.y - first.xy.y, 2);
+}
+
+inline bool CPUPairColocationsFilter::checkDistance(const DataFeed & first, const DataFeed & second) const
+{
+	return (calculateDistance(first, second) <= effectiveThreshold);
+}
+
+bool CPUPairColocationsFilter::countPrevalence(const std::pair<unsigned int, unsigned int>& particularInstance, const std::pair<unsigned int, unsigned int>& generalInstance, float prevalence)
+{
+	float aPrev = particularInstance.first / (float)generalInstance.first;
+	float bPrev = particularInstance.first / (float)generalInstance.second;
+	return ( prevalence < std::min(aPrev, bPrev));
+}
+
+std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> CPUPairColocationsFilter::countUniqueInstances()
 {
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> typeIncidenceColocations;
 
-	for (auto& a: insTable)
+	//counting types incidence
+	for (auto& a : insTable)
 	{
 		for (auto& b : a.second)
 		{
@@ -72,20 +111,6 @@ void CPUPairColocationsFilter::filterByPrevalence()
 			typeIncidenceColocations[std::make_pair(aType, bType)] = std::make_pair(aElements, bElements);
 		}
 	}
-}
 
-inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first, const DataFeed & second) const
-{
-	/// no sqrt coz it is expensive function, there's no need to compute euclides distance, we need only compare values
-	return pow(second.xy.x - first.xy.x, 2) + pow(second.xy.y - first.xy.y, 2);
-}
-
-inline bool CPUPairColocationsFilter::checkDistance(const DataFeed & first, const DataFeed & second) const
-{
-	return (calculateDistance(first, second) <= effectiveThreshold);
-}
-
-DataFeed** CPUPairColocationsFilter::divideAndOrderDataByType(DataFeed * data)
-{
-	return nullptr;
+	return typeIncidenceColocations;
 }

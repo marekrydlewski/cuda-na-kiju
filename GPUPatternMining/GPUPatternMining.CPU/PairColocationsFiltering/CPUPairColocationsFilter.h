@@ -16,10 +16,11 @@ public:
 	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> insTable;
 
 	CPUPairColocationsFilter(DataFeed* data, size_t size, float threshold, unsigned int types);
-	void filterByPrevalence();
+	void filterByPrevalence(float prevalence = 0.5);
 
 private:
 	float inline calculateDistance(const DataFeed& first, const DataFeed& second) const;
 	bool inline checkDistance(const DataFeed& first, const DataFeed& second) const;
-	DataFeed** divideAndOrderDataByType(DataFeed* data);
+	bool countPrevalence(const std::pair<unsigned int, unsigned int>&, const std::pair<unsigned int, unsigned int>&, float prevalence);
+	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
 };

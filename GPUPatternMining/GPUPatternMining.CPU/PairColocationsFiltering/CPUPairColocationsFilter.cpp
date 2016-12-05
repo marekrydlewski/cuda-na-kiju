@@ -16,20 +16,23 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 		{
 			++this->typeIncidenceCounter[(*it1).type];
 
-			if (checkDistance(*it1, *it2))
+			if ((*it1).type != (*it2).type)
 			{
-				//smaller value always first
-				auto it1_h = it1;
-				auto it2_h = it2;
-
-				if ((*it1_h).type > (*it2_h).type)
-					std::swap(it1_h, it2_h);
-
-				if (insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
+				if (checkDistance(*it1, *it2))
 				{
-					insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned int>();
+					//smaller value always first
+					auto it1_h = it1;
+					auto it2_h = it2;
+
+					if ((*it1_h).type > (*it2_h).type)
+						std::swap(it1_h, it2_h);
+
+					if (insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
+					{
+						insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned int>();
+					}
+					insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 				}
-				insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 			}
 		}
 	}
@@ -37,9 +40,6 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 
 void CPUPairColocationsFilter::filterByPrevalence()
 {
-	std::vector<int> typeIncidenceCounterColocations;
-	typeIncidenceCounterColocations.resize(typeIncidenceCounter.size(), 0);
-
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> typeIncidenceColocations;
 
 	for (auto& a: insTable)

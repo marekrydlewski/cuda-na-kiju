@@ -17,6 +17,7 @@ int main()
 	auto data = rdp.getData(numberOfInstances);
 
 	CPUPairColocationsFilter pairColocationsFilter(data, numberOfInstances, threshold, types);
+	pairColocationsFilter.filterByPrevalence();
 
 	return 0;
 }

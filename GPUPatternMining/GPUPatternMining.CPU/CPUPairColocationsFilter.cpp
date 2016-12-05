@@ -13,15 +13,21 @@ CPUPairColocationsFilter::CPUPairColocationsFilter(DataFeed * data, size_t size,
 	{
 		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 		{
-			//smaller value always first
-			if ((*it1).type > (*it2).type)
-				std::swap(it1, it2);
-
-			if (insTable[(*it1).type][(*it2).type][(*it1).instanceId] == nullptr)
+			if (checkDistance(*it1, *it2))
 			{
-				insTable[(*it1).type][(*it2).type][(*it1).instanceId] = new std::vector<int>();
+				//smaller value always first
+				auto it1_h = it1;
+				auto it2_h = it2;
+
+				if ((*it1_h).type > (*it2_h).type)
+					std::swap(it1_h, it2_h);
+
+				if (insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
+				{
+					insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<int>();
+				}
+				insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 			}
-			insTable[(*it1).type][(*it2).type][(*it1).instanceId]->push_back((*it2).instanceId);
 		}
 	}
 }

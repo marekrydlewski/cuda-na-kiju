@@ -7,7 +7,7 @@ int main()
 	const unsigned int rangeY = 100;
 	const unsigned int rangeX = 100;
 	const unsigned int numberOfInstances = 50;
-	const float threshold = 30;
+	const float threshold = 20;
 
 	RandomDataProvider rdp;
 
@@ -16,7 +16,8 @@ int main()
 
 	auto data = rdp.getData(numberOfInstances);
 
-	CPUPairColocationsFilter pairColocationsFilter(data, numberOfInstances, threshold);
+	CPUPairColocationsFilter pairColocationsFilter(data, numberOfInstances, threshold, types);
+	pairColocationsFilter.filterByPrevalence();
 
 	return 0;
 }

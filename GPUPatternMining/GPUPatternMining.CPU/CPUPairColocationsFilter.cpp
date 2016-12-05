@@ -45,7 +45,7 @@ inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first,
 
 inline bool CPUPairColocationsFilter::checkDistance(const DataFeed & first, const DataFeed & second)
 {
-	return (calculateDistance(first, second) >= effectiveThreshold);
+	return (calculateDistance(first, second) <= effectiveThreshold);
 }
 
 DataFeed** CPUPairColocationsFilter::divideAndOrderDataByType(DataFeed * data)

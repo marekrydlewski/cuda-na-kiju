@@ -3,13 +3,20 @@
 
 int main()
 {
+	const unsigned int types = 5;
+	const unsigned int rangeY = 100;
+	const unsigned int rangeX = 100;
+	const unsigned int numberOfInstances = 50;
+	const float threshold = 30;
+
 	RandomDataProvider rdp;
 
-	rdp.setNumberOfTypes(8);
-	rdp.setRange(100, 100);
+	rdp.setNumberOfTypes(types);
+	rdp.setRange(rangeX, rangeY);
 
-	auto data = rdp.getData(100);
+	auto data = rdp.getData(numberOfInstances);
 
-	CPUPairColocationsFilter pairColocationsFilter(data, 100, 10);
+	CPUPairColocationsFilter pairColocationsFilter(data, numberOfInstances, threshold);
+
 	return 0;
 }

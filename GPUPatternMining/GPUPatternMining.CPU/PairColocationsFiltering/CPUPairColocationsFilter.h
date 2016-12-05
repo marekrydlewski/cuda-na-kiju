@@ -21,6 +21,6 @@ public:
 private:
 	float inline calculateDistance(const DataFeed& first, const DataFeed& second) const;
 	bool inline checkDistance(const DataFeed& first, const DataFeed& second) const;
-	bool countPrevalence(const std::pair<unsigned int, unsigned int>&, const std::pair<unsigned int, unsigned int>&, float prevalence);
+	bool inline countPrevalence(const std::pair<unsigned int, unsigned int>&, const std::pair<unsigned int, unsigned int>&, float prevalence) const;
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
 };

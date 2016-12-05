@@ -80,7 +80,7 @@ inline bool CPUPairColocationsFilter::checkDistance(const DataFeed & first, cons
 	return (calculateDistance(first, second) <= effectiveThreshold);
 }
 
-bool CPUPairColocationsFilter::countPrevalence(const std::pair<unsigned int, unsigned int>& particularInstance, const std::pair<unsigned int, unsigned int>& generalInstance, float prevalence)
+inline bool CPUPairColocationsFilter::countPrevalence(const std::pair<unsigned int, unsigned int>& particularInstance, const std::pair<unsigned int, unsigned int>& generalInstance, float prevalence) const
 {
 	float aPrev = particularInstance.first / (float)generalInstance.first;
 	float bPrev = particularInstance.first / (float)generalInstance.second;

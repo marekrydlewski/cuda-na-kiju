@@ -21,6 +21,18 @@ struct DataFeed
 	Coords xy;
 
 	DataFeed() {}
+
+	bool operator < (const DataFeed& str) const
+	{
+		/// smaller type always first e.g A < B, when equal smaller instance id first
+		return (type == str.type)? (instanceId < str.instanceId):(type < str.type);
+	}
+
+	bool operator > (const DataFeed& str) const
+	{
+		/// smaller type always first e.g A < B, when equal smaller instance id first
+		return (type == str.type) ? (instanceId > str.instanceId) : (type > str.type);
+	}
 };
 //-------------------------------------------------------------------
 

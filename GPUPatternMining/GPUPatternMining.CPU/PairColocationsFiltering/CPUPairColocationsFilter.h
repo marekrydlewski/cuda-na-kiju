@@ -17,7 +17,7 @@ public:
 	void filterByPrevalence();
 
 private:
-	float inline calculateDistance(const DataFeed& first, const DataFeed& second);
-	bool inline checkDistance(const DataFeed& first, const DataFeed& second);
+	float inline calculateDistance(const DataFeed& first, const DataFeed& second) const;
+	bool inline checkDistance(const DataFeed& first, const DataFeed& second) const;
 	DataFeed** divideAndOrderDataByType(DataFeed* data);
 };

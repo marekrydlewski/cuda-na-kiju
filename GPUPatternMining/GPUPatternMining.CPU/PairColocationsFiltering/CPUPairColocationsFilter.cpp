@@ -37,13 +37,13 @@ void CPUPairColocationsFilter::filterByPrevalence()
 
 }
 
-inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first, const DataFeed & second)
+inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first, const DataFeed & second) const
 {
 	/// no sqrt coz it is expensive function, there's no need to compute euclides distance, we need only compare values
 	return pow(second.xy.x - first.xy.x, 2) + pow(second.xy.y - first.xy.y, 2);
 }
 
-inline bool CPUPairColocationsFilter::checkDistance(const DataFeed & first, const DataFeed & second)
+inline bool CPUPairColocationsFilter::checkDistance(const DataFeed & first, const DataFeed & second) const
 {
 	return (calculateDistance(first, second) <= effectiveThreshold);
 }

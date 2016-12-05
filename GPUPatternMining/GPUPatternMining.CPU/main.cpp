@@ -4,14 +4,14 @@
 int main()
 {
 	RandomDataProvider rdp;
-	CPUPairColocationsFilter pairColocationsFilter;
+	//CPUPairColocationsFilter pairColocationsFilter;
 
 	rdp.setNumberOfTypes(8);
 	rdp.setRange(100, 100);
 
 	auto data = rdp.getData(100);
 
-	pairColocationsFilter.FilterPairColocations(data);
+	//pairColocationsFilter.filterPairColocations(data);
 
 	system("pause");
 

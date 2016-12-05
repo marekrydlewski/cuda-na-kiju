@@ -31,10 +31,15 @@ void CPUPairColocationsFilter::filterPairColocations(DataFeed * data)
 	std::cout << "First item: type - " << data[0].type << ", coords: " << data[0].xy.x << " | " << data[0].xy.y << ", instance number - " << data[0].instanceId << ", distance from next one: " << calculateDistance(data[0], data[1]) << std::endl;
 }
 
-float CPUPairColocationsFilter::calculateDistance(DataFeed first, DataFeed second)
+inline float CPUPairColocationsFilter::calculateDistance(const DataFeed & first, const DataFeed & second)
 {
 	/// no sqrt coz it is expensive function, there's no need to compute euclides distance, we need only compare values
 	return pow(second.xy.x - first.xy.x, 2) + pow(second.xy.y - first.xy.y, 2);
+}
+
+inline bool CPUPairColocationsFilter::checkDistance(const DataFeed & first, const DataFeed & second)
+{
+	return (calculateDistance(first, second) >= effectiveThreshold);
 }
 
 DataFeed** CPUPairColocationsFilter::divideAndOrderDataByType(DataFeed * data)

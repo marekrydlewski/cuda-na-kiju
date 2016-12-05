@@ -16,6 +16,7 @@ public:
 	CPUPairColocationsFilter(DataFeed* data, size_t size, float threshold);
 	void filterPairColocations(DataFeed* data);
 private:
-	float inline calculateDistance(DataFeed first, DataFeed second);
+	float inline calculateDistance(const DataFeed& first, const DataFeed& second);
+	bool inline checkDistance(const DataFeed& first, const DataFeed& second);
 	DataFeed** divideAndOrderDataByType(DataFeed* data);
 };

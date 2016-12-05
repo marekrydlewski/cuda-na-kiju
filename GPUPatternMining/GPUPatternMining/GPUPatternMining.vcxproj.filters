@@ -1,17 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="SimpleOperations.cu" />
-    <CudaCompile Include="HashMap\gpuutils.cu" />
+    <CudaCompile Include="HashMap\gpuutils.cu">
+      <Filter>HashMap</Filter>
+    </CudaCompile>
+    <CudaCompile Include="SimpleOperations.cu">
+      <Filter>SimpleOperations</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SimpleOperations.h" />
-    <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
-    <ClInclude Include="HashMap\gpuhashmapper.h" />
-    <ClInclude Include="HashMap\gpuutils.h" />
     <ClInclude Include="MiningCommon.h" />
+    <ClInclude Include="HashMap\gpuhashmapper.h">
+      <Filter>HashMap</Filter>
+    </ClInclude>
+    <ClInclude Include="HashMap\gpuutils.h">
+      <Filter>HashMap</Filter>
+    </ClInclude>
+    <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h">
+      <Filter>PairColocationsFiltering</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleOperations.h">
+      <Filter>SimpleOperations</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
+    <Filter Include="HashMap">
+      <UniqueIdentifier>{dc89f479-b387-4d0e-9f79-7a71a7c23921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PairColocationsFiltering">
+      <UniqueIdentifier>{7f94414e-4567-49c5-8379-7cb103e1e337}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SimpleOperations">
+      <UniqueIdentifier>{544bb442-def9-4e16-9036-1e7b4875bac0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp">
+      <Filter>PairColocationsFiltering</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -9,6 +9,7 @@
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h" />
     <ClInclude Include="HashMap\gpuutils.h" />
+    <ClInclude Include="MiningCommon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />

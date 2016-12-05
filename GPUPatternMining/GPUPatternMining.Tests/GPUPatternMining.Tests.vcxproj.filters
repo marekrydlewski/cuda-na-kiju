@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <CudaCompile Include="Tests\HashMapTests.cu" />
+    <CudaCompile Include="Tests\PrevalenceIndexCalculationTests.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DataProviderTests.cpp" />
@@ -9,7 +10,6 @@
     <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
     <ClCompile Include="Tests\SimpleOperationsTests.cpp" />
     <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
-    <ClCompile Include="Tests\PairColocationsFilteringTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseCudaTestHandler.h" />

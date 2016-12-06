@@ -1,5 +1,5 @@
 #include "../GPUPatternMining.Contract/RandomDataProvider.h"
-#include "CPUMiningAlgorithmSeq.h"
+#include "CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
 
 int main()
 {

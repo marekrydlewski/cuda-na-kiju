@@ -11,18 +11,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="CPUMiningBaseAlgorithm.cpp">
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.cpp">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
-    <ClCompile Include="CPUMiningAlgorithmSeq.cpp">
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.cpp">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CPUMiningAlgorithmSeq.h">
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
-    <ClInclude Include="CPUMiningBaseAlgorithm.h">
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
   </ItemGroup>

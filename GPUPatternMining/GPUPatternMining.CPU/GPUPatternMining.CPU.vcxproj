@@ -113,8 +113,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CPUMiningAlgorithmSeq.cpp" />
-    <ClCompile Include="CPUMiningBaseAlgorithm.cpp" />
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.cpp" />
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -123,8 +123,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CPUMiningAlgorithmSeq.h" />
-    <ClInclude Include="CPUMiningBaseAlgorithm.h" />
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.h" />
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

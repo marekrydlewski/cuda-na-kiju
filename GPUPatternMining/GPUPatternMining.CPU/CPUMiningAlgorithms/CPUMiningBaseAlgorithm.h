@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../GPUPatternMining.Contract/Enity/DataFeed.h"
-#include "../GPUPatternMining.Contract/IPairColocationsFilter.h"
+#include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
+#include "../../GPUPatternMining.Contract/IPairColocationsFilter.h"
 
 class CPUMiningBaseAlgorithm
 {

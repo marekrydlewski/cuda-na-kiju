@@ -5,23 +5,25 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="PairColocationsFiltering">
-      <UniqueIdentifier>{8fd17095-7296-47c4-bd93-8d0d05291438}</UniqueIdentifier>
+    <Filter Include="CPUMiningAlgorithms">
+      <UniqueIdentifier>{734ce3c7-409f-4cb9-bf41-29a6aa2e806a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PairColocationsFiltering\CPUPairColocationsFilter.cpp">
-      <Filter>PairColocationsFiltering</Filter>
+    <ClCompile Include="CPUMiningBaseAlgorithm.cpp">
+      <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
-    <ClCompile Include="CPUMiningAlgorithmSeq.cpp" />
-    <ClCompile Include="CPUMiningBaseAlgorithm.cpp" />
+    <ClCompile Include="CPUMiningAlgorithmSeq.cpp">
+      <Filter>CPUMiningAlgorithms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PairColocationsFiltering\CPUPairColocationsFilter.h">
-      <Filter>PairColocationsFiltering</Filter>
+    <ClInclude Include="CPUMiningAlgorithmSeq.h">
+      <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
-    <ClInclude Include="CPUMiningBaseAlgorithm.h" />
-    <ClInclude Include="CPUMiningAlgorithmSeq.h" />
+    <ClInclude Include="CPUMiningBaseAlgorithm.h">
+      <Filter>CPUMiningAlgorithms</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -113,8 +113,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.cpp" />
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PairColocationsFiltering\CPUPairColocationsFilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GPUPatternMining.Contract\GPUPatternMining.Contract.vcxproj">
@@ -122,7 +123,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PairColocationsFiltering\CPUPairColocationsFilter.h" />
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.h" />
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

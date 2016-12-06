@@ -1,5 +1,5 @@
 #include "../GPUPatternMining.Contract/RandomDataProvider.h"
-#include "PairColocationsFiltering/CPUPairColocationsFilter.h"
+#include "CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
 
 int main()
 {
@@ -8,6 +8,7 @@ int main()
 	const unsigned int rangeX = 100;
 	const unsigned int numberOfInstances = 50;
 	const float threshold = 20;
+	const float prevalence = 0.2;
 
 	RandomDataProvider rdp;
 
@@ -16,8 +17,10 @@ int main()
 
 	auto data = rdp.getData(numberOfInstances);
 
-	CPUPairColocationsFilter pairColocationsFilter(data, numberOfInstances, threshold, types);
-	pairColocationsFilter.filterByPrevalence();
+	CPUMiningAlgorithmSeq cpuAlgSeq;
+	cpuAlgSeq.loadData(data, numberOfInstances, types);
+	cpuAlgSeq.filterByDistance(threshold);
+	cpuAlgSeq.filterByPrevalence(prevalence);
 
 	return 0;
 }

@@ -8,6 +8,7 @@ int main()
 	const unsigned int rangeX = 100;
 	const unsigned int numberOfInstances = 50;
 	const float threshold = 20;
+	const float prevalence = 0.2;
 
 	RandomDataProvider rdp;
 
@@ -19,7 +20,7 @@ int main()
 	CPUMiningAlgorithmSeq cpuAlgSeq;
 	cpuAlgSeq.loadData(data, numberOfInstances, types);
 	cpuAlgSeq.filterByDistance(threshold);
-	cpuAlgSeq.filterByPrevalence(0.5);
+	cpuAlgSeq.filterByPrevalence(prevalence);
 
 	return 0;
 }

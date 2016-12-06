@@ -4,7 +4,7 @@
 #include "../../GPUPatternMining.Contract/IPairColocationsFilter.h"
 
 class CPUMiningBaseAlgorithm
-{
+{	
 protected:
 	virtual float inline calculateDistance(const DataFeed& first, const DataFeed& second) const;
 	virtual bool inline checkDistance(

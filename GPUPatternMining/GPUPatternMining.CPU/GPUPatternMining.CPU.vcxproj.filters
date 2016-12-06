@@ -14,10 +14,14 @@
     <ClCompile Include="PairColocationsFiltering\CPUPairColocationsFilter.cpp">
       <Filter>PairColocationsFiltering</Filter>
     </ClCompile>
+    <ClCompile Include="CPUMiningAlgorithmSeq.cpp" />
+    <ClCompile Include="CPUMiningBaseAlgorithm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PairColocationsFiltering\CPUPairColocationsFilter.h">
       <Filter>PairColocationsFiltering</Filter>
     </ClInclude>
+    <ClInclude Include="CPUMiningBaseAlgorithm.h" />
+    <ClInclude Include="CPUMiningAlgorithmSeq.h" />
   </ItemGroup>
 </Project>

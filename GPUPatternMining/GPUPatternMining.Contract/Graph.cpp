@@ -1,5 +1,5 @@
 #include "Graph.h"
-
+#include <algorithm>
 
 
 void Graph::setSize(size_t size)
@@ -35,6 +35,33 @@ void Graph::getMock()
 	this->addEdge(2, 0); //ca
 	this->addEdge(2, 3); //cd
 	this->addEdge(2, 4); //bd
+}
+
+/// Matula & Beck (1983) wikipedia, linear O(n)
+unsigned int Graph::getDegeneracy()
+{
+	std::vector<unsigned int> L;
+	std::vector<std::vector<unsigned int>> D;
+	int k = 0, max_dv = 0;
+
+	D.resize(tab.size());
+	for (auto i = 0; i < tab.size(); ++i)
+	{
+		//count vertexes degrees
+		auto dv = std::count(tab[i].begin(), tab[i].end(), true);
+		max_dv = dv > max_dv ? dv : max_dv;
+		D[dv].push_back(i);
+	}
+	D.resize(max_dv);
+
+	for (auto j = 0; j < tab.size(); ++j)
+	{
+		auto itNonEmpty = std::find_if(D.begin(), D.end(), [](const std::vector<unsigned int>& s) { return s.size() != 0; });
+		int i = (itNonEmpty - D.begin());
+		k = std::max(k, i);
+	}
+
+	return 0;
 }
 
 Graph::Graph(size_t size)

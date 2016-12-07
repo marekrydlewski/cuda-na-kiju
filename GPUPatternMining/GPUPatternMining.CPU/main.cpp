@@ -1,4 +1,5 @@
 #include "../GPUPatternMining.Contract/RandomDataProvider.h"
+#include "../GPUPatternMining.Contract/Graph.h"
 #include "CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
 
 int main()
@@ -21,6 +22,8 @@ int main()
 	cpuAlgSeq.loadData(data, numberOfInstances, types);
 	cpuAlgSeq.filterByDistance(threshold);
 	cpuAlgSeq.filterByPrevalence(prevalence);
+	Graph graph;
+	graph.getMock();
 
 	return 0;
 }

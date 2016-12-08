@@ -12,7 +12,9 @@ namespace PlaneSweep
 			types		- table with instances types
 			ids			- table with instances ids
 			count		- count of instances
-			hashMapper	- type pair map to list of these types pairs colocations
+			hashMapper	- type pair map to list to those types pairs colocations instances that stores result
+
+			tables are treated as zipped (tables values for specified id belong to one instance)
 		*/
 		template <class Txy, class Idx = unsigned int, class Ptx=unsigned int*>
 		__host__ void PlaneSweep(

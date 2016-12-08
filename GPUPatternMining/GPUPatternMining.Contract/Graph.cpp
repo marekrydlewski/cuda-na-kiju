@@ -43,7 +43,7 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 {
 	std::vector<unsigned int> L;
 	std::vector<std::vector<unsigned int>> D;
-	int k = 0, max_dv = 0;
+	int k = 0;
 
 	//Initialize an array D such that D[i] contains a list of the vertices v that are not already in L for which dv = i.
 	D.resize(tab.size());
@@ -53,7 +53,6 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 	{
 		//Count vertexes degrees
 		auto dv = std::count(tab[i].begin(), tab[i].end(), true);
-		max_dv = dv > max_dv ? dv : max_dv;
 		D[dv].push_back(i);
 	}
 	//Resizing - removes last empties
@@ -69,15 +68,14 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 		//Set k to max(k, i)
 		k = std::max(k, i);
 		//Select a vertex v from D[i]. Add v to the beginning of L and remove it from D[i].
-		auto v = D[k].back();
+		auto v = D[i].back();
 		L.push_back(v);
-		D[k].pop_back();
+		D[i].pop_back();
 		//neighbors
-		std::vector<unsigned int> neighbors;
 		for (auto vi = 0; vi < tab[v].size(); ++vi)
 		{
 			//For each neighbor w of v not already in L
-			if (tab[v][vi] && std::find(L.begin(), L.end(), vi) != L.end())
+			if (tab[v][vi] && std::find(L.begin(), L.end(), vi) == L.end())
 			{
 				//Find location of vi in D
 				for (auto dRowIndex = 0; dRowIndex < D.size(); ++dRowIndex)
@@ -86,11 +84,14 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 						[&vi](const unsigned int& dvalue) { return dvalue == vi; });
 
 					//Subtract one from dw and move w to the cell of D corresponding to the new value of dw.
-					if (neighborFound != D[dRowIndex].end())
+					while (neighborFound != D[dRowIndex].end())
 					{
 						unsigned int neighborValue = *neighborFound;
 						D[dRowIndex].erase(neighborFound);
 						D[dRowIndex - 1].push_back(neighborValue);
+
+						neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(),
+							[&vi](const unsigned int& dvalue) { return dvalue == vi; });
 					}
 				}
 			}

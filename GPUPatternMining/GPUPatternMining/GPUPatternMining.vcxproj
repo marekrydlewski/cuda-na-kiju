@@ -170,6 +170,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="SimpleOperations.h" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
     <CudaCompile Include="SimpleOperations.cu">
       <FileType>CppCode</FileType>
     </CudaCompile>

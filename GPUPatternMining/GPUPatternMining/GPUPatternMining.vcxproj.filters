@@ -7,6 +7,7 @@
     <CudaCompile Include="SimpleOperations.cu">
       <Filter>SimpleOperations</Filter>
     </CudaCompile>
+    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MiningCommon.h" />

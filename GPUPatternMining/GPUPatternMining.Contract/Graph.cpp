@@ -31,10 +31,11 @@ void Graph::getMock()
 	this->addEdge(0, 1); //ba
 	this->addEdge(0, 3); //da
 	this->addEdge(0, 4); //ea
-	this->addEdge(1, 2); //ba
+	this->addEdge(1, 2); //bc
 	this->addEdge(2, 0); //ca
 	this->addEdge(2, 3); //cd
-	this->addEdge(2, 4); //bd
+	this->addEdge(1, 3); //bd
+	this->addEdge(4, 2); //ce
 }
 
 /// Matula & Beck (1983) wikipedia, linear O(n)
@@ -55,7 +56,7 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 		max_dv = dv > max_dv ? dv : max_dv;
 		D[dv].push_back(i);
 	}
-	D.resize(max_dv);
+	//D.resize(max_dv);
 
 	for (auto j = 0; j < tab.size(); ++j)
 	{
@@ -79,10 +80,11 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 				for (auto dRowIndex = 0; dRowIndex < D.size(); ++dRowIndex)
 				{
 					auto neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(), [&vi](const unsigned int& dvalue) { return dvalue == vi; });
-					unsigned int neighborValue = *neighborFound;\
+
 					//Subtract one from dw and move w to the cell of D corresponding to the new value of dw.
 					if (neighborFound != D[dRowIndex].end())
 					{
+						unsigned int neighborValue = *neighborFound;
 						D[dRowIndex].erase(neighborFound);
 						D[dRowIndex - 1].push_back(neighborValue);
 					}

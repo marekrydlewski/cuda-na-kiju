@@ -1,5 +1,8 @@
 #include "../catch.hpp"
 
+#define TEST_CUDA_CHECK_RETURN
+//--------------------------------------------------------------
+
 #include <thrust/device_vector.h>
 
 #include "../BaseCudaTestHandler.h"

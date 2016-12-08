@@ -22,6 +22,7 @@
 
 //#define UTILS_DEBUG_OUTPUT
 
+#ifndef TEST_CUDA_CHECK_RETURN
 #define CUDA_CHECK_RETURN(value) {											\
 	cudaError_t _m_cudaStat = value;										\
 	if (_m_cudaStat != cudaSuccess) {										\
@@ -30,6 +31,16 @@
 		std::cin.get();															\
 		exit(1);															\
 	} }
+#else
+#define CUDA_CHECK_RETURN(value) {											\
+	cudaError_t _m_cudaStat = value;										\
+	if (_m_cudaStat != cudaSuccess) {										\
+		fprintf(stderr, "Error %s at line %d in file %s\n",					\
+				cudaGetErrorString(_m_cudaStat), __LINE__, __FILE__);		\
+	} }
+
+#endif
+
 
 #define FL __LINE__,__FILE__
 

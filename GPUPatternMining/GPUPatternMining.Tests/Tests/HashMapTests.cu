@@ -1,6 +1,7 @@
 #include "../catch.hpp"
 
-#include <map>
+#define TEST_CUDA_CHECK_RETURN
+//--------------------------------------------------------------
 
 #include "../../GPUPatternMining/HashMap/gpuhashmapper.h"
 

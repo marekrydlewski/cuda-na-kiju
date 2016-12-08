@@ -2,7 +2,7 @@
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
 {
-	this->typeIncidenceCounter.resize(types + 1, 0);
+	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
 }
 

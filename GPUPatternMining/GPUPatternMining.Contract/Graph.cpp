@@ -38,7 +38,7 @@ void Graph::getMock()
 }
 
 /// Matula & Beck (1983) wikipedia, linear O(n)
-unsigned int Graph::getDegeneracy()
+std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 {
 	std::vector<unsigned int> L;
 	std::vector<std::vector<unsigned int>> D;
@@ -65,12 +65,33 @@ unsigned int Graph::getDegeneracy()
 		//Set k to max(k, i)
 		k = std::max(k, i);
 		//Select a vertex v from D[i]. Add v to the beginning of L and remove it from D[i].
-		L.push_back(D[k].back());
+		auto v = D[k].back();
+		L.push_back(v);
 		D[k].pop_back();
-
+		//neighbors
+		std::vector<unsigned int> neighbors;
+		for (auto vi = 0; vi < tab[v].size(); ++vi)
+		{
+			//For each neighbor w of v not already in L
+			if (tab[v][vi] && std::find(L.begin(), L.end(), vi) != L.end())
+			{
+				//Find location of vi in D
+				for (auto dRowIndex = 0; dRowIndex < D.size(); ++dRowIndex)
+				{
+					auto neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(), [&vi](const unsigned int& dvalue) { return dvalue == vi; });
+					unsigned int neighborValue = *neighborFound;\
+					//Subtract one from dw and move w to the cell of D corresponding to the new value of dw.
+					if (neighborFound != D[dRowIndex].end())
+					{
+						D[dRowIndex].erase(neighborFound);
+						D[dRowIndex - 1].push_back(neighborValue);
+					}
+				}
+			}
+		}
 	}
-
-	return 0;
+	//k = degeneracy of graph, L = list in degeneracy ordering
+	return std::make_pair(k, L);
 }
 
 Graph::Graph(size_t size)

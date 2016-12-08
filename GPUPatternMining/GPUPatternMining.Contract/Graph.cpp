@@ -56,12 +56,15 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 		max_dv = dv > max_dv ? dv : max_dv;
 		D[dv].push_back(i);
 	}
-	//D.resize(max_dv);
+	//Resizing - removes last empties
+	while (D.back().size() == 0)
+		D.pop_back();
 
 	for (auto j = 0; j < tab.size(); ++j)
 	{
 		//Scan the array cells D[0], D[1], ... until finding an i for which D[i] is nonempty.
-		auto itNonEmpty = std::find_if(D.begin(), D.end(), [](const std::vector<unsigned int>& s) { return s.size() != 0; });
+		auto itNonEmpty = std::find_if(D.begin(), D.end(),
+			[](const std::vector<unsigned int>& s) { return s.size() != 0; });
 		int i = (itNonEmpty - D.begin());
 		//Set k to max(k, i)
 		k = std::max(k, i);
@@ -79,7 +82,8 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 				//Find location of vi in D
 				for (auto dRowIndex = 0; dRowIndex < D.size(); ++dRowIndex)
 				{
-					auto neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(), [&vi](const unsigned int& dvalue) { return dvalue == vi; });
+					auto neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(),
+						[&vi](const unsigned int& dvalue) { return dvalue == vi; });
 
 					//Subtract one from dw and move w to the cell of D corresponding to the new value of dw.
 					if (neighborFound != D[dRowIndex].end())

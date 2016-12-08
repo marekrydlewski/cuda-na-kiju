@@ -44,10 +44,13 @@ unsigned int Graph::getDegeneracy()
 	std::vector<std::vector<unsigned int>> D;
 	int k = 0, max_dv = 0;
 
+	//Initialize an array D such that D[i] contains a list of the vertices v that are not already in L for which dv = i.
 	D.resize(tab.size());
+	//Compute a number dv for each vertex v in G, the number of neighbors of v that are not already in L.
+	//Initially, these numbers are just the degrees of the vertices.
 	for (auto i = 0; i < tab.size(); ++i)
 	{
-		//count vertexes degrees
+		//Count vertexes degrees
 		auto dv = std::count(tab[i].begin(), tab[i].end(), true);
 		max_dv = dv > max_dv ? dv : max_dv;
 		D[dv].push_back(i);
@@ -56,9 +59,15 @@ unsigned int Graph::getDegeneracy()
 
 	for (auto j = 0; j < tab.size(); ++j)
 	{
+		//Scan the array cells D[0], D[1], ... until finding an i for which D[i] is nonempty.
 		auto itNonEmpty = std::find_if(D.begin(), D.end(), [](const std::vector<unsigned int>& s) { return s.size() != 0; });
 		int i = (itNonEmpty - D.begin());
+		//Set k to max(k, i)
 		k = std::max(k, i);
+		//Select a vertex v from D[i]. Add v to the beginning of L and remove it from D[i].
+		L.push_back(D[k].back());
+		D[k].pop_back();
+
 	}
 
 	return 0;

@@ -32,6 +32,21 @@ std::vector<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v
 	return neighbours;
 }
 
+std::vector<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
+{
+	std::vector<unsigned int> neighbours;
+
+	for (unsigned int v2 = v - 1; v2 >= 0; --v2)
+	{
+		if (tab[v][v2] || tab[v2][v])
+		{
+			neighbours.push_back(v2);
+		}
+	}
+
+	return neighbours;
+}
+
 ///China example Fig. 4
 void Graph::getMock()
 {

@@ -1,11 +1,11 @@
 #include "CPUMiningAlgorithmSeq.h"
+#include <algorithm>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
 {
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
 }
-
 
 void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 {
@@ -86,6 +86,73 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 			}
 		}
 	}
+}
+
+void CPUMiningAlgorithmSeq::getMaximalCliques()
+{
+	auto degeneracy = size2ColocationsGraph.getDegeneracy();
+	for (unsigned int const& vertex : degeneracy.second)
+	{
+		std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+		std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		std::vector<unsigned int> thisVertexVector = { vertex };
+		auto generatedCliques = BK_Pivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
+		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+	}
+}
+
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::BK_Pivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T)
+{
+	std::vector<std::vector<unsigned int>> maximalCliques;
+	std::vector<unsigned int> MTunion(M.size() + T.size());
+	std::vector<unsigned int> MpivotNeighboursDifference(M.size());
+	std::vector<unsigned int>::iterator it;
+
+	std::sort(M.begin(), M.end());
+	std::sort(T.begin(), T.end());
+	std::sort(K.begin(), K.end());
+
+	it = std::set_union(M.begin(), M.end(), T.begin(), T.end(), MTunion.begin());
+	MTunion.resize(it - MTunion.begin());
+
+	if (MTunion.size() == 0)
+	{
+		maximalCliques.push_back(K);
+		return maximalCliques;
+	}
+
+	//TODO: pivot selection
+	unsigned int pivot = MTunion[0];
+
+	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
+	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
+
+	it = std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), MpivotNeighboursDifference.begin());
+	MpivotNeighboursDifference.resize(it - MpivotNeighboursDifference.begin());
+
+	for (auto const& vertex : MpivotNeighboursDifference)
+	{
+		std::vector<unsigned int> vertexNeighbours = size2ColocationsGraph.getVertexNeighbours(vertex);
+		std::vector<unsigned int> vertexVector = { vertex };
+		std::vector<unsigned int> KvertexUnion(K.size() + 1);
+		std::vector<unsigned int> MvertexNeighboursIntersection(M.size());
+		std::vector<unsigned int> TvertexNeighboursIntersection(T.size());
+
+		std::sort(vertexNeighbours.begin(), vertexNeighbours.end());
+
+		std::set_union(K.begin(), K.end(), vertexVector.begin(), vertexVector.end(), KvertexUnion.begin());
+
+		it = std::set_intersection(M.begin(), M.end(), vertexNeighbours.begin(), vertexNeighbours.end(), MvertexNeighboursIntersection.begin());
+		MvertexNeighboursIntersection.resize(it - MvertexNeighboursIntersection.begin());
+
+		it = std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), TvertexNeighboursIntersection.begin());
+		TvertexNeighboursIntersection.resize(it - TvertexNeighboursIntersection.begin());
+
+		auto generatedCliques = BK_Pivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
+		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+	}
+
+	return maximalCliques;
 }
 
 std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> CPUMiningAlgorithmSeq::countUniqueInstances()

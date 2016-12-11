@@ -90,6 +90,7 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 
 void CPUMiningAlgorithmSeq::getMaximalCliques()
 {
+	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
 	for (unsigned int const& vertex : degeneracy.second)
 	{

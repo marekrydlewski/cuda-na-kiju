@@ -22,7 +22,6 @@ int main()
 	cpuAlgSeq.loadData(data, numberOfInstances, types);
 	cpuAlgSeq.filterByDistance(threshold);
 	cpuAlgSeq.filterByPrevalence(prevalence);
-	cpuAlgSeq.createSize2ColocationsGraph();
 	cpuAlgSeq.getMaximalCliques();
 
 	return 0;

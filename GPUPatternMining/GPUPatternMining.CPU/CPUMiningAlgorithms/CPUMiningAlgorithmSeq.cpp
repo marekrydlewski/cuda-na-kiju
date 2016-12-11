@@ -68,6 +68,26 @@ void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)
 	}
 }
 
+void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
+{
+	size2ColocationsGraph.setSize(typeIncidenceCounter.size());
+
+	for (unsigned int type1Id = 0; type1Id < insTable.size(); ++type1Id)
+	{
+		for (unsigned int type2Id = type1Id + 1; type2Id < insTable.size() + 1; ++type2Id)
+		{
+			for (auto const& type1instanceId : insTable[type1Id][type2Id])
+			{
+				if (type1instanceId.second->size() > 0)
+				{
+					size2ColocationsGraph.addEdge(type1Id, type2Id);
+					break;
+				}
+			}
+		}
+	}
+}
+
 std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> CPUMiningAlgorithmSeq::countUniqueInstances()
 {
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> typeIncidenceColocations;

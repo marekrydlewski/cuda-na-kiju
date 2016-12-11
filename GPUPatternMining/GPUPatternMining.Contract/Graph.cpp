@@ -47,6 +47,15 @@ std::vector<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
 	return neighbours;
 }
 
+std::vector<unsigned int> Graph::getVertexNeighbours(unsigned int v)
+{
+	std::vector<unsigned int> neighbours = getVertexNeighboursOfHigherIndex(v);
+	std::vector<unsigned int> neighbours2 = getVertexNeighboursOfLowerIndex(v);
+	neighbours.insert(neighbours.end(), neighbours2.begin(), neighbours2.end());
+
+	return neighbours;
+}
+
 ///China example Fig. 4
 void Graph::getMock()
 {

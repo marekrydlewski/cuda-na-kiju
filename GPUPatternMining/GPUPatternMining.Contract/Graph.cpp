@@ -36,7 +36,7 @@ std::vector<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
 {
 	std::vector<unsigned int> neighbours;
 
-	for (unsigned int v2 = v - 1; v2 >= 0; --v2)
+	for (int v2 = v - 1; v2 >= 0; --v2)
 	{
 		if (tab[v][v2] || tab[v2][v])
 		{

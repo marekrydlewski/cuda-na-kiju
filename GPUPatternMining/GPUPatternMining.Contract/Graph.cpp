@@ -23,7 +23,7 @@ std::vector<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v
 
 	for (unsigned int v2 = v + 1; v2 < tab.size(); ++v2)
 	{
-		if (tab[v][v2])
+		if (tab[v][v2] || tab[v2][v])
 		{
 			neighbours.push_back(v2);
 		}

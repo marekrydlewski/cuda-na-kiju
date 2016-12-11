@@ -24,6 +24,7 @@ int main()
 	cpuAlgSeq.filterByPrevalence(prevalence);
 	Graph graph;
 	graph.getMock();
+	auto degen = graph.getDegeneracy();
 
 	return 0;
 }

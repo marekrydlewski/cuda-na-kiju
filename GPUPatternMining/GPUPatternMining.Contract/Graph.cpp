@@ -17,13 +17,13 @@ void Graph::addEdge(unsigned int v1, unsigned int v2)
 	tab[v2][v1] = true;
 }
 
-std::vector<unsigned int> Graph::getVertexNeighbours(unsigned int v)
+std::vector<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v)
 {
 	std::vector<unsigned int> neighbours;
 
-	for (unsigned int v2 = 0; v2 < tab.size(); ++v2)
+	for (unsigned int v2 = v + 1; v2 < tab.size(); ++v2)
 	{
-		if (tab[v][v2] || tab[v2][v])
+		if (tab[v][v2])
 		{
 			neighbours.push_back(v2);
 		}

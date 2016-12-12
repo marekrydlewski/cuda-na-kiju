@@ -4,9 +4,11 @@
 
 #include "thrust/reduce.h"
 
-#include "../HashMap/gpuhashmapper.h"
+#include "../../GPUPatternMining.Contract/Enity/FeatureInstance.h"
 
 #include "../MiningCommon.h"
+#include "../HashMap/gpuhashmapper.h"
+
 
 
 namespace PlaneSweep
@@ -45,19 +47,17 @@ namespace PlaneSweep
 
 			tables are treated as zipped (tables values for specified id belong to one instance)
 		*/
-		template <class Txy = float, class Idx = unsigned int>
+		template <class Txy = float>
 		__global__ void countNeighbours(
 			Txy* xCoords
 			, Txy* yCoords
-			, Idx* types
-			, Idx* ids
+			, FeatureInstance* instances
 			, int count
 			, Txy radius
 			, Txy radiusSquared
 			, UInt* resultNeighboursCount
 			, int warpsCount)
 		{
-
 			// btid
 			int blockThreadId = threadIdx.x;
 			//gid
@@ -68,7 +68,6 @@ namespace PlaneSweep
 			int blockWarpId = blockThreadId / 32;
 			// wtid
 			int warpThreadId = threadIdx.x % 32;
-			
 
 			__shared__ volatile bool * flags;
 			__shared__ volatile UInt * found;
@@ -79,9 +78,7 @@ namespace PlaneSweep
 				found = static_cast<UInt*>(malloc(blockDim.x * uintSize));
 			}
 
-			__syncthreads(); // to remove
-
-			found[blockThreadId] = 0;
+			__syncthreads();
 
 			//uint start= wid        * ((inSize-1 ) / warpCount ) + max(0, - warpCount  + wid          + (inSize - 1) % warpCount ) + 1;
 			int start = warpId * ((count - 1) / warpsCount) + max(0, - warpsCount + warpId + (count  - 1) % warpsCount) + 1;
@@ -106,7 +103,7 @@ namespace PlaneSweep
 						{
 							float lx = xCoords[localId];
 
-							if ((px - lx)>radius)
+							if ((px - lx) > radius)
 							{
 								flags[blockWarpId] = true;
 							}
@@ -115,7 +112,7 @@ namespace PlaneSweep
 
 							if ((distance(px, py, lx, ly) <= radiusSquared))
 							{
-								if (ids[i] != ids[localId])
+								if (instances[i] != instances[localId])
 									found[blockThreadId] += 1;
 							}
 						}
@@ -142,8 +139,6 @@ namespace PlaneSweep
 				free(const_cast<bool*>(flags));
 				free(const_cast<UInt*>(found));
 			}
-
-			__syncthreads();
 		}
 		// --------------------------------------------------------------------------------------------------------------------------------------
 

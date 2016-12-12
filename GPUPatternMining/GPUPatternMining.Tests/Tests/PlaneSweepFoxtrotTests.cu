@@ -66,38 +66,44 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check first neighbours list element (neig
 */
 TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSweep")
 {
+	UInt instancesCount = 6;
+
 	float hX[] = { 1,2,3,4,5,6 };
 	float hY[] = { 1,1,1,1,1,1 };
-	UInt hTypes[] = { 0xA, 0xB, 0xC, 0xB, 0xA, 0xC };
-	UInt hIds[] = { 1, 2, 3, 4, 5, 6 };
-	UInt instancesCount = 6;
+
+	FeatureInstance instances[6] = { 
+		{ 0x0, 0xA }
+		,{ 0x0, 0xB }
+		,{ 0x0, 0xC }
+		,{ 0x1, 0xB }
+		,{ 0x1, 0xA }
+		,{ 0x1, 0xC }
+	};
+
 	float distanceTreshold = 1.1;
 	float distanceTresholdSquared = 1.1 * 1.1;
 
 	// tranfering data from host memory to device memory
 	float* cX;
 	float* cY;
-	UInt* cType;
-	UInt* cIds;
+	FeatureInstance* cInstances;
 	UInt* cResults;
 
 	cudaMalloc(reinterpret_cast<void**>(&cX)		, 6 * sizeof(float));
 	cudaMalloc(reinterpret_cast<void**>(&cY)		, 6 * sizeof(float));
-	cudaMalloc(reinterpret_cast<void**>(&cType)		, 6 * uintSize);
-	cudaMalloc(reinterpret_cast<void**>(&cIds)		, 6 * uintSize);
+	cudaMalloc(reinterpret_cast<void**>(&cInstances), 6 * sizeof(FeatureInstance));
 	cudaMalloc(reinterpret_cast<void**>(&cResults)	, 6 * uintSize);
 
-	cudaMemcpy(cX	, hX	, 6 * sizeof(float)	, cudaMemcpyHostToDevice);
-	cudaMemcpy(cY	, hY	, 6 * sizeof(float)	, cudaMemcpyHostToDevice);
-	cudaMemcpy(cType, hTypes, 6 * uintSize		, cudaMemcpyHostToDevice);
-	cudaMemcpy(cIds	, hIds	, 6 * uintSize		, cudaMemcpyHostToDevice);
+	cudaMemcpy(cX			, hX		, 6 * sizeof(float)				, cudaMemcpyHostToDevice);
+	cudaMemcpy(cY			, hY		, 6 * sizeof(float)				, cudaMemcpyHostToDevice);
+	cudaMemcpy(cInstances	, instances	, 6 * sizeof(FeatureInstance)	, cudaMemcpyHostToDevice);
 
 
 	dim3 grid;
-	int warpCount = 6; // value from ICPI
+	int warpCount = 6; // same as instances count
 	findSmallest2D(warpCount * 32, 256, grid.x, grid.y);
 
-	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (cX, cY, cType, cIds, instancesCount, distanceTreshold, distanceTresholdSquared, cResults, warpCount);
+	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (cX, cY, cInstances, instancesCount, distanceTreshold, distanceTresholdSquared, cResults, warpCount);
 
 	UInt hExpected[] = { 0, 1, 1, 1, 1, 1 };
 	UInt hResults[6];
@@ -108,8 +114,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 
 	cudaFree(cX);
 	cudaFree(cY);
-	cudaFree(cType);
-	cudaFree(cIds);
+	cudaFree(cInstances);
 	cudaFree(cResults);
 }
 // ----------------------------------------------------------------------------

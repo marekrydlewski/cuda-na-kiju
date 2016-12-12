@@ -13,6 +13,20 @@ namespace PlaneSweep
 {
 	namespace Foxtrot
 	{
+		template<class T>
+		__device__ void intraWarpReduce(volatile T *data)
+		{
+			volatile unsigned int *a = data;
+			unsigned int temp;
+			int threadInWarp = threadIdx.x;//&0x1f;
+
+			if ((threadIdx.x & 0x01) == 0x01) a[threadInWarp] += a[threadInWarp - 1];
+			if ((threadIdx.x & 0x03) == 0x03) a[threadInWarp] += a[threadInWarp - 2];
+			if ((threadIdx.x & 0x07) == 0x07) a[threadInWarp] += a[threadInWarp - 4];
+			if ((threadIdx.x & 0x0f) == 0x0f) a[threadInWarp] += a[threadInWarp - 8];
+			if ((threadIdx.x & 0x1f) == 0x1f) a[threadInWarp] += a[threadInWarp - 16];
+		}
+
 		template<class Tx>
 		__device__ float distance(Tx x1, Tx y1, Tx x2, Tx y2)
 		{
@@ -43,12 +57,18 @@ namespace PlaneSweep
 			, UInt* resultNeighboursCount
 			, int warpsCount)
 		{
-			// int warpsCount	  = gridDim.x * blockDim.x / 32;
-			int globalTid = computeLinearAddressFrom2D(); // blockIdx.x  * blockDim.x + threadIdx.x;
-			int globalWarpId = globalTid / 32;
-			int warpThreadId = threadIdx.x % 32;
+
+			// btid
 			int blockThreadId = threadIdx.x;
+			//gid
+			int globalId = computeLinearAddressFrom2D();
+			// wid
+			int warpId = globalId / 32; 
+			// bwid
 			int blockWarpId = blockThreadId / 32;
+			// wtid
+			int warpThreadId = threadIdx.x % 32;
+			
 
 			__shared__ volatile bool * flags;
 			__shared__ volatile UInt * found;
@@ -59,26 +79,17 @@ namespace PlaneSweep
 				found = static_cast<UInt*>(malloc(blockDim.x * uintSize));
 			}
 
-			__syncthreads();
+			__syncthreads(); // to remove
 
 			found[blockThreadId] = 0;
 
 			//uint start= wid        * ((inSize-1 ) / warpCount ) + max(0, - warpCount  + wid          + (inSize - 1) % warpCount ) + 1;
-			int start = globalWarpId * ((count - 1) / warpsCount) + max(0, - warpsCount + globalWarpId + (count  - 1) % warpsCount) + 1;
+			int start = warpId * ((count - 1) / warpsCount) + max(0, - warpsCount + warpId + (count  - 1) % warpsCount) + 1;
 			//uint stop=(wid         + 1) * ((inSize-1 ) / warpCount ) + max(0, -warpCount  +  (inSize- 1) % warpCount  + wid          + 1);
-			int stop = (globalWarpId + 1) * ((count - 1) / warpsCount) + max(0, -warpsCount +  (count - 1) % warpsCount + globalWarpId + 1);
-			
-			/*
-			int W = count / 32;
-			// int startSegment = wid*(W / warpCount)   + max(0, wid          - (warpCount  -  W % warpCount));
-			int start = globalWarpId * (W / warpsCount) + max(0, globalWarpId - (warpsCount - (W % warpsCount)));
+			int stop = (warpId + 1) * ((count - 1) / warpsCount) + max(0, -warpsCount +  (count - 1) % warpsCount + warpId + 1);
 
-			// int endSegment=(wid+1)*(W/warpCount)          + max(0, 1 + wid          - (warpCount  - W % warpCount )) -1;
-			int stop = (globalWarpId + 1) * (W / warpsCount) + max(0, 1 + globalWarpId + (warpsCount - W % warpsCount)) -1;
-			*/
-
-			if (globalWarpId < warpsCount)
-			{//First warp				
+			if (warpId < warpsCount)
+			{		
 				found[blockThreadId] = 0;
 
 				for (UInt i = start; i <= stop; i++)
@@ -101,9 +112,11 @@ namespace PlaneSweep
 							}
 
 							float ly = yCoords[localId];
-							if ((distance(px, py, lx, ly) <= radiusSquared) && (ids[i] != ids[localId]))
+
+							if ((distance(px, py, lx, ly) <= radiusSquared))
 							{
-								found[blockThreadId] += 1;
+								if (ids[i] != ids[localId])
+									found[blockThreadId] += 1;
 							}
 						}
 
@@ -112,55 +125,15 @@ namespace PlaneSweep
 							break;
 						}
 					}
-
 				}
 
-				atomicAdd(&resultNeighboursCount[globalWarpId], found[blockThreadId]);
-				/*
-				intraWarpReduce<thrust::plus<UInt>, 6>(found, thrust::plus<UInt>());
+				intraWarpReduce(found);
 
-				if (globalTid == globalWarpId * 32)
+				if (globalId == warpId * 32)
 				{
-					resultNeighboursCount[globalWarpId] = found[blockWarpId * 32 + 31];
-				}*/
-			}
-
-
-			/*
-
-			for (UInt i = start; i <= end; ++i)
-			{
-				if (warpThreadId == 0)
-					flags[blockWarpId] = false;
-
-				int j = i - 32;
-
-				while (j >= -32)
-				{
-					int comparedId = warpThreadId + j;
-
-					if (comparedId >= 0)
-					{
-						if (xCoords[i] - xCoords[comparedId] > distanceTreshold)
-							flags[blockWarpId] = true;
-
-						float sqrtRes = sqrt(pow(xCoords[i] - xCoords[comparedId], 2) + pow(yCoords[i] - yCoords[comparedId], 2));
-
-						if (sqrtRes <= distanceTreshold)
-							found[blockThreadId] += 1;
-					}
-
-					if (flags[blockWarpId])
-						break;
-
-					j -= 32;
+					resultNeighboursCount[warpId] = found[blockWarpId * 32 + 31];
 				}
 			}
-
-			atomicAdd(&resultNeighboursCount[globalWarpId], found[blockThreadId]);
-
-			
-			*/
 
 			__syncthreads();
 

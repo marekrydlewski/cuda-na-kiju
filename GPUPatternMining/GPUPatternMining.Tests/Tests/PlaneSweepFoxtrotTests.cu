@@ -58,12 +58,18 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check first neighbours list element (neig
 // ----------------------------------------------------------------------------
 */
 
+
+/*
+	Test for graph
+
+	A1-B1-C1-B2-A2-C2
+*/
 TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSweep")
 {
 	float hX[] = { 1,2,3,4,5,6 };
 	float hY[] = { 1,1,1,1,1,1 };
 	UInt hTypes[] = { 0xA, 0xB, 0xC, 0xB, 0xA, 0xC };
-	UInt hIds[] = { 1, 1, 1, 2, 2, 2 };
+	UInt hIds[] = { 1, 2, 3, 4, 5, 6 };
 	UInt instancesCount = 6;
 	float distanceTreshold = 1.1;
 	float distanceTresholdSquared = 1.1 * 1.1;
@@ -88,10 +94,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 
 
 	dim3 grid;
-	int wc = 6;
-	findSmallest2D(wc * 32, 256, grid.x, grid.y);
+	int warpCount = 6; // value from ICPI
+	findSmallest2D(warpCount * 32, 256, grid.x, grid.y);
 
-	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (cX, cY, cType, cIds, instancesCount, distanceTreshold, distanceTresholdSquared, cResults, wc);
+	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (cX, cY, cType, cIds, instancesCount, distanceTreshold, distanceTresholdSquared, cResults, warpCount);
 
 	UInt hExpected[] = { 1, 2, 2, 2, 2, 1 };
 	UInt hResults[6];

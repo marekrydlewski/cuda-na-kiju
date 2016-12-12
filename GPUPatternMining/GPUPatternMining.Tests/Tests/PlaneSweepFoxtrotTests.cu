@@ -99,13 +99,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 
 	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (cX, cY, cType, cIds, instancesCount, distanceTreshold, distanceTresholdSquared, cResults, warpCount);
 
-	UInt hExpected[] = { 1, 2, 2, 2, 2, 1 };
+	UInt hExpected[] = { 0, 1, 1, 1, 1, 1 };
 	UInt hResults[6];
 
-	cudaMemcpy(hResults, cResults, instancesCount, cudaMemcpyDeviceToHost);
-
-	for (int i = 0; i < 6; ++i)
-		printf("%d = %u\n", i, hResults[i]);
+	cudaMemcpy(hResults, cResults, instancesCount * uintSize, cudaMemcpyDeviceToHost);
 	
 	REQUIRE(std::equal(std::begin(hExpected), std::end(hExpected), hResults));
 

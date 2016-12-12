@@ -1,5 +1,6 @@
 #pragma once
 #include "CPUMiningBaseAlgorithm.h"
+#include "../../GPUPatternMining.Contract/Graph.h"
 #include <map>
 #include <vector>
 
@@ -15,9 +16,18 @@ private:
 	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> insTable;
 
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
+
+	Graph size2ColocationsGraph;
+
+	virtual void createSize2ColocationsGraph();
+
+	std::vector<std::vector<unsigned int>> maximalCliques;
+
+	std::vector<std::vector<unsigned int>> BK_Pivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T);
 public:
 	virtual void filterByDistance(float threshold) override;
 	virtual void filterByPrevalence(float prevalence) override;
+	virtual void getMaximalCliques() override;
 	virtual void loadData(DataFeed* data, size_t size, unsigned int types) override;
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();

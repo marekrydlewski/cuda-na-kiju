@@ -24,9 +24,9 @@ DataFeed* RandomDataProvider::getData(size_t s)
 	std::default_random_engine randomEngine{ rdev() };
 	std::uniform_real_distribution<float> disX(0, x);
 	std::uniform_real_distribution<float> disY(0, y);
-	std::uniform_int_distribution<> disType(1, numberOfTypes);
+	std::uniform_int_distribution<> disType(0, numberOfTypes - 1);
 
-	std::vector<int> instances(numberOfTypes + 1);
+	std::vector<int> instances(numberOfTypes);
 
 	//DataFeedPtr sp(new DataFeed[s], array_deleter<DataFeed>());
 	DataFeed* dataArray = new DataFeed[s];

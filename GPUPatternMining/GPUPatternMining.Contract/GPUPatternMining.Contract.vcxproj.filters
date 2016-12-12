@@ -39,10 +39,16 @@
     <ClInclude Include="RandomDataProvider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graph.h">
+      <Filter>Header Files\Entity</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RandomDataProvider.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph.cpp">
+      <Filter>Header Files\Entity</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

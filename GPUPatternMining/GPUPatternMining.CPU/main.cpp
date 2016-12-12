@@ -22,9 +22,7 @@ int main()
 	cpuAlgSeq.loadData(data, numberOfInstances, types);
 	cpuAlgSeq.filterByDistance(threshold);
 	cpuAlgSeq.filterByPrevalence(prevalence);
-	Graph graph;
-	graph.getMock();
-	auto degen = graph.getDegeneracy();
+	cpuAlgSeq.getMaximalCliques();
 
 	return 0;
 }

@@ -123,7 +123,7 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 	}
 
 	//TODO: pivot selection
-	unsigned int pivot = MTunion[0];
+	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
 
 	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
 	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
@@ -154,6 +154,28 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 	}
 
 	return maximalCliques;
+}
+
+///Tomita Tanaka 2006 maximal pivot algorithm
+unsigned int CPUMiningAlgorithmSeq::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
+{
+	unsigned int u, maxCardinality = 0;
+	for (auto& s : SUBG)
+	{
+		auto neighbors = size2ColocationsGraph.getVertexNeighbours(s);
+		std::sort(neighbors.begin(), neighbors.end());
+		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
+
+		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());
+		nCANDunion.resize(itUnion - nCANDunion.begin());
+
+		if (nCANDunion.size() >= maxCardinality)
+		{
+			u = s;
+			maxCardinality = nCANDunion.size();
+		}
+	}
+	return u;
 }
 
 std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> CPUMiningAlgorithmSeq::countUniqueInstances()

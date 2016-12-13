@@ -14,16 +14,12 @@ private:
 	/// InsTable - 2 dimensional hashtable, where frist 2 indexes are types
 	/// the value is a map, where key is number of 1st facility's instanceId and value is a vector of 2nd facility's instancesId 
 	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> insTable;
-
-	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
-
+	std::vector<std::vector<unsigned int>> maximalCliques;
 	Graph size2ColocationsGraph;
 
-	virtual void createSize2ColocationsGraph();
-
-	std::vector<std::vector<unsigned int>> maximalCliques;
-
-	std::vector<std::vector<unsigned int>> BK_Pivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T);
+	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
+	std::vector<std::vector<unsigned int>> bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T);
+	void createSize2ColocationsGraph();
 public:
 	virtual void filterByDistance(float threshold) override;
 	virtual void filterByPrevalence(float prevalence) override;

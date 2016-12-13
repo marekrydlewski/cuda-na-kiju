@@ -97,12 +97,12 @@ void CPUMiningAlgorithmSeq::getMaximalCliques()
 		std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
 		std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
 		std::vector<unsigned int> thisVertexVector = { vertex };
-		auto generatedCliques = BK_Pivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
+		auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
 	}
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::BK_Pivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T)
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T)
 {
 	std::vector<std::vector<unsigned int>> maximalCliques;
 	std::vector<unsigned int> MTunion(M.size() + T.size());
@@ -149,7 +149,7 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::BK_Pivot(std::vect
 		it = std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), TvertexNeighboursIntersection.begin());
 		TvertexNeighboursIntersection.resize(it - TvertexNeighboursIntersection.begin());
 
-		auto generatedCliques = BK_Pivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
+		auto generatedCliques = bkPivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
 	}
 

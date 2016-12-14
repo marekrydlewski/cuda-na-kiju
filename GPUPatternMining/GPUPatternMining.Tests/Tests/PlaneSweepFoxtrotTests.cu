@@ -62,7 +62,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check first neighbours list element (neig
 /*
 	Test for graph
 
-	A1-B1-C1-B2-A2-C2
+	A0-B0-C0-B1-A1-C1
 */
 TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSweep")
 {
@@ -71,14 +71,34 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 	float hX[] = { 1,2,3,4,5,6 };
 	float hY[] = { 1,1,1,1,1,1 };
 
-	FeatureInstance instances[6] = { 
-		{ 0x0, 0xA }
-		,{ 0x0, 0xB }
-		,{ 0x0, 0xC }
-		,{ 0x1, 0xB }
-		,{ 0x1, 0xA }
-		,{ 0x1, 0xC }
-	};
+	FeatureInstance instances[6];
+	{
+		FeatureInstance fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		instances[0] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xB;
+		instances[1] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xC;
+		instances[2] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xB;
+		instances[3] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		instances[4] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xC;
+		instances[5] = fi;
+	}
 
 	float distanceTreshold = 1.1;
 	float distanceTresholdSquared = 1.1 * 1.1;
@@ -103,7 +123,18 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 	int warpCount = 6; // same as instances count
 	findSmallest2D(warpCount * 32, 256, grid.x, grid.y);
 
-	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (cX, cY, cInstances, instancesCount, distanceTreshold, distanceTresholdSquared, cResults, warpCount);
+	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (
+		cX
+		, cY
+		, cInstances
+		, instancesCount
+		, distanceTreshold
+		, distanceTresholdSquared
+		, warpCount
+		, cResults
+	);
+
+	cudaThreadSynchronize();
 
 	UInt hExpected[] = { 0, 1, 1, 1, 1, 1 };
 	UInt hResults[6];
@@ -116,5 +147,178 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 	cudaFree(cY);
 	cudaFree(cInstances);
 	cudaFree(cResults);
+}
+// ----------------------------------------------------------------------------
+
+
+/*
+Test for graph
+
+A0-B0-C0-B1-A1-C1
+*/
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "check findNeighbours function", "PlaneSweep")
+{
+	// Initialiaze test data
+
+	constexpr UInt instancesCount = 6;
+
+	float hX[] = { 1,2,3,4,5,6 };
+	float hY[] = { 1,1,1,1,1,1 };
+
+	FeatureInstance instances[6];
+	{
+		FeatureInstance fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		instances[0] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xB;
+		instances[1] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xC;
+		instances[2] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xB;
+		instances[3] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		instances[4] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xC;
+		instances[5] = fi;
+	}
+
+	float distanceTreshold = 1.1;
+	float distanceTresholdSquared = 1.1 * 1.1;
+
+	UInt hScannedResults[] = { 0, 0, 1, 2, 3, 4 };
+	constexpr UInt totalPairs = 5;
+
+	// Tranfering data from host memory to device memory
+
+	float* cX;
+	float* cY;
+	FeatureInstance* cInstances;
+	UInt* cStartPositions;
+	FeatureInstance* cResultA;
+	FeatureInstance* cResultB;
+
+	constexpr UInt resultTableSize = totalPairs;
+
+	cudaMalloc(reinterpret_cast<void**>(&cX), 6 * sizeof(float));
+	cudaMalloc(reinterpret_cast<void**>(&cY), 6 * sizeof(float));
+	cudaMalloc(reinterpret_cast<void**>(&cInstances), 6 * sizeof(FeatureInstance));
+	cudaMalloc(reinterpret_cast<void**>(&cStartPositions), 6 * uintSize);
+	cudaMalloc(reinterpret_cast<void**>(&cResultA), resultTableSize * sizeof(FeatureInstance));
+	cudaMalloc(reinterpret_cast<void**>(&cResultB), resultTableSize * sizeof(FeatureInstance));
+
+	cudaMemcpy(cX, hX, 6 * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(cY, hY, 6 * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(cInstances, instances, 6 * sizeof(FeatureInstance), cudaMemcpyHostToDevice);
+	cudaMemcpy(cStartPositions, hScannedResults, 6 * uintSize, cudaMemcpyHostToDevice);
+
+	// Setup startup configuration
+
+	dim3 grid;
+	int warpCount = 6; 
+	findSmallest2D(warpCount * 32, 256, grid.x, grid.y);
+
+	// run tested function
+
+	PlaneSweep::Foxtrot::findNeighbours << < grid, 256 >> > (
+		cX
+		, cY
+		, cInstances
+		, instancesCount
+		, distanceTreshold
+		, distanceTresholdSquared
+		, warpCount
+		, cStartPositions
+		, cResultA
+		, cResultB
+	);
+
+	cudaThreadSynchronize();
+
+	// Initialize expected output
+
+	FeatureInstance hExpectedA[totalPairs];
+	{
+		FeatureInstance fi;
+		
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		hExpectedA[0] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xB;
+		hExpectedA[1] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xB;
+		hExpectedA[2] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		hExpectedA[3] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		hExpectedA[4] = fi;
+	}
+
+	FeatureInstance hExpectedB[totalPairs];
+	{
+		FeatureInstance fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xB;
+		hExpectedB[0] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xC;
+		hExpectedB[1] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xC;
+		hExpectedB[2] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xB;
+		hExpectedB[3] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xC;
+		hExpectedB[4] = fi;
+	}
+
+	// Fetch result from cuda memory
+
+	FeatureInstance hResultA[totalPairs];
+	FeatureInstance hResultB[totalPairs];
+
+	cudaMemcpy(hResultA, cResultA, resultTableSize * sizeof(FeatureInstance), cudaMemcpyDeviceToHost);
+	cudaMemcpy(hResultB, cResultB, resultTableSize * sizeof(FeatureInstance), cudaMemcpyDeviceToHost);
+
+	// Test output
+
+	REQUIRE(std::equal(std::begin(hExpectedA), std::end(hExpectedA), hResultA));
+	REQUIRE(std::equal(std::begin(hExpectedB), std::end(hExpectedB), hResultB));
+
+	// Free allocated resources
+
+	cudaFree(cX);
+	cudaFree(cY);
+	cudaFree(cInstances);
+	cudaFree(cStartPositions);
+	cudaFree(cResultA);
+	cudaFree(cResultB);
 }
 // ----------------------------------------------------------------------------

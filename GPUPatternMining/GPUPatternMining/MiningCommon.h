@@ -14,14 +14,13 @@ typedef std::shared_ptr<UIntGpuHashMap> UIntGpuHashMapPtr;
 constexpr size_t uintSize = sizeof(unsigned int);
 constexpr size_t uintPtrSize = sizeof(unsigned int*);
 
-__device__
 inline bool operator==(const FeatureInstance& a, const FeatureInstance& b)
 {
-	return a.featureId == b.featureId && a.instanceId == b.instanceId;
+	return a.fields.featureId == b.fields.featureId && a.fields.instanceId == b.fields.instanceId;
 }
 
 __device__
 inline bool operator!=(const FeatureInstance& a, const FeatureInstance& b)
 {
-	return a.featureId != b.featureId || a.instanceId != b.instanceId;
+	return a.fields.featureId != b.fields.featureId || a.fields.instanceId != b.fields.instanceId;
 }

@@ -1,11 +1,15 @@
 #pragma once
 
-struct __declspec(align(32)) FeatureInstance
+// TODO describe why FeatureInstance should be union
+union __declspec(align(32)) FeatureInstance
 {
-	unsigned short int instanceId;
-	unsigned short int featureId;
+	unsigned int field;
 
-	friend bool operator==(const FeatureInstance& a, const FeatureInstance& b);
+	struct
+	{
+		unsigned short int instanceId;
+		unsigned short int featureId;
+	} fields;
 };
 
 struct __declspec(align(64)) FeatureInstancesPair

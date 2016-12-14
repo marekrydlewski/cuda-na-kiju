@@ -7,7 +7,6 @@ void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int 
 	this->source.assign(data, data + size);
 }
 
-
 void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 {
 	float effectiveThreshold = pow(threshold, 2);
@@ -89,7 +88,7 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 	}
 }
 
-void CPUMiningAlgorithmSeq::getMaximalCliques()
+void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
@@ -216,6 +215,13 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 	}
 
 	return typeIncidenceColocations;
+}
+
+
+///Creating condensed instance tree
+///given Cm - candidate maximal co-location and insTable
+void CPUMiningAlgorithmSeq::constructCondensedTree()
+{
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

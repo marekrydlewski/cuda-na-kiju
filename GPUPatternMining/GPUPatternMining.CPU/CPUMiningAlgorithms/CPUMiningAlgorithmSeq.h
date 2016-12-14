@@ -24,8 +24,9 @@ private:
 public:
 	void filterByDistance(float threshold) override;
 	void filterByPrevalence(float prevalence) override;
-	void getMaximalCliques() override;
+	void constructMaximalCliques() override;
 	void loadData(DataFeed* data, size_t size, unsigned int types) override;
+	void constructCondensedTree() override;
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();
 };

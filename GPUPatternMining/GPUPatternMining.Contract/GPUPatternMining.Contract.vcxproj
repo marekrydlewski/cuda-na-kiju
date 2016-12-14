@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CinsNode.h" />
+    <ClInclude Include="CinsTree.h" />
     <ClInclude Include="Enity\DataFeed.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h" />
@@ -33,6 +35,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CinsNode.cpp" />
+    <ClCompile Include="CinsTree.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="RandomDataProvider.cpp" />
   </ItemGroup>

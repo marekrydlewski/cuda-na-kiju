@@ -222,6 +222,11 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 ///given Cm - candidate maximal co-location and insTable
 void CPUMiningAlgorithmSeq::constructCondensedTree()
 {
+	//step1
+	for (auto i = 0; i < maximalCliques.size(); ++i)
+	{
+
+	}
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

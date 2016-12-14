@@ -73,15 +73,15 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 {
 	size2ColocationsGraph.setSize(typeIncidenceCounter.size());
 
-	for (unsigned int type1Id = 0; type1Id < insTable.size(); ++type1Id)
+	for (auto& type1Id : insTable)
 	{
-		for (unsigned int type2Id = type1Id + 1; type2Id < insTable.size() + 1; ++type2Id)
+		for (auto& type2Id : type1Id.second)
 		{
-			for (auto const& type1instanceId : insTable[type1Id][type2Id])
+			for (auto& type1instanceId : type2Id.second)
 			{
 				if (type1instanceId.second->size() > 0)
 				{
-					size2ColocationsGraph.addEdge(type1Id, type2Id);
+					size2ColocationsGraph.addEdge(type1Id.first, type2Id.first);
 					break;
 				}
 			}

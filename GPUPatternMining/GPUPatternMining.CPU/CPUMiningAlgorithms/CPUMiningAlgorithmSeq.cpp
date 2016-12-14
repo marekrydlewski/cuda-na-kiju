@@ -7,6 +7,7 @@ void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int 
 	this->source.assign(data, data + size);
 }
 
+
 void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 {
 	float effectiveThreshold = pow(threshold, 2);

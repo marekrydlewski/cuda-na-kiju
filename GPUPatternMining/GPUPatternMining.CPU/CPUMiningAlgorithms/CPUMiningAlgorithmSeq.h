@@ -22,10 +22,10 @@ private:
 	unsigned int tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
 public:
-	virtual void filterByDistance(float threshold) override;
-	virtual void filterByPrevalence(float prevalence) override;
+	void filterByDistance(float threshold) override;
+	void filterByPrevalence(float prevalence) override;
 	void getMaximalCliques() override;
-	virtual void loadData(DataFeed* data, size_t size, unsigned int types) override;
+	void loadData(DataFeed* data, size_t size, unsigned int types) override;
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();
 };

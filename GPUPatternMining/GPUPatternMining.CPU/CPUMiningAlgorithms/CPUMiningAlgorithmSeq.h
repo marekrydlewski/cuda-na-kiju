@@ -24,7 +24,7 @@ private:
 public:
 	virtual void filterByDistance(float threshold) override;
 	virtual void filterByPrevalence(float prevalence) override;
-	virtual void getMaximalCliques() override;
+	void getMaximalCliques() override;
 	virtual void loadData(DataFeed* data, size_t size, unsigned int types) override;
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();

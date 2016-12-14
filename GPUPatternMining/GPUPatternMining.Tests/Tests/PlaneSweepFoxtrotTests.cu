@@ -8,6 +8,8 @@
 #include "../../GPUPatternMining/MiningCommon.h"
 
 #include "../BaseCudaTestHandler.h"
+
+#include <thrust/device_vector.h>
 //--------------------------------------------------------------
 
 /*
@@ -71,7 +73,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 	float hX[] = { 1,2,3,4,5,6 };
 	float hY[] = { 1,1,1,1,1,1 };
 
-	FeatureInstance instances[6];
+
+	thrust::device_vector<FeatureInstance> instances(instancesCount);
 	{
 		FeatureInstance fi;
 
@@ -106,22 +109,20 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 	// tranfering data from host memory to device memory
 	float* cX;
 	float* cY;
-	FeatureInstance* cInstances;
 	UInt* cResults;
 
 	cudaMalloc(reinterpret_cast<void**>(&cX)		, 6 * sizeof(float));
 	cudaMalloc(reinterpret_cast<void**>(&cY)		, 6 * sizeof(float));
-	cudaMalloc(reinterpret_cast<void**>(&cInstances), 6 * sizeof(FeatureInstance));
 	cudaMalloc(reinterpret_cast<void**>(&cResults)	, 6 * uintSize);
 
 	cudaMemcpy(cX			, hX		, 6 * sizeof(float)				, cudaMemcpyHostToDevice);
 	cudaMemcpy(cY			, hY		, 6 * sizeof(float)				, cudaMemcpyHostToDevice);
-	cudaMemcpy(cInstances	, instances	, 6 * sizeof(FeatureInstance)	, cudaMemcpyHostToDevice);
-
 
 	dim3 grid;
 	int warpCount = 6; // same as instances count
 	findSmallest2D(warpCount * 32, 256, grid.x, grid.y);
+
+	FeatureInstance* cInstances = thrust::raw_pointer_cast(instances.data());
 
 	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (
 		cX
@@ -145,7 +146,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 
 	cudaFree(cX);
 	cudaFree(cY);
-	cudaFree(cInstances);
 	cudaFree(cResults);
 }
 // ----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check findNeighbours function", "PlaneSwe
 	float hX[] = { 1,2,3,4,5,6 };
 	float hY[] = { 1,1,1,1,1,1 };
 
-	FeatureInstance instances[6];
+	thrust::device_vector<FeatureInstance> instances(instancesCount);
 	{
 		FeatureInstance fi;
 
@@ -205,7 +205,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check findNeighbours function", "PlaneSwe
 
 	float* cX;
 	float* cY;
-	FeatureInstance* cInstances;
 	UInt* cStartPositions;
 	FeatureInstance* cResultA;
 	FeatureInstance* cResultB;
@@ -214,14 +213,12 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check findNeighbours function", "PlaneSwe
 
 	cudaMalloc(reinterpret_cast<void**>(&cX), 6 * sizeof(float));
 	cudaMalloc(reinterpret_cast<void**>(&cY), 6 * sizeof(float));
-	cudaMalloc(reinterpret_cast<void**>(&cInstances), 6 * sizeof(FeatureInstance));
 	cudaMalloc(reinterpret_cast<void**>(&cStartPositions), 6 * uintSize);
 	cudaMalloc(reinterpret_cast<void**>(&cResultA), resultTableSize * sizeof(FeatureInstance));
 	cudaMalloc(reinterpret_cast<void**>(&cResultB), resultTableSize * sizeof(FeatureInstance));
 
 	cudaMemcpy(cX, hX, 6 * sizeof(float), cudaMemcpyHostToDevice);
 	cudaMemcpy(cY, hY, 6 * sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(cInstances, instances, 6 * sizeof(FeatureInstance), cudaMemcpyHostToDevice);
 	cudaMemcpy(cStartPositions, hScannedResults, 6 * uintSize, cudaMemcpyHostToDevice);
 
 	// Setup startup configuration
@@ -231,6 +228,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check findNeighbours function", "PlaneSwe
 	findSmallest2D(warpCount * 32, 256, grid.x, grid.y);
 
 	// run tested function
+
+	FeatureInstance* cInstances = thrust::raw_pointer_cast(instances.data()); 
 
 	PlaneSweep::Foxtrot::findNeighbours << < grid, 256 >> > (
 		cX
@@ -316,7 +315,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check findNeighbours function", "PlaneSwe
 
 	cudaFree(cX);
 	cudaFree(cY);
-	cudaFree(cInstances);
 	cudaFree(cStartPositions);
 	cudaFree(cResultA);
 	cudaFree(cResultB);

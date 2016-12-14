@@ -1,22 +1,19 @@
 #pragma once
 
 // TODO describe why FeatureInstance should be union
-union __declspec(align(32)) FeatureInstance
+union __declspec(align(4)) FeatureInstance
 {
-	unsigned int field;
+	uint32_t field;
 
 	struct
 	{
-		unsigned short int instanceId;
-		unsigned short int featureId;
+		uint16_t instanceId;
+		uint16_t featureId;
 	} fields;
 };
 
-struct __declspec(align(64)) FeatureInstancesPair
+struct __declspec(align(8)) FeatureInstancesPair
 {
-	unsigned short int firstInstanceId;
-	unsigned short int firstFeatureId;
-
-	unsigned short int secondInstanceId;
-	unsigned short int secondFeatureId;
+	FeatureInstance first;
+	FeatureInstance second;
 };

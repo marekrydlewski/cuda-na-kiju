@@ -1,5 +1,9 @@
 #include "../catch.hpp"
+
 #include <driver_types.h>
+#include <type_traits>
+
+#include "../../GPUPatternMining.Contract/Enity/FeatureInstance.h"
 
 #include "../BaseCudaTestHandler.h"
 //--------------------------------------------------------------
@@ -35,4 +39,9 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Minimum CC 2.0", "BasicRequirementsTests"
 	}
 
 	REQUIRE(countOfSufficientDevices > 0);
+}
+
+TEST_CASE("Check if FeatureInstance struct is POD", "BasicRequirementsTests")
+{
+	REQUIRE(std::is_pod<FeatureInstance>::value == true);
 }

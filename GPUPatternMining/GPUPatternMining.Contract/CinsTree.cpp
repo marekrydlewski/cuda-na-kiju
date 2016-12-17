@@ -4,6 +4,7 @@
 
 CinsTree::CinsTree()
 {
+	root = nullptr;
 }
 
 

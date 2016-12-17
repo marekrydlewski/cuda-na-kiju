@@ -5,11 +5,13 @@
 ///Root is level 0
 unsigned int CinsTree::getDepth()
 {
+	std::vector<unsigned int> depths;
 	for (auto& c : root->children)
 	{
-		c->getDepth();
+		depths.push_back(c->getDepth());
 	}
-	return 0;
+	auto max = std::max_element(depths.begin(), depths.end());
+	return (max != depths.end() ? *max : 0);
 }
 
 CinsTree::CinsTree()

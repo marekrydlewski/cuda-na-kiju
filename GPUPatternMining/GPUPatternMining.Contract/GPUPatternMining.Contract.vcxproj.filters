@@ -40,7 +40,9 @@
     <ClInclude Include="IDataProvider.h">
       <Filter>Providers</Filter>
     </ClInclude>
-    <ClInclude Include="CinsNode.h" />
+    <ClInclude Include="CinsNode.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -52,6 +54,8 @@
     <ClCompile Include="RandomDataProvider.cpp">
       <Filter>Providers</Filter>
     </ClCompile>
-    <ClCompile Include="CinsNode.cpp" />
+    <ClCompile Include="CinsNode.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

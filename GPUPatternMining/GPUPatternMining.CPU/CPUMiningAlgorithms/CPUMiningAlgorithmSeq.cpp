@@ -105,6 +105,11 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 	}
 }
 
+void CPUMiningAlgorithmSeq::filterMaximalCliques()
+{
+	constructCondensedTree(maximalCliques[0]);
+}
+
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T)
 {
 	std::vector<std::vector<unsigned int>> maximalCliques;
@@ -235,7 +240,7 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 		for (auto b : *t.second)
 		{
 			auto newChild = tree.root->children[index]->addChild(b, Cm[1]);
-			tree.lastLevelChildren.push_back(tree.root->children[newChild].get());
+			tree.lastLevelChildren.push_back(tree.root->children[index]->children[newChild].get());
 		}
 	}
 	//step2

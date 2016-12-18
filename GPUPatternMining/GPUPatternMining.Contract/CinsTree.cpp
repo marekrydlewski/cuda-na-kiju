@@ -14,7 +14,9 @@ unsigned int CinsTree::getDepth()
 
 CinsTree::CinsTree()
 {
-	root = nullptr;
+	std::unique_ptr<CinsNode> ptr(new CinsNode());
+	ptr->parent = nullptr;
+	root = std::move(ptr);
 }
 
 

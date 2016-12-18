@@ -28,6 +28,7 @@ public:
 	void filterByDistance(float threshold) override;
 	void filterByPrevalence(float prevalence) override;
 	void constructMaximalCliques() override;
+	void filterMaximalCliques();
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();
 };

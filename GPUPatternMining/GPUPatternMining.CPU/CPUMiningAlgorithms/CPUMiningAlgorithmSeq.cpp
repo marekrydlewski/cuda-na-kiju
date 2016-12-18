@@ -222,11 +222,23 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 
 void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned int>& Cm)
 {
+	CinsTree tree;
 	//step1
-	for (auto& t : insTable[Cm[0]][Cm[1]])
+	for (const auto& t : insTable[Cm[0]][Cm[1]])
 	{
+		unsigned int insertedIndex, a = t.first;
 
+		auto index = tree.root->indexChild(a, Cm[0]);
+		if (index == -1)
+			index = tree.root->addChild(a, Cm[0]);
+
+		for (auto b : *t.second)
+		{
+			tree.root->children[index]->addChild(b, Cm[1]);
+		}
 	}
+
+	//step2
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

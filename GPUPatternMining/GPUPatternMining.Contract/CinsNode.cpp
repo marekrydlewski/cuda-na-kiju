@@ -4,13 +4,16 @@
 #include <memory>
 
 
-void CinsNode::addChild(unsigned int instanceId, unsigned int type)
+unsigned int CinsNode::addChild(unsigned int instanceId, unsigned int type)
 {
 	std::unique_ptr<CinsNode> ptr(new CinsNode());
 	ptr->instanceId = instanceId;
 	ptr->type = type;
 	ptr->parent = this;
+
+	size_t index = children.size();
 	children.push_back(std::move(ptr));
+	return index;
 }
 
 

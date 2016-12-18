@@ -234,11 +234,12 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 
 		for (auto b : *t.second)
 		{
-			tree.root->children[index]->addChild(b, Cm[1]);
+			auto newChild = tree.root->children[index]->addChild(b, Cm[1]);
+			tree.lastLevelChildren.push_back(tree.root->children[newChild].get());
 		}
 	}
-
 	//step2
+
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

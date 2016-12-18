@@ -22,11 +22,11 @@ private:
 	std::vector<std::vector<unsigned int>> bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T);
 	unsigned int tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
+	void constructCondensedTree(const std::vector<unsigned int>& Cm);
 public:
 	void loadData(DataFeed* data, size_t size, unsigned int types) override;
 	void filterByDistance(float threshold) override;
 	void filterByPrevalence(float prevalence) override;
-	void constructCondensedTree(const std::vector<unsigned int>& Cm);
 	void constructMaximalCliques() override;
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();

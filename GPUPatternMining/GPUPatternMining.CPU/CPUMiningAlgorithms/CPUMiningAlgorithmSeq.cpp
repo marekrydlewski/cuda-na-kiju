@@ -243,6 +243,26 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 		}
 	}
 	//step2
+	//if co-location greater than 2
+	if (Cm.size() > 2)
+	{
+		for (auto i = 2; i < Cm.size(); ++i)
+		{
+			for (const auto lastChildPtr : tree.lastLevelChildren)
+			{
+				//list El contains candidates for new level of tree
+				std::vector<unsigned int> instanceIds;
+				for (const auto& t : insTable[Cm[lastChildPtr->type]][Cm[i]])
+				{
+					auto a = t.first;
+					for (auto b : *t.second)
+					{
+						instanceIds.push_back(b);
+					}
+				}
+			}
+		}
+	}
 
 }
 

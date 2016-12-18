@@ -14,6 +14,7 @@ public:
 	unsigned int addChild(unsigned int instanceId, unsigned int type);
 	CinsNode* addChildPtr(unsigned int instanceId, unsigned int type);
 	CinsNode* indexChild(unsigned int instanceId, unsigned int type);
+	std::vector<CinsNode*> getAncestors();
 	unsigned int getDepth();
 	CinsNode();
 	~CinsNode();

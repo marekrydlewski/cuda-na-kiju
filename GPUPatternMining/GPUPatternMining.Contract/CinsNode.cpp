@@ -38,6 +38,18 @@ CinsNode* CinsNode::indexChild(unsigned int instanceId, unsigned int type)
 	return nullptr;
 }
 
+std::vector<CinsNode*> CinsNode::getAncestors()
+{
+	CinsNode* node = this;
+	std::vector<CinsNode*> ancestors;
+	while (node->parent != nullptr)
+	{
+		ancestors.push_back(node->parent);
+		node = node->parent;
+	}
+	return ancestors;
+}
+
 unsigned int CinsNode::getDepth()
 {
 	std::vector<unsigned int> depths;

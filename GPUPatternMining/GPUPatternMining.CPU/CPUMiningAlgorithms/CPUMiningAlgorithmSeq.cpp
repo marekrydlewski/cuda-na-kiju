@@ -252,13 +252,20 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 			{
 				//list El contains candidates for new level of tree
 				std::vector<unsigned int> instanceIds;
-				for (const auto& t : insTable[Cm[lastChildPtr->type]][Cm[i]])
+
+
+				std::vector<unsigned int>* vec = insTable[Cm[lastChildPtr->type]][Cm[i]][lastChildPtr->instanceId];
+				if (vec != nullptr)
 				{
-					auto a = t.first;
-					for (auto b : *t.second)
+					for (auto b : *vec)
 					{
 						instanceIds.push_back(b);
 					}
+				}
+
+				for (auto el : instanceIds)
+				{
+
 				}
 			}
 		}

@@ -26,7 +26,7 @@ public:
 	void loadData(DataFeed* data, size_t size, unsigned int types) override;
 	void filterByDistance(float threshold) override;
 	void filterByPrevalence(float prevalence) override;
-	void constructCondensedTree() override;
+	void constructCondensedTree(const std::vector<unsigned int>& Cm);
 	void constructMaximalCliques() override;
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();

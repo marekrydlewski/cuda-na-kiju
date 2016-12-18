@@ -1,7 +1,5 @@
 #include "CinsTree.h"
 
-
-
 ///Root is level 0
 unsigned int CinsTree::getDepth()
 {

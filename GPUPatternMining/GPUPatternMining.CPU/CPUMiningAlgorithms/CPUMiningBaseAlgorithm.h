@@ -21,7 +21,6 @@ public:
 	virtual void filterByPrevalence(float prevalence) = 0;
 	virtual void constructMaximalCliques() = 0;
 	virtual void loadData(DataFeed* data, size_t size, unsigned int types) = 0;
-	virtual void constructCondensedTree() = 0;
 	CPUMiningBaseAlgorithm();
 	~CPUMiningBaseAlgorithm();
 };

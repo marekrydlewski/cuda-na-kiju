@@ -1,4 +1,7 @@
 #include "CPUMiningAlgorithmSeq.h"
+
+#include "../../GPUPatternMining.Contract/CinsTree.h"
+#include "../../GPUPatternMining.Contract/CinsNode.h"
 #include <algorithm>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
@@ -122,7 +125,6 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 		return maximalCliques;
 	}
 
-	//TODO: pivot selection
 	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
 
 	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
@@ -218,12 +220,10 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 }
 
 
-///Creating condensed instance tree
-///given Cm - candidate maximal co-location and insTable
-void CPUMiningAlgorithmSeq::constructCondensedTree()
+void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned int>& Cm)
 {
 	//step1
-	for (auto i = 0; i < maximalCliques.size(); ++i)
+	for (auto& t : insTable[Cm[0]][Cm[1]])
 	{
 
 	}

@@ -13,6 +13,18 @@ void CinsNode::addChild(unsigned int instanceId, unsigned int type)
 	children.push_back(std::move(ptr));
 }
 
+
+///if no apropiate child return -1
+int CinsNode::indexChild(unsigned int instanceId, unsigned int type)
+{
+	for (auto i = 0; i < children.size(); ++i)
+	{
+		if (children[i]->instanceId == instanceId && children[i]->type == type)
+			return i;
+	}
+	return -1;
+}
+
 unsigned int CinsNode::getDepth()
 {
 	std::vector<unsigned int> depths;

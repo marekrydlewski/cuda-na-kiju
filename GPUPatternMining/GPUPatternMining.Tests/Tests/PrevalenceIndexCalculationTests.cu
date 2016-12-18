@@ -9,7 +9,7 @@
 
 #include "../../GPUPatternMining.Contract/IPairColocationsProvider.h"
 #include "../../GPUPatternMining/HashMap/gpuhashmapper.h"
-#include "../../GPUPatternMining/PairColocationsFiltering/CudaPairColocationFilter.h"
+#include "../../GPUPatternMining/Common/MiningCommon.h"
 //--------------------------------------------------------------
 
 /*

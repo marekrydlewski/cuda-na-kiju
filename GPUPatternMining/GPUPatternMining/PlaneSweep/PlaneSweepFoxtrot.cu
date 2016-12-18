@@ -1,101 +1,23 @@
 #pragma once
 
-#include <device_functions.hpp>
-#include <climits>
-
-#include "thrust/reduce.h"
+#include <thrust/device_vector.h>
+#include <thrust/sort.h>
 
 #include "../../GPUPatternMining.Contract/Enity/FeatureInstance.h"
 
-#include "../MiningCommon.h"
 #include "../HashMap/gpuhashmapper.h"
+#include "../Common/MiningCommon.h"
+#include "../Common/CommonOperations.cuh"
 
+using namespace MiningCommon;
+// --------------------------------------------------------------------------------------------------------------------------------------
 
 
 namespace PlaneSweep
 {
 	namespace Foxtrot
 	{
-		template<class T>
-		__device__ void intraWarpReduce(volatile T *data)
-		{
-			volatile T* a = data;
-			int threadInWarp = threadIdx.x;//&0x1f;
-			
-			/*
-				binary sum performed by sequence of odd warp threads
-			*/
-			if ((threadInWarp & 0x01) == 0x01) a[threadInWarp] += a[threadInWarp - 1];
-			if ((threadInWarp & 0x03) == 0x03) a[threadInWarp] += a[threadInWarp - 2];
-			if ((threadInWarp & 0x07) == 0x07) a[threadInWarp] += a[threadInWarp - 4];
-			if ((threadInWarp & 0x0f) == 0x0f) a[threadInWarp] += a[threadInWarp - 8];
-			if ((threadInWarp & 0x1f) == 0x1f) a[threadInWarp] += a[threadInWarp - 16];
-		}
-
-		//
-		template<class T>
-		__device__ void intraWarpScan(volatile T* data)
-		{
-			volatile T* a = data;
-			T temp;
-			int threadInWarp = threadIdx.x;//&0x1f;
-
-			//Phase1
-			/*
-				binary sum performed by sequence of odd warp threads
-			*/
-			if ((threadInWarp & 0x01) == 0x01) a[threadInWarp] += a[threadInWarp - 1];
-			if ((threadInWarp & 0x03) == 0x03) a[threadInWarp] += a[threadInWarp - 2];
-			if ((threadInWarp & 0x07) == 0x07) a[threadInWarp] += a[threadInWarp - 4];
-			if ((threadInWarp & 0x0f) == 0x0f) a[threadInWarp] += a[threadInWarp - 8];
-			//if ((threadIdx.x&0x1f)==0x1f) a[threadInWarp]+=a[threadInWarp-16];
-
-			// TODO check if this is realy important, cause we can just use = 9 lines below
-			// zeroing every warp with id = n * 31 where n is any positive total number
-			if ((threadInWarp & 0x1f) == 0x1f) a[threadInWarp] = 0;
-
-			//Phase2
-			// every warp with id = n * 31 where n is any positive total number do :
-			if ((threadIdx.x & 0x1f) == 0x1f)
-			{
-				temp = a[threadInWarp];
-				a[threadInWarp] += a[threadInWarp - 16];
-				a[threadInWarp - 16] = temp;
-			}
-
-			// TODO check if __syncThread is mandatory here
-
-			if ((threadIdx.x & 0x0f) == 0x0f)
-			{
-				temp = a[threadInWarp];
-				a[threadInWarp] += a[threadInWarp - 8];
-				a[threadInWarp - 8] = temp;
-			}
-			if ((threadIdx.x & 0x07) == 0x07)
-			{
-				temp = a[threadInWarp];
-				a[threadInWarp] += a[threadInWarp - 4];
-				a[threadInWarp - 4] = temp;
-			}
-			if ((threadIdx.x & 0x03) == 0x03)
-			{
-				temp = a[threadInWarp];
-				a[threadInWarp] += a[threadInWarp - 2];
-				a[threadInWarp - 2] = temp;
-			}
-			if ((threadIdx.x & 0x01) == 0x01)
-			{
-				temp = a[threadInWarp];
-				a[threadInWarp] += a[threadInWarp - 1];
-				a[threadInWarp - 1] = temp;
-			}
-		}
-
-		template<class Tx>
-		__device__ float distance(Tx x1, Tx y1, Tx x2, Tx y2)
-		{
-			return (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2);
-		}
+		
 
 		/*
 		@params
@@ -212,6 +134,7 @@ namespace PlaneSweep
 			}
 		}
 		// --------------------------------------------------------------------------------------------------------------------------------------
+
 
 		/*
 		@params
@@ -419,18 +342,39 @@ namespace PlaneSweep
 		}
 		// --------------------------------------------------------------------------------------------------------------------------------------
 
+
+		struct FeatureInstanceComparator
+		{
+			__host__ __device__  bool operator()(const  thrust::tuple<FeatureInstance, FeatureInstance>& o1, const thrust::tuple<FeatureInstance, FeatureInstance>& o2)
+			{
+				if (o1.get<0>().field < o2.get<0>().field) 
+					return true;
+
+				if (o1.get<0>().field == o2.get<0>().field) 
+					return o1.get<1>().field < o2.get<1>().field;
+
+				return false;
+			}
+		};
+		// --------------------------------------------------------------------------------------------------------------------------------------
+
+
 		/*
+		@template
+
+			Txy					- type of coordinates values
+			Idx					- type of feature instances
+			Ptx					- type of container that holds information about neighbours list
 
 		@params
 
 			xCoords				- table with instances x coordinates in ascending order
 			yCoords				- table with instances y coordinates
-			types				- table with instances types
-			ids					- table with instances ids
+			instances			- table with instances
 			count				- count of instances
 			distanceTreshold	- maximal distance between two instances for concidering them as neigbours (inclusive <=)
 			
-		@result
+		@results
 			
 			hashMapper			- type pair map to list to those types pairs colocations instances that stores result
 		
@@ -438,24 +382,104 @@ namespace PlaneSweep
 
 			tables are treated as zipped (tables values for specified id belong to one instance)
 		*/
-		template <class Txy = float, class Idx = unsigned int, class Ptx=unsigned int*>
+		template <class Txy = float, class Idx = FeatureInstance, class Ptx = NeighboursListInfoHolder>
 		__host__ void PlaneSweep(
-			Txy* xCoords
-			, Txy* yCoords
-			, Idx* types
-			, Idx* ids
+			thrust::device_vector<Txy> xCoords
+			, thrust::device_vector<Txy>& yCoords
+			, thrust::device_vector<Idx>& instances
 			, UInt count
 			, Txy distanceTreshold
-			, GPUHashMapper<Idx, Ptx, GPUKeyProcessor<Idx>>& hashMapper)
+			, std::shared_ptr<GPUHashMapper<Idx, Ptx, GPUKeyProcessor<Idx>>> resultHashMap
+			, thrust::device_vector<Idx>& resultPairsA
+			, thrust::device_vector<Idx>& resultPairsB)
 		{
-			UInt* K;
-			UInt* V;
+			typedef thrust::device_vector<Idx> DeviceVector;
 
-			UInt* neighboursCount;
+			UInt warpsCount = count;
+			thrust::device_vector<UInt> neighboursCount(count);
+			dim3 grid;
+
+			findSmallest2D(warpsCount * 32, 256, grid.x, grid.y);
+
+			countNeighbours << < grid, 256 >> > (
+				thrust::raw_pointer_cast(xCoords.data())
+				, thrust::raw_pointer_cast(yCoords.data())
+				, thrust::raw_pointer_cast(instances.data())
+				, count
+				, distanceTreshold
+				, distanceTreshold * distanceTreshold
+				, warpsCount
+				, thrust::raw_pointer_cast(neighboursCount.data())
+			);
+
+			UInt totalPairsCount = neighboursCount[count - 1];
+			thrust::exclusive_scan(neighboursCount.begin(), neighboursCount.end(), neighboursCount.begin());
+			totalPairsCount += neighboursCount[count - 1];
+
+			resultPairsA = DeviceVector(totalPairsCount);
+			resultPairsB = DeviceVector(totalPairsCount);
+
+			findNeighbours << < grid, 256 >> > (
+				thrust::raw_pointer_cast(xCoords.data())
+				, thrust::raw_pointer_cast(yCoords.data())
+				, thrust::raw_pointer_cast(instances.data())
+				, count
+				, distanceTreshold
+				, distanceTreshold * distanceTreshold
+				, warpsCount
+				, thrust::raw_pointer_cast(neighboursCount.data())
+				, thrust::raw_pointer_cast(resultPairsA.data())
+				, thrust::raw_pointer_cast(resultPairsB.data())
+			);
 
 
-			UInt* I;
-			UInt* A;
+			MiningCommon::zipSort<FeatureInstance, FeatureInstanceComparator>(
+				resultPairsA
+				, resultPairsB
+			);
+
+
+			thrust::device_vector<FeatureInstance> uniques(totalPairs);
+			thrust::device_vector<UInt> indices(totalPairs);
+			thrust::device_vector<UInt> counts(totalPairs);
+
+			UInt entryCount = thrust::reduce_by_key(
+				resultPairsA.begin(),
+				resultPairsA.end(),
+				thrust::make_zip_iterator(
+					thrust::make_tuple(
+						thrust::counting_iterator<UInt>(0),
+						thrust::constant_iterator<UInt>(1)
+					)
+				),
+				uniques.begin(),
+				thrust::make_zip_iterator(
+					thrust::make_tuple(
+						indices.begin(),
+						counts.end()
+					)
+				),
+				MiningCommon::InstanceEquality<FeatureInstance>(),
+				MiningCommon::FirstIndexAndCount<UInt>()
+			) - uniques.begin();
+
+			constexpr float entryCountHashMapMultiplier = 1.5f;
+
+			resultHashMap.reset(new GPUHashMapper<Idx, Ptx, GPUKeyProcessor<Idx>>(
+				entryCount * entryCountHashMapMultiplier,
+				new  GPUKeyProcessor<unsigned int>())
+			);
+
+			dim3 insertGrid;
+			findSmallest2D(entryCount, 256, insertGrid.x, insertGrid.y);
+
+			insertIntoHashMap << <grid, 256 >> >(
+				resultHashMap->getBean(),
+				thrust::raw_pointer_cast(uniques.data())
+				, thrust::raw_pointer_cast(indices.data())
+				, thrust::raw_pointer_cast(counts.data()),
+				entryCount
+			);
 		}
 		// --------------------------------------------------------------------------------------------------------------------------------------
 	}

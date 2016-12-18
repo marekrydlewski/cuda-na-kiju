@@ -157,6 +157,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -169,6 +170,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
     <ClCompile Include="Tests\SimpleOperationsTests.cpp" />
     <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
+    <CudaCompile Include="Tests\CommonOperationsTests.cu" />
     <CudaCompile Include="Tests\PlaneSweepFoxtrotTests.cu" />
     <CudaCompile Include="Tests\PrevalenceIndexCalculationTests.cu">
       <FileType>CppCode</FileType>

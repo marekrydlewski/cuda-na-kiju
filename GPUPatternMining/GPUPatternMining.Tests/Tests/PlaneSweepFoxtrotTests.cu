@@ -5,12 +5,16 @@
 
 #include "../../GPUPatternMining/PlaneSweep/PlaneSweepFoxtrot.cu"
 
-#include "../../GPUPatternMining/MiningCommon.h"
+#include "../../GPUPatternMining/Common/MiningCommon.h"
 
 #include "../BaseCudaTestHandler.h"
 
 #include <thrust/device_vector.h>
 //--------------------------------------------------------------
+
+using namespace MiningCommon;
+//--------------------------------------------------------------
+
 
 /*
 	Test for graph
@@ -103,8 +107,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 		instances[5] = fi;
 	}
 
-	float distanceTreshold = 1.1;
-	float distanceTresholdSquared = 1.1 * 1.1;
+	float distanceTreshold = 1.1f;
+	float distanceTresholdSquared = 1.1f * 1.1f;
 
 	// tranfering data from host memory to device memory
 	float* cX;
@@ -150,7 +154,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check countNeighbours function", "PlaneSw
 }
 // ----------------------------------------------------------------------------
 
-
 /*
 Test for graph
 
@@ -195,8 +198,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "check findNeighbours function", "PlaneSwe
 		instances[5] = fi;
 	}
 
-	float distanceTreshold = 1.1;
-	float distanceTresholdSquared = 1.1 * 1.1;
+	float distanceTreshold = 1.1f;
+	float distanceTresholdSquared = 1.1f * 1.1f;
 
 	UInt hScannedResults[] = { 0, 0, 1, 2, 3, 4 };
 	constexpr UInt totalPairs = 5;

@@ -8,9 +8,11 @@
       <Filter>SimpleOperations</Filter>
     </CudaCompile>
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
+    <CudaCompile Include="Common\CommonOperations.cu">
+      <Filter>Common</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MiningCommon.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h">
       <Filter>HashMap</Filter>
     </ClInclude>
@@ -23,6 +25,13 @@
     <ClInclude Include="SimpleOperations.h">
       <Filter>SimpleOperations</Filter>
     </ClInclude>
+    <ClInclude Include="Common\CommonOperations.cuh">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\MiningCommon.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\NeighboursListInfoHolder.cuh" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="HashMap">
@@ -33,6 +42,9 @@
     </Filter>
     <Filter Include="SimpleOperations">
       <UniqueIdentifier>{544bb442-def9-4e16-9036-1e7b4875bac0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{88c1fc49-9538-4a47-9656-55a7eb93d714}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -13,9 +13,3 @@ union __declspec(align(4)) FeatureInstance
 		uint16_t featureId;
 	} fields;
 };
-
-struct __declspec(align(8)) FeatureInstancesPair
-{
-	FeatureInstance first;
-	FeatureInstance second;
-};

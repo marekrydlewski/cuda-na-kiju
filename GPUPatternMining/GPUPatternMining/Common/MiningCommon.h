@@ -1,8 +1,10 @@
 ﻿#pragma once
 #include <memory>
-#include "HashMap/gpuhashmapper.h"
+#include "../HashMap/gpuhashmapper.h"
 
-#include "..\GPUPatternMining.Contract/Enity/\FeatureInstance.h"
+#include "../../GPUPatternMining.Contract/Enity/FeatureInstance.h"
+//-------------------------------------------------------------------------------
+
 
 typedef unsigned int UInt;
 
@@ -13,14 +15,17 @@ typedef std::shared_ptr<UIntGpuHashMap> UIntGpuHashMapPtr;
 
 constexpr size_t uintSize = sizeof(unsigned int);
 constexpr size_t uintPtrSize = sizeof(unsigned int*);
+//-------------------------------------------------------------------------------
 
+
+__device__ __host__
 inline bool operator==(const FeatureInstance& a, const FeatureInstance& b)
 {
-	return a.fields.featureId == b.fields.featureId && a.fields.instanceId == b.fields.instanceId;
+	return a.field == b.field;
 }
 
-__device__
+__device__ __host__
 inline bool operator!=(const FeatureInstance& a, const FeatureInstance& b)
 {
-	return a.fields.featureId != b.fields.featureId || a.fields.instanceId != b.fields.instanceId;
+	return a.field != b.field;
 }

@@ -12,7 +12,8 @@ public:
 	unsigned int type; //A,B,C
 
 	unsigned int addChild(unsigned int instanceId, unsigned int type);
-	int indexChild(unsigned int instanceId, unsigned int type);
+	CinsNode* addChildPtr(unsigned int instanceId, unsigned int type);
+	CinsNode* indexChild(unsigned int instanceId, unsigned int type);
 	unsigned int getDepth();
 	CinsNode();
 	~CinsNode();

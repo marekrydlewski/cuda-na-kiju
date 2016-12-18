@@ -16,16 +16,26 @@ unsigned int CinsNode::addChild(unsigned int instanceId, unsigned int type)
 	return index;
 }
 
-
-///if no apropiate child return -1
-int CinsNode::indexChild(unsigned int instanceId, unsigned int type)
+CinsNode * CinsNode::addChildPtr(unsigned int instanceId, unsigned int type)
 {
-	for (auto i = 0; i < children.size(); ++i)
+	std::unique_ptr<CinsNode> ptr(new CinsNode());
+	ptr->instanceId = instanceId;
+	ptr->type = type;
+	ptr->parent = this;
+
+	children.push_back(std::move(ptr));
+	return children.back().get();
+}
+
+
+CinsNode* CinsNode::indexChild(unsigned int instanceId, unsigned int type)
+{
+	for (auto& u : children)
 	{
-		if (children[i]->instanceId == instanceId && children[i]->type == type)
-			return i;
+		if (u->instanceId == instanceId && u->type == type)
+			return u.get();
 	}
-	return -1;
+	return nullptr;
 }
 
 unsigned int CinsNode::getDepth()

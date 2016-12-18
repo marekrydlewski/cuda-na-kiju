@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPUPatternMining", "GPUPatternMining\GPUPatternMining.vcxproj", "{AE2FA75A-5535-460C-8632-6FB973B87817}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9875BACF-2709-46A9-ABD3-2CFA01256025} = {9875BACF-2709-46A9-ABD3-2CFA01256025}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPUPatternMining.App", "GPUPatternMining.App\GPUPatternMining.App.vcxproj", "{B4467647-3BCD-4B7B-8D07-B29E012B70E1}"
 EndProject

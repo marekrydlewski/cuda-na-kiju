@@ -43,7 +43,7 @@
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
     <ClInclude Include="Enity\FeatureInstance.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

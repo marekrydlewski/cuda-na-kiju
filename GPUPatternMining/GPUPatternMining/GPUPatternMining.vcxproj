@@ -166,21 +166,15 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Common\CommonOperations.cuh" />
-    <ClInclude Include="Entities\NeighboursListInfoHolder.cuh" />
+    <ClInclude Include="Common\CommonOperations.h" />
+    <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h" />
+    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
     <CudaCompile Include="Common\CommonOperations.cu" />
     <CudaCompile Include="HashMap\gpuutils.cu" />
     <ClInclude Include="HashMap\gpuutils.h" />
     <ClInclude Include="Common\MiningCommon.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
-    <ClInclude Include="SimpleOperations.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
-    <CudaCompile Include="SimpleOperations.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />

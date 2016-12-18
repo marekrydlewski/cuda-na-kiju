@@ -1,15 +1,18 @@
 #pragma once
 
-#include <stdint.h>
 
 // TODO describe why FeatureInstance should be union
-union __declspec(align(4)) FeatureInstance
+union __declspec(align(4)) FeatureInstanceUnion
 {
-	uint32_t field;
+	unsigned int field;
 
-	struct
+	struct __inner
 	{
-		uint16_t instanceId;
-		uint16_t featureId;
+		unsigned short instanceId;
+		unsigned short featureId;
 	} fields;
 };
+//------------------------------------------------------------------------------
+
+typedef FeatureInstanceUnion FeatureInstance;
+//------------------------------------------------------------------------------

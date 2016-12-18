@@ -6,7 +6,7 @@
 #include "../BaseCudaTestHandler.h"
 
 #include "../../GPUPatternMining/Common/MiningCommon.h"
-#include "../../GPUPatternMining/Common/CommonOperations.cuh"
+#include "../../GPUPatternMining/Common/CommonOperations.h"
 
 #include "../../GPUPatternMining.Contract/Enity/FeatureInstance.h"
 //--------------------------------------------------------------

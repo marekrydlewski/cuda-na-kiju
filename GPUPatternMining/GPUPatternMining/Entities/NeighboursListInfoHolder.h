@@ -1,12 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <host_defines.h>
 
 /*
 @members
 
-	count			- count of elements pointed by listStart
-	startIdx	- start index in main pairs list ti start of the neigbours list
+count			- count of elements pointed by listStart
+startIdx	- start index in main pairs list ti start of the neigbours list
 */
 struct NeighboursListInfoHolder
 {
@@ -18,7 +19,7 @@ struct NeighboursListInfoHolder
 	{
 	}
 	__host__ __device__ NeighboursListInfoHolder
-		(unsigned int count, unsigned int index) 
+	(unsigned int count, unsigned int index)
 		: count(count), startIdx(index)
 	{
 	}

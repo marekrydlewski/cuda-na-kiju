@@ -7,7 +7,7 @@
 #include "../HashMap/gpuutils.h"
 
 #include "../HashMap/gpuhashmapper.h"
-#include "../Entities/NeighboursListInfoHolder.cuh"
+#include "../Entities/NeighboursListInfoHolder.h"
 #include "../HashMap/gpuhashmapper.h"
 #include "../../GPUPatternMining.Contract/Enity/FeatureInstance.h"
 //-------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ namespace MiningCommon
 
 		//Phase1
 		/*
-			binary sum performed by sequence of odd warp threads
+		binary sum performed by sequence of odd warp threads
 		*/
 		if ((threadInWarp & 0x01) == 0x01) a[threadInWarp] += a[threadInWarp - 1];
 		if ((threadInWarp & 0x03) == 0x03) a[threadInWarp] += a[threadInWarp - 2];
@@ -103,16 +103,23 @@ namespace MiningCommon
 	}
 	//---------------------------------------------------------------------------------------------
 
-	template<typename C, typename TComparator>
-	void zipSort(thrust::device_vector<C>& a, thrust::device_vector<C>& b)
+	struct FeatureInstanceComparator
 	{
-		typedef thrust::tuple<C, C> Tcc;
+		__host__ __device__  bool operator()(const  thrust::tuple<FeatureInstance, FeatureInstance>& o1, const thrust::tuple<FeatureInstance, FeatureInstance>& o2)
+		{
+			if (o1.get<0>().field < o2.get<0>().field)
+				return true;
 
-		auto begin = thrust::make_tuple(a.begin(), b.begin());
-		auto end = thrust::make_tuple(a.end(), b.end());
+			if (o1.get<0>().field == o2.get<0>().field)
+				return o1.get<1>().field < o2.get<1>().field;
 
-		thrust::sort(begin, end, TComparator());
-	}
+			return false;
+		}
+	};
+	// --------------------------------------------------------------------------------------------------------------------------------------
+
+	//template<typename C>//, typename TComparator>
+	void zipSort(thrust::device_vector<FeatureInstance>& a, thrust::device_vector<FeatureInstance>& b);
 	//---------------------------------------------------------------------------------------------
 
 	template <typename T>
@@ -125,7 +132,7 @@ namespace MiningCommon
 	};
 	//---------------------------------------------------------------------------------------------
 
-	template <typename T> 
+	template <typename T>
 	struct FirstIndexAndCount
 	{
 		typedef typename thrust::tuple<T, T> Tuple;

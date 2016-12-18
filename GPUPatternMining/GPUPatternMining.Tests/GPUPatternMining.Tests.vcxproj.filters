@@ -10,7 +10,6 @@
     <ClCompile Include="DataProviderTests.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
-    <ClCompile Include="Tests\SimpleOperationsTests.cpp" />
     <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
   </ItemGroup>
   <ItemGroup>

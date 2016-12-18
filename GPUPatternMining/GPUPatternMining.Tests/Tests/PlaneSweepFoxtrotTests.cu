@@ -3,9 +3,11 @@
 #define TEST_CUDA_CHECK_RETURN
 //--------------------------------------------------------------
 
-#include "../../GPUPatternMining/PlaneSweep/PlaneSweepFoxtrot.cu"
+#include <vector>
 
 #include "../../GPUPatternMining/Common/MiningCommon.h"
+
+#include "../../GPUPatternMining/PlaneSweep/PlaneSweepFoxtrot.h"
 
 #include "../BaseCudaTestHandler.h"
 
@@ -20,49 +22,102 @@ using namespace MiningCommon;
 	Test for graph
 
 	A1-B1-C1-B2-A2-C2
-*/
-/*
-TEST_CASE_METHOD(BaseCudaTestHandler, "check first neighbours list element (neigbours count)", "PlaneSweep")
+*/  
+TEST_CASE_METHOD(BaseCudaTestHandler, "Planesweep main 0", "PlaneSweep")
 {
-	float x[] = { 1,2,3,4,5,6 };
-	float y[] = { 1,2,3,4,5,6 };
-	unsigned int type[] = { 0xA, 0xB, 0xC, 0xB, 0xA, 0xC };
-	unsigned int ids[] = {1, 1, 1, 2, 2, 2 };
 	unsigned int instancesCount = 6;
-	unsigned int distanceTreshold = 1;
+	float distanceTreshold = 1;
 
-	GPUUIntKeyProcessor *intKeyProcessor = new GPUUIntKeyProcessor();
+	std::vector<float> x = { 1, 2, 3, 4, 5, 6 };
+	std::vector<float> y = { 1, 1, 1, 1, 1, 1 };
+	
+	thrust::device_vector<FeatureInstance> instances(instancesCount);
+	{
+		FeatureInstance fi;
 
-	UIntTableGpuHashMap hashMap(6, intKeyProcessor);
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		instances[0] = fi;
 
-	PlaneSweep::Foxtrot::PlaneSweep<float>(x, y, type, ids, instancesCount, distanceTreshold, hashMap);
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xB;
+		instances[1] = fi;
 
-	unsigned int h_resultKeys[] = { 0x000A000B, 0x000A000C, 0x000B000C };
-	unsigned int* c_resultKey;
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xC;
+		instances[2] = fi;
 
-	cudaMalloc(reinterpret_cast<void**>(&c_resultKey), sizeof(3 * uintSize));
-	cudaMemcpy(c_resultKey, h_resultKeys, 3 * uintSize, cudaMemcpyHostToDevice);
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xB;
+		instances[3] = fi;
 
-	unsigned int** c_results;
-	unsigned int* d_results[3]; // pointers to GPU memory in host memory
-	unsigned int h_result;
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		instances[4] = fi;
 
-	cudaMalloc(reinterpret_cast<void**>(&c_results), 3 * uintPtrSize);
-	hashMap.getValues(c_resultKey, c_results, 3);
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xC;
+		instances[5] = fi;
+	}
 
-	cudaMemcpy(d_results, c_results, 3 * uintPtrSize, cudaMemcpyDeviceToHost);
+	thrust::device_vector<float> dx = x;
+	thrust::device_vector<float> dy = y;
 
-	cudaMemcpy(&h_result, d_results[0], uintSize, cudaMemcpyDeviceToHost);
-	REQUIRE(h_result == 2); // |A-B|
+	std::shared_ptr<GPUHashMapper<UInt, NeighboursListInfoHolder, GPUKeyProcessor<UInt>>> hashMap;
+	thrust::device_vector<FeatureInstance> resultA;
+	thrust::device_vector<FeatureInstance> resultB;
 
-	cudaMemcpy(&h_result, d_results[1], uintSize, cudaMemcpyDeviceToHost);
-	REQUIRE(h_result == 1); // |A-C|
+	PlaneSweep::Foxtrot::PlaneSweep(
+		dx
+		, dy
+		, instances
+		, instancesCount
+		, distanceTreshold
+		, hashMap
+		, resultA
+		, resultB
+	);
 
-	cudaMemcpy(&h_result, d_results[3], uintSize, cudaMemcpyDeviceToHost);
-	REQUIRE(h_result == 2); // |B-C|
+	NeighboursListInfoHolder expectedA0(1, 0);
+	NeighboursListInfoHolder expectedA1(2, 1);
+	NeighboursListInfoHolder expectedB0(1, 3);
+	NeighboursListInfoHolder expectedB1(1, 4);
+
+	std::vector<UInt> resultKeys = { 
+		0x000A0000
+		, 0x000A0001
+		, 0x000B0000
+		, 0x000B0001
+	};
+
+	thrust::device_vector<UInt> dResultKeys = resultKeys;
+
+
+	NeighboursListInfoHolder* dResults;
+	NeighboursListInfoHolder results[4];
+
+	cudaMalloc(reinterpret_cast<void**>(&dResults), 4 * sizeof(NeighboursListInfoHolder));
+	
+	hashMap->getValues(
+		thrust::raw_pointer_cast(dResultKeys.data())
+		, dResults
+		, 4);
+
+	cudaMemcpy(results, dResults, 4 * sizeof(NeighboursListInfoHolder), cudaMemcpyDeviceToHost);
+
+	REQUIRE(results[0].count == expectedA0.count);
+	REQUIRE(results[0].count == expectedA0.count);
+
+	REQUIRE(results[1].count == expectedA1.count);
+	REQUIRE(results[1].count == expectedA1.count);
+
+	REQUIRE(results[2].count == expectedB0.count);
+	REQUIRE(results[2].count == expectedB0.count);
+	
+	REQUIRE(results[3].count == expectedB1.count);
+	REQUIRE(results[3].count == expectedB1.count);
 }
 // ----------------------------------------------------------------------------
-*/
 
 
 /*

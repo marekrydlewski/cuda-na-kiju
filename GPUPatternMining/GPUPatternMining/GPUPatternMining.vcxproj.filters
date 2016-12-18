@@ -4,10 +4,6 @@
     <CudaCompile Include="HashMap\gpuutils.cu">
       <Filter>HashMap</Filter>
     </CudaCompile>
-    <CudaCompile Include="SimpleOperations.cu">
-      <Filter>SimpleOperations</Filter>
-    </CudaCompile>
-    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
     <CudaCompile Include="Common\CommonOperations.cu">
       <Filter>Common</Filter>
     </CudaCompile>
@@ -22,16 +18,12 @@
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h">
       <Filter>PairColocationsFiltering</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleOperations.h">
-      <Filter>SimpleOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\CommonOperations.cuh">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Common\MiningCommon.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Entities\NeighboursListInfoHolder.cuh" />
+    <ClInclude Include="Common\CommonOperations.h" />
+    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
+    <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="HashMap">

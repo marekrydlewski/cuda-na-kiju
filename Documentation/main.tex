@@ -1,0 +1,122 @@
+\documentclass[12pt]{article}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst} 
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage[nottoc]{tocbibind}
+\newcommand{\sectionbreak}{\clearpage}
+ \geometry{
+ a4paper,
+ left=35mm,
+ top=25mm,
+ bottom=25mm,
+ right=25mm,
+ }
+\begin{document}
+\begin{titlepage}
+	\centering
+	{\scshape\LARGE Politechnika Poznańska \par}
+	{\scshape\LARGE Wydział Informatyki \par}
+	{\scshape\LARGE Instytut Informatyki \par}
+	\vspace{1cm}
+	{\scshape\Large Praca dyplomowa inżynierska\par}
+	\vspace{1.5cm}
+	{\huge\bfseries Implementacja algorytmu eksploracji danych z użyciem CUDA API\par}
+	\vspace{2cm}
+	{\Large\itshape Marcin Jabłoński \par}
+	{\Large\itshape Łukasz Kosiak \par}
+	{\Large\itshape Piotr Kurzawa \par}
+	{\Large\itshape Marek Rydlewski \par}
+	\vfill
+	\begin{flushright}
+	Promotor:\par
+	dr inż. ~Witold \textsc{Andrzejewski}
+	\end{flushright}
+	\vfill
+	{\large Poznań, 2017 r.\par}
+\end{titlepage}
+\thispagestyle{empty} % Strona z pustym stylem, bez numeru
+$\mbox{ }$
+\vfill\vfill
+\hfill
+\begin{flushright}
+\begin{em}
+,,Coś się popsuło`` \\
+Zbigniew Stonoga
+\end{em}
+\end{flushright}
+\vfill\pagebreak
+\tableofcontents
+\newpage
+
+\section{Wstęp}
+
+\subsection{Wprowadzenie}
+
+Informatyzacja życia codziennego, jaka dokonała się w ostatnich latach sprawiła, że każdego dnia często nieświadomie zostawiamy po sobie wiele informacji na swój temat. Nawet z pozoru niewinne dane o naszych przyzwyczajeniach typu "z której półki bierzemy bułki w sklepie" są zapisywane w nieznanych nam systemach informatycznych. Dodając do tego inne usługi świadomie przez nas wykorzystywane - chociażby zapisywanie naszej lokalizacji przez prywatny telefon komórkowy - uzyskujemy dość ponury obraz tego, co jesteśmy w stanie po sobie zostawić. Co gorsza, chcąc czy nie chcąc, musimy się pogodzić z faktem, że dane te mogą zostać wykorzystane w różnym celu. Czy mamy jednak czego się obawiać? 
+
+Wbrew pozorom, taka błaha na pierwszy rzut oka informacja może mieć jednak istotne znaczenie dla funkcjonowania przemysłu piekarskiego. Przecież takich informacji codziennie my, klienci, zostawiamy ogromne ilości. Nic nie szkodzi na przeszkodzie, aby spróbować z tych danych odczytać preferencje bądź przyzwyczajenia przeciętnego Kowalskiego na temat jego codziennych zakupów, które mogą w przyszłości zaprocentować - zarówno dla właściciela, jak i klienta. Jest to oczywiście tylko przykład, ale oddaje doskonale fakt przydatności z pozoru nie mających znaczenia prostych czynności człowieka, jakie często przypadkiem rejestrują działające wokół nas systemy.
+
+Pozostaje jednak problem przetworzenia takich danych w celu otrzymania interesującej nas informacji, która byłaby potencjalnie użyteczna. Trzeba pamiętać, że rozmiar takich danych nierzadko sięga terabajtów i w praktyce skuteczna analiza takich danych przez człowieka nie jest możliwa. Musi on zatem w tym celu skorzystać z dobrodziejstw, jakie przynosi mu współczesna technologia.
+
+Problem efektywnego przetwarzania zdążył urosnąć do rangi oddzielnego działu w informatyce. W pracy \cite{kdd} zasugerowano utworzenie nowej dyscypliny mającej na celu opracowanie technik obliczeniowych rozwiązujących takie problemy, zwanej roboczo odkrywaniem wiedzy w bazach danych (ang. KDD – \textit{Knowledge Discovery in Databases}). Techniki te mają na celu odnajdywanie prawidłowych i potencjalnie użytecznych wzorców w dużych zbiorach danych.
+
+Wspominane wyżej techniki w dużej mierze zależą od rodzaju bazy, a ściślej mówiąc - charakteru danych występujących w niej. W przypadku danych zawierających informację o położeniu zazwyczaj mowa jest o  odkrywaniu wiedzy w bazach danych przestrzennych (ang. \textit{spatial data mining}). Takie systemy mogą zawierać atrybut lokalizacji obiektu w danym obszarze, jego opis w formie geometrycznej (np. w postaci wielokątów), a także inne atrybuty nieprzestrzenne. Okazuje się, że tradycyjne metody analizy danych przestrzennych zazwyczaj nie radzą sobie z nimi na tyle efektywnie, by było opłacalne ich użycie w praktyce \cite{trad}, dlatego też zaczęto szukać nowych sposobów na odkrywanie wiedzy w takich bazach.
+
+W pracy \cite{huang} zaproponowano odkrywanie \textit{wzorców kolokacji przestrzennych} (lub krócej: \textit{kolokacji}), czyli zbioru cech przestrzennych występujących w niewielkiej odległości od siebie.  Łatwo to można sobie wyobrazić na przykładzie przyrody, gdzie osobniki (gatunki) o podobnych cechach zazwyczaj trzymają się razem. Okazuje się, że to rozumowanie działa również dla bliższych współczesnemu człowiekowi cech przestrzennych, np. punktach o podobnej funkcji - stacje, kina, piekarnie, itd. Wraz z rosnącą popularnością obliczeń na kartach graficznych (w dużej mierze spowodowana wprowadzeniem technologii \textit{CUDA} autorstwa firmy NVIDIA) pojawiło się wiele gotowych rozwiązań, pozwalających na efektywne wyszukiwanie kolokacji nawet w bardzo rozbudowanych bazach danych. Przegląd niektórych z nich można znaleźć w pracy \cite{boinski}.
+
+Ostatni rok przyniósł kolejną metodę efektywnego przeszukiwania baz danych w celu odnalezienia kolokacji \cite{chinczyki}. Wykorzystuje ona autorski algorytm wyszukiwania maksymalnych klik w grafie rzadkim oraz skondensowane drzewa instancji przechowywaczce kliki instancji dla każdego kandydata do kolokacji (patrz Rozdział X) w celu zmniejszenia czasu obliczeń oraz ograniczenia wymagań co do pamięci operacyjnej. Algorytm ten jest przedmiotem badań niniejszej pracy zbiorowej.
+
+\subsection{Cel i zakres pracy}
+Celem niniejszej pracy jest [...]
+
+Zakres pracy obejmuje następujące zadania szczegółowe:
+
+\begin{enumerate}
+\item \textbf{Zapoznanie się z literaturą.} Zapoznanie się z podstawowymi pojęciami dotyczącymi [...] jest niezbędne do stworzenia [...]
+\item \textbf{Opracowanie wersji równoległej algorytmu eksploracji danych.} Podanie algorytmu [...] jest głównym celem tej pracy. [...]
+\item \textbf{Implementacja wersji sekwencyjne i równoległej ww. algorytmu.} Główny opis implementacji [...]
+\item \textbf{Przeprowadzenie eksperymentów wydajnościowych.}
+\end{enumerate}
+
+W pracy przedstawiono główne pojęcia związane z [..] i zawarto je w rozdziale 2. 
+
+Rozdział 3 poświęcony jest [...]. W rozdziałach 4 i 5 opisano [...].
+
+\subsection{Charakterystyka źródeł}
+
+[tutaj może opis najważniejszych źródeł, czyli pracy Boińskiego (jednej i drugiej), chińczyków i może jeszcze Shakara i Huanga]
+
+\section{Podstawy teoretyczne}
+
+Więcej informacji można znaleźć w książce \cite{sop}.
+
+\section{Algorytm}
+
+\section{Implementacja}
+
+\section{Testy efektywnościowe}
+
+\section{Zakończenie}
+
+\begin{thebibliography}{}
+\bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining
+to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
+\bibitem{sop}Ł.~Stanisławowski. \emph{Bogactwo i nędza narodów.}
+O'reilly, 2013.
+\bibitem{trad} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery.
+Taylor \& Francis, Inc., Bristol, PA, USA, 2001
+\bibitem{huang} S. Shekhar and Y. Huang. Discovering Spatial Co-location Patterns: A Summary of Results. In SSTD 2001, pages 236–256, 2001.
+\bibitem{boinski} Przetwarzanie zbiorów przestrzennych zapytan neksploracyjnych w srodowiskachzograniczonym rozmiarem pamiecioperacyjnej
+\bibitem{chinczyki}A fast space-saving algorithm for maximal co-location pattern mining
+\end{thebibliography}
+
+
+\appendix
+
+\section{Dodatek A}
+
+\section{Dodatek B}
+
+\end{document}

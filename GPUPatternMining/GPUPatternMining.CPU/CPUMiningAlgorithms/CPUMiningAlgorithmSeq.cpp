@@ -1,4 +1,8 @@
 #include "CPUMiningAlgorithmSeq.h"
+
+#include "../../GPUPatternMining.Contract/CinsTree.h"
+#include "../../GPUPatternMining.Contract/CinsNode.h"
+#include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <algorithm>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
@@ -6,7 +10,6 @@ void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int 
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
 }
-
 
 void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 {
@@ -89,7 +92,7 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 	}
 }
 
-void CPUMiningAlgorithmSeq::getMaximalCliques()
+void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
@@ -101,6 +104,11 @@ void CPUMiningAlgorithmSeq::getMaximalCliques()
 		auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
 	}
+}
+
+void CPUMiningAlgorithmSeq::filterMaximalCliques()
+{
+	constructCondensedTree(maximalCliques[0]);
 }
 
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T)
@@ -123,7 +131,6 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 		return maximalCliques;
 	}
 
-	//TODO: pivot selection
 	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
 
 	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
@@ -156,6 +163,25 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 
 	return maximalCliques;
 }
+
+bool CPUMiningAlgorithmSeq::filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> const & ancestors)
+{
+	for (auto nodePtr : ancestors)
+	{
+		bool isNeighborOfAncestor = false;
+		auto candidates = insTable[nodePtr->type][type][nodePtr->instanceId];
+		if (candidates != nullptr)
+		{
+			for (auto c : *candidates)
+			{
+				if (c == instanceId) { isNeighborOfAncestor = true; break; }
+			}
+		}
+		if (!isNeighborOfAncestor) return false;
+	}
+	return true;
+}
+
 
 ///Tomita Tanaka 2006 maximal pivot algorithm
 unsigned int CPUMiningAlgorithmSeq::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
@@ -216,6 +242,83 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 	}
 
 	return typeIncidenceColocations;
+}
+
+
+std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned int>& Cm)
+{
+	CinsTree tree;
+	std::vector<std::vector<ColocationElem>> finalInstances;
+	//step1
+	for (const auto& t : insTable[Cm[0]][Cm[1]])
+	{
+		auto a = t.first;
+		auto foundNode = tree.root->indexChild(a, Cm[0]);
+		if (foundNode == nullptr)
+			foundNode = tree.root->addChildPtr(a, Cm[0]);
+
+		for (auto b : *t.second)
+		{
+			auto newChild = foundNode->addChildPtr(b, Cm[1]);
+			tree.lastLevelChildren.push_back(newChild);
+		}
+	}
+	//step2
+	//only if co-location greater than 2
+	if (Cm.size() > 2)
+	{
+		std::vector<CinsNode*> newLastLevelChildren;
+		for (auto i = 2; i < Cm.size(); ++i)
+		{
+			newLastLevelChildren.clear();
+			for (auto lastChildPtr : tree.lastLevelChildren)
+			{
+				//list El contains candidates for new level of tree
+				std::vector<unsigned int> candidateIds, finalCandidatesIds;
+				auto ancestors = lastChildPtr->getAncestors();
+
+				//generate candidates based on last leaf
+				std::vector<unsigned int>* vec = insTable[lastChildPtr->type][Cm[i]][lastChildPtr->instanceId];
+				if (vec != nullptr)
+				{
+					for (auto b : *vec)
+					{
+						candidateIds.push_back(b);
+					}
+				}
+
+				//obtaining final list
+				for (auto el : candidateIds)
+				{
+					if (filterNodeCandidate(Cm[i], el, ancestors))
+					{
+						finalCandidatesIds.push_back(el);
+					}
+				}
+
+				//add last level children, add node
+				for (auto el : finalCandidatesIds)
+				{
+					auto addedNode = lastChildPtr->addChildPtr(Cm[i], el);
+					newLastLevelChildren.push_back(addedNode);
+				}
+			}
+			tree.lastLevelChildren = newLastLevelChildren;
+
+			//return instances, empty when there's any
+			for (auto node : tree.lastLevelChildren)
+			{
+				std::vector<ColocationElem> elems;
+				auto path = node->getPath();
+				for (auto p : path)
+				{
+					elems.push_back(ColocationElem(p->type, p->instanceId));
+				}
+				finalInstances.push_back(elems);
+			}
+		}
+	}
+	return finalInstances;
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

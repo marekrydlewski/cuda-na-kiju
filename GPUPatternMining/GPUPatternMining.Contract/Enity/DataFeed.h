@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 //-------------------------------------------------------------------
 
 struct Coords
@@ -45,5 +46,27 @@ struct array_deleter
 	void operator ()(T const * p)
 	{
 		delete[] p;
+	}
+};
+
+struct ColocationElem
+{
+	unsigned int type;
+	unsigned int instanceId;
+
+	ColocationElem() {};
+
+	ColocationElem(unsigned int type, unsigned int instanceId): type(type), instanceId(instanceId){}
+
+	bool operator < (const ColocationElem& str) const
+	{
+		/// smaller type always first e.g A < B, when equal smaller instance id first
+		return (type == str.type) ? (instanceId < str.instanceId) : (type < str.type);
+	}
+
+	bool operator > (const ColocationElem& str) const
+	{
+		/// smaller type always first e.g A < B, when equal smaller instance id first
+		return (type == str.type) ? (instanceId > str.instanceId) : (type > str.type);
 	}
 };

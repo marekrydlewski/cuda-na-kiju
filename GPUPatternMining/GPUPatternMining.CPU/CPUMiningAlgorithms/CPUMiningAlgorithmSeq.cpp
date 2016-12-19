@@ -163,9 +163,8 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 	return maximalCliques;
 }
 
-bool CPUMiningAlgorithmSeq::filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> ancestors)
+bool CPUMiningAlgorithmSeq::filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> const & ancestors)
 {
-	std::vector<unsigned int> finalCanditates;
 	for (auto nodePtr : ancestors)
 	{
 		bool isNeighborOfAncestor = false;
@@ -266,14 +265,17 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 	//only if co-location greater than 2
 	if (Cm.size() > 2)
 	{
+		std::vector<CinsNode*> newLastLevelChildren;
 		for (auto i = 2; i < Cm.size(); ++i)
 		{
+			newLastLevelChildren.clear();
 			for (auto lastChildPtr : tree.lastLevelChildren)
 			{
 				//list El contains candidates for new level of tree
-				std::vector<unsigned int> candidateIds;
+				std::vector<unsigned int> candidateIds, finalCandidatesIds;
 				auto ancestors = lastChildPtr->getAncestors();
 
+				//generate candidates based on last leaf
 				std::vector<unsigned int>* vec = insTable[Cm[lastChildPtr->type]][Cm[i]][lastChildPtr->instanceId];
 				if (vec != nullptr)
 				{
@@ -283,13 +285,23 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 					}
 				}
 
+				//obtaining final list
 				for (auto el : candidateIds)
 				{
-					//if (filterNodeCandidate(Cm[i], el, ancestors)
+					if (filterNodeCandidate(Cm[i], el, ancestors))
 					{
+						finalCandidatesIds.push_back(el);
 					}
 				}
+
+				//add last level children, add node
+				for (auto el : finalCandidatesIds)
+				{
+					auto addedNode = lastChildPtr->addChildPtr(Cm[i], el);
+					newLastLevelChildren.push_back(addedNode);
+				}
 			}
+			tree.lastLevelChildren = newLastLevelChildren;
 		}
 	}
 

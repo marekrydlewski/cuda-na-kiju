@@ -2,6 +2,7 @@
 #include "CPUMiningBaseAlgorithm.h"
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
+#include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <map>
 #include <vector>
 
@@ -24,7 +25,7 @@ private:
 	bool filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> const & ancestors);
 	unsigned int tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
-	void constructCondensedTree(const std::vector<unsigned int>& Cm);
+	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned int>& Cm);
 public:
 	void loadData(DataFeed* data, size_t size, unsigned int types) override;
 	void filterByDistance(float threshold) override;

@@ -54,6 +54,10 @@ struct ColocationElem
 	unsigned int type;
 	unsigned int instanceId;
 
+	ColocationElem() {};
+
+	ColocationElem(unsigned int type, unsigned int instanceId): type(type), instanceId(instanceId){}
+
 	bool operator < (const ColocationElem& str) const
 	{
 		/// smaller type always first e.g A < B, when equal smaller instance id first

@@ -2,6 +2,7 @@
 
 #include "../../GPUPatternMining.Contract/CinsTree.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
+#include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <algorithm>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
@@ -244,9 +245,10 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 }
 
 
-void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned int>& Cm)
+std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned int>& Cm)
 {
 	CinsTree tree;
+	std::vector<std::vector<ColocationElem>> finalInstances;
 	//step1
 	for (const auto& t : insTable[Cm[0]][Cm[1]])
 	{
@@ -306,10 +308,17 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 			//return instances, empty when there's any
 			for (auto node : tree.lastLevelChildren)
 			{
-
+				std::vector<ColocationElem> elems;
+				auto path = node->getPath();
+				for (auto p : path)
+				{
+					elems.push_back(ColocationElem(p->type, p->instanceId));
+				}
+				finalInstances.push_back(elems);
 			}
 		}
 	}
+	return finalInstances;
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

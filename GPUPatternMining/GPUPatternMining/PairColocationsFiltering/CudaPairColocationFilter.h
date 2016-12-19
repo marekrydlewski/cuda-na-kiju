@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../MiningCommon.h"
+#include "../Common/MiningCommon.h"
 //-------------------------------------------------------------------------------
 
 

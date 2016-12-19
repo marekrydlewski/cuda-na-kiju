@@ -1,6 +1,7 @@
 #include "../catch.hpp"
 
-#include <map>
+#define TEST_CUDA_CHECK_RETURN
+//--------------------------------------------------------------
 
 #include "../../GPUPatternMining/HashMap/gpuhashmapper.h"
 
@@ -97,8 +98,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Insert and Read test with HEX key", "Hash
 	unsigned int* c_keys;
 	unsigned int* c_values;
 
-	cudaMalloc((void**)&c_keys, (sizeof(unsigned int) * 3));
-	cudaMalloc((void**)&c_values, (sizeof(unsigned int) * 3));
+	cudaMalloc(reinterpret_cast<void**>(&c_keys), (sizeof(unsigned int) * 3));
+	cudaMalloc(reinterpret_cast<void**>(&c_values), (sizeof(unsigned int) * 3));
 
 	unsigned int h_keys[] = { 0xAA, 0xAB, 0xFF };
 	unsigned int h_values[] = { 10, 100, 1000 };
@@ -110,7 +111,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Insert and Read test with HEX key", "Hash
 
 	unsigned int* c_resultValues;
 
-	cudaMalloc((void**)&c_resultValues, (sizeof(unsigned int) * 3));
+	cudaMalloc(reinterpret_cast<void**>(&c_resultValues), (sizeof(unsigned int) * 3));
 
 	unsigned int h_resultValues[] = { 0, 0, 0 };
 

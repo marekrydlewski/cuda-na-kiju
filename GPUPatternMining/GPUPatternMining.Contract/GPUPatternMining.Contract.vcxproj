@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\DataFeed.h" />
+    <ClInclude Include="Enity\FeatureInstance.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h" />
     <ClInclude Include="IPairColocationsFilter.h" />

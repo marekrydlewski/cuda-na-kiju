@@ -64,29 +64,36 @@ Problem efektywnego przetwarzania zdążył urosnąć do rangi oddzielnego dzia�
 
 Wspominane wyżej techniki w dużej mierze zależą od rodzaju bazy, a ściślej mówiąc - charakteru danych występujących w niej. W przypadku danych zawierających informację o położeniu zazwyczaj mowa jest o  odkrywaniu wiedzy w bazach danych przestrzennych (ang. \textit{spatial data mining}). Takie systemy mogą zawierać atrybut lokalizacji obiektu w danym obszarze, jego opis w formie geometrycznej (np. w postaci wielokątów), a także inne atrybuty nieprzestrzenne. Okazuje się, że tradycyjne metody analizy danych przestrzennych zazwyczaj nie radzą sobie z nimi na tyle efektywnie, by było opłacalne ich użycie w praktyce \cite{trad}, dlatego też zaczęto szukać nowych sposobów na odkrywanie wiedzy w takich bazach.
 
-W pracy \cite{huang} zaproponowano odkrywanie \textit{wzorców kolokacji przestrzennych} (lub krócej: \textit{kolokacji}), czyli zbioru cech przestrzennych występujących w niewielkiej odległości od siebie.  Łatwo to można sobie wyobrazić na przykładzie przyrody, gdzie osobniki (gatunki) o podobnych cechach zazwyczaj trzymają się razem. Okazuje się, że to rozumowanie działa również dla bliższych współczesnemu człowiekowi cech przestrzennych, np. punktach o podobnej funkcji - stacje, kina, piekarnie, itd. Wraz z rosnącą popularnością obliczeń na kartach graficznych (w dużej mierze spowodowana wprowadzeniem technologii \textit{CUDA} autorstwa firmy NVIDIA) pojawiło się wiele gotowych rozwiązań, pozwalających na efektywne wyszukiwanie kolokacji nawet w bardzo rozbudowanych bazach danych. Przegląd niektórych z nich można znaleźć w pracy \cite{boinski}.
+W pracy \cite{huang} zaproponowano odkrywanie \textit{wzorców kolokacji przestrzennych} (lub krócej: \textit{kolokacji}), czyli zbioru cech przestrzennych występujących w niewielkiej odległości od siebie.  Łatwo to można sobie wyobrazić na przykładzie przyrody, gdzie osobniki (gatunki) o podobnych cechach zazwyczaj trzymają się razem. Rozumowanie to działa również dla bliższych współczesnemu człowiekowi cech przestrzennych, np. punktach o podobnej funkcji - stacje, kina, piekarnie, itd. Wraz z rosnącą popularnością obliczeń na kartach graficznych (w dużej mierze spowodowana wprowadzeniem technologii \textit{CUDA} autorstwa firmy NVIDIA) pojawiło się wiele gotowych rozwiązań, pozwalających na efektywne wyszukiwanie kolokacji nawet w bardzo rozbudowanych bazach danych. Przegląd niektórych z nich można znaleźć w pracy \cite{boinski}.
 
-Ostatni rok przyniósł kolejną metodę efektywnego przeszukiwania baz danych w celu odnalezienia kolokacji \cite{chinczyki}. Wykorzystuje ona autorski algorytm wyszukiwania maksymalnych klik w grafie rzadkim oraz skondensowane drzewa instancji przechowywaczce kliki instancji dla każdego kandydata do kolokacji (patrz Rozdział X) w celu zmniejszenia czasu obliczeń oraz ograniczenia wymagań co do pamięci operacyjnej. Algorytm ten jest przedmiotem badań niniejszej pracy zbiorowej.
+Ostatni rok przyniósł kolejną metodę efektywnego przeszukiwania baz danych w celu odnalezienia kolokacji \cite{chinczyki}. Wykorzystuje ona autorski algorytm wyszukiwania maksymalnych klik w grafie rzadkim oraz skondensowane drzewa instancji przechowywaczce kliki instancji dla każdego kandydata do kolokacji (patrz Rozdział 2) w celu zmniejszenia czasu obliczeń oraz ograniczenia wymagań co do pamięci operacyjnej. Algorytm ten jest przedmiotem badań niniejszej pracy zbiorowej.
 
 \subsection{Cel i zakres pracy}
-Celem niniejszej pracy jest [...]
+
+Celem niniejszej pracy jest analiza wydajności zaproponowanych w pracy \cite{chinczyki} rozwiązań z zakresu odkrywania kolokacji przestrzennych dla GPU i CPU.
 
 Zakres pracy obejmuje następujące zadania szczegółowe:
 
 \begin{enumerate}
-\item \textbf{Zapoznanie się z literaturą.} Zapoznanie się z podstawowymi pojęciami dotyczącymi [...] jest niezbędne do stworzenia [...]
-\item \textbf{Opracowanie wersji równoległej algorytmu eksploracji danych.} Podanie algorytmu [...] jest głównym celem tej pracy. [...]
-\item \textbf{Implementacja wersji sekwencyjne i równoległej ww. algorytmu.} Główny opis implementacji [...]
-\item \textbf{Przeprowadzenie eksperymentów wydajnościowych.}
+\item \textbf{Zapoznanie się z literaturą.} Zapoznanie się z podstawowymi pojęciami dotyczącymi odkrywania danych w bazach danych przestrzennych oraz wyszukiwania wzorców kolokacji przestrzennych jest niezbędne do stworzenia działającej implementacji powyższego algorytmu. Dodatkowo należy zwrócić uwagę na dodatkowe zagadnienia związane z teorią grafów.
+\item \textbf{Opracowanie wersji równoległej algorytmu eksploracji danych.} Konieczne jest przemyślenie wykorzystania algorytmów pomocniczych dla poszczególnych kroków całego rozwiązania oraz zaproponowanie możliwie najkorzystniejszego rozwiązania biorąc pod uwagę dostępną pamięć operacyjną, czas przetwarzania i przesyłania danych między pamięcią operacyjną a pamięcią karty graficznej.
+\item \textbf{Implementacja wersji sekwencyjnej i równoległej ww. algorytmu.} Rozwiązanie podane w punkcie drugim powinno zostać zaimplementowane w technologii NVIDIA CUDA dla wersji GPU oraz biblioteki OpenMPI w przypadku odmiany dla CPU.
+\item \textbf{Przeprowadzenie eksperymentów wydajnościowych.} Analiza wyników testów wydajnościowych implementacji z punktu 3 jest głównym celem tej pracy. Należy zbadać efektywność obu rozwiązań pod względem czasu wykonywania oraz zapotrzebowania na dostępną pamięć. 
 \end{enumerate}
-
-W pracy przedstawiono główne pojęcia związane z [..] i zawarto je w rozdziale 2. 
-
-Rozdział 3 poświęcony jest [...]. W rozdziałach 4 i 5 opisano [...].
 
 \subsection{Charakterystyka źródeł}
 
-[tutaj może opis najważniejszych źródeł, czyli pracy Boińskiego (jednej i drugiej), chińczyków i może jeszcze Shakara i Huanga]
+Jak już wspomniano, niniejsza praca w dużej mierze opiera się o algorytm zaprezentowany w dokumencie \cite{chinczyki}. Do jej opracowania była wymagana wiedza zawarta w innych źródłach, często również o charakterze naukowym.
+
+Głównym źródłem wiedzy na temat kolokacji przestrzennych była rozprawda doktorska dr inż. Pawła Boińskiego \cite{boinski}, która w dużym przekroju omawia ideę kolokacji zaprezentowaną przez Shakara i Huanga w pracy \cite{huang}, a także prezentuje najpopularniejsze techniki ich odkrywania (metody \textit{Co-location Miner}, \textit{iCPI-tree}). Część rozwiązań wykorzystanych w tych technikach została wykorzystana w trakcie realizacji algorytmu.
+
+Oddzielną kwestią jest literatura książkowa, wykorzystana do zapoznania się z technologią CUDA oraz przyjęcia dobrych praktyk optymalizacyjnych i programistycznych. Tutaj szczególnie należy wymienić popularną pozycję \textit{CUDA w przykładach} autorstwa Shane'a Cooke'a \cite{cuda_by_examples}, a także \textit{Professional CUDA C Programming} \cite{professional_cuda} będącą również podstawą do wstępu teoretycznego w rozdziale drugim.
+
+\subsection{Struktura pracy}
+
+W pracy przedstawiono główne pojęcia związane z wyszukiwaniem kolokacji przestrzennych oraz programowaniem równoległym na procesory graficzne i zawarto je w rozdziale 2. Rozdział 3 poświęcony jest algorytmowi będącemu głównym tematem pracy. Rozdział 4 opisuje implementację tego algorytmu w technologii CUDA, natomiast rozdział 5 prezentuje wyniki przeprowadzonych testów.
+
+\textit{W tym miejscu zasadniczo będzie można napisać więcej, jeżeli już te rozdziały zostaną ustalone bądź wstępnie uzupełnione. Poza tym należy ustalić, czy w ogóle potrzebujemy takiego działu dla tak małej pracy. Z drugiej strony, zawsze to jednak te pół strony więcej spamu - borewicz}
 
 \section{Podstawy teoretyczne}
 
@@ -110,6 +117,8 @@ Taylor \& Francis, Inc., Bristol, PA, USA, 2001
 \bibitem{huang} S. Shekhar and Y. Huang. Discovering Spatial Co-location Patterns: A Summary of Results. In SSTD 2001, pages 236–256, 2001.
 \bibitem{boinski} Przetwarzanie zbiorów przestrzennych zapytan neksploracyjnych w srodowiskachzograniczonym rozmiarem pamiecioperacyjnej
 \bibitem{chinczyki}A fast space-saving algorithm for maximal co-location pattern mining
+\bibitem{cuda_by_examples}CUDA by Example: An Introduction to General-Purpose GPU Programming, Jason Sanders, Edward Kandrot
+\bibitem{professional_cuda}Professional CUDA C Programming, John Cheng, Max Grossman, Ty McKerche
 \end{thebibliography}
 
 

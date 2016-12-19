@@ -302,9 +302,14 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 				}
 			}
 			tree.lastLevelChildren = newLastLevelChildren;
+
+			//return instances, empty when there's any
+			for (auto node : tree.lastLevelChildren)
+			{
+
+			}
 		}
 	}
-
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

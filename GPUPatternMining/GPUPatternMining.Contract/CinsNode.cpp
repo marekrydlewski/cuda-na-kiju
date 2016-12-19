@@ -50,6 +50,19 @@ std::vector<CinsNode*> CinsNode::getAncestors()
 	return ancestors;
 }
 
+std::vector<CinsNode*> CinsNode::getPath()
+{
+	CinsNode* node = this;
+	std::vector<CinsNode*> ancestors;
+	ancestors.push_back(node);
+	while (node->parent != nullptr)
+	{
+		ancestors.push_back(node->parent);
+		node = node->parent;
+	}
+	return ancestors;
+}
+
 unsigned int CinsNode::getDepth()
 {
 	std::vector<unsigned int> depths;

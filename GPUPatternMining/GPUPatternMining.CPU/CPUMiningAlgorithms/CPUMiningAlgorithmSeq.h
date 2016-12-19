@@ -1,6 +1,7 @@
 #pragma once
 #include "CPUMiningBaseAlgorithm.h"
 #include "../../GPUPatternMining.Contract/Graph.h"
+#include "../../GPUPatternMining.Contract/CinsNode.h"
 #include <map>
 #include <vector>
 
@@ -20,6 +21,7 @@ private:
 
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
 	std::vector<std::vector<unsigned int>> bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T);
+	bool filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> ancestors);
 	unsigned int tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
 	void constructCondensedTree(const std::vector<unsigned int>& Cm);

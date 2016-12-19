@@ -163,6 +163,26 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 	return maximalCliques;
 }
 
+bool CPUMiningAlgorithmSeq::filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> ancestors)
+{
+	std::vector<unsigned int> finalCanditates;
+	for (auto nodePtr : ancestors)
+	{
+		bool isNeighborOfAncestor = false;
+		auto candidates = insTable[nodePtr->type][type][nodePtr->instanceId];
+		if (candidates != nullptr)
+		{
+			for (auto c : *candidates)
+			{
+				if (c == instanceId) { isNeighborOfAncestor = true; break; }
+			}
+		}
+		if (!isNeighborOfAncestor) return false;
+	}
+	return true;
+}
+
+
 ///Tomita Tanaka 2006 maximal pivot algorithm
 unsigned int CPUMiningAlgorithmSeq::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
 {
@@ -243,29 +263,31 @@ void CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned in
 		}
 	}
 	//step2
-	//if co-location greater than 2
+	//only if co-location greater than 2
 	if (Cm.size() > 2)
 	{
 		for (auto i = 2; i < Cm.size(); ++i)
 		{
-			for (const auto lastChildPtr : tree.lastLevelChildren)
+			for (auto lastChildPtr : tree.lastLevelChildren)
 			{
 				//list El contains candidates for new level of tree
-				std::vector<unsigned int> instanceIds;
-
+				std::vector<unsigned int> candidateIds;
+				auto ancestors = lastChildPtr->getAncestors();
 
 				std::vector<unsigned int>* vec = insTable[Cm[lastChildPtr->type]][Cm[i]][lastChildPtr->instanceId];
 				if (vec != nullptr)
 				{
 					for (auto b : *vec)
 					{
-						instanceIds.push_back(b);
+						candidateIds.push_back(b);
 					}
 				}
 
-				for (auto el : instanceIds)
+				for (auto el : candidateIds)
 				{
-
+					//if (filterNodeCandidate(Cm[i], el, ancestors)
+					{
+					}
 				}
 			}
 		}

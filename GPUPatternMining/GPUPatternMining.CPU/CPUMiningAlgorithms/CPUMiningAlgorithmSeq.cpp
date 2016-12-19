@@ -278,7 +278,7 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 				auto ancestors = lastChildPtr->getAncestors();
 
 				//generate candidates based on last leaf
-				std::vector<unsigned int>* vec = insTable[Cm[lastChildPtr->type]][Cm[i]][lastChildPtr->instanceId];
+				std::vector<unsigned int>* vec = insTable[lastChildPtr->type][Cm[i]][lastChildPtr->instanceId];
 				if (vec != nullptr)
 				{
 					for (auto b : *vec)

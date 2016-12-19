@@ -1,12 +1,15 @@
 #include "../catch.hpp"
 
+#define TEST_CUDA_CHECK_RETURN
+//--------------------------------------------------------------
+
 #include <thrust/device_vector.h>
 
 #include "../BaseCudaTestHandler.h"
 
 #include "../../GPUPatternMining.Contract/IPairColocationsProvider.h"
 #include "../../GPUPatternMining/HashMap/gpuhashmapper.h"
-#include "../../GPUPatternMining/PairColocationsFiltering/CudaPairColocationFilter.h"
+#include "../../GPUPatternMining/Common/MiningCommon.h"
 //--------------------------------------------------------------
 
 /*

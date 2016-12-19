@@ -15,30 +15,36 @@ public:
 	__device__ __inline__ K inSequence(K& start, unsigned int pos, unsigned int step);
 };
 
-class GPUUIntKeyProcessor :public GPUKeyProcessor<unsigned int>
+template <> class GPUKeyProcessor<unsigned int>
 {
 public:
-	__device__ __inline__ unsigned int reduceKey(unsigned int key)
+	__device__ __inline__ unsigned int reduceKey(unsigned int& key)
 	{
 		return key;
 	}
-	__device__ __inline__ bool compareKeys(unsigned int key1, unsigned int key2)
+
+	__device__ __inline__ bool compareKeys(unsigned int& key1, unsigned int& key2)
 	{
 		return key1 == key2;
 	}
-	__device__ __inline__ bool isKeyEmpty(unsigned int key)
+
+	__device__ __inline__ bool isKeyEmpty(unsigned int& key)
 	{
 		return key == emptyKey();
 	}
+
 	__device__ __inline__ unsigned int emptyKey()
 	{
 		return 0xffffffff;
 	}
-	__device__ __inline__ unsigned int inSequence(unsigned int  start, unsigned int pos, unsigned int step)
+
+	__device__ __inline__ unsigned int inSequence(unsigned int& start, unsigned int pos, unsigned int step)	
 	{
 		return start + pos*step;
 	}
 };
+
+typedef GPUKeyProcessor<unsigned int> GPUUIntKeyProcessor;
 
 class GPUULongIntKeyProcessor :public GPUKeyProcessor<unsigned long long int>
 {

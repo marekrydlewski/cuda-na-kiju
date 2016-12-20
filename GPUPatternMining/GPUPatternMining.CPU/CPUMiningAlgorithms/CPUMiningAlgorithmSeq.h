@@ -26,6 +26,12 @@ public:
 	void filterByPrevalence(float prevalence) override;
 	void getMaximalCliques() override;
 	void loadData(DataFeed* data, size_t size, unsigned int types) override;
+
+	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getDistanceFilteringResult()
+	{
+		return insTable;
+	}
+
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();
 };

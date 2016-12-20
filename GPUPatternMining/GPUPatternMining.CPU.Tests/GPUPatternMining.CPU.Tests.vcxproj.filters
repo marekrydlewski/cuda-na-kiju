@@ -24,9 +24,15 @@
     <ClCompile Include="DistanceFilterTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="testDataGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catch.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="testDataGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

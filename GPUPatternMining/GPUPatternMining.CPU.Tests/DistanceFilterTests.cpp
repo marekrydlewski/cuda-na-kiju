@@ -59,7 +59,7 @@ TEST_CASE("SingleNeighbourhoodRelation", "DistanceFilterTests")
 
 	REQUIRE(notEmptyTypePairs == 1);
 	REQUIRE(result[0][1][0]->size() == 1);
-	REQUIRE(result[0][1][0][0][0] == 0);
+	REQUIRE((*result[0][1][0])[0] == 0);
 }
 
 TEST_CASE("LinearNeighbourhoodRelation", "DistanceFilterTests")
@@ -90,11 +90,11 @@ TEST_CASE("LinearNeighbourhoodRelation", "DistanceFilterTests")
 
 	REQUIRE(notEmptyTypePairs == 4);
 	REQUIRE(result[0][1][0]->size() == 1);
-	REQUIRE(result[0][1][0][0][0] == 0);
+	REQUIRE((*result[0][1][0])[0] == 0);
 	REQUIRE(result[1][2][0]->size() == 1);
-	REQUIRE(result[1][2][0][0][0] == 0);
+	REQUIRE((*result[1][2][0])[0] == 0);
 	REQUIRE(result[2][3][0]->size() == 1);
-	REQUIRE(result[2][3][0][0][0] == 0);
+	REQUIRE((*result[2][3][0])[0] == 0);
 	REQUIRE(result[3][4][0]->size() == 1);
-	REQUIRE(result[3][4][0][0][0] == 0);
+	REQUIRE((*result[3][4][0])[0] == 0);
 }

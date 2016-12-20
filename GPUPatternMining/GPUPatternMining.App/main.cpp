@@ -1,35 +1,43 @@
-
-#include "cuda_runtime.h"
-
-#include <stdio.h>
-#include "../GPUPatternMining/SimpleOperations.h"
-#include "../GPUPatternMining.Contract/RandomDataProvider.h"
+﻿#include <stdio.h>
+//--------------------------------------------------------------------------------
 
 
 int main()
 {
-    const int arraySize = 5;
-    const int a[arraySize] = { 1, 2, 3, 4, 5 };
-    const int b[arraySize] = { 10, 20, 30, 40, 50 };
-    int c[arraySize] = { 0 };
+	char msg[] =
+	{ 
+		0x00000049,0x0000006D,0x00000070,0x0000006C,0x00000065, 
+		0x0000006D,0x00000065,0x0000006E,0x00000074,0x00000061,
+		0x00000063,0x0000006A,0x00000061,0x00000020,0x00000061,
+		0x0000006C,0x00000067,0x0000006F,0x00000072,0x00000079,
+		0x00000074,0x0000006D,0x00000075,0x00000020,0x00000065,
+		0x0000006B,0x00000073,0x00000070,0x0000006C,0x0000006F,
+		0x00000072,0x00000061,0x00000063,0x0000006A,0x00000069,
+		0x00000020,0x00000064,0x00000061,0x0000006E,0x00000079,
+		0x00000063,0x00000068,0x00000020,0x0000007A,0x00000020,
+		0x00000075,0x0000003F,0x00000079,0x00000063,0x00000069,
+		0x00000065,0x0000006D,0x00000020,0x00000043,0x00000055,
+		0x00000044,0x00000041,0x00000020,0x00000041,0x00000050,
+		0x00000049,0x0000000A,0x00000000,0x00000000,0x00000000
+	};
 
-    // Add vectors in parallel.
-    cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "addWithCuda failed!");
-        return 1;
-    }
+	char format[] =
+	{
+		0x00000025,0x00000073,0x00000000,0x00000000,0x00000000
+	};
 
-    printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
-        c[0], c[1], c[2], c[3], c[4]);
+	__asm
+	{
+		lea eax, msg
+		push eax
+		lea eax, format
+		push eax
 
-    // cudaDeviceReset must be called before exiting in order for profiling and
-    // tracing tools such as Nsight and Visual Profiler to show complete traces.
-    cudaStatus = cudaDeviceReset();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaDeviceReset failed!");
-        return 1;
-    }
+		call DWORD ptr printf
 
-    return 0;
+		pop ebx
+		pop ebx
+
+		mov eax, 0x00000000
+	}
 }

@@ -17,10 +17,9 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 
 	for (auto it1 = source.begin(); (it1 != source.end()); ++it1)
 	{
+		++this->typeIncidenceCounter[(*it1).type];
 		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 		{
-			++this->typeIncidenceCounter[(*it1).type];
-
 			if ((*it1).type != (*it2).type)
 			{
 				if (checkDistance(*it1, *it2, effectiveThreshold))

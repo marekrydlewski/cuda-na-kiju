@@ -61,5 +61,5 @@ TEST_CASE("PrevalenceHighEnough", "PrevalenceFilterTests")
 		}
 	}
 
-	REQUIRE(notEmptyTypePairs == 1);
+	REQUIRE(notEmptyTypePairs == 2);
 }

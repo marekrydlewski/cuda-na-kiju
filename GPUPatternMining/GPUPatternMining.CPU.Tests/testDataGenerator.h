@@ -13,6 +13,12 @@ public:
 	///6 vertices, 2 types, 4 instances of type0 and 2 instances of type1, intances 0 and 1 of both types
 	///in neighbourhood (t0i0 with t1i0 and t0i1 with t1i1)
 	DataFeed* getDataForPrevalenceTests();
+
+	DataFeed* getDataForMaximalCliqueSize2();
+
+	DataFeed* getDataForMaximalCliqueSize1();
+
+	DataFeed* getDataForMaximalCliqueSize4();
 	TestDataGenerator();
 	~TestDataGenerator();
 };

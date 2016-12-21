@@ -38,6 +38,11 @@ public:
 		return insTable;
 	}
 
+	std::vector<std::vector<unsigned int>> getMaximalCliques()
+	{
+		return maximalCliques;
+	}
+
 	CPUMiningAlgorithmSeq();
 	~CPUMiningAlgorithmSeq();
 };

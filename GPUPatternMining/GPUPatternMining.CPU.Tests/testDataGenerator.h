@@ -6,6 +6,7 @@ public:
 	DataFeed* getNoNeighboursData();
 	DataFeed* getOneNeighbourRelationshipData();
 	DataFeed* getLinearNeighbourRelationshipData();
+	DataFeed* getDataForPrevalenceTests();
 	TestDataGenerator();
 	~TestDataGenerator();
 };

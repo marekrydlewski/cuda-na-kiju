@@ -10,7 +10,7 @@ TEST_CASE("NoNeighbourhoodRelations", "DistanceFilterTests")
 	miner.loadData(graph, 5, 5);
 	miner.filterByDistance(5);
 
-	auto result = miner.getDistanceFilteringResult();
+	auto result = miner.getInsTable();
 
 	int notEmptyTypePairs = 0;
 
@@ -39,7 +39,7 @@ TEST_CASE("SingleNeighbourhoodRelation", "DistanceFilterTests")
 	miner.loadData(graph, 5, 5);
 	miner.filterByDistance(5);
 
-	auto result = miner.getDistanceFilteringResult();
+	auto result = miner.getInsTable();
 
 	int notEmptyTypePairs = 0;
 
@@ -70,7 +70,7 @@ TEST_CASE("LinearNeighbourhoodRelation", "DistanceFilterTests")
 	miner.loadData(graph, 5, 5);
 	miner.filterByDistance(5);
 
-	auto result = miner.getDistanceFilteringResult();
+	auto result = miner.getInsTable();
 
 	int notEmptyTypePairs = 0;
 

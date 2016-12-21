@@ -120,6 +120,7 @@
   <ItemGroup>
     <ClCompile Include="DistanceFilterTests.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MaximalCliquesFindingTests.cpp" />
     <ClCompile Include="PrevalenceFilterTests.cpp" />
     <ClCompile Include="testDataGenerator.cpp" />
   </ItemGroup>

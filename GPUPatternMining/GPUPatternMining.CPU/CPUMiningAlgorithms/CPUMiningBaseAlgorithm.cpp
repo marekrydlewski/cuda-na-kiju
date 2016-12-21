@@ -24,6 +24,6 @@ inline bool CPUMiningBaseAlgorithm::checkDistance(const DataFeed & first, const 
 inline bool CPUMiningBaseAlgorithm::countPrevalence(const std::pair<unsigned int, unsigned int>& particularInstance, const std::pair<unsigned int, unsigned int>& generalInstance, float prevalence) const
 {
 	float aPrev = particularInstance.first / (float)generalInstance.first;
-	float bPrev = particularInstance.first / (float)generalInstance.second; //are we sure it's particularInstance.first?
+	float bPrev = particularInstance.second / (float)generalInstance.second;
 	return (prevalence < std::min(aPrev, bPrev));
 }

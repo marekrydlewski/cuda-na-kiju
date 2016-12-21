@@ -3,12 +3,13 @@
   <ItemGroup>
     <CudaCompile Include="Tests\HashMapTests.cu" />
     <CudaCompile Include="Tests\PrevalenceIndexCalculationTests.cu" />
+    <CudaCompile Include="Tests\PlaneSweepFoxtrotTests.cu" />
+    <CudaCompile Include="Tests\CommonOperationsTests.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DataProviderTests.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
-    <ClCompile Include="Tests\SimpleOperationsTests.cpp" />
     <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
   </ItemGroup>
   <ItemGroup>

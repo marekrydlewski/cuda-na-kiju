@@ -6,12 +6,12 @@ TEST_CASE("NoNeighbourhoodRelations", "DistanceFilterTests")
 {
 	TestDataGenerator dataGenerator;
 	CPUMiningAlgorithmSeq miner;
+
 	auto graph = dataGenerator.getNoNeighboursData();
 	miner.loadData(graph, 5, 5);
 	miner.filterByDistance(5);
 
 	auto result = miner.getInsTable();
-
 	int notEmptyTypePairs = 0;
 
 	for (auto& row : result)
@@ -35,12 +35,12 @@ TEST_CASE("SingleNeighbourhoodRelation", "DistanceFilterTests")
 {
 	TestDataGenerator dataGenerator;
 	CPUMiningAlgorithmSeq miner;
+
 	auto graph = dataGenerator.getOneNeighbourRelationshipData();
 	miner.loadData(graph, 5, 5);
 	miner.filterByDistance(5);
 
 	auto result = miner.getInsTable();
-
 	int notEmptyTypePairs = 0;
 
 	for (auto& row : result)
@@ -66,12 +66,12 @@ TEST_CASE("LinearNeighbourhoodRelation", "DistanceFilterTests")
 {
 	TestDataGenerator dataGenerator;
 	CPUMiningAlgorithmSeq miner;
+
 	auto graph = dataGenerator.getLinearNeighbourRelationshipData();
 	miner.loadData(graph, 5, 5);
 	miner.filterByDistance(5);
 
 	auto result = miner.getInsTable();
-
 	int notEmptyTypePairs = 0;
 
 	for (auto& row : result)

@@ -115,7 +115,6 @@
   <ItemGroup>
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.cpp" />
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.cpp" />
-    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GPUPatternMining.Contract\GPUPatternMining.Contract.vcxproj">

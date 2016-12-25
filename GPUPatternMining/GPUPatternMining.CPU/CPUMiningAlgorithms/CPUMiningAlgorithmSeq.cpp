@@ -105,7 +105,7 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 	}
 }
 
-void CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
 	std::vector<std::vector<unsigned int>> finalMaxCliques;
 
@@ -115,7 +115,12 @@ void CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 		if(maxCliques.size() != 0)
 			finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
 	}
-	//return finalMaxCliques = final solution
+	return finalMaxCliques;
+}
+
+void CPUMiningAlgorithmSeq::testFilterMaxCliques()
+{
+	constructCondensedTree(maximalCliques[0]);
 }
 
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
@@ -291,10 +296,10 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 				auto ancestors = lastChildPtr->getAncestors();
 
 				//generate candidates based on last leaf
-				std::vector<unsigned int>* vec = insTable[lastChildPtr->type][Cm[i]][lastChildPtr->instanceId];
-				if (vec != nullptr)
+				auto mapIt = insTable[lastChildPtr->type][Cm[i]].find(lastChildPtr->instanceId);
+				if (mapIt != insTable[lastChildPtr->type][Cm[i]].end())//if exists such a key
 				{
-					for (auto b : *vec)
+					for (auto b : *mapIt->second)
 					{
 						candidateIds.push_back(b);
 					}

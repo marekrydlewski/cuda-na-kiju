@@ -45,7 +45,9 @@ public:
 	void filterByDistance(float threshold) override;
 	void filterByPrevalence(float prevalence) override;
 	void constructMaximalCliques() override;
-	void filterMaximalCliques(float prevalence);
+	std::vector<std::vector<unsigned int>> filterMaximalCliques(float prevalence);
+	//for testing purpose
+	void testFilterMaxCliques();
 
 	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getInsTable()
 	{

@@ -105,9 +105,16 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 	}
 }
 
-void CPUMiningAlgorithmSeq::filterMaximalCliques()
+void CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
-	constructCondensedTree(maximalCliques[0]);
+	std::vector<std::vector<unsigned int>> finalMaxCliques;
+
+	for (auto clique : maximalCliques)
+	{
+		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
+		finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+	}
+	//return finalMaxCliques = final solution
 }
 
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
@@ -324,6 +331,50 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 		}
 	}
 	return finalInstances;
+}
+
+bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence)
+{
+	auto maxCliquesIns = constructCondensedTree(clique);
+
+	if (maxCliquesIns.size() != 0)
+	{
+		//prepare to count prevalence
+		std::vector<unsigned int> particularIns, generalIns;
+		for (auto ins : maxCliquesIns[0])
+		{
+			generalIns.push_back(typeIncidenceCounter[ins.type]);
+		}
+
+		for (auto i = 0; i < maxCliquesIns[0].size(); ++i)
+		{
+			//new map for every type, instances are keys
+			std::map<unsigned int, bool> isUsed;
+			unsigned int insCounter = 0;
+			for (auto j = 0; j < maxCliquesIns.size(); ++j)
+			{
+				if (!isUsed[maxCliquesIns[j][i].instanceId])
+				{
+					isUsed[maxCliquesIns[j][i].instanceId] = true;
+					++insCounter;
+				}
+			}
+			particularIns.push_back(insCounter);
+		}
+		return countPrevalence(particularIns, generalIns, prevalence);
+	}
+	return false; //empty
+}
+
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(std::vector<unsigned int>& clique, float prevalence)
+{
+	std::vector<std::vector<unsigned int>> finalMaxCliques;
+	if (isCliquePrevalent(clique, prevalence))
+		finalMaxCliques.push_back(clique);
+	else {
+
+	}
+	return finalMaxCliques;
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

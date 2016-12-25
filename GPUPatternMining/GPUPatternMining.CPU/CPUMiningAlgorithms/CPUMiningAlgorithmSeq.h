@@ -34,6 +34,8 @@ private:
 		const std::vector<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned int>& Cm);
+	bool isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence);
+	std::vector<std::vector<unsigned int>> getPrevalentMaxCliques(std::vector<unsigned int>& clique, float prevalence);
 
 public:
 	void loadData(
@@ -43,7 +45,7 @@ public:
 	void filterByDistance(float threshold) override;
 	void filterByPrevalence(float prevalence) override;
 	void constructMaximalCliques() override;
-	void filterMaximalCliques();
+	void filterMaximalCliques(float prevalence);
 
 	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getInsTable()
 	{

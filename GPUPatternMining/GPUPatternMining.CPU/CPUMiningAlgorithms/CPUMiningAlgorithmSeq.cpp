@@ -322,19 +322,19 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 				}
 			}
 			tree.lastLevelChildren = newLastLevelChildren;
-
-			//return instances, empty when there's any
-			for (auto node : tree.lastLevelChildren)
-			{
-				std::vector<ColocationElem> elems;
-				auto path = node->getPath();
-				for (auto p : path)
-				{
-					elems.push_back(ColocationElem(p->type, p->instanceId));
-				}
-				finalInstances.push_back(elems);
-			}
 		}
+	}
+	
+	//return instances, empty when there's any
+	for (auto node : tree.lastLevelChildren)
+	{
+		std::vector<ColocationElem> elems;
+		auto path = node->getPath();
+		for (auto p : path)
+		{
+			elems.push_back(ColocationElem(p->type, p->instanceId));
+		}
+		finalInstances.push_back(elems);
 	}
 	return finalInstances;
 }
@@ -377,14 +377,20 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCli
 	std::vector<std::vector<unsigned int>> finalMaxCliques;
 	if (isCliquePrevalent(clique, prevalence))
 		finalMaxCliques.push_back(clique);
-	else {
+	else 
+	{
 		if (clique.size() > 2) //it's possible, no idea why
 		{
 			auto smallerCliques = getAllCliquesSmallerByOne(clique);
 			for (auto c : smallerCliques)
 			{
-				auto nextCliques = getPrevalentMaxCliques(c, prevalence);
-				finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
+				if(c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
+					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+				else
+				{
+					auto nextCliques = getPrevalentMaxCliques(c, prevalence);
+					finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
+				}
 			}
 		}
 	}

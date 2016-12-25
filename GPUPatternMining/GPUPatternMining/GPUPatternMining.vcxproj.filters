@@ -21,9 +21,15 @@
     <ClInclude Include="Common\MiningCommon.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\CommonOperations.h" />
-    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
-    <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
+    <ClInclude Include="Common\CommonOperations.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h">
+      <Filter>PlaneSweep</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\NeighboursListInfoHolder.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="HashMap">
@@ -37,6 +43,12 @@
     </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{88c1fc49-9538-4a47-9656-55a7eb93d714}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlaneSweep">
+      <UniqueIdentifier>{9dc71700-33a9-4ae1-a162-a133d607b897}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entities">
+      <UniqueIdentifier>{eeb6a990-5ec4-415b-91c7-194f8a920175}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

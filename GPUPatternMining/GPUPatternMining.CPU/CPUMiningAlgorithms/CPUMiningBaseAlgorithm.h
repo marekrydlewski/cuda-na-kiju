@@ -14,12 +14,12 @@ protected:
 		const DataFeed& second,
 		float effectiveThreshold) const;
 	virtual bool inline countPrevalence(
-		const std::pair<unsigned int, unsigned int>& particularInstance,
-		const std::pair<unsigned int, unsigned int>& generalInstance,
+		std::pair<unsigned int, unsigned int> particularInstance,
+		std::pair<unsigned int, unsigned int> generalInstance,
 		float prevalence) const;
 	virtual bool countPrevalence(
-		const std::vector<unsigned int> particularInstances,
-		const std::vector<unsigned int> generalInstances,
+		const std::vector<unsigned int>& particularInstances,
+		const std::vector<unsigned int>& generalInstances,
 		float prevalence) const;
 
 public:

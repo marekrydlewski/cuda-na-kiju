@@ -110,7 +110,10 @@ void CPUMiningAlgorithmSeq::filterMaximalCliques()
 	constructCondensedTree(maximalCliques[0]);
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T)
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
+	std::vector<unsigned int> M,
+	std::vector<unsigned int> K,
+	std::vector<unsigned int> T)
 {
 	std::vector<std::vector<unsigned int>> maximalCliques;
 	std::vector<unsigned int> MTunion(M.size() + T.size());
@@ -163,7 +166,10 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 	return maximalCliques;
 }
 
-bool CPUMiningAlgorithmSeq::filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> const & ancestors)
+bool CPUMiningAlgorithmSeq::filterNodeCandidate(
+	unsigned int type,
+	unsigned int instanceId,
+	std::vector<CinsNode*> const & ancestors)
 {
 	for (auto nodePtr : ancestors)
 	{

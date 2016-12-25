@@ -35,7 +35,7 @@ private:
 	void createSize2ColocationsGraph();
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned int>& Cm);
 	bool isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence);
-	std::vector<std::vector<unsigned int>> getPrevalentMaxCliques(std::vector<unsigned int>& clique, float prevalence);
+	std::vector<std::vector<unsigned int>> getPrevalentMaxCliques(std::vector<unsigned int> clique, float prevalence);
 
 public:
 	void loadData(

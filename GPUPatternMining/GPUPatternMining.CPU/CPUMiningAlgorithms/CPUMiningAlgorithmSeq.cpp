@@ -112,7 +112,8 @@ void CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 	for (auto clique : maximalCliques)
 	{
 		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
-		finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+		if(maxCliques.size() != 0)
+			finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
 	}
 	//return finalMaxCliques = final solution
 }
@@ -366,13 +367,18 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique,
 	return false; //empty
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(std::vector<unsigned int>& clique, float prevalence)
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(std::vector<unsigned int> clique, float prevalence)
 {
 	std::vector<std::vector<unsigned int>> finalMaxCliques;
 	if (isCliquePrevalent(clique, prevalence))
 		finalMaxCliques.push_back(clique);
 	else {
 		auto smallerCliques = getAllCliquesSmallerByOne(clique);
+		for (auto c : smallerCliques)
+		{
+			auto nextCliques = getPrevalentMaxCliques(c, prevalence);
+			finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
+		}
 	}
 	return finalMaxCliques;
 }

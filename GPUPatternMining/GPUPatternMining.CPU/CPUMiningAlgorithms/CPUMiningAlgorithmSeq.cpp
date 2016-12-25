@@ -187,10 +187,10 @@ bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 	for (auto nodePtr : ancestors)
 	{
 		bool isNeighborOfAncestor = false;
-		auto candidates = insTable[nodePtr->type][type][nodePtr->instanceId];
-		if (candidates != nullptr)
+		auto candidatesIt = insTable[nodePtr->type][type].find(nodePtr->instanceId);
+		if (candidatesIt != insTable[nodePtr->type][type].end())
 		{
-			for (auto c : *candidates)
+			for (auto c : *candidatesIt->second)
 			{
 				if (c == instanceId) { isNeighborOfAncestor = true; break; }
 			}
@@ -262,7 +262,7 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 	return typeIncidenceColocations;
 }
 
-
+//Cm's size must be greater or equal 2
 std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned int>& Cm)
 {
 	CinsTree tree;
@@ -378,11 +378,14 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCli
 	if (isCliquePrevalent(clique, prevalence))
 		finalMaxCliques.push_back(clique);
 	else {
-		auto smallerCliques = getAllCliquesSmallerByOne(clique);
-		for (auto c : smallerCliques)
+		if (clique.size() > 2) //it's possible, no idea why
 		{
-			auto nextCliques = getPrevalentMaxCliques(c, prevalence);
-			finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
+			auto smallerCliques = getAllCliquesSmallerByOne(clique);
+			for (auto c : smallerCliques)
+			{
+				auto nextCliques = getPrevalentMaxCliques(c, prevalence);
+				finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
+			}
 		}
 	}
 	return finalMaxCliques;

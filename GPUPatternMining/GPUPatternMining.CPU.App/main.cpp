@@ -23,7 +23,7 @@ int main()
 	cpuAlgSeq.filterByDistance(threshold);
 	cpuAlgSeq.filterByPrevalence(prevalence);
 	cpuAlgSeq.constructMaximalCliques();
-	//auto solution = cpuAlgSeq.filterMaximalCliques(prevalence);
-	cpuAlgSeq.testFilterMaxCliques();
+	auto solution = cpuAlgSeq.filterMaximalCliques(prevalence);
+	//cpuAlgSeq.testFilterMaxCliques();
 	return 0;
 }

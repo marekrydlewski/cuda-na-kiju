@@ -34,6 +34,7 @@ private:
 		const std::vector<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned int>& Cm);
+
 public:
 	void loadData(
 		DataFeed* data,

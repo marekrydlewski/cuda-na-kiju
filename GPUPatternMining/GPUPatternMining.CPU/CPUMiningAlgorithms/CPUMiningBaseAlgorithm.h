@@ -6,7 +6,9 @@
 class CPUMiningBaseAlgorithm
 {	
 protected:
-	virtual float inline calculateDistance(const DataFeed& first, const DataFeed& second) const;
+	virtual float inline calculateDistance(
+		const DataFeed& first, 
+		const DataFeed& second) const;
 	virtual bool inline checkDistance(
 		const DataFeed& first,
 		const DataFeed& second,
@@ -14,6 +16,10 @@ protected:
 	virtual bool inline countPrevalence(
 		const std::pair<unsigned int, unsigned int>& particularInstance,
 		const std::pair<unsigned int, unsigned int>& generalInstance,
+		float prevalence) const;
+	virtual bool countPrevalence(
+		const std::vector<unsigned int> particularInstances,
+		const std::vector<unsigned int> generalInstances,
 		float prevalence) const;
 
 public:

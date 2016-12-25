@@ -181,7 +181,7 @@ namespace PlaneSweep
 
 			__shared__ volatile UInt* scanBuf;
 			__shared__ volatile bool* flags;
-			__shared__ volatile UInt* found;
+			__shared__ volatile bool* found;
 			//volatile __shared__ UInt* buffA;
 			//volatile __shared__ UInt* buffB;
 			__shared__ UInt* progress;
@@ -197,7 +197,7 @@ namespace PlaneSweep
 				// measure dynamic allocating in different warps
 				scanBuf = static_cast<UInt*>(malloc(blockDim.x * uintSize));
 				flags = static_cast<bool*>(malloc((blockDim.x / 32) * sizeof(bool)));
-				found = static_cast<UInt*>(malloc(blockDim.x * uintSize));
+				found = static_cast<bool*>(malloc(blockDim.x * sizeof(bool)));
 				// buffA = static_cast<UInt*>(malloc(blockDim.x * sizeof(UInt) * 2));
 				// buffB = static_cast<UInt*>(malloc(blockDim.x * sizeof(UInt) * 2));
 
@@ -228,7 +228,8 @@ namespace PlaneSweep
 					for (int j = i - 32; j >= -32; j -= 32)
 					{
 						int localId = warpThreadId + j;
-						found[blockThreadId] = 0;
+						found[blockThreadId] = false;
+						scanBuf[blockThreadId] = 0;
 
 						if (localId >= 0)
 						{
@@ -245,7 +246,7 @@ namespace PlaneSweep
 							{
 								if ((MiningCommon::distance(px, py, lx, ly) <= radiusSquared))
 								{
-									found[blockThreadId] = 1;
+									found[blockThreadId] = true;
 
 									if (instances[i].fields.featureId < instances[localId].fields.featureId
 										|| instances[i].fields.instanceId < instances[localId].fields.instanceId)
@@ -258,13 +259,19 @@ namespace PlaneSweep
 										temp_a = instances[localId];
 										temp_b = instances[i];
 									}
-
-									int pos = atomicInc(&progress[blockWarpId], UINT_MAX) + outStart;
-
-									out_a[pos] = temp_a;
-									out_b[pos] = temp_b;
+									
+									scanBuf[blockThreadId] = 1;
 								}
 							}
+						}
+
+						MiningCommon::intraWarpScan<UInt>(scanBuf);
+						__syncthreads();
+						if (found[blockThreadId])
+						{
+							int pos = scanBuf[blockThreadId] + outStart;
+							out_a[pos] = temp_a;
+							out_b[pos] = temp_b;
 						}
 
 						/*
@@ -329,7 +336,7 @@ namespace PlaneSweep
 			{
 				free(const_cast<UInt*>(scanBuf));
 				free(const_cast<bool*>(flags));
-				free(const_cast<UInt*>(found));
+				free(const_cast<bool*>(found));
 				//free(const_cast<UInt*>(buffA));
 				//free(const_cast<UInt*>(buffB));
 			}

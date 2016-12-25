@@ -372,7 +372,7 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCli
 	if (isCliquePrevalent(clique, prevalence))
 		finalMaxCliques.push_back(clique);
 	else {
-
+		auto smallerCliques = getAllCliquesSmallerByOne(clique);
 	}
 	return finalMaxCliques;
 }

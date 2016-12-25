@@ -51,3 +51,18 @@ bool CPUMiningBaseAlgorithm::countPrevalence(
 
 	return prevalence < *std::min_element(tempMins.begin(), tempMins.end());
 }
+
+std::vector<std::vector<unsigned int>> CPUMiningBaseAlgorithm::getAllCliquesSmallerByOne(std::vector<unsigned int>& clique) const
+{
+	std::vector<std::vector<unsigned int>> smallCliques;
+	for (auto i = 0; i < clique.size(); ++i)
+	{
+		std::vector<unsigned int> smallClique;
+		for (auto j = 0; j < clique.size(); ++j)
+		{
+			if (j != i) smallClique.push_back(clique[j]);
+		}
+		smallCliques.push_back(smallClique);
+	}
+	return smallCliques;
+}

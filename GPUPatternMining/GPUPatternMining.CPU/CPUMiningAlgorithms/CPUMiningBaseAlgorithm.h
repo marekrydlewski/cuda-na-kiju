@@ -21,6 +21,7 @@ protected:
 		const std::vector<unsigned int>& particularInstances,
 		const std::vector<unsigned int>& generalInstances,
 		float prevalence) const;
+	virtual std::vector<std::vector<unsigned int>> getAllCliquesSmallerByOne(std::vector<unsigned int>& clique) const;
 
 public:
 	virtual void filterByDistance(float threshold) = 0;

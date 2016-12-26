@@ -18,6 +18,12 @@ constexpr size_t uintPtrSize = sizeof(unsigned int*);
 //-------------------------------------------------------------------------------
 
 
+#ifdef __INTELLISENSE__
+void __syncthreads();
+#endif
+//-------------------------------------------------------------------------------
+
+
 __device__ __host__
 inline bool operator==(const FeatureInstance& a, const FeatureInstance& b)
 {

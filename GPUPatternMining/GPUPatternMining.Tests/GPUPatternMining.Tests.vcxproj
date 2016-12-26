@@ -77,6 +77,14 @@
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\bin\obj\$(Configuration)$(ProjectName)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\obj\$(Configuration)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\obj\$(Configuration)$(ProjectName)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -181,12 +189,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <AdditionalDeps Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDIR)GPUPatternMining\Common\CommonOperations.h;%(AdditionalDeps)</AdditionalDeps>
       <AdditionalDeps Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDIR)GPUPatternMining\Common\CommonOperations.h;%(AdditionalDeps)</AdditionalDeps>
       <AdditionalDeps Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDIR)GPUPatternMining\Common\CommonOperations.h;%(AdditionalDeps)</AdditionalDeps>
-    </CudaCompile>
-    <CudaCompile Include="Tests\PlaneSweepFoxtrotTests.cu">
-      <AdditionalDeps Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDIR)GPUPatternMining\Common\CommonOperations.h;$(SolutionDIR)GPUPatternMining\Common\PlaneSweepFoxtrot.h;%(AdditionalDeps)</AdditionalDeps>
-      <AdditionalDeps Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDIR)GPUPatternMining\Common\CommonOperations.h;$(SolutionDIR)GPUPatternMining\Common\PlaneSweepFoxtrot.h;%(AdditionalDeps)</AdditionalDeps>
-      <AdditionalDeps Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDIR)GPUPatternMining\Common\CommonOperations.h;$(SolutionDIR)GPUPatternMining\Common\PlaneSweepFoxtrot.h;%(AdditionalDeps)</AdditionalDeps>
-      <AdditionalDeps Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDIR)GPUPatternMining\Common\CommonOperations.h;$(SolutionDIR)GPUPatternMining\Common\PlaneSweepFoxtrot.h;%(AdditionalDeps)</AdditionalDeps>
     </CudaCompile>
     <CudaCompile Include="Tests\PrevalenceIndexCalculationTests.cu">
       <FileType>CppCode</FileType>

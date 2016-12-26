@@ -7,6 +7,7 @@
     <CudaCompile Include="Common\CommonOperations.cu">
       <Filter>Common</Filter>
     </CudaCompile>
+    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HashMap\gpuhashmapper.h">

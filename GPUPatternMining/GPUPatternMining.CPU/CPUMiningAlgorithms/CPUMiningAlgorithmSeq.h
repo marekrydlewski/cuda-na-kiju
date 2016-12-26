@@ -9,13 +9,41 @@
 class CPUMiningAlgorithmSeq :
 	public CPUMiningBaseAlgorithm
 {
+public:
+
+	CPUMiningAlgorithmSeq();
+	virtual ~CPUMiningAlgorithmSeq();
+
+	void loadData(
+		DataFeed* data,
+		size_t size,
+		unsigned int types) override;
+
+	void filterByDistance(float threshold) override;
+	void filterByPrevalence(float prevalence) override;
+	void constructMaximalCliques() override;
+	std::vector<std::vector<unsigned int>> filterMaximalCliques(float prevalence);
+	//for testing purpose
+	void testFilterMaxCliques();
+
+	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getInsTable()
+	{
+		return insTable;
+	}
+
+	std::vector<std::vector<unsigned int>> getMaximalCliques()
+	{
+		return maximalCliques;
+	}
+
 private:
+
 	std::vector<DataFeed> source;
 	/// typeIncidenceCounter - count from 1
 	std::vector<int> typeIncidenceCounter;
 	/// InsTable - 2 dimensional hashtable, where frist 2 indexes are types
 	/// the value is a map, where key is number of 1st facility's instanceId and value is a vector of 2nd facility's instancesId 
-	std::map<unsigned int,std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> insTable;
+	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> insTable;
 	/// Cm
 	std::vector<std::vector<unsigned int>> maximalCliques;
 	Graph size2ColocationsGraph;
@@ -37,29 +65,5 @@ private:
 	bool isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence);
 	std::vector<std::vector<unsigned int>> getPrevalentMaxCliques(std::vector<unsigned int> clique, float prevalence);
 
-public:
-	void loadData(
-		DataFeed* data,
-		size_t size,
-		unsigned int types) override;
-	void filterByDistance(float threshold) override;
-	void filterByPrevalence(float prevalence) override;
-	void constructMaximalCliques() override;
-	std::vector<std::vector<unsigned int>> filterMaximalCliques(float prevalence);
-	//for testing purpose
-	void testFilterMaxCliques();
-
-	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getInsTable()
-	{
-		return insTable;
-	}
-
-	std::vector<std::vector<unsigned int>> getMaximalCliques()
-	{
-		return maximalCliques;
-	}
-
-	CPUMiningAlgorithmSeq();
-	~CPUMiningAlgorithmSeq();
 };
 

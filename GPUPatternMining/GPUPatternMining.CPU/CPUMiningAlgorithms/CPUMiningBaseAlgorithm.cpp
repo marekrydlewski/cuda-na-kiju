@@ -40,14 +40,14 @@ bool CPUMiningBaseAlgorithm::countPrevalence(
 	float prevalence) const
 {
 	std::vector<float> tempMins;
-	tempMins.reserve(particularInstances.size());
+	tempMins.resize(particularInstances.size());
 	
 	std::transform(
 		particularInstances.begin(),
 		particularInstances.end(),
 		generalInstances.begin(),
 		tempMins.begin(),
-		[](unsigned int a, unsigned int b) { return a / (float)b; });
+		[](unsigned int a, unsigned int b) { return (a / (float) b); });
 
 	return prevalence < *std::min_element(tempMins.begin(), tempMins.end());
 }

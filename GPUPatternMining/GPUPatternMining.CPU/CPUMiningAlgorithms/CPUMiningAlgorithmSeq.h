@@ -9,7 +9,35 @@
 class CPUMiningAlgorithmSeq :
 	public CPUMiningBaseAlgorithm
 {
+public:
+
+	CPUMiningAlgorithmSeq();
+	virtual ~CPUMiningAlgorithmSeq();
+
+	void loadData(
+		DataFeed* data,
+		size_t size,
+		unsigned int types) override;
+
+	void filterByDistance(float threshold) override;
+	void filterByPrevalence(float prevalence) override;
+	void constructMaximalCliques() override;
+	std::vector<std::vector<unsigned int>> filterMaximalCliques(float prevalence);
+	//for testing purpose
+	void testFilterMaxCliques();
+
+	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getInsTable()
+	{
+		return insTable;
+	}
+
+	std::vector<std::vector<unsigned int>> getMaximalCliques()
+	{
+		return maximalCliques;
+	}
+
 private:
+
 	std::vector<DataFeed> source;
 	/// typeIncidenceCounter - count from 1
 	std::vector<int> typeIncidenceCounter;
@@ -21,18 +49,21 @@ private:
 	Graph size2ColocationsGraph;
 
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
-	std::vector<std::vector<unsigned int>> bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T);
-	bool filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> const & ancestors);
-	unsigned int tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND);
+	std::vector<std::vector<unsigned int>> bkPivot(
+		std::vector<unsigned int> M,
+		std::vector<unsigned int> K,
+		std::vector<unsigned int> T);
+	bool filterNodeCandidate(
+		unsigned int type,
+		unsigned int instanceId,
+		std::vector<CinsNode*> const & ancestors);
+	unsigned int tomitaMaximalPivot(
+		const std::vector<unsigned int>& SUBG,
+		const std::vector<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned int>& Cm);
-public:
-	void loadData(DataFeed* data, size_t size, unsigned int types) override;
-	void filterByDistance(float threshold) override;
-	void filterByPrevalence(float prevalence) override;
-	void constructMaximalCliques() override;
-	void filterMaximalCliques();
-	CPUMiningAlgorithmSeq();
-	~CPUMiningAlgorithmSeq();
+	bool isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence);
+	std::vector<std::vector<unsigned int>> getPrevalentMaxCliques(std::vector<unsigned int> clique, float prevalence);
+
 };
 

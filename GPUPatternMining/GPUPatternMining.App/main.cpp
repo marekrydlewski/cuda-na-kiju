@@ -26,18 +26,18 @@ int main()
 		0x00000025,0x00000073,0x00000000,0x00000000,0x00000000
 	};
 
-	__asm
-	{
-		lea eax, msg
-		push eax
-		lea eax, format
-		push eax
+	//__asm
+	//{
+	//	lea eax, msg
+	//	push eax
+	//	lea eax, format
+	//	push eax
 
-		call DWORD ptr printf
+	//	call DWORD ptr printf
 
-		pop ebx
-		pop ebx
+	//	pop ebx
+	//	pop ebx
 
-		mov eax, 0x00000000
-	}
+	//	mov eax, 0x00000000
+	//}
 }

@@ -95,11 +95,70 @@ W pracy przedstawiono główne pojęcia związane z wyszukiwaniem kolokacji prze
 
 \textit{W tym miejscu zasadniczo będzie można napisać więcej, jeżeli już te rozdziały zostaną ustalone bądź wstępnie uzupełnione. Poza tym należy ustalić, czy w ogóle potrzebujemy takiego działu dla tak małej pracy. Z drugiej strony, zawsze to jednak te pół strony więcej spamu - borewicz}
 
+\subsection{Podział pracy}
+
+\textbf{Marcin Jabłoński} w ramach niniejszej pracy wykonał projekt tego i tego, opracował ......
+
+\textbf{Łukasz Kosiak} wykonał ......, itd.
+
+\newpage
+
 \section{Podstawy teoretyczne}
 
-Więcej informacji można znaleźć w książce \cite{sop}.
+\subsection{Charakterystyka danych przestrzennych}
+
+\subsubsection{Modelowanie danych przestrzennych}
+\subsubsection{Źródła danych przestrzennych}
+\subsubsection{Relacje}
+
+\subsection{Metody eksploracji danych przestrzennych}
+
+\subsubsection{Grupowanie przestrzenne}
+\subsubsection{Klasyfikacja przestrzenna}
+\subsubsection{Odkrywanie trendów}
+...
+\subsubsection{Asocjacje przestrzenne}
+\subsubsection{Kolokacje przestrzenne}
+
+\subsection{Odkrywanie kolokacji przestrzennych}
+
+Niniejszy rozdział zawiera opisy i definicje pojęć niezbędnych do zrozumienia algorytmu zawartego w rozdziale X.
+
+\subsubsection{Cecha przestrzenna}
+
+Kluczową kwestią w procesie odkrywania kolokacji jest odpowiednia klasyfikacja obiektów występujących w bazie danych. Każdy zbiór danych przestrzennych, oprócz informacji o lokalizacji obiektu i opisujących go danych nieprzestrzennych powinien zawierać także właściwość pozwalającą na sklasyfikowanie danego obiektu do określonej klasy. Takie przypisanie nazywane jest cechą przestrzenną (ang. spatial feature) lub rzadziej klasą obiektu (ang. object class).
+
+Jako typowy przykład cechy przestrzennej można podać etykietę przypisaną do obiektu na mapie (np. kosciół, szkoła, strzelnica). Pozwala ona na jednoznaczne określenie własności przestrzeni w punkcie, gdzie znajduje się obiekt.
+
+\subsubsection{Podstawowe definicje}
+
+DEFINICJA 1.
+
+Niech f będzie cechą przestrzenną. Mówimy, że obiekt x jest instancją cechy przestrzennej f , wtedy i tylko wtedy, gdy obiekt x jest typu f oraz jest opisany przez lokalizację i identyfikator.
+
+DEFINICJA.
+
+Niech F = f 1, f 2 , . . . , f m będzie zbiorem cech przestrzennych, a F I = F I f 1 ∪ F I f 2 ∪ . . . ∪ F I f m niech będzie zbiorem ich instancji. Niech > F oznacza dowolną relację porządku zdefiniowaną dla zbioru F . Niech f i oznacza i-tą cechę przestrzenną (ze względu na relację > F ), zatem ∀ i,j∈1,...,m f i < F f j ⇔ i < j ∧ f i , f j ∈ F . Mając daną relację sąsiedztwa R (zwrotną i przechodnią) mówimy, że wzorzec kolokacji przestrzennej (w skrócie “kolokacja”) jest podzbiorem cech przestrzennych c ⊆ F , których instancje I ⊆ F I tworzą klikę ze względu na relację R. Zbiór wszystkich instancji kolokacji przestrzennej c jest oznaczany przez CI c . Przez długość kolokacji należy rozumieć liczbę elementów w zbiorze cech przestrzennych, który tworzy tę kolokację.
+
+DEFINICJA.
+
+
+
+\subsubsection{Miary kolokacji}
+\subsubsection{Przegląd algorytmów odkrywania wzorców kolokacji przestrzennych}
+
+\newpage
 
 \section{Algorytm}
+
+\subsection{Konstrukcja tabeli instancji o rozmiarze 2}
+
+\subsection{Obliczanie miary powszechności}
+
+\subsection{Generowanie kandydatów na kolokacje maksymalne}
+
+\subsection{Proces odcinania}
+
 
 \section{Implementacja}
 

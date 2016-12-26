@@ -138,3 +138,40 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Reduce key operation", "Common operations
 	REQUIRE(entryCount == 4);
 }
 
+__global__ void runScan(int* data)
+{
+
+	MiningCommon::intraWarpScan<int>(thrust::raw_pointer_cast(data));
+}
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Scan test", "Common operations")
+{
+	std::vector<int> numbers = {
+		1, 1, 1, 1, 1, 
+		1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1,
+		1, 1
+	};
+
+	thrust::device_vector<int> data = numbers;
+
+	runScan<<<1, 32>>>(thrust::raw_pointer_cast(data.data()));
+
+	thrust::host_vector<int> result = data;
+
+	std::vector<int> expected = { 
+		0 , 1 , 2 , 3 , 4 ,
+		5 , 6 , 7 , 8 , 9 ,
+		10, 11, 12, 13, 14,
+		15, 16, 17, 18, 19,
+		20, 21, 22, 23, 24,
+		25, 26, 27, 28, 29,
+		30, 31
+	};
+
+	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+
+}

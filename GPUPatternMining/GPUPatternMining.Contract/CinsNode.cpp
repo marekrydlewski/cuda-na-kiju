@@ -42,9 +42,10 @@ std::vector<CinsNode*> CinsNode::getAncestors()
 {
 	CinsNode* node = this;
 	std::vector<CinsNode*> ancestors;
+	node = node->parent;
 	while (node->parent != nullptr)
 	{
-		ancestors.push_back(node->parent);
+		ancestors.push_back(node);
 		node = node->parent;
 	}
 	return ancestors;
@@ -54,10 +55,9 @@ std::vector<CinsNode*> CinsNode::getPath()
 {
 	CinsNode* node = this;
 	std::vector<CinsNode*> ancestors;
-	ancestors.push_back(node);
 	while (node->parent != nullptr)
 	{
-		ancestors.push_back(node->parent);
+		ancestors.push_back(node);
 		node = node->parent;
 	}
 	return ancestors;

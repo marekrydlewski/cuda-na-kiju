@@ -1,6 +1,6 @@
 #include "../GPUPatternMining.Contract/RandomDataProvider.h"
 #include "../GPUPatternMining.Contract/Graph.h"
-#include "CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
+#include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
 
 int main()
 {
@@ -9,7 +9,7 @@ int main()
 	const unsigned int rangeX = 100;
 	const unsigned int numberOfInstances = 50;
 	const float threshold = 20;
-	const float prevalence = 0.01;
+	const float prevalence = 0.2;
 
 	RandomDataProvider rdp;
 
@@ -23,7 +23,7 @@ int main()
 	cpuAlgSeq.filterByDistance(threshold);
 	cpuAlgSeq.filterByPrevalence(prevalence);
 	cpuAlgSeq.constructMaximalCliques();
-	cpuAlgSeq.filterMaximalCliques();
-
+	auto solution = cpuAlgSeq.filterMaximalCliques(prevalence);
+	//cpuAlgSeq.testFilterMaxCliques();
 	return 0;
 }

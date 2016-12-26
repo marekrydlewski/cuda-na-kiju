@@ -3,7 +3,6 @@
   <ItemGroup>
     <CudaCompile Include="Tests\HashMapTests.cu" />
     <CudaCompile Include="Tests\PrevalenceIndexCalculationTests.cu" />
-    <CudaCompile Include="Tests\PlaneSweepFoxtrotTests.cu" />
     <CudaCompile Include="Tests\CommonOperationsTests.cu" />
   </ItemGroup>
   <ItemGroup>

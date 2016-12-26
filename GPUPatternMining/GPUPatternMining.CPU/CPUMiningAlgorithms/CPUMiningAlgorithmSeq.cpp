@@ -4,6 +4,7 @@
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <algorithm>
+#include <cassert>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
 {
@@ -120,6 +121,7 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::filterMaximalCliqu
 
 void CPUMiningAlgorithmSeq::testFilterMaxCliques()
 {
+	assert(maximalCliques[0].size() >= 2, "too big prevalence, clique must bu greater than 1");
 	constructCondensedTree(maximalCliques[0]);
 }
 
@@ -317,7 +319,7 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 				//add last level children, add node
 				for (auto el : finalCandidatesIds)
 				{
-					auto addedNode = lastChildPtr->addChildPtr(Cm[i], el);
+					auto addedNode = lastChildPtr->addChildPtr(el, Cm[i]);
 					newLastLevelChildren.push_back(addedNode);
 				}
 			}
@@ -341,6 +343,8 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 
 bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence)
 {
+	if (clique.size() == 1) return true;
+
 	auto maxCliquesIns = constructCondensedTree(clique);
 
 	if (maxCliquesIns.size() != 0)

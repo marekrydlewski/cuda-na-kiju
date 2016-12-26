@@ -9,7 +9,7 @@ int main()
 	const unsigned int rangeX = 100;
 	const unsigned int numberOfInstances = 50;
 	const float threshold = 20;
-	const float prevalence = 0.20;
+	const float prevalence = 0.2;
 
 	RandomDataProvider rdp;
 

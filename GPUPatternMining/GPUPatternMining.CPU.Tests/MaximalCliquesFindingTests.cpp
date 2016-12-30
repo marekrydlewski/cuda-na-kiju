@@ -77,3 +77,21 @@ TEST_CASE("2OverlappingCliques", "MaximalCliquesFindingTests")
 
 	REQUIRE(result.size() == 2);
 }
+
+TEST_CASE("DistinctCliques", "MaximalCliquesFindingTests")
+{
+	CPUMiningAlgorithmSeq miner;
+	TestDataGenerator generator;
+	int threshold = 5;
+	float prevalence = 0.1;
+	auto data = generator.getDataForDistinctCliques();
+
+	miner.loadData(data, 5, 5);
+	miner.filterByDistance(threshold);
+	miner.filterByPrevalence(prevalence);
+	miner.constructMaximalCliques();
+
+	auto result = miner.getMaximalCliques();
+
+	REQUIRE(result.size() == 2);
+}

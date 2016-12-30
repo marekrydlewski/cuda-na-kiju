@@ -21,6 +21,8 @@ public:
 	DataFeed* getDataForMaximalCliqueSize4();
 
 	DataFeed* getDataFor2OverlappingCliques();
+
+	DataFeed* getDataForDistinctCliques();
 	TestDataGenerator();
 	~TestDataGenerator();
 };

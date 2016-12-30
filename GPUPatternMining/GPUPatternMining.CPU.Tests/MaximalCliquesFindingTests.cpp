@@ -9,6 +9,7 @@ TEST_CASE("2ElementClique", "MaximalCliquesFindingTests")
 	int threshold = 5;
 	float prevalence = 0.5;
 	auto data = generator.getDataForMaximalCliqueSize2();
+
 	miner.loadData(data, 2, 2);
 	miner.filterByDistance(threshold);
 	miner.filterByPrevalence(prevalence);
@@ -27,6 +28,7 @@ TEST_CASE("1ElementCliques", "MaximalCliquesFindingTests")
 	int threshold = 5;
 	float prevalence = 0.5;
 	auto data = generator.getDataForMaximalCliqueSize1();
+
 	miner.loadData(data, 2, 2);
 	miner.filterByDistance(threshold);
 	miner.filterByPrevalence(prevalence);
@@ -46,6 +48,7 @@ TEST_CASE("4ElementClique", "MaximalCliquesFindingTests")
 	int threshold = 5;
 	float prevalence = 0.5;
 	auto data = generator.getDataForMaximalCliqueSize4();
+
 	miner.loadData(data, 4, 4);
 	miner.filterByDistance(threshold);
 	miner.filterByPrevalence(prevalence);

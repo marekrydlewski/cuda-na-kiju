@@ -4,6 +4,7 @@
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <algorithm>
+#include <cassert>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
 {
@@ -105,12 +106,29 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 	}
 }
 
-void CPUMiningAlgorithmSeq::filterMaximalCliques()
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
+	std::vector<std::vector<unsigned int>> finalMaxCliques;
+
+	for (auto clique : maximalCliques)
+	{
+		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
+		if(maxCliques.size() != 0)
+			finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+	}
+	return finalMaxCliques;
+}
+
+void CPUMiningAlgorithmSeq::testFilterMaxCliques()
+{
+	assert(maximalCliques[0].size() >= 2, "too big prevalence, clique must bu greater than 1");
 	constructCondensedTree(maximalCliques[0]);
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T)
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
+	std::vector<unsigned int> M,
+	std::vector<unsigned int> K,
+	std::vector<unsigned int> T)
 {
 	std::vector<std::vector<unsigned int>> maximalCliques;
 	std::vector<unsigned int> MTunion(M.size() + T.size());
@@ -163,15 +181,18 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(std::vecto
 	return maximalCliques;
 }
 
-bool CPUMiningAlgorithmSeq::filterNodeCandidate(unsigned int type, unsigned int instanceId, std::vector<CinsNode*> const & ancestors)
+bool CPUMiningAlgorithmSeq::filterNodeCandidate(
+	unsigned int type,
+	unsigned int instanceId,
+	std::vector<CinsNode*> const & ancestors)
 {
 	for (auto nodePtr : ancestors)
 	{
 		bool isNeighborOfAncestor = false;
-		auto candidates = insTable[nodePtr->type][type][nodePtr->instanceId];
-		if (candidates != nullptr)
+		auto candidatesIt = insTable[nodePtr->type][type].find(nodePtr->instanceId);
+		if (candidatesIt != insTable[nodePtr->type][type].end())
 		{
-			for (auto c : *candidates)
+			for (auto c : *candidatesIt->second)
 			{
 				if (c == instanceId) { isNeighborOfAncestor = true; break; }
 			}
@@ -243,7 +264,7 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 	return typeIncidenceColocations;
 }
 
-
+//Cm's size must be greater or equal 2
 std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned int>& Cm)
 {
 	CinsTree tree;
@@ -277,10 +298,10 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 				auto ancestors = lastChildPtr->getAncestors();
 
 				//generate candidates based on last leaf
-				std::vector<unsigned int>* vec = insTable[lastChildPtr->type][Cm[i]][lastChildPtr->instanceId];
-				if (vec != nullptr)
+				auto mapIt = insTable[lastChildPtr->type][Cm[i]].find(lastChildPtr->instanceId);
+				if (mapIt != insTable[lastChildPtr->type][Cm[i]].end())//if exists such a key
 				{
-					for (auto b : *vec)
+					for (auto b : *mapIt->second)
 					{
 						candidateIds.push_back(b);
 					}
@@ -298,26 +319,86 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 				//add last level children, add node
 				for (auto el : finalCandidatesIds)
 				{
-					auto addedNode = lastChildPtr->addChildPtr(Cm[i], el);
+					auto addedNode = lastChildPtr->addChildPtr(el, Cm[i]);
 					newLastLevelChildren.push_back(addedNode);
 				}
 			}
 			tree.lastLevelChildren = newLastLevelChildren;
+		}
+	}
+	
+	//return instances, empty when there's any
+	for (auto node : tree.lastLevelChildren)
+	{
+		std::vector<ColocationElem> elems;
+		auto path = node->getPath();
+		for (auto p : path)
+		{
+			elems.push_back(ColocationElem(p->type, p->instanceId));
+		}
+		finalInstances.push_back(elems);
+	}
+	return finalInstances;
+}
 
-			//return instances, empty when there's any
-			for (auto node : tree.lastLevelChildren)
+bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence)
+{
+	if (clique.size() == 1) return true;
+
+	auto maxCliquesIns = constructCondensedTree(clique);
+
+	if (maxCliquesIns.size() != 0)
+	{
+		//prepare to count prevalence
+		std::vector<unsigned int> particularIns, generalIns;
+		for (auto ins : maxCliquesIns[0])
+		{
+			generalIns.push_back(typeIncidenceCounter[ins.type]);
+		}
+
+		for (auto i = 0; i < maxCliquesIns[0].size(); ++i)
+		{
+			//new map for every type, instances are keys
+			std::map<unsigned int, bool> isUsed;
+			unsigned int insCounter = 0;
+			for (auto j = 0; j < maxCliquesIns.size(); ++j)
 			{
-				std::vector<ColocationElem> elems;
-				auto path = node->getPath();
-				for (auto p : path)
+				if (!isUsed[maxCliquesIns[j][i].instanceId])
 				{
-					elems.push_back(ColocationElem(p->type, p->instanceId));
+					isUsed[maxCliquesIns[j][i].instanceId] = true;
+					++insCounter;
 				}
-				finalInstances.push_back(elems);
+			}
+			particularIns.push_back(insCounter);
+		}
+		return countPrevalence(particularIns, generalIns, prevalence);
+	}
+	return false; //empty
+}
+
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(std::vector<unsigned int> clique, float prevalence)
+{
+	std::vector<std::vector<unsigned int>> finalMaxCliques;
+	if (isCliquePrevalent(clique, prevalence))
+		finalMaxCliques.push_back(clique);
+	else 
+	{
+		if (clique.size() > 2) //it's possible, no idea why
+		{
+			auto smallerCliques = getAllCliquesSmallerByOne(clique);
+			for (auto c : smallerCliques)
+			{
+				if(c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
+					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+				else
+				{
+					auto nextCliques = getPrevalentMaxCliques(c, prevalence);
+					finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
+				}
 			}
 		}
 	}
-	return finalInstances;
+	return finalMaxCliques;
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():

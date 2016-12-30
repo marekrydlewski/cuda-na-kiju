@@ -9,6 +9,7 @@ TEST_CASE("PrevalenceTooLow", "PrevalenceFilterTests")
 	DataFeed* data = generator.getDataForPrevalenceTests();
 	int threshold = 5;
 	float prevalence = 0.7;
+
 	miner.loadData(data, 6, 2);
 	miner.filterByDistance(threshold);
 	miner.filterByPrevalence(prevalence);
@@ -40,6 +41,7 @@ TEST_CASE("PrevalenceHighEnough", "PrevalenceFilterTests")
 	DataFeed* data = generator.getDataForPrevalenceTests();
 	int threshold = 5;
 	float prevalence = 0.45; //actual prevalence should be 0.5 - 2 colocations, 4 type0 instances, 2 type1 instances
+
 	miner.loadData(data, 6, 2);
 	miner.filterByDistance(threshold);
 	miner.filterByPrevalence(prevalence);

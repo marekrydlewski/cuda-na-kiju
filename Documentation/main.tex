@@ -124,7 +124,7 @@ W pracy przedstawiono główne pojęcia związane z wyszukiwaniem kolokacji prze
 
 \subsection{Odkrywanie kolokacji przestrzennych}
 
-Niniejszy rozdział zawiera opisy i definicje pojęć niezbędnych do zrozumienia algorytmu zawartego w rozdziale X.
+Niniejszy rozdział zawiera opisy i definicje pojęć niezbędnych do zrozumienia algorytmu zawartego w rozdziale 3.
 
 \subsubsection{Cecha przestrzenna}
 
@@ -170,7 +170,7 @@ Indeks uczestnictwa najczęściej określany jest w literaturze mianem miary pow
 \begin{defin}[Maksymalny wzorzec kolokacji przestrzennej]Niech będzie dana wartość min\_prev oznaczająca pewien minimalny próg powszechności. Jeżeli $ c = \{f_{1},...,f_{m} \} $ jest kolokacją powszechną (tzn. $ pi(c) \ge min\_prev $) i nie istnieje żaden nadzbiór c taki, że powszechność dla tego nadzbioru jest równa co najmniej min\_prev, kolokacja c nazywana jest kolokacją maksymalną.  
 \end{defin}
 
-\subsubsection{Definicja problemu odkrywania wzorców kololacji przestrzennych}
+\subsubsection{Problem}
 
 \begin{defin}[Reguła kolokacyjna]Reguła kolokacyjna to reguła postaci $ c_{1} \rightarrow c_{2}(p, cp)$, gdzie $ c_{1} \subseteq F $, $c_{2} \subseteq F $ i $c _{1} \cup c_{2} = \emptyset $. Potencjalna użyteczność reguły może być mierzona przy pomocy jej powszechności p oraz prawdopodobieństwa warunkowego cp.
 \end{defin}
@@ -195,7 +195,32 @@ Mając dane:
 znajdź wszystkie poprawne reguły kolokacyjne z powszechnością nie mniejszą niż min\_prev i prawdopodobieństwem warunkowym nie mniejszym niż min\_cond.
 \end{defin}
 
-\subsubsection{Przegląd algorytmów odkrywania wzorców kolokacji przestrzennych}
+\subsection{Przegląd algorytmów odkrywania wzorców kolokacji przestrzennych}
+
+W tym podrozdziale zostaną zaprezentowane pokrótce najważniejsze algorytmy odkrywania kolokacji przestrzennych. 
+
+\subsubsection{Co-location Miner}
+
+Wraz z wprowadzeniem pojęcia kolokacji autorzy pracy \cite{huang} zaprezentowali także podstawowy obecnie algorytm rozwiązujący problem odkrywania wzorców kolokacji przestrzennych, zwany \textit{Co-location Miner}. W algorytmie tym wyróżnia się następujące fazy:
+
+\begin{itemize}
+\item generowanie kandydatów na kolokacje przestrzenne (o długości $i$),
+\item wyznaczanie instancji dla wygenerowanych kandydatów,
+\item usuwanie kandydatów, których powszechność wynosi mniej niż przyjęty próg minimalnej powszechnosci.
+\end{itemize}
+
+Pozostali kandydaci trafiają do zbioru wynikowego, a następnie na ich podstawie są tworzone reguły kolokacyjne. Same reguły również podlegają filtracji - usuwane są te reguły, których prawdopodobieństwo warunkowe jest poniżej określonego progu. 
+
+W następnej iteracji algorytm wykonuje dokładnie te same kroki, przy czym generowani kandydaci są o długości o jeden większej. Całość kończy się, gdy nie jest możliwe już wygenerowanie nowych kandydatów.
+
+\subsubsection{Multiresolution Co-location Miner}
+
+Korzystanie z oryginalnego algorytmu \textit{Co-location Miner} wiąże się niestety z dużymi kosztami obliczeniowymi, głównie ze względu na pracochłonny krok generowania kandydatów na kolokacje. Dlatego też niedługo później w pracy \cite{multihuang} autorzy zaproponowali drobną modyfikację oryginalnego algorytmu, dodając dodatkowy krok filtrowania w opraciu o przybliżoną reprezentację zbioru wejściowego.
+
+W algorytmie \textit{Multiresolution Co-location Miner} zbiór wejściowy zostaje podzielony na obszary (mniejsze fragmenty). Zanim rozpocznie się faza wyznaczania instancji dla wygenerowanych kandydatów, nastepuje szacowanie ich powszechności na podstawie sąsiadujących instancji cech przestrzennych w ramach obszarów. W przypadku zbyt niskiej wartości szacowanej powszechności kandydata, można go wykluczyć z dalszego przetwarzania i oszczędzić zasoby niezbędne na wyznaczenie jego instancji.
+
+\subsubsection{Joinless}
+\subsubsection{iCPI-tree}
 
 \newpage
 
@@ -228,6 +253,7 @@ Taylor \& Francis, Inc., Bristol, PA, USA, 2001
 \bibitem{chinczyki}A fast space-saving algorithm for maximal co-location pattern mining
 \bibitem{cuda_by_examples}CUDA by Example: An Introduction to General-Purpose GPU Programming, Jason Sanders, Edward Kandrot
 \bibitem{professional_cuda}Professional CUDA C Programming, John Cheng, Max Grossman, Ty McKerche
+\bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
 \end{thebibliography}
 
 

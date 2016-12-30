@@ -56,3 +56,21 @@ TEST_CASE("4ElementClique", "MaximalCliquesFindingTests")
 	REQUIRE(result.size() == 1);
 	REQUIRE(result[0].size() == 4);
 }
+
+TEST_CASE("2OverlappingCliques", "MaximalCliquesFindingTests")
+{
+	CPUMiningAlgorithmSeq miner;
+	TestDataGenerator generator;
+	int threshold = 5;
+	float prevalence = 0.1;
+	auto data = generator.getDataFor2OverlappingCliques();
+
+	miner.loadData(data, 5, 5);
+	miner.filterByDistance(threshold);
+	miner.filterByPrevalence(prevalence);
+	miner.constructMaximalCliques();
+
+	auto result = miner.getMaximalCliques();
+
+	REQUIRE(result.size() == 2);
+}

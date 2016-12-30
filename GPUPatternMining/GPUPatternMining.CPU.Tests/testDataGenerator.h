@@ -19,6 +19,8 @@ public:
 	DataFeed* getDataForMaximalCliqueSize1();
 	///4 vertices, 4 types, neighbourhood relationship between everyone
 	DataFeed* getDataForMaximalCliqueSize4();
+
+	DataFeed* getDataFor2OverlappingCliques();
 	TestDataGenerator();
 	~TestDataGenerator();
 };

@@ -19,9 +19,9 @@ public:
 	DataFeed* getDataForMaximalCliqueSize1();
 	///4 vertices, 4 types, neighbourhood relationship between everyone
 	DataFeed* getDataForMaximalCliqueSize4();
-
+	///5 vertices, 5 types, hourglass-like shape where middle point belongs to both cliques
 	DataFeed* getDataFor2OverlappingCliques();
-
+	///5 vertices, 5 types, cliques of (0,1) and (2,3,4)
 	DataFeed* getDataForDistinctCliques();
 	TestDataGenerator();
 	~TestDataGenerator();

@@ -225,15 +225,29 @@ Dalsze kroki przebiegają identycznie jak w przypadku oryginalnego \textit{Co-lo
 
 Celem autorów pracy \cite{joinless} było stworzenie algorytmu, który omijałby konieczność tworzenia kosztownych połączeń przestrzennych na etapie wyznaczania instancji kandydatów na kolokacje (tak jak np. w przypadku rodziny algorytmów \textit{Co-location Miner}). Nosi on nazwę algorytmu bezpołączeniowego (ang. \textit{joinless}).
 
-Główną różnicą w porównaniu do wcześniejszych algorytmów jest sposób generowania instancji kolokacji. Są one generowane na podstawie sąsiedztw typu gwiazda - czyli zbiorów obiektów, w którego skład wchodzi rozpatrywany obiekt oraz jego sąsiedzi posiadający większą cechę przestrzenną. Wyznacza się je na podstawie oddzielnych algorytmów, np. \textit{plane sweep} lub korzysta z specjalnych struktur ułatwiających wykrywanie sąsiadów (np. \textit{R-drzewo}).
+Główną różnicą w porównaniu do wcześniejszych algorytmów jest sposób generowania instancji kolokacji. Są one generowane na podstawie sąsiedztw typu gwiazda - zbiorów obiektów, w którego skład wchodzi rozpatrywany obiekt oraz jego sąsiedzi posiadający większą cechę przestrzenną. Wyznacza się je na podstawie oddzielnych algorytmów (np. \textit{plane sweep}), lub korzysta z specjalnych struktur ułatwiających wykrywanie sąsiadów typu \textit{R-drzewo}.
 
-Wygenerowane instancje muszą zostać dodatkowo zweryfikowane (poprawne instancje powinny być kliką, czego nie gwarantuje sąsiedztwo typu gwiazda), a następnie - podobnie jak w algorytmie \textit{Multiresolution Co-location Miner} - dokonuje się wstępnego filtrowania pod kątem progu minimalnej powszechności.
-
-
-
-
+Wygenerowane instancje muszą zostać dodatkowo zweryfikowane (poprawne instancje powinny być kliką, czego nie gwarantuje sąsiedztwo typu gwiazda), a następnie - podobnie jak w algorytmie \textit{Multiresolution Co-location Miner} - dokonuje się ich wstępnego filtrowania pod kątem progu minimalnej powszechności.
 
 \subsubsection{iCPI-tree}
+
+Drzewo iCPI (\textit{improved Co-location Pattern Instance}, \cite{icpi}) stanowi zmodyfikowaną odmianę drzewa CPI zawartego w pracy \cite{cpi}. Struktura ta zawiera informacje o wszystkich zachodzących relacjach sąsiedztwa. 
+
+\textit{iCPI-tree} posiada następującą strukturę:
+
+\begin{itemize}
+\item Poziom 1 - korzeń drzewa (oznaczony etykietą \textit{NULL}),
+\item Poziom 2 - cechy elementów centralnych, czyli cechy przestrzenne obiektów centralnych \textit{sąsiedztw typu gwiazda};
+\item Poziom 3 - instancje elementów centralnych, dla których ma zostać przechowana informacja o sąsiadach;
+\item Poziom 4 - cechy sąsiadów,
+\item Poziom 5 - instancje sąsiadów.
+\end{itemize}
+
+Sąsiedzi uporządkowani są według rosnącej cechy przestrzennej, a w przypadku instancji tej samej cechy - zgodnie z rosnącym identyfikatorem. Takie uporządkowanie nosi nazwę \textit{uporządkowanego zbioru sąsiadów}.
+
+Powyższa struktura drzewiasta jest wykorzystana w algorytmie w celu generowania instancji coraz dłuższych kandydatów w kolejnych iteracjach. Dokonuje się tego poprzez systematyczną ich rozbudowę o kolejne elementy. Na początku wszystkie instancje są jednoelementowe, a w kolejnych iteracjach są one rozbudowywane poprzez wyszukiwanie sąsiadów z odpowiednią cechą i weryfikowane (należy sprawdzić, czy nowo dodany obiekt do instancji jest sąsiadem każdego z obiektów należących do tej instancji). 
+
+Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie według powszechności) są podobne jak w metodach \textit{Co-location Miner} i \textit{joinless}.
 
 \newpage
 
@@ -254,6 +268,8 @@ Wygenerowane instancje muszą zostać dodatkowo zweryfikowane (poprawne instancj
 
 \section{Zakończenie}
 
+\newpage
+
 \begin{thebibliography}{}
 \bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining
 to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
@@ -268,8 +284,12 @@ Taylor \& Francis, Inc., Bristol, PA, USA, 2001
 \bibitem{professional_cuda}Professional CUDA C Programming, John Cheng, Max Grossman, Ty McKerche
 \bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
 \bibitem{joinless}Jin Soung Yoo and Shashi Shekhar. A Joinless Approach for Mining Spatial Colocation Patterns. IEEE Transactions on Knowledge and Data Engineering, 18(10):13231337, 2006.
+\bibitem{cpi}Lizhen Wang, Yuzhen Bao, Joan Lu, and Jim Yip. A New Join-less Approach for Co-location Pattern Mining. In Qiang Wu, Xiangjian He, Quang Vinh Nguyen, Wenjing Jia, and Mao Lin Huang, editors, Proceedings of the 8th IEEE International
+Conference on Computer and Information Technology (CIT 2008), pages 197–202, Sydney, July 2008. IEEE.
+\bibitem{icpi}Lizhen Wang, Yuzhen Bao, and Joan Lu. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. The Open Information Systems Journal, 3(2):69–80,2009.
 \end{thebibliography}
 
+\newpage
 
 \appendix
 

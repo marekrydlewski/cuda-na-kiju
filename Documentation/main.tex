@@ -197,7 +197,7 @@ znajdź wszystkie poprawne reguły kolokacyjne z powszechnością nie mniejszą 
 
 \subsection{Przegląd algorytmów odkrywania wzorców kolokacji przestrzennych}
 
-W tym podrozdziale zostaną zaprezentowane pokrótce najważniejsze algorytmy odkrywania kolokacji przestrzennych. 
+W tym podrozdziale zostaną zaprezentowane skrótowo najważniejsze algorytmy odkrywania kolokacji przestrzennych. 
 
 \subsubsection{Co-location Miner}
 
@@ -217,9 +217,22 @@ W następnej iteracji algorytm wykonuje dokładnie te same kroki, przy czym gene
 
 Korzystanie z oryginalnego algorytmu \textit{Co-location Miner} wiąże się niestety z dużymi kosztami obliczeniowymi, głównie ze względu na pracochłonny krok generowania kandydatów na kolokacje. Dlatego też niedługo później w pracy \cite{multihuang} autorzy zaproponowali drobną modyfikację oryginalnego algorytmu, dodając dodatkowy krok filtrowania w opraciu o przybliżoną reprezentację zbioru wejściowego.
 
-W algorytmie \textit{Multiresolution Co-location Miner} zbiór wejściowy zostaje podzielony na obszary (mniejsze fragmenty). Zanim rozpocznie się faza wyznaczania instancji dla wygenerowanych kandydatów, nastepuje szacowanie ich powszechności na podstawie sąsiadujących instancji cech przestrzennych w ramach obszarów. W przypadku zbyt niskiej wartości szacowanej powszechności kandydata, można go wykluczyć z dalszego przetwarzania i oszczędzić zasoby niezbędne na wyznaczenie jego instancji.
+W algorytmie \textit{Multiresolution Co-location Miner} zbiór wejściowy zostaje podzielony na obszary (mniejsze fragmenty). Zanim rozpocznie się faza wyznaczania instancji dla wygenerowanych kandydatów, nastepuje szacowanie ich powszechności na podstawie sąsiadujących instancji cech przestrzennych w ramach obszarów. W przypadku zbyt niskiej wartości szacowanej powszechności kandydata, można go wykluczyć z dalszego przetwarzania i tym samym oszczędzić zasoby niezbędne na wyznaczenie jego instancji.
+
+Dalsze kroki przebiegają identycznie jak w przypadku oryginalnego \textit{Co-location Miner}.
 
 \subsubsection{Joinless}
+
+Celem autorów pracy \cite{joinless} było stworzenie algorytmu, który omijałby konieczność tworzenia kosztownych połączeń przestrzennych na etapie wyznaczania instancji kandydatów na kolokacje (tak jak np. w przypadku rodziny algorytmów \textit{Co-location Miner}). Nosi on nazwę algorytmu bezpołączeniowego (ang. \textit{joinless}).
+
+Główną różnicą w porównaniu do wcześniejszych algorytmów jest sposób generowania instancji kolokacji. Są one generowane na podstawie sąsiedztw typu gwiazda - czyli zbiorów obiektów, w którego skład wchodzi rozpatrywany obiekt oraz jego sąsiedzi posiadający większą cechę przestrzenną. Wyznacza się je na podstawie oddzielnych algorytmów, np. \textit{plane sweep} lub korzysta z specjalnych struktur ułatwiających wykrywanie sąsiadów (np. \textit{R-drzewo}).
+
+Wygenerowane instancje muszą zostać dodatkowo zweryfikowane (poprawne instancje powinny być kliką, czego nie gwarantuje sąsiedztwo typu gwiazda), a następnie - podobnie jak w algorytmie \textit{Multiresolution Co-location Miner} - dokonuje się wstępnego filtrowania pod kątem progu minimalnej powszechności.
+
+
+
+
+
 \subsubsection{iCPI-tree}
 
 \newpage
@@ -254,6 +267,7 @@ Taylor \& Francis, Inc., Bristol, PA, USA, 2001
 \bibitem{cuda_by_examples}CUDA by Example: An Introduction to General-Purpose GPU Programming, Jason Sanders, Edward Kandrot
 \bibitem{professional_cuda}Professional CUDA C Programming, John Cheng, Max Grossman, Ty McKerche
 \bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
+\bibitem{joinless}Jin Soung Yoo and Shashi Shekhar. A Joinless Approach for Mining Spatial Colocation Patterns. IEEE Transactions on Knowledge and Data Engineering, 18(10):13231337, 2006.
 \end{thebibliography}
 
 

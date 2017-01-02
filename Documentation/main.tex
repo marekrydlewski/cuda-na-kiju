@@ -5,6 +5,8 @@
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage[nottoc]{tocbibind}
+\newtheorem{defin}{Definicja}
+ 
 \newcommand{\sectionbreak}{\clearpage}
  \geometry{
  a4paper,
@@ -95,17 +97,178 @@ W pracy przedstawiono główne pojęcia związane z wyszukiwaniem kolokacji prze
 
 \textit{W tym miejscu zasadniczo będzie można napisać więcej, jeżeli już te rozdziały zostaną ustalone bądź wstępnie uzupełnione. Poza tym należy ustalić, czy w ogóle potrzebujemy takiego działu dla tak małej pracy. Z drugiej strony, zawsze to jednak te pół strony więcej spamu - borewicz}
 
+\subsection{Podział pracy}
+
+\textbf{Marcin Jabłoński} w ramach niniejszej pracy wykonał projekt tego i tego, opracował ......
+
+\textbf{Łukasz Kosiak} wykonał ......, itd.
+
+\newpage
+
 \section{Podstawy teoretyczne}
 
-Więcej informacji można znaleźć w książce \cite{sop}.
+\subsection{Charakterystyka danych przestrzennych}
+
+\subsubsection{Modelowanie danych przestrzennych}
+\subsubsection{Źródła danych przestrzennych}
+\subsubsection{Relacje}
+
+\subsection{Metody eksploracji danych przestrzennych}
+
+\subsubsection{Grupowanie przestrzenne}
+\subsubsection{Klasyfikacja przestrzenna}
+\subsubsection{Odkrywanie trendów}
+...
+\subsubsection{Asocjacje przestrzenne}
+\subsubsection{Kolokacje przestrzenne}
+
+\subsection{Odkrywanie kolokacji przestrzennych}
+
+Niniejszy rozdział zawiera opisy i definicje pojęć niezbędnych do zrozumienia algorytmu zawartego w rozdziale 3.
+
+\subsubsection{Cecha przestrzenna}
+
+Kluczową kwestią w procesie odkrywania kolokacji jest odpowiednia klasyfikacja obiektów występujących w bazie danych. Każdy zbiór danych przestrzennych, oprócz informacji o lokalizacji obiektu i opisujących go danych nieprzestrzennych powinien zawierać także właściwość pozwalającą na sklasyfikowanie danego obiektu do określonej klasy. Takie przypisanie nazywane jest cechą przestrzenną (ang. spatial feature) lub rzadziej klasą obiektu (ang. object class).
+
+Jako typowy przykład cechy przestrzennej można podać etykietę przypisaną do obiektu na mapie (np. kosciół, szkoła, strzelnica). Pozwala ona na jednoznaczne określenie własności przestrzeni w punkcie, gdzie znajduje się obiekt.
+
+\subsubsection{Podstawowe definicje}
+
+\begin{defin}[Instancja cechy przestrzennej]
+Niech f będzie cechą przestrzenną. Mówimy, że obiekt x jest instancją cechy przestrzennej f, wtedy i tylko wtedy, gdy obiekt x jest typu f oraz jest opisany przez lokalizację i identyfikator.
+\end{defin}
+
+\begin{defin}[Wzorzec i instancja kolokacji]
+Załóżmy $F$ jako zbiór cech przestrzennych $F = \{ f_{1}, f_{2}, ...,f_{m} \} $ , a $FI = FI^{f_{1}} \cup FI^{f_{2}} \cup ... \cup FI^{f_{m}}$ niech będzie
+zbiorem ich instancji. Niech $ >_{F} $ oznacza dowolną relację porządku zdefiniowaną dla zbioru $ F $. Niech $ f_{i} $ oznacza i-tą cechę przestrzenną (ze względu na relację $ >_{F} $), zatem $ \forall i,j \in 1,...,m $ $ f_{i} <_{F} $ $ f_{j} \Leftrightarrow i < j \land f_{i},f_{j} \in F $. Mając daną relację sąsiedztwa R (zwrotną i przechodnią) mówimy, że wzorzec kolokacji przestrzennej (w skrócie "kolokacja") jest podzbiorem cech przestrzennych $ c \subseteq F $ , których instancje $ I\subseteq FI $ tworzą klikę ze względu na relację R. Zbiór wszystkich instancji kolokacji przestrzennej $c$ jest oznaczany przez $CI^{c} $. Przez długość kolokacji należy rozumieć liczbę elementów w zbiorze cech przestrzennych, który tworzy tę kolokację.
+\end{defin}
+
+\begin{defin}[Sąsiedztwo]
+Mające daną zwrotną i symetryczną relację sąsiedztwa R, sąsiedztwem lokalizacji l nazywamy zbiór lokalizacji $L = \{l_{1},l_{2}, . . . , l_{n}\}$, gdzie $l_{i}$ jest sąsiadem l, tzn. zachodzi $R(l, l_{i}) $ $ \forall i \in 1,...,n$.
+\end{defin}
+
+Przykład TODO (oprzeć na przykładzie chińczyków?)
+
+\subsubsection{Miary kolokacji}
+
+\begin{defin}[Współczynnik uczestnictwa]
+Współczynnik uczestnictwa (ang. participation ratio) cechy f i w kolokacji c jest równy procentowemu udziałowi wszystkich instancji cechy f i w instancjach kolokacji c:
+
+\begin{equation}
+pr(f_{i}, c) = \frac{|\pi^{f_{i}}(CI^{c})|}{FI^{f_{i}}}
+\end{equation}
+gdzie $ \pi^{f_{i}}(CI^{c})$ oznacza projekcję relacyjną zbioru instancji $ CI^{c}$ względem cechy $f_{i}$ (z usuwaniem duplikatów).
+\end{defin}
+
+\begin{defin}[Indeks uczestnictwa]Indeks uczestnictwa (ang. participation index) kolokacji c jest równy najmniejszemu ze współczynników uczestnictwa wyznaczonych dla każdej cechy przestrzennej $ f_{i} \in c$:
+\begin{equation}
+pi(c) = min_{f_{i} \in c} pr(f_{i} ,c)
+\end{equation}
+Indeks uczestnictwa najczęściej określany jest w literaturze mianem miary powszechności lub krótko powszechnością kolokacji.
+\end{defin}
+
+\begin{defin}[Maksymalny wzorzec kolokacji przestrzennej]Niech będzie dana wartość min\_prev oznaczająca pewien minimalny próg powszechności. Jeżeli $ c = \{f_{1},...,f_{m} \} $ jest kolokacją powszechną (tzn. $ pi(c) \ge min\_prev $) i nie istnieje żaden nadzbiór c taki, że powszechność dla tego nadzbioru jest równa co najmniej min\_prev, kolokacja c nazywana jest kolokacją maksymalną.  
+\end{defin}
+
+\subsubsection{Problem}
+
+\begin{defin}[Reguła kolokacyjna]Reguła kolokacyjna to reguła postaci $ c_{1} \rightarrow c_{2}(p, cp)$, gdzie $ c_{1} \subseteq F $, $c_{2} \subseteq F $ i $c _{1} \cup c_{2} = \emptyset $. Potencjalna użyteczność reguły może być mierzona przy pomocy jej powszechności p oraz prawdopodobieństwa warunkowego cp.
+\end{defin}
+
+\begin{defin}[Prawdopodobieństwo warunkowe]Prawdopodobieństwem warunkowym
+$ cp(c_{1}, c_{2})$ reguły kolokacyjnej $ c_{1} \rightarrow c_{2} $ nazywamy stosunek liczby instancji wzorca c 1 w sąsiedztwie instancji wzorca $ c_{2}$ do liczby wszystkich instancji wzorca $ c_{1} $:
+\begin{equation}
+cp(c_{1}, c_{2}) = \frac{|\pi^{c_{1}}(CI^{c_{1} \cup c_{2}})|}{CI^{c_{1}}}
+\end{equation}
+gdzie $\pi^{c_{1}}(CI^{c_{1} \cup c_{2}})$ oznacza projekcję relacyjną instancji wzorca $CI^{c_{1} \cup c_{2}}$ względem wzorca $ c_{1} $ (z usuwaniem duplikatów).
+\end{defin}
+
+\begin{defin}[Problem odkrywania kolokacji]
+Problem odkrywania kolokacji przestrzennych jest zdefiniowany w następujący sposób.
+Mając dane:
+\begin{itemize}
+\item zbiór cech przestrzennych $F = \{ f_{1}, f_{2}, ...,f_{m} \} $
+\item zbiór obiektów $FI = FI^{f_{1}} \cup FI^{f_{2}} \cup ... \cup FI^{f_{m}}$  , gdzie $ FI^{f_{i}},(0 < i \le m) $ jest zbiorem instancji cechy $ f_{i}$, przy czym każda instancja jest opisana przez lokalizację i identyfikator,
+\item symetryczną i zwrotną relację sąsiedztwa $R$,
+\item próg minimalnej powszechności min\_prev oraz próg minimalnego prawdopodobieństwa warunkowego min\_cond,
+\end{itemize}
+znajdź wszystkie poprawne reguły kolokacyjne z powszechnością nie mniejszą niż min\_prev i prawdopodobieństwem warunkowym nie mniejszym niż min\_cond.
+\end{defin}
+
+\subsection{Przegląd algorytmów odkrywania wzorców kolokacji przestrzennych}
+
+W tym podrozdziale zostaną zaprezentowane skrótowo najważniejsze algorytmy odkrywania kolokacji przestrzennych. 
+
+\subsubsection{Co-location Miner}
+
+Wraz z wprowadzeniem pojęcia kolokacji autorzy pracy \cite{huang} zaprezentowali także podstawowy obecnie algorytm rozwiązujący problem odkrywania wzorców kolokacji przestrzennych, zwany \textit{Co-location Miner}. W algorytmie tym wyróżnia się następujące fazy:
+
+\begin{itemize}
+\item generowanie kandydatów na kolokacje przestrzenne (o długości $i$),
+\item wyznaczanie instancji dla wygenerowanych kandydatów,
+\item usuwanie kandydatów, których powszechność wynosi mniej niż przyjęty próg minimalnej powszechnosci.
+\end{itemize}
+
+Pozostali kandydaci trafiają do zbioru wynikowego, a następnie na ich podstawie są tworzone reguły kolokacyjne. Same reguły również podlegają filtracji - usuwane są te reguły, których prawdopodobieństwo warunkowe jest poniżej określonego progu. 
+
+W następnej iteracji algorytm wykonuje dokładnie te same kroki, przy czym generowani kandydaci są o długości o jeden większej. Całość kończy się, gdy nie jest możliwe już wygenerowanie nowych kandydatów.
+
+\subsubsection{Multiresolution Co-location Miner}
+
+Korzystanie z oryginalnego algorytmu \textit{Co-location Miner} wiąże się niestety z dużymi kosztami obliczeniowymi, głównie ze względu na pracochłonny krok generowania kandydatów na kolokacje. Dlatego też niedługo później w pracy \cite{multihuang} autorzy zaproponowali drobną modyfikację oryginalnego algorytmu, dodając dodatkowy krok filtrowania w opraciu o przybliżoną reprezentację zbioru wejściowego.
+
+W algorytmie \textit{Multiresolution Co-location Miner} zbiór wejściowy zostaje podzielony na obszary (mniejsze fragmenty). Zanim rozpocznie się faza wyznaczania instancji dla wygenerowanych kandydatów, nastepuje szacowanie ich powszechności na podstawie sąsiadujących instancji cech przestrzennych w ramach obszarów. W przypadku zbyt niskiej wartości szacowanej powszechności kandydata, można go wykluczyć z dalszego przetwarzania i tym samym oszczędzić zasoby niezbędne na wyznaczenie jego instancji.
+
+Dalsze kroki przebiegają identycznie jak w przypadku oryginalnego \textit{Co-location Miner}.
+
+\subsubsection{Joinless}
+
+Celem autorów pracy \cite{joinless} było stworzenie algorytmu, który omijałby konieczność tworzenia kosztownych połączeń przestrzennych na etapie wyznaczania instancji kandydatów na kolokacje (tak jak np. w przypadku rodziny algorytmów \textit{Co-location Miner}). Nosi on nazwę algorytmu bezpołączeniowego (ang. \textit{joinless}).
+
+Główną różnicą w porównaniu do wcześniejszych algorytmów jest sposób generowania instancji kolokacji. Są one generowane na podstawie sąsiedztw typu gwiazda - zbiorów obiektów, w którego skład wchodzi rozpatrywany obiekt oraz jego sąsiedzi posiadający większą cechę przestrzenną. Wyznacza się je na podstawie oddzielnych algorytmów (np. \textit{plane sweep}), lub korzysta z specjalnych struktur ułatwiających wykrywanie sąsiadów typu \textit{R-drzewo}.
+
+Wygenerowane instancje muszą zostać dodatkowo zweryfikowane (poprawne instancje powinny być kliką, czego nie gwarantuje sąsiedztwo typu gwiazda), a następnie - podobnie jak w algorytmie \textit{Multiresolution Co-location Miner} - dokonuje się ich wstępnego filtrowania pod kątem progu minimalnej powszechności.
+
+\subsubsection{iCPI-tree}
+
+Drzewo iCPI (\textit{improved Co-location Pattern Instance}, \cite{icpi}) stanowi zmodyfikowaną odmianę drzewa CPI zawartego w pracy \cite{cpi}. Struktura ta zawiera informacje o wszystkich zachodzących relacjach sąsiedztwa. 
+
+\textit{iCPI-tree} posiada następującą strukturę:
+
+\begin{itemize}
+\item Poziom 1 - korzeń drzewa (oznaczony etykietą \textit{NULL}),
+\item Poziom 2 - cechy elementów centralnych, czyli cechy przestrzenne obiektów centralnych \textit{sąsiedztw typu gwiazda};
+\item Poziom 3 - instancje elementów centralnych, dla których ma zostać przechowana informacja o sąsiadach;
+\item Poziom 4 - cechy sąsiadów,
+\item Poziom 5 - instancje sąsiadów.
+\end{itemize}
+
+Sąsiedzi uporządkowani są według rosnącej cechy przestrzennej, a w przypadku instancji tej samej cechy - zgodnie z rosnącym identyfikatorem. Takie uporządkowanie nosi nazwę \textit{uporządkowanego zbioru sąsiadów}.
+
+Powyższa struktura drzewiasta jest wykorzystana w algorytmie w celu generowania instancji coraz dłuższych kandydatów w kolejnych iteracjach. Dokonuje się tego poprzez systematyczną ich rozbudowę o kolejne elementy. Na początku wszystkie instancje są jednoelementowe, a w kolejnych iteracjach są one rozbudowywane poprzez wyszukiwanie sąsiadów z odpowiednią cechą i weryfikowane (należy sprawdzić, czy nowo dodany obiekt do instancji jest sąsiadem każdego z obiektów należących do tej instancji). 
+
+Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie według powszechności) są podobne jak w metodach \textit{Co-location Miner} i \textit{joinless}.
+
+\newpage
 
 \section{Algorytm}
+
+\subsection{Konstrukcja tabeli instancji o rozmiarze 2}
+
+\subsection{Obliczanie miary powszechności}
+
+\subsection{Generowanie kandydatów na kolokacje maksymalne}
+
+\subsection{Proces odcinania}
+
 
 \section{Implementacja}
 
 \section{Testy efektywnościowe}
 
 \section{Zakończenie}
+
+\newpage
 
 \begin{thebibliography}{}
 \bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining
@@ -119,8 +282,14 @@ Taylor \& Francis, Inc., Bristol, PA, USA, 2001
 \bibitem{chinczyki}A fast space-saving algorithm for maximal co-location pattern mining
 \bibitem{cuda_by_examples}CUDA by Example: An Introduction to General-Purpose GPU Programming, Jason Sanders, Edward Kandrot
 \bibitem{professional_cuda}Professional CUDA C Programming, John Cheng, Max Grossman, Ty McKerche
+\bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
+\bibitem{joinless}Jin Soung Yoo and Shashi Shekhar. A Joinless Approach for Mining Spatial Colocation Patterns. IEEE Transactions on Knowledge and Data Engineering, 18(10):13231337, 2006.
+\bibitem{cpi}Lizhen Wang, Yuzhen Bao, Joan Lu, and Jim Yip. A New Join-less Approach for Co-location Pattern Mining. In Qiang Wu, Xiangjian He, Quang Vinh Nguyen, Wenjing Jia, and Mao Lin Huang, editors, Proceedings of the 8th IEEE International
+Conference on Computer and Information Technology (CIT 2008), pages 197–202, Sydney, July 2008. IEEE.
+\bibitem{icpi}Lizhen Wang, Yuzhen Bao, and Joan Lu. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. The Open Information Systems Journal, 3(2):69–80,2009.
 \end{thebibliography}
 
+\newpage
 
 \appendix
 

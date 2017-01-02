@@ -112,6 +112,37 @@ DataFeed * TestDataGenerator::getDataForPrevalenceTests()
 	return data;
 }
 
+DataFeed * TestDataGenerator::getDataForMixedPrevalenceResults()
+{
+	DataFeed* data = new DataFeed[6];
+	data[0].type = 0;
+	data[0].instanceId = 0;
+	data[0].xy.x = 0;
+	data[0].xy.y = 0;
+	data[1].type = 0;
+	data[1].instanceId = 1;
+	data[1].xy.x = 0;
+	data[1].xy.y = 10;
+	data[2].type = 0;
+	data[2].instanceId = 2;
+	data[2].xy.x = 0;
+	data[2].xy.y = 20;
+	data[3].type = 1;
+	data[3].instanceId = 0;
+	data[3].xy.x = 4;
+	data[3].xy.y = 0;
+	data[4].type = 1;
+	data[4].instanceId = 1;
+	data[4].xy.x = -4;
+	data[4].xy.y = 0;
+	data[5].type = 2;
+	data[5].instanceId = 0;
+	data[5].xy.x = 8;
+	data[5].xy.y = 0;
+	
+	return data;
+}
+
 DataFeed * TestDataGenerator::getDataForMaximalCliqueSize2()
 {
 	DataFeed* data = new DataFeed[2];

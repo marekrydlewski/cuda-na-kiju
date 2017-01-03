@@ -110,8 +110,41 @@ W pracy przedstawiono główne pojęcia związane z wyszukiwaniem kolokacji prze
 \subsection{Charakterystyka danych przestrzennych}
 
 \subsubsection{Modelowanie danych przestrzennych}
+
+Sposób reprezentacji danych przestrzennej w dużej mierze zależy od zastosowań, niemniej najczęściej przybiera jedną z następujących form:
+
+\begin{itemize}
+\item \textit{model pól} - ma formę funkcji, której dziedzina należy do modelowanej przestrzeni, a jego wynikiem jest cecha przestrzenna;
+\item \textit{model obiektowy} - dla każdego zjawiska jest tworzony nowy obiekt z odpowiednimi właściwościami (etykietami, atrybutami przestrzennymi i nieprzestrzennymi).
+\end{itemize}
+
+W praktyce model pól używany jest przede wszystkim w metodach opartych na dokonywaniu pomiarów z powietrza - takie dane mają wtedy charakter rastrowy (reprezentacja w postaci pikseli). Model obiektowy stosowany jest natomiast w przypadkach, gdzie występuje duża liczba dodatkowych atrybutów nieprzestrzennych.
+
 \subsubsection{Źródła danych przestrzennych}
+
+Najogólniej źródła danych przestrzennych można podzielić ze względu na ich format.
+
+\textit{Pierwotne źródła danych} są opracowane w jednym ze standardowych formatów źródeł (najczęściej dla konkretnego systemu) i nie wymagają jakichkolwiek transformacji. Mają one zazwyczaj postać cyfrową i pochodzą z automatycznych pomiarów dokonanych przez specjalizowane systemy wyposażone w odbiorniki GPS czy tachimetry.
+
+\textit{Wtórne dane źródłowe} nie zostały zebrane z myślą o wykorzystaniu w systemach typu GIS i dlatego wymagają one odpowiedniej transformacji oraz cyfryzacji (jeżeli są one analogowe). Procedury te są one obarczone pewnym ryzykiem, ponieważ istnieje możliwość wystąpienia błędów w trakcie konwersji i w konsekwencji przekłamaniami w danych wynikowych, które należy ręcznie poprawić.
+
 \subsubsection{Relacje}
+
+Określenie zachodzących relacji między obiektami w źródłach danych przestrzennych jest ważnym elementem przetwarzania danych przestrzennych. Sposób ich określenia zależy od zastosowanego modelu danych.
+
+W modelu pól relacje determinowane są przez operacje pól (ang. \textit{field operations}, \cite{fieldmodel}), mogące przybierać różne formy w zależności od zastosowań, natomiast w modelu obiektowym rodzaje relacji przestrzennych zależą od definicji przestrzeni. Według standardu OGC istnieją trzy najpopularniejsze rodzaje związków przestrzennych między obiektami:
+
+\begin{itemize}
+\item \textit{Relacje metryczne} - wyrażane w postaci predykatów typu "w odległości nie większej niż 10 metrów", oparte na odległości;
+\item \textit{Relacje kierunkowe} - położenie określone jest względem globalnych kierunków dla przestrzeni (np. na północ, na południe - są to relacje bezwzględne) lub względem innego obiektu/obserwatora (nazywamy takie relacjami względnymi);
+\item \textit{Relacje topologiczne} - najbardziej skomplikowane, wyrażone przez zależności typu pokrywanie, zawieranie, styczność.
+\end{itemize}
+
+W systemach typu GIS stosuje się głównie relacje topologiczne. Mają one postać predykatów przestrzennych dla operacji filtrowania i połączenia przestrzennego w językach zapytań działających na danych przestrzennych. Najczęściej wykorzystuje się je w tzw. \textit{modelu dziewięciu przecięć} \cite{9sec}, za pomocą którego określa się możliwe relacje zachodzącą dla pary obiektów.
+
+Dla każdego obiektu wyznacza się jego wnętrze, granicę i zewnętrze. Następnie, dokonuje się operacji przecięcia dla danej pary obiektów dla każdej z możliwych kombinacji elementów tego obiektu (np. granica pierwszego obiektu z wnętrzem drugiego). Takich relacji w dwuwymiarowej relacji można wyznaczyć osiem, należą do nich np. rozłączność, styczność, częściowe i całkowite pokrycie itd. 
+
+Istnieje również rozszerzenie modelu dziewięciu przecięć, zwanym DE-9IM (ang. \textit{Dimensionally Extended nine-Intersection Model}, \cite{9sec2}), które rozróżnia rodzaj obiektu uzyskanego w wyniku przecięcia (mogą być puste, bezwymiarowe, jednowymiarowe i dwuwymiarowe). 
 
 \subsection{Metody eksploracji danych przestrzennych}
 
@@ -206,7 +239,7 @@ Wraz z wprowadzeniem pojęcia kolokacji autorzy pracy \cite{huang} zaprezentowal
 \begin{itemize}
 \item generowanie kandydatów na kolokacje przestrzenne (o długości $i$),
 \item wyznaczanie instancji dla wygenerowanych kandydatów,
-\item usuwanie kandydatów, których powszechność wynosi mniej niż przyjęty próg minimalnej powszechnosci.
+\item usuwanie kandydatów, których powszechność wynosi mniej niż przyjęty próg minimalnej powszechności.
 \end{itemize}
 
 Pozostali kandydaci trafiają do zbioru wynikowego, a następnie na ich podstawie są tworzone reguły kolokacyjne. Same reguły również podlegają filtracji - usuwane są te reguły, których prawdopodobieństwo warunkowe jest poniżej określonego progu. 
@@ -287,6 +320,12 @@ Taylor \& Francis, Inc., Bristol, PA, USA, 2001
 \bibitem{cpi}Lizhen Wang, Yuzhen Bao, Joan Lu, and Jim Yip. A New Join-less Approach for Co-location Pattern Mining. In Qiang Wu, Xiangjian He, Quang Vinh Nguyen, Wenjing Jia, and Mao Lin Huang, editors, Proceedings of the 8th IEEE International
 Conference on Computer and Information Technology (CIT 2008), pages 197–202, Sydney, July 2008. IEEE.
 \bibitem{icpi}Lizhen Wang, Yuzhen Bao, and Joan Lu. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. The Open Information Systems Journal, 3(2):69–80,2009.
+\bibitem{fieldmodel}Christopher Jones and Mark Hall. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. In Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), 2008.
+\bibitem{9sec}Max J. Egenhofer and Robert Franzosa. Point-set topological spatial relations. International Journal of Geographic Information Systems, 5(2):161–174, 1991.
+\bibitem{9sec2} Eliseo Clementini, Paolino Di Felice, and Peter van Oosterom. A small set of formal
+topological relationships suitable for end-user interaction. In Proceedings of the 3rd
+International Symposium on Advances in Spatial Databases (SSD 1993), pages 277–
+295, London, UK, UK, 1993. Springer-Verlag.
 \end{thebibliography}
 
 \newpage

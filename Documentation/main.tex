@@ -148,12 +148,60 @@ Istnieje również rozszerzenie modelu dziewięciu przecięć, zwanym DE-9IM (an
 
 \subsection{Metody eksploracji danych przestrzennych}
 
+Specyfika danych przestrzennych, a w szczególności fakt, że własności obiektu w danych przestrzennych mogą zależeć od cech jego sąsiadów, powoduje, że stosowanie klasycznych metod eksploracji danych może doprowadzić do nieprawidłowych wyników \cite{klasykchuj1} \cite{klasykchuj2} - stąd też istnieje konieczność korzystania z metod eksploracji dedykowanych dla danych przestrzennych. Wiele z nich jest tak naprawdę rozwinięciem metod opracowanych dla klasycznych zbiorów danych.
+
 \subsubsection{Grupowanie przestrzenne}
+
+Metoda grupowania przestrzennego (ang. \textit{spatial clustering}) zakłada istnienie przestrzeni $m$-wymiarowej, w której znajdują się punkty odpowiadające obiektom. Przestrzeń ta ma rozkład niejednorodny, a każdy z obiektów jest opisany przez $m$ atrybutów. Celem grupowania jest poszukiwanie gęstych obszarów punktów używając miary Euklidesowej jako funkcji podobieństwa. 
+
+Grupowanie przestrzenne w największym stopniu spośród wszystkich metod eksploracji danych przestrzennych jest podobna do swojego klasycznego odpowiednika - wiele algorytmów grupowania opracowanych dla klasycznych zbiorów danych zadziała również dla danych przestrzennych. 
+
 \subsubsection{Klasyfikacja przestrzenna}
-\subsubsection{Odkrywanie trendów}
-...
+
+Klasyfikacja przestrzenna (ang. \textit{spatial classification}) działa podobnie jak jego odmiana dla danych klasycznych - przewiduje klasy nowych obiektów w oparciu o tzw. zbiór uczący, składający się ze wcześniejszych obserwacji.
+
+W celu dostosowania klasyfikacji dla danych przestrzennych zaproponowano \cite{klasyfikacja} wykorzystanie \textit{grafu sąsiedztwa} będącego reprezentacją relacji przestrzennych między obiektami, w którym wierzchołki stanowią obiekty przestrzenne, a relacje są krawędziami. Następnie w takim grafie wyznaczane są wszystkie ścieżki, których początkiem jest analizowany obiekt. Dalej analiza przebiega zgodnie z algorytmem \textit{ID3} \cite{id3}.
+
+Z pojęciem klasyfikacji przestrzennej wiąże się także predykcja położenia (ang. \textit{location prediction}), czyli przewidywanie zdarzeń we wskazanym miejscu w przestrzeni, przy uwzględnieniu autokorelacji przestrzennej. Przydaje się ono np. w określaniu regionów o wysokim ryzyku wystąpienia klęsk żywiołowych czy awarii.
+
+\subsubsection{Odkrywanie trendów przestrzennych}
+
+Trend przestrzenny definuje się \cite{toptrendy} jako regularną zmianę co najmniej jednego atrybutu nieprzestrzennego obiektów wraz z oddalaniem się od innego obiektu. Odkrywanie trendów sprowadza się zazwyczaj do analizy regresji, gdzie odległość od danego obiektu jest zmienną niezależną, natomiast różnica wartości atrybutów do obserwacji - zmienną zależną.
+
+Trendy dzieli się na globalne i lokalne. Pierwsze wskazują na zwiększanie (bądź zmniejszanie) wartości obserwowanych atrybutów przy rozpatrywaniu wszystkich obiektów znajdujących się na ścieżkach wychodzących z punktu początkowego. Typowym przykładem jest wzrost bezrobocia wraz z oddalaniem się od centrum miast. Trend lokalny jest reprezentowany przez pojedyncze ścieżki wykazujące inny kierunek zmian na danym atrybucie niż na sąsiednich ścieżkach.
+
+\subsubsection{Przypadki osobliwe w danych przestrzennych}
+
+Czasem w danych przestrzennych można znaleźć obiekty, których atrybuty nieprzestrzenne są niespójne z innymi obserwacjami dokonanymi w ich otoczeniu. Noszą one miano \textit{przypadków osobliwych} \cite{przypadeg}. 
+
+Wyszukiwanie takich zjawisk jest trudne, szczególnie gdy istnieje więcej atrybutów nieprzestrzennych - odwzorowanie ich w $n$-wymiarowej przestrzeni może skutkować \textit{przekleństwem wielowymiarowości} (ang. \textit{curse of dimensionality}) \cite{kurwa}, utrudnionym rozróżnianiem obiektów podobnych do siebie.
+
 \subsubsection{Asocjacje przestrzenne}
+
+Problem odkrywania asocjacji został pierwszy raz zdefiniowany w pracy \cite{asoc} i w ogólności polega na analizie dostępnych transakcji (zbiorów obiektów, np. koszyka zakupów) oraz wykryciu występujących w nich regularności występowania elementów (typu: klient, który kupując bułki wybrał także masło).
+
+Najczęściej reguły charakteryzuje się miarą \textit{wsparcia} (ang. \textit{support}) i \textit{ufności} (ang. \textit{confidence}). Pierwsza z nich wyraża stosunek występowania transakcji zawierającą lewą i prawą stronę reguły do ilości wszystkich transakcji. Ufność z kolei wskazuje na procentowy udział transakcji zawierających lewą i prawą stronę reguły we wszystkich transakcjach, które zawierają jego lewą stronę (jest to tzw. prawdopodobieństwo warunkowe). W celu ograniczenia ilości wykrytych wzorców wprowadzono także pojęcie \textit{zbioru częstego} (ang. \textit{frequent itemsets}) - zbioru elementów, dla których wyznaczone wsparcie przekracza pewien ustalony przez użytkownika próg minimalnego wsparcia. 
+
+Z pracy \cite{asoc} pochodzi także popularny algorytm wykorzystywany w wielu metodach odkrywania asocjacji i kolokacji, czyli metoda \textit{Apriori}. Wykorzystuje on ważną cechę miary wsparcia, jaką jest \textit{antymonotoniczność}. Wynika z niej, że zbiór może być zbiorem częstym tylko w przypadku, kiedy jego podzbiory są również zbiorami częstymi. 
+
+Na początku algorytmu generowane są jednoelementowe zbiory częste. Następnie iteracyjnie wykonywane są następujące kroki:
+\begin{itemize}
+\item tworzenie zbiorów częstych $ (i + 1) $-elementowych na podstawie zbiorów o długości $ i $,
+\item filtrowanie zbiorów kandydujących w oparciu o miarę wsparcia,
+\item dodanie kandydatów do zbioru wynikowego.
+\end{itemize}
+
+Generowanie kandydatów polega na łączeniu wszystkich par zbiorów częstych o identycznych elementach początkowych, a następnie usuwaniu tych, które nie są zbiorami częstymi w oparciu o własność antymonotoniczności. Algorytm kończy się, gdy zbiór kandydatów będzie pusty.  
+
+W celu dostosowania metody odkrywania asocjacji do danych przestrzennych wprowadzono pojęcie \textit{przestrzennej reguły asocjacyjnej} \cite{asoc2}. Zakłada ona istnienie predykatów przestrzennych (mogących wyrażać informacje o odległości czy kierunku), które mogą występować zarówno w części warunkującej (poprzedniku), jak w warunkowanej (następniku). Następnie podczas procesu odkrywania przestrzennych reguł asocjacyjnych dane umieszczone w ciągłej przestrzeni są zamieniane na zbiór transakcji. Metoda ta jest zaliczana do modelu zorientowanego na cechę referencyjną \cite{boinski}. Istnieje też inne podejście, zwane \textit{odkrywaniem zbiorów częstych klas sąsiadów}, opisane w pracy \cite{classsets}. 
+
 \subsubsection{Kolokacje przestrzenne}
+
+Przedstawiony w pracy \cite{huang} problem \textit{odkrywania przestrzennych reguł kolokacyjnych} powstał w odpowiedzi na niedoskonałości asocjacji (w szczególności konieczność wyboru cechy referencyjnej) i zakłada istnienie równorzędnych cech przestrzennych. 
+
+Praca wprowadza pojęcie \textit{wzorca kolokacji przestrzennej} (zwanego także kolokacją przestrzenną lub krócej - kolokacją), zbioru cech przestrzennych, których instancje często występują we wzajemnym sąsiedztwie \cite{boinski}. Stanowi on swego rodzaju odpowiednik zbiorów częstych w asocjacjach przestrzennych. Również miara wsparcia została zastąpiona przez \textit{miarę powszechności} (ang. prevalence), które eliminują wymaganie wiedzy o transakcjach. 
+
+Kolokacje przestrzenne są przykładem modelu zorientowanego na zdarzenie (ang. \textit{event-centric model}).
 
 \subsection{Odkrywanie kolokacji przestrzennych}
 
@@ -322,11 +370,19 @@ Conference on Computer and Information Technology (CIT 2008), pages 197–202, S
 \bibitem{icpi}Lizhen Wang, Yuzhen Bao, and Joan Lu. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. The Open Information Systems Journal, 3(2):69–80,2009.
 \bibitem{fieldmodel}Christopher Jones and Mark Hall. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. In Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), 2008.
 \bibitem{9sec}Max J. Egenhofer and Robert Franzosa. Point-set topological spatial relations. International Journal of Geographic Information Systems, 5(2):161–174, 1991.
-\bibitem{9sec2} Eliseo Clementini, Paolino Di Felice, and Peter van Oosterom. A small set of formal
-topological relationships suitable for end-user interaction. In Proceedings of the 3rd
-International Symposium on Advances in Spatial Databases (SSD 1993), pages 277–
-295, London, UK, UK, 1993. Springer-Verlag.
+\bibitem{9sec2} Eliseo Clementini, Paolino Di Felice, and Peter van Oosterom. A small set of formal topological relationships suitable for end-user interaction. In Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993), pages 277-295, London, UK, UK, 1993. Springer-Verlag.
+\bibitem{klasykchuj1} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery. Taylor \& Francis, Inc., Bristol, PA, USA, 2001.
+\bibitem{klasykchuj2}John F. Roddick and Myra Spiliopoulou. A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research. ACM SIGKDD Exploration Newsletter, 1(1):34–38, 1999.
+\bibitem{klasyfikacja}Martin Ester, Hans-Peter Kriegel, and Jörg Sander. Spatial Data Mining: A Database Approach. In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997), pages 47–66, London, UK, UK, 1997. Springer-Verlag.
+\bibitem{id3} John R. Quinlan. Induction of Decision Trees. Machine Learning, 1(1):81–106, March 1986.
+\bibitem{toptrendy}Martin Ester, Alexander Frommelt, Hans-Peter Kriegel, and Jörg Sander. Algorithms for characterization and trend detection in spatial databases. In Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998), pages 44–50, 1998.
+\bibitem{przypadeg}Shashi Shekhar and Sanjay Chawla. Spatial Databases: A Tour. Prentice Hall, 2003
+\bibitem{kurwa} Richard E. Bellman. Adaptive control processes - A guided tour. Princeton University Press, Princeton, New Jersey, U.S.A., 1961.
+\bibitem{asoc} Rakesh Agrawal and Ramakrishnan Srikant. Fast Algorithms for Mining Association Rules in Large Databases. In Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), pages 487–499, San Francisco, 1994. Morgan Kaufmann Publishers Inc.
+\bibitem{asoc2} Krzysztof Koperski and Jiawei Han. Discovery of Spatial Association Rules in Geographic Information Databases. In Max J. Egenhofer and John R. Herring, editors, Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995), volume 951 of Lecture Notes in Computer Science, pages 47–66. Springer Berlin Heidelberg, 1995
+\bibitem{classsets}Yasuhiko Morimoto. Mining Frequent Neighboring Class Sets in Spatial Databases. In Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), pages 353–358, New York, NY, USA, 2001. ACM.
 \end{thebibliography}
+
 
 \newpage
 

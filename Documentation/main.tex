@@ -334,6 +334,11 @@ Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie wedłu
 
 \section{Algorytm}
 
+Metoda odkrywania maksymalnych kolokacji w oparciu o graf rzadki i skondensowane drzewo (ang. \textit{sparse-graph and condensed tree-based maximal co-location algorithm}) została przedstawiona w pracy \cite{chinczyki} i miała na celu zmniejszenie czasu wykonywania odkrywania poprzez wyeliminowanie kosztów powodowanych przez operacje na drzewach typu \textit{branch chopping} czy \textit{grafting}, z których korzysta wiele dzisiejszych algorytmów wyszukiwania kolokacji. W porównaniu do innych metod, algorytm \textit{SGCT} ogranicza także zużycie pamięci operacyjnej, gdyż nie wymaga budowy tymczasowej struktury do przechowywania duplikatów instancji kolokacji.
+
+Poszczególne kroki algorytmu zostaną opisane w kolejnych podrozdziałach.
+
+
 \subsection{Konstrukcja tabeli instancji o rozmiarze 2}
 
 \subsection{Obliczanie miary powszechności}
@@ -352,8 +357,7 @@ Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie wedłu
 \newpage
 
 \begin{thebibliography}{}
-\bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining
-to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
+\bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
 \bibitem{sop}Ł.~Stanisławowski. \emph{Bogactwo i nędza narodów.}
 O'reilly, 2013.
 \bibitem{trad} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery.

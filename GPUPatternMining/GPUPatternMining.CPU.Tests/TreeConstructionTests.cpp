@@ -37,3 +37,20 @@ TEST_CASE("2OverlappingColocations", "TreeConstructionTests")
 
 	REQUIRE(result.size() == 2);
 }
+
+TEST_CASE("ColocationsWhereSomeSize2ColocationsWereNotPrevalent", "TreeConstructionTest")
+{
+	TestDataGenerator generator;
+	CPUMiningAlgorithmSeq miner;
+	int threshold = 5;
+	float prevalence = 0.4;
+
+	auto data = generator.getDataForMixedPrevalenceResults();
+	miner.loadData(data, 6, 3);
+	miner.filterByDistance(threshold);
+	miner.filterByPrevalence(prevalence);
+	miner.constructMaximalCliques();
+
+	auto result = miner.filterMaximalCliques(prevalence);
+	REQUIRE(result.size() == 2);
+}

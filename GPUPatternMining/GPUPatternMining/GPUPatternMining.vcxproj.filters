@@ -33,6 +33,9 @@
     <ClInclude Include="Entities\NeighboursListInfoHolder.h">
       <Filter>Entities</Filter>
     </ClInclude>
+    <ClInclude Include="Prevalence.h">
+      <Filter>Prevalence</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="HashMap">
@@ -50,10 +53,16 @@
     <Filter Include="Entities">
       <UniqueIdentifier>{eeb6a990-5ec4-415b-91c7-194f8a920175}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Prevalence">
+      <UniqueIdentifier>{46c46ab8-f55f-426c-a9c1-e96c5e8df2e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp">
       <Filter>PairColocationsFiltering</Filter>
+    </ClCompile>
+    <ClCompile Include="Prevalence.cpp">
+      <Filter>Prevalence</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

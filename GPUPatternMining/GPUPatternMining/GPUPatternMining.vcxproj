@@ -175,6 +175,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common\CommonOperations.h" />
+    <ClInclude Include="Entities\FeatureInstance.h" />
     <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />

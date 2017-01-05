@@ -43,7 +43,6 @@
     <ClInclude Include="CinsNode.h">
       <Filter>Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Enity\FeatureInstance.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">

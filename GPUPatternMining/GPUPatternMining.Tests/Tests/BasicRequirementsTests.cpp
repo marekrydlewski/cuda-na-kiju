@@ -3,8 +3,7 @@
 #include <driver_types.h>
 #include <type_traits>
 
-#include "../../GPUPatternMining.Contract/Enity/FeatureInstance.h"
-
+#include "../../GPUPatternMining/Entities/FeatureInstance.h"
 #include "../BaseCudaTestHandler.h"
 //--------------------------------------------------------------
 

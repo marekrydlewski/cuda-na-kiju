@@ -2,7 +2,7 @@
 #include <memory>
 #include "../HashMap/gpuhashmapper.h"
 
-#include "../../GPUPatternMining.Contract/Enity/FeatureInstance.h"
+#include "../Entities/FeatureInstance.h"
 //-------------------------------------------------------------------------------
 
 

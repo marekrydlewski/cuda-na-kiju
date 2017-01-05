@@ -5,7 +5,10 @@
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage[nottoc]{tocbibind}
+\usepackage[]{algorithm2e}
+
 \newtheorem{defin}{Definicja}
+\newtheorem{sample}{Przykład}
  
 \newcommand{\sectionbreak}{\clearpage}
  \geometry{
@@ -334,12 +337,30 @@ Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie wedłu
 
 \section{Algorytm}
 
-Metoda odkrywania maksymalnych kolokacji w oparciu o graf rzadki i skondensowane drzewo (ang. \textit{sparse-graph and condensed tree-based maximal co-location algorithm}) została przedstawiona w pracy \cite{chinczyki} i miała na celu zmniejszenie czasu wykonywania odkrywania poprzez wyeliminowanie kosztów powodowanych przez operacje na drzewach typu \textit{branch chopping} czy \textit{grafting}, z których korzysta wiele dzisiejszych algorytmów wyszukiwania kolokacji. W porównaniu do innych metod, algorytm \textit{SGCT} ogranicza także zużycie pamięci operacyjnej, gdyż nie wymaga budowy tymczasowej struktury do przechowywania duplikatów instancji kolokacji.
+Niniejszy rozdział ma za zadanie przybliżenie algorytmu będącego tematem tej pracy - metody odkrywania maksymalnych kolokacji przestrzennych w oparciu o graf rzadki i skondensowane drzewo instancji (ang. \textit{sparse-graph and condensed tree-based maximal co-location algorithm}) przedstawionej w pracy \cite{chinczyki}. 
 
-Poszczególne kroki algorytmu zostaną opisane w kolejnych podrozdziałach.
+Poszczególne kroki algorytmu \textit{SGCT} zostaną opisane w kolejnych podrozdziałach.
 
+\subsection{Generowanie tabeli instancji kolokacji o rozmiarze 2}
 
-\subsection{Konstrukcja tabeli instancji o rozmiarze 2}
+Pierwszy krok algorytmu jest podobny do metody \textit{Co-location Miner} i polega na wygenerowaniu 2-elementowych kandydatów na kolokacje. 
+
+Kolokacje o rozmiarze 2 tworzone są na podstawie wygenerowanych w oparciu o cechy przestrzenne jednoelementowych kolokacji. Nie jest do tego wykorzystywana jednak metoda \textit{Apriori}, ponieważ udowodniono w pracy \cite{huang}, że dla kandydatów dwuelementowych lepszą wydajność można uzyskać w oparciu o algorytm \textit{spatial join}. Wykorzytany został zatem algorytm \textit{sweeping-based spatial join} \cite{spatial} z dodatkową modyfikacją, usuwającą pary instancji o tej samej cesze przestrzennej. 
+
+\begin{sample}Przykładowe zapytanie tworzące kandydatów na kolokacje o rozmiarze 2 przestawia się następująco:
+
+\textbf{select} $ p', p''$
+
+\textbf{from} $ \{p_{1},...,p_{12}\} p' $, $ \{p_{1},...,p_{12}\} p''$
+
+\textbf{where}  $ p' $.feature $ \neq $ $ p'' $.feature, $ p' \lq p'' $, $(p', p'') \in R$
+\end{sample}
+
+Na podstawie wygenerowanych kolokacji oraz tzw. \textit{progu odległości} (ang. \textit{distance threshold}) tworzona jest dwuwymiarowa tablica z haszowaniem (ang. \textit{hash table}). Jest ona indeksowana cechami przestrzennymi. Każdy element tablicy zawiera wskaźnik do listy zawierającej instancje kandydatów o odpowiadających indeksom cechach przestrzennych. Instancja zostanie dodana do tej listy tylko wtedy, gdy odległość między instancjami przekracza dopuszczalny próg odległości między nimi.
+
+\begin{sample}
+Zapytanie $InsTable_{2}(A,B)$ zwróci listę kandydatów $(A_{2}, B_{2})$, $(A_{3}, B_{1})$, itd. Nie zwróci $(A_{2}, B_{100000})$, gdyż odległość między instancjami nie przekracza dopuszczalnego progu odległości.
+\end{sample}
 
 \subsection{Obliczanie miary powszechności}
 
@@ -385,6 +406,8 @@ Conference on Computer and Information Technology (CIT 2008), pages 197–202, S
 \bibitem{asoc} Rakesh Agrawal and Ramakrishnan Srikant. Fast Algorithms for Mining Association Rules in Large Databases. In Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), pages 487–499, San Francisco, 1994. Morgan Kaufmann Publishers Inc.
 \bibitem{asoc2} Krzysztof Koperski and Jiawei Han. Discovery of Spatial Association Rules in Geographic Information Databases. In Max J. Egenhofer and John R. Herring, editors, Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995), volume 951 of Lecture Notes in Computer Science, pages 47–66. Springer Berlin Heidelberg, 1995
 \bibitem{classsets}Yasuhiko Morimoto. Mining Frequent Neighboring Class Sets in Spatial Databases. In Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), pages 353–358, New York, NY, USA, 2001. ACM.
+\bibitem{spatial}L. Arge, O. Procopiuc, S. Ramaswamy, T. Suel, and J. Vitter. Scalable Sweeping-
+Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 1998.
 \end{thebibliography}
 
 

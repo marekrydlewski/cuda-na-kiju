@@ -1,18 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="Tests\HashMapTests.cu" />
-    <CudaCompile Include="Tests\PrevalenceIndexCalculationTests.cu" />
-    <CudaCompile Include="Tests\CommonOperationsTests.cu" />
+    <CudaCompile Include="Tests\CommonOperationsTests.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tests\HashMapTests.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tests\PrevalenceIndexCalculationTests.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DataProviderTests.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Tests\BasicRequirementsTests.cpp" />
-    <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp" />
+    <ClCompile Include="Tests\BasicRequirementsTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataProviderTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\MaximalColocationsCandidatesProviderTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseCudaTestHandler.h" />
-    <ClInclude Include="catch.hpp" />
+    <ClInclude Include="catch.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseCudaTestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{23d5d100-3500-4877-a931-e11bdb8af317}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{06028184-4fad-4557-8b69-94034f707580}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

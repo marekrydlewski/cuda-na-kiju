@@ -71,7 +71,20 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		return left;
 	});
 
-	insTable = threadInsTable.combine([](std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> left, std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> right)->std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> {
+	insTable = threadInsTable.combine([](
+		std::map<unsigned int,
+			std::map<unsigned int,
+				std::map<unsigned int,
+					std::vector<unsigned int>*>>> left,
+		std::map<unsigned int, 
+			std::map<unsigned int, 
+				std::map<unsigned int,
+					std::vector<unsigned int>*>>> right
+		) ->
+			std::map<unsigned int, 
+				std::map<unsigned int,
+					std::map<unsigned int,
+						std::vector<unsigned int>*>>> {
 		for (auto it = right.begin(); (it != right.end()); ++it)
 		{
 			//damn, hard.

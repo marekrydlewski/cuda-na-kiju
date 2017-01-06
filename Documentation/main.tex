@@ -339,7 +339,7 @@ Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie wedłu
 
 Niniejszy rozdział ma za zadanie przybliżenie algorytmu będącego tematem tej pracy - metody odkrywania maksymalnych kolokacji przestrzennych w oparciu o graf rzadki i skondensowane drzewo instancji (ang. \textit{sparse-graph and condensed tree-based maximal co-location algorithm}) przedstawionej w pracy \cite{chinczyki}. 
 
-Poszczególne kroki algorytmu \textit{SGCT} zostaną opisane w kolejnych podrozdziałach.
+Poszczególne kroki pierwotnego algorytmu \textit{SGCT} zostaną opisane w kolejnych podrozdziałach. Szczegóły implementacji wraz z zaproponowanymi usprawieniami znajdują się w Rozdziale 4.
 
 \subsection{Generowanie tabeli instancji kolokacji o rozmiarze 2}
 
@@ -363,6 +363,10 @@ Zapytanie $InsTable_{2}(A,B)$ zwróci listę kandydatów $(A_{2}, B_{2})$, $(A_{
 \end{sample}
 
 \subsection{Obliczanie miary powszechności}
+
+Również krok obliczania powszechności dla kandydatów nie różni się od tego znanego z \textit{Co-location Miner}.
+
+Dla każdego kandydata w tabeli wyliczany jest współczynnik uczestnictwa (ang. \textit{participation index}). Dokonuje się tego poprzez wybieranie wszystkich unikalnych instancji cech przestrzennych, która są ujęte w danej kolokacji. Następnie zgodnie z definicją miary powszechności z tabeli instancji są usuwani kandydaci, dla których obliczona miara powszechności jest mniejsza niż zadany próg minimalnej powszechności $ min\_prev $ \cite{huang}. 
 
 \subsection{Generowanie kandydatów na kolokacje maksymalne}
 

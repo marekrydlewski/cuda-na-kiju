@@ -85,13 +85,14 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 				std::map<unsigned int,
 					std::map<unsigned int,
 						std::vector<unsigned int>*>>> {
-		for (auto it = right.begin(); (it != right.end()); ++it)
-		{
-			//damn, hard.
-			//note: add to left (as left is returned)
+			for (auto it = right.begin(); (it != right.end()); ++it)
+			{
+				//damn, hard.
+				//note: add to left (as left is returned)
+			}
+			return left;
 		}
-		return left;
-	});
+	);
 
 }
 

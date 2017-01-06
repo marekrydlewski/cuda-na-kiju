@@ -141,6 +141,7 @@
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.h" />
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.h" />
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.h" />
+    <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

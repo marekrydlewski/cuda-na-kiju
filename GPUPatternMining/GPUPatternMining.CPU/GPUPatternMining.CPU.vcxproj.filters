@@ -26,5 +26,6 @@
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
+    <ClInclude Include="Utilities.h" />
   </ItemGroup>
 </Project>

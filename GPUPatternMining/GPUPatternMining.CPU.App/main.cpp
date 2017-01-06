@@ -1,6 +1,7 @@
 #include "../GPUPatternMining.Contract/RandomDataProvider.h"
 #include "../GPUPatternMining.Contract/Graph.h"
 #include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
+#include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmParallel.h"
 
 int main()
 {
@@ -25,5 +26,9 @@ int main()
 	cpuAlgSeq.constructMaximalCliques();
 	auto solution = cpuAlgSeq.filterMaximalCliques(prevalence);
 	//cpuAlgSeq.testFilterMaxCliques();
+
+	CPUMiningAlgorithmParallel cpuAlgParallel;
+	cpuAlgParallel.loadData(data, numberOfInstances, types);
+	cpuAlgParallel.filterByDistance(threshold);
 	return 0;
 }

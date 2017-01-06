@@ -12,6 +12,9 @@
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.cpp">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.cpp">
+      <Filter>CPUMiningAlgorithms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.h">
@@ -20,5 +23,9 @@
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.h">
+      <Filter>CPUMiningAlgorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h" />
   </ItemGroup>
 </Project>

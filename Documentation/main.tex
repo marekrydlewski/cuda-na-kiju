@@ -5,7 +5,7 @@
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage[nottoc]{tocbibind}
-\usepackage[]{algorithm2e}
+\usepackage[linesnumbered]{algorithm2e}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
@@ -373,7 +373,7 @@ Dla każdego kandydata w tabeli wyliczany jest współczynnik uczestnictwa (ang.
 Krok ten wprowadza nową strukturę, zwaną \textit{grafem kolokacji o rozmiarze 2} (ang. \textit{size-2 co-location graph}). Jego definicja brzmi następująco:
 
 \begin{defin}[Graf kolokacji o rozmiarze 2]
-Jeżeli przyjąć relacje sąsiedztwa między kolokacjami o rozmiarze 2 jako krawędzie $ E = \{e_{1},...,e_{u}\}$, a cechy przestrzenne występujące w kolokacjach jako wierzchołki $ V = \{v_{1},...,v_{\lambda}\}$, gdzie $ u $ i $ \lambda $ są odpowiednio liczbą krawędzi i liczbą wierzchołków, to graf kolokacji o rozmiarze 2 można zamodelować jako graf nieskierowany $ G= (E, V)$, przechowywany w listowej strukturze danych uporządkowanej rosnąco. Zbiór N jest zbiorem sąsiedztw wierzchołków i definiuje się go następująco:
+Jeżeli przyjąć relacje sąsiedztwa między kolokacjami o rozmiarze 2 jako krawędzie $ E = \{e_{1},...,e_{u}\}$, a cechy przestrzenne występujące w kolokacjach jako wierzchołki $ V = \{v_{1},...,v_{\lambda}\}$, gdzie $ u $ i $ \lambda $ są odpowiednio liczbą krawędzi i liczbą wierzchołków, to graf kolokacji o rozmiarze 2 można zamodelować jako graf nieskierowany $ G= (E, V)$, przechowywany w listowej strukturze danych uporządkowanej rosnąco. Zbiór N jest zbiorem sąsiedztw wierzchołka i definiuje się go następująco:
 \begin{equation}
 N(v_{i}) = \{W|{v_{i},w} \in E\}
 \end{equation}
@@ -385,12 +385,42 @@ Zadaniem tego kroku jest wyszukanie w takim grafie maksymalnych klik, określany
 Kandydat na maksymalną kolokację $ C_{m} $ składa się z uporządkowanych cech przestrzennych o następujących właściwościach: każda para cech w  $ C_{m} $  jest ze sobą połączona krawędzią, a żadne dodatkowe cechy nie mogą być dodane do $ C_{m} $ bez zachowania ich kompletnego połączenia.
 \end{defin}
 
-Autorzy pracy \cite{chinczyki} udowodnili, że graf kolokacji o rozmiarze 2 można traktować jako graf rzadki. Umożliwia to korzystanie z algorytmu Brona-Kerboscha \cite{kerbosz} do wyszukiwania maksymalnych klik w grafie nieskierowanym. Wprowadzone zostały do niego pewne modyfikacje uwzględniające rozproszenie grafu oraz wybieranie \textit{pivotu} w celu usprawienia wyszukiwania kandydatów na kolokacje. Rozproszenie grafu opisuje się miarą \textit{degeneracji grafu} \cite{degenerat}:
+Autorzy pracy \cite{chinczyki} udowodnili, że graf kolokacji o rozmiarze 2 można traktować jako graf rzadki. Umożliwia to korzystanie z algorytmu Brona-Kerboscha \cite{kerbosz} do wyszukiwania maksymalnych klik w grafie nieskierowanym. Wprowadzone zostały do niego pewne modyfikacje uwzględniające rozproszenie grafu oraz wybieranie \textit{pivotu} w celu usprawienia wyszukiwania kandydatów na kolokacje. 
+
+\begin{algorithm}
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{BK\_Pivot}
+\Input{$G=(E,V)$}
+\Output{$CP_{m}$}
+$CP_{m} \leftarrow \emptyset; X \leftarrow \emptyset; P \leftarrow \emptyset$\;
+\ForEach{$v^{*}_{i}$ in degeneracy ordering $v^{*}_{1}, v^{*}_{2},..., v^{*}_{\lambda}$}{
+$ P \leftarrow N(V^{*}_{i}) \cup \{ v^{*}_{i+1}, ..., v^{*}_{\lambda}\}$\;
+$ X \leftarrow N(V^{*}_{i}) \cup \{ v^{*}_{1}, ..., v^{*}_{i-1}\}$\;
+$BK\_Pivot(P,  \{v^{*}_{i}\} ,X)$\;
+}
+
+\myproc{\proc{M,K,T}}{
+\lIf{$ M \cup T = \emptyset$}{$ \{ CP_{m} \leftarrow CP_{m} \cup K\}$}
+wybór pivota $ u \in M \cup T ; \% $ do maksymalizacji $ | M \cap N(u) | $\;
+\ForEach{$v_{i} \in M \backslash N(u) $}{
+$BK\_Pivot(M \cap N(V_{i}), K \cup \{v_{i}\}, T \cap N(V_{i}))$\;
+$ M \leftarrow M \backslash \{v_{i}\} $\;
+$ T \leftarrow T \cup \{v_{i}\}$\;
+}
+}
+\caption{Generowanie maksymalnych kandydatów na kolokacje}
+\end{algorithm}
+
+Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Zgodnie z zasadą wyszukiwania wzorców maksymalnych kolokacji, może on zawierać wierzchołek $ u $ lub niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, w linii 10 następuje iteracja tylko po wierzchołku $ u $ i wszystkich innych wierzchołkach nie będących jego sąsiadami, aby ograniczyć liczbę węwnętrznych pętli w rekurencji.
+
+Druga modyfikacja opiera się o pojęcie rozproszenia grafu. Opisuje się je miarą \textit{degeneracji grafu} \cite{degenerat}:
 \begin{defin}[Degeneracja grafu]
 Degeneracja grafu G jest najmniejszą wartością k, taką, że każdy niepusty podgraf G zawiera wierzchołki o stopniu co najwyżej k. Oznacza to, że wielkość maksymalnej kliki nie może przekroczyć $k + 1$.
 \end{defin}
 
-Pseudo-kod kroku wygląda następująco:
+Wierzchołki w zewnętrznej rekurencji są uporządkowane według stopnia degeneracji (linia 2). W ciele rekurencji (linie 3-5) liczba wierzchołków czekających na weryfikację nie przekroczy $ k $. Tym sposobem ograniczono liczbę zewnętrznych rekurencji.
 
 \subsection{Proces odcinania}
 
@@ -435,7 +465,9 @@ Conference on Computer and Information Technology (CIT 2008), pages 197–202, S
 \bibitem{spatial}L. Arge, O. Procopiuc, S. Ramaswamy, T. Suel, and J. Vitter. Scalable Sweeping-
 Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 1998.
 \bibitem{degenerat}Eppstein, D. , Löffler, M. , i Strash, D. (2010). Listing all maximal cliques in sparsegraphs in near-optimal time. In O. Cheong, K. Y. Chwa, \& K. Park (Eds.), 21st international symposium on algorithms and computation (pp. 403–414). Berlin, Germany: Springer-Verlag.
-\bibitem{kerbosz}Bron, C., \& Kerbosch, J. (1973). Algorithm 457: Finding all cliques of an undirected graph. Communications of the ACM, 16 , 575–577. doi: 10.1145/362342.362367.
+\bibitem{kerbosz}Bron, C., \& Kerbosch, J. (1973). Algorithm 457: Finding all cliques of an undirected graph. Communications of the ACM, 16 , 575–577.
+\bibitem{pivot}Tomita, E., Tanaka, A., \& Takahashi, H. (2006). The worst-case time complexity for
+generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
 \end{thebibliography}
 
 \newpage

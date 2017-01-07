@@ -175,8 +175,11 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common\CommonOperations.h" />
+    <ClInclude Include="Entities\FeatureInstance.h" />
+    <ClInclude Include="Entities\InstanceTable.h" />
     <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h" />
+    <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
     <ClInclude Include="Prevalence.h" />
     <CudaCompile Include="Common\CommonOperations.cu" />
@@ -184,6 +187,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="HashMap\gpuutils.h" />
     <ClInclude Include="Common\MiningCommon.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
+    <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
   </ItemGroup>
   <ItemGroup>

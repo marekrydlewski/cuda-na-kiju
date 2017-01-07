@@ -8,8 +8,7 @@
       <Filter>Common</Filter>
     </CudaCompile>
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu">
-      <Filter>PlaneSweep</Filter>
-    </CudaCompile>
+    <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HashMap\gpuhashmapper.h">
@@ -33,6 +32,9 @@
     <ClInclude Include="Entities\NeighboursListInfoHolder.h">
       <Filter>Entities</Filter>
     </ClInclude>
+    <ClInclude Include="Entities\FeatureInstance.h" />
+    <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
+    <ClInclude Include="Entities\InstanceTable.h" />
     <ClInclude Include="Prevalence.h">
       <Filter>Prevalence</Filter>
     </ClInclude>

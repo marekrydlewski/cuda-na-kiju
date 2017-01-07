@@ -7,11 +7,12 @@
 
 #include "../../GPUPatternMining/Common/MiningCommon.h"
 
-#include "../../GPUPatternMining/PlaneSweep/PlaneSweepFoxtrot.h"
+#include "../../GPUPatternMining/PlaneSweep/InstanceTablePlaneSweep.h"
 
 #include "../BaseCudaTestHandler.h"
 
 #include <thrust/device_vector.h>
+#include "../../GPUPatternMining/Entities/InstanceTable.h"
 //--------------------------------------------------------------
 
 using namespace MiningCommon;
@@ -23,7 +24,7 @@ using namespace MiningCommon;
 
 	A1-B1-C1-B2-A2-C2
 */ 
-TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | Planesweep main 0")
+TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main")
 {
 	unsigned int instancesCount = 6;
 	float distanceTreshold = 1;
@@ -63,11 +64,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | Planesweep main 0")
 	thrust::device_vector<float> dx = x;
 	thrust::device_vector<float> dy = y;
 
-	std::shared_ptr<GPUHashMapper<UInt, NeighboursListInfoHolder, GPUKeyProcessor<UInt>>> hashMap;
+	std::shared_ptr<GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>> hashMap;
 	thrust::device_vector<FeatureInstance> resultA;
 	thrust::device_vector<FeatureInstance> resultB;
 
-	PlaneSweep::Foxtrot::PlaneSweep(
+	PlaneSweep::InstanceTable::PlaneSweep(
 		dx
 		, dy
 		, instances
@@ -78,49 +79,43 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | Planesweep main 0")
 		, resultB
 	);
 
-	NeighboursListInfoHolder expectedA0(1, 0);
-	NeighboursListInfoHolder expectedA1(2, 1);
-	NeighboursListInfoHolder expectedB0(1, 3);
-	NeighboursListInfoHolder expectedB1(1, 4);
+	Entities::InstanceTable expectedAB(2, 0);
+	Entities::InstanceTable expectedAC(1, 2);
+	Entities::InstanceTable expectedBC(2, 3);
 
-	std::vector<UInt> resultKeys = { 
-		0x000A0000
-		, 0x000A0001
-		, 0x000B0000
-		, 0x000B0001
+	std::vector<UInt> resultKeys = {
+		0x000A000B
+		, 0x000A000C
+		, 0x000B000C
 	};
 
 	thrust::device_vector<UInt> dResultKeys = resultKeys;
 
 
-	NeighboursListInfoHolder* dResults;
-	NeighboursListInfoHolder results[4];
+	Entities::InstanceTable* dResults;
+	Entities::InstanceTable results[3];
 
-	cudaMalloc(reinterpret_cast<void**>(&dResults), 4 * sizeof(NeighboursListInfoHolder));
+	cudaMalloc(reinterpret_cast<void**>(&dResults), 3 * sizeof(Entities::InstanceTable));
 	
 	hashMap->getValues(
 		thrust::raw_pointer_cast(dResultKeys.data())
 		, dResults
-		, 4);
+		, 3);
 
-	cudaMemcpy(results, dResults, 4 * sizeof(NeighboursListInfoHolder), cudaMemcpyDeviceToHost);
+	cudaMemcpy(results, dResults, 3 * sizeof(Entities::InstanceTable), cudaMemcpyDeviceToHost);
 
-	REQUIRE(results[0].count == expectedA0.count);
-	REQUIRE(results[0].count == expectedA0.count);
+	REQUIRE(results[0].count == expectedAB.count);
+	REQUIRE(results[0].startIdx == expectedAB.startIdx);
 
-	REQUIRE(results[1].count == expectedA1.count);
-	REQUIRE(results[1].count == expectedA1.count);
+	REQUIRE(results[1].count == expectedAC.count);
+	REQUIRE(results[1].startIdx == expectedAC.startIdx);
 
-	REQUIRE(results[2].count == expectedB0.count);
-	REQUIRE(results[2].count == expectedB0.count);
-	
-	REQUIRE(results[3].count == expectedB1.count);
-	REQUIRE(results[3].count == expectedB1.count);
+	REQUIRE(results[2].count == expectedBC.count);
+	REQUIRE(results[2].startIdx == expectedBC.startIdx);
 }
 // ----------------------------------------------------------------------------
 
-
-TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | Planesweep main 1 (Far)")
+TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main 1 (Far)")
 {
 	unsigned int instancesCount = 64;
 	float distanceTreshold = 64;
@@ -160,7 +155,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | Planesweep main 1 (Far)")
 		hostInstances[0] = fi;
 
 		fi.fields.instanceId = 0x1;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xC;
 		hostInstances[63] = fi;
 	}
 
@@ -169,11 +164,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | Planesweep main 1 (Far)")
 	thrust::device_vector<float> dx = x;
 	thrust::device_vector<float> dy = y;
 
-	std::shared_ptr<GPUHashMapper<UInt, NeighboursListInfoHolder, GPUKeyProcessor<UInt>>> hashMap;
+	std::shared_ptr<GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>> hashMap;
 	thrust::device_vector<FeatureInstance> resultA;
 	thrust::device_vector<FeatureInstance> resultB;
 
-	PlaneSweep::Foxtrot::PlaneSweep(
+	PlaneSweep::InstanceTable::PlaneSweep(
 		dx
 		, dy
 		, instances
@@ -184,27 +179,28 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | Planesweep main 1 (Far)")
 		, resultB
 	);
 
-	NeighboursListInfoHolder expectedA0(1, 0);
+	Entities::InstanceTable expectedAC(1, 0);
 	
 	std::vector<UInt> resultKeys = {
-		0x000A0000
+		0x000A000C
 	};
 
 	thrust::device_vector<UInt> dResultKeys = resultKeys;
 
-	NeighboursListInfoHolder* dResults;
-	NeighboursListInfoHolder results[1];
+	Entities::InstanceTable* dResults;
+	Entities::InstanceTable results[1];
 
-	cudaMalloc(reinterpret_cast<void**>(&dResults), 1 * sizeof(NeighboursListInfoHolder));
+	cudaMalloc(reinterpret_cast<void**>(&dResults), 1 * sizeof(Entities::InstanceTable));
 
 	hashMap->getValues(
 		thrust::raw_pointer_cast(dResultKeys.data())
 		, dResults
 		, 1);
 
-	cudaMemcpy(results, dResults, 1 * sizeof(NeighboursListInfoHolder), cudaMemcpyDeviceToHost);
+	cudaMemcpy(results, dResults, 1 * sizeof(Entities::InstanceTable), cudaMemcpyDeviceToHost);
 
-	REQUIRE(results[0].count == expectedA0.count);
+	REQUIRE(results[0].count == expectedAC.count);
+	REQUIRE(results[0].startIdx == expectedAC.startIdx);
 }
 // ----------------------------------------------------------------------------
 
@@ -213,7 +209,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | Planesweep main 1 (Far)")
 
 	A0-B0-C0-B1-A1-C1
 */ 
-TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check countNeighbours function")
+TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check countNeighbours function")
 {
 	UInt instancesCount = 6;
 
@@ -271,7 +267,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check countNeighbours functio
 
 	FeatureInstance* cInstances = thrust::raw_pointer_cast(instances.data());
 
-	PlaneSweep::Foxtrot::countNeighbours<<< grid, 256>>> (
+	PlaneSweep::InstanceTable::countNeighbours<<< grid, 256>>> (
 		cX
 		, cY
 		, cInstances
@@ -298,7 +294,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check countNeighbours functio
 // ----------------------------------------------------------------------------
 
 
-TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check countNeighbours function (far)")
+TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check countNeighbours function (far)")
 {
 	unsigned int instancesCount = 64;
 	float distanceTreshold = 64;
@@ -358,7 +354,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check countNeighbours functio
 
 	float  distanceTresholdSquared = distanceTreshold * distanceTreshold;
 
-	PlaneSweep::Foxtrot::countNeighbours <<< grid, block >>> (
+	PlaneSweep::InstanceTable::countNeighbours <<< grid, block >>> (
 		thrust::raw_pointer_cast(dx.data())
 		, thrust::raw_pointer_cast(dy.data())
 		, cInstances
@@ -389,7 +385,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check countNeighbours functio
 // ----------------------------------------------------------------------------
 
 
-TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check countNeighbours function (one per warp iteration)")
+TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check countNeighbours function (one per warp iteration)")
 {
 	unsigned int instancesCount = 64;
 	float distanceTreshold = 64;
@@ -456,7 +452,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check countNeighbours functio
 
 	float  distanceTresholdSquared = distanceTreshold * distanceTreshold;
 
-	PlaneSweep::Foxtrot::countNeighbours <<< grid, block >>> (
+	PlaneSweep::InstanceTable::countNeighbours <<< grid, block >>> (
 		thrust::raw_pointer_cast(dx.data())
 		, thrust::raw_pointer_cast(dy.data())
 		, cInstances
@@ -493,7 +489,7 @@ Test for graph
 
 A0-B0-C0-B1-A1-C1
 */
-TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check findNeighbours function")
+TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeighbours function")
 {
 	// Initialiaze test data
 
@@ -567,7 +563,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check findNeighbours function
 
 	FeatureInstance* cInstances = thrust::raw_pointer_cast(instances.data()); 
 
-	PlaneSweep::Foxtrot::findNeighbours << < grid, 256 >> > (
+	PlaneSweep::InstanceTable::findNeighbours << < grid, 256 >> > (
 		cX
 		, cY
 		, cInstances
@@ -658,7 +654,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check findNeighbours function
 // ----------------------------------------------------------------------------
 
 
-TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check findNeighbours function (far)")
+TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeighbours function (far)")
 {
 	unsigned int instancesCount = 64;
 	float distanceTreshold = 64;
@@ -724,7 +720,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check findNeighbours function
 	thrust::device_vector<FeatureInstance> dResultA(1);
 	thrust::device_vector<FeatureInstance> dResultB(1);
 
-	PlaneSweep::Foxtrot::findNeighbours <<< grid, block >>> (
+	PlaneSweep::InstanceTable::findNeighbours <<< grid, block >>> (
 		thrust::raw_pointer_cast(dx.data())
 		, thrust::raw_pointer_cast(dy.data())
 		, cInstances
@@ -771,8 +767,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check findNeighbours function
 }
 // ----------------------------------------------------------------------------
 
-
-TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check findNeighbours function (one per warp iteration)")
+TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeighbours function (one per warp iteration)")
 {
 	unsigned int instancesCount = 64;
 	float distanceTreshold = 64;
@@ -849,7 +844,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep | check findNeighbours function
 	thrust::device_vector<FeatureInstance> dResultA(3);
 	thrust::device_vector<FeatureInstance> dResultB(3);
 
-	PlaneSweep::Foxtrot::findNeighbours << < grid, block >> > (
+	PlaneSweep::InstanceTable::findNeighbours << < grid, block >> > (
 		thrust::raw_pointer_cast(dx.data())
 		, thrust::raw_pointer_cast(dy.data())
 		, cInstances

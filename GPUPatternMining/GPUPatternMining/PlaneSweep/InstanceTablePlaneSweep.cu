@@ -1,11 +1,11 @@
-#include "PlaneSweepFoxtrot.h"
+#include "InstanceTablePlaneSweep.h"
 
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
 #include "../Common/MiningCommon.h"
 
-#include "../Entities/NeighboursListInfoHolder.h"
+#include "../Entities/InstanceTable.h"
 #include "../Common/CommonOperations.h"
 
 #include <algorithm>
@@ -15,7 +15,7 @@
 
 namespace PlaneSweep
 {
-	namespace Foxtrot
+	namespace InstanceTable
 	{
 		__global__ void countNeighbours(
 			float* xCoords
@@ -146,8 +146,8 @@ namespace PlaneSweep
 			__shared__ volatile UInt* scanBuf;
 			__shared__ volatile bool* flags;
 			__shared__ volatile bool* found;
-			volatile __shared__ UInt* buffA;
-			volatile __shared__ UInt* buffB;
+			//volatile __shared__ UInt* buffA;
+			//volatile __shared__ UInt* buffB;
 			__shared__ UInt* warpBuffPos;
 
 
@@ -162,8 +162,8 @@ namespace PlaneSweep
 				scanBuf = static_cast<UInt*>(malloc(blockDim.x * uintSize));
 				flags = static_cast<bool*>(malloc((blockDim.x / 32) * sizeof(bool)));
 				found = static_cast<bool*>(malloc(blockDim.x * sizeof(bool)));
-				buffA = static_cast<UInt*>(malloc(blockDim.x * sizeof(UInt)));
-				buffB = static_cast<UInt*>(malloc(blockDim.x * sizeof(UInt)));
+				//buffA = static_cast<UInt*>(malloc(blockDim.x * sizeof(UInt)));
+				//buffB = static_cast<UInt*>(malloc(blockDim.x * sizeof(UInt)));
 
 				warpBuffPos = static_cast<UInt*>(malloc(blockDim.x / 32 * sizeof(UInt)));
 			}
@@ -312,18 +312,54 @@ namespace PlaneSweep
 		}
 		// --------------------------------------------------------------------------------------------------------------------------------------
 
+		typedef thrust::tuple<FeatureInstance, FeatureInstance> FeatureInstanceTuple;
+
+		typedef thrust::device_vector<FeatureInstance>::iterator FeatureDeviceVectorIterator;
+		typedef thrust::tuple<FeatureDeviceVectorIterator, FeatureDeviceVectorIterator> FeatureInstanceIteratorTuple;
+		typedef thrust::zip_iterator<FeatureInstanceIteratorTuple> FeatureInstanceTupleIterator;
+		// --------------------------------------------------------------------------------------------------------------------------------------
+
+		struct FeatureInstanceTupleEquality : public thrust::binary_function<FeatureInstanceTuple, FeatureInstanceTuple, bool>
+		{
+			__host__ __device__ bool operator()(const FeatureInstanceTuple& lhs, const FeatureInstanceTuple& rhs) const
+			{
+				return lhs.get<0>().fields.featureId == rhs.get<0>().fields.featureId
+					&& lhs.get<1>().fields.featureId == rhs.get<1>().fields.featureId;
+			}
+		};
+		//---------------------------------------------------------------------------------------------
+
+		__global__ void InsertFeatureInstanceTupleIntoHashMap(
+			HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean,
+			FeatureInstanceTuple* keys,
+			unsigned int* deltas,
+			unsigned int* counts,
+			unsigned int count
+		)
+		{
+			unsigned int tid = computeLinearAddressFrom2D();
+
+			if (tid < count)
+			{
+				GPUHashMapperProcedures::insertKeyValuePair(
+					bean,
+					(keys[tid].get<0>().field & 0xFFFF0000) | (keys[tid].get<1>().field >> 16) ,
+					Entities::InstanceTable(counts[tid], deltas[tid])
+				);
+			}
+		}
+		//---------------------------------------------------------------------------------------------
+
 		__host__ void PlaneSweep(
 			thrust::device_vector<float> xCoords
 			, thrust::device_vector<float>& yCoords
 			, thrust::device_vector<FeatureInstance>& instances
 			, UInt count
 			, float distanceTreshold
-			, std::shared_ptr<GPUHashMapper<UInt, NeighboursListInfoHolder, GPUKeyProcessor<UInt>>>& resultHashMap
+			, std::shared_ptr<GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>>& resultHashMap
 			, thrust::device_vector<FeatureInstance>& resultPairsA
 			, thrust::device_vector<FeatureInstance>& resultPairsB)
 		{
-
-
 			UInt warpsCount = count;
 			thrust::device_vector<UInt> neighboursCount(count);
 			dim3 grid;
@@ -363,19 +399,28 @@ namespace PlaneSweep
 				, thrust::raw_pointer_cast(resultPairsB.data())
 				);
 
-
 			MiningCommon::zipSort(
 				resultPairsA
 				, resultPairsB
-			);
+			);			
 
-			thrust::device_vector<FeatureInstance> uniques(totalPairsCount);
+			FeatureInstanceTupleIterator zippedBegin = thrust::make_zip_iterator(thrust::make_tuple(
+				resultPairsA.begin()
+				, resultPairsB.begin()
+			));
+			
+			FeatureInstanceTupleIterator zippedEnd = thrust::make_zip_iterator(thrust::make_tuple(
+				resultPairsA.end()
+				, resultPairsB.end()
+			));
+			
+			thrust::device_vector<FeatureInstanceTuple> uniques(totalPairsCount);
 			thrust::device_vector<UInt> indices(totalPairsCount);
 			thrust::device_vector<UInt> counts(totalPairsCount);
-
+			
 			UInt entryCount = thrust::reduce_by_key(
-				resultPairsA.begin(),
-				resultPairsA.end(),
+				zippedBegin,
+				zippedEnd,
 				thrust::make_zip_iterator(
 					thrust::make_tuple(
 						thrust::counting_iterator<UInt>(0),
@@ -389,21 +434,21 @@ namespace PlaneSweep
 						counts.begin()
 					)
 				),
-				MiningCommon::InstanceEquality<FeatureInstance>(),
+				FeatureInstanceTupleEquality(),
 				MiningCommon::FirstIndexAndCount<UInt>()
 			).first - uniques.begin();
-
+			
 			constexpr float entryCountHashMapMultiplier = 1.5f;
 
-			resultHashMap.reset(new GPUHashMapper<UInt, NeighboursListInfoHolder, GPUKeyProcessor<UInt>>(
+			resultHashMap.reset(new GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>(
 				entryCount * entryCountHashMapMultiplier,
 				new  GPUKeyProcessor<UInt>())
 			);
 
 			dim3 insertGrid;
 			findSmallest2D(entryCount, 256, insertGrid.x, insertGrid.y);
-
-			MiningCommon::InsertIntoHashMap << <insertGrid, 256 >> >(
+			
+			InsertFeatureInstanceTupleIntoHashMap <<< insertGrid, 256 >>>(
 				resultHashMap->getBean(),
 				thrust::raw_pointer_cast(uniques.data())
 				, thrust::raw_pointer_cast(indices.data())

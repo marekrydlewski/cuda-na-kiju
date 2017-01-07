@@ -1,5 +1,4 @@
 #include "CPUMiningAlgorithmParallel.h"
-#include "../Utilities.h"
 #include <ppl.h>
 #include <concrtrm.h>
 
@@ -102,4 +101,86 @@ void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 
 void CPUMiningAlgorithmParallel::constructMaximalCliques()
 {
+}
+
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::bkPivot(
+	std::vector<unsigned int> M,
+	std::vector<unsigned int> K,
+	std::vector<unsigned int> T)
+{
+	std::vector<std::vector<unsigned int>> maximalCliques;
+	std::vector<unsigned int> MTunion(M.size() + T.size());
+	std::vector<unsigned int> MpivotNeighboursDifference(M.size());
+	std::vector<unsigned int>::iterator it;
+
+
+	//radix sort or maybe parallel_sort?
+	//https://msdn.microsoft.com/en-us/library/dd470426.aspx#parallel_sorting
+	concurrency::parallel_radixsort(M.begin(), M.end());
+	concurrency::parallel_radixsort(T.begin(), T.end());
+	concurrency::parallel_radixsort(K.begin(), K.end());
+
+	it = std::set_union(M.begin(), M.end(), T.begin(), T.end(), MTunion.begin());
+	MTunion.resize(it - MTunion.begin());
+
+	if (MTunion.size() == 0)
+	{
+		maximalCliques.push_back(K);
+		return maximalCliques;
+	}
+
+	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
+
+	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
+	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
+
+	it = std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), MpivotNeighboursDifference.begin());
+	MpivotNeighboursDifference.resize(it - MpivotNeighboursDifference.begin());
+
+	for (auto const& vertex : MpivotNeighboursDifference)
+	{
+		std::vector<unsigned int> vertexNeighbours = size2ColocationsGraph.getVertexNeighbours(vertex);
+		std::vector<unsigned int> vertexVector = { vertex };
+		std::vector<unsigned int> KvertexUnion(K.size() + 1);
+		std::vector<unsigned int> MvertexNeighboursIntersection(M.size());
+		std::vector<unsigned int> TvertexNeighboursIntersection(T.size());
+
+		std::sort(vertexNeighbours.begin(), vertexNeighbours.end());
+
+		std::set_union(K.begin(), K.end(), vertexVector.begin(), vertexVector.end(), KvertexUnion.begin());
+
+		it = std::set_intersection(M.begin(), M.end(), vertexNeighbours.begin(), vertexNeighbours.end(), MvertexNeighboursIntersection.begin());
+		MvertexNeighboursIntersection.resize(it - MvertexNeighboursIntersection.begin());
+
+		it = std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), TvertexNeighboursIntersection.begin());
+		TvertexNeighboursIntersection.resize(it - TvertexNeighboursIntersection.begin());
+
+		auto generatedCliques = bkPivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
+		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+	}
+
+	return maximalCliques;
+}
+
+
+///Tomita Tanaka 2006 maximal pivot algorithm
+unsigned int CPUMiningAlgorithmParallel::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
+{
+	unsigned int u, maxCardinality = 0;
+	for (auto& s : SUBG)
+	{
+		auto neighbors = size2ColocationsGraph.getVertexNeighbours(s);
+		std::sort(neighbors.begin(), neighbors.end());
+		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
+
+		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());
+		nCANDunion.resize(itUnion - nCANDunion.begin());
+
+		if (nCANDunion.size() >= maxCardinality)
+		{
+			u = s;
+			maxCardinality = nCANDunion.size();
+		}
+	}
+	return u;
 }

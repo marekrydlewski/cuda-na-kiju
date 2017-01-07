@@ -36,7 +36,7 @@ namespace MiningCommon
 		FeatureInstanceIterator aEnd = a.end().base();
 		FeatureInstanceIterator bEnd = a.end().base();
 
-		OutputZipIterator begin(thrust::make_tuple(aBegin, bEnd));
+		OutputZipIterator begin(thrust::make_tuple(aBegin, bBegin));
 		OutputZipIterator end(thrust::make_tuple(aEnd, bEnd));
 
 		thrust::sort(begin, end, FeatureInstanceComparator());

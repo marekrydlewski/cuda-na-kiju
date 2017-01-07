@@ -10,6 +10,7 @@
 #include "../Entities/NeighboursListInfoHolder.h"
 #include "../HashMap/gpuhashmapper.h"
 #include "../Entities/FeatureInstance.h"
+#include "../Entities/InstanceTable.h"
 
 //-------------------------------------------------------------------------------
 
@@ -148,7 +149,16 @@ namespace MiningCommon
 	//---------------------------------------------------------------------------------------------
 
 	__global__ void InsertIntoHashMap(
-		GPUFeatureInstanceHashMapBean bean,
+		HashMapperBean<unsigned int, NeighboursListInfoHolder, GPUUIntKeyProcessor> bean,
+		FeatureInstance* keys,
+		unsigned int* deltas,
+		unsigned int* counts,
+		unsigned int count
+	);
+	//---------------------------------------------------------------------------------------------
+
+	__global__ void InsertIntoHashMap(
+		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean,
 		FeatureInstance* keys,
 		unsigned int* deltas,
 		unsigned int* counts,

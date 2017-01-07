@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="Tests\PlaneSweepFoxtrotTests.cu" />
+    <CudaCompile Include="Tests\PlaneSweepInstanceTableTests.cu" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GPUPatternMining.Contract\GPUPatternMining.Contract.vcxproj">

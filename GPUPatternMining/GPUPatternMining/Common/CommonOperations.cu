@@ -4,7 +4,7 @@
 namespace MiningCommon
 {
 	__global__ void InsertIntoHashMap(
-		GPUFeatureInstanceHashMapBean bean,
+		HashMapperBean<unsigned int, NeighboursListInfoHolder, GPUUIntKeyProcessor> bean,
 		FeatureInstance* keys,
 		unsigned int* deltas,
 		unsigned int* counts,
@@ -23,6 +23,7 @@ namespace MiningCommon
 		}
 	}
 	//---------------------------------------------------------------------------------------------
+
 
 	void zipSort(thrust::device_vector<FeatureInstance>& a, thrust::device_vector<FeatureInstance>& b)
 	{

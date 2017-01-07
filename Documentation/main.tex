@@ -424,7 +424,55 @@ Wierzchołki w zewnętrznej rekurencji są uporządkowane według stopnia degene
 
 \subsection{Proces odcinania}
 
+\begin{defin}[Uporządkowana klika instancji]
+Dany jest kandydat na maksymalną kolokację $ C_{m} $. Jego uporządkowana klika instancji $ InsC_{m} $ jest grupą instancji przestrzennych spełniających następujące warunki:
+\begin{itemize}
+\item rozmiar $ InsC_{m} $ jest równy rozmiarowi $ C_{m} $, a cechy w odpowiadających sobie instancjach w $ InsC_{m} $ i $ C_{m} $ są takie same; %a każdej instancji w $ InsC_{m} $ odpowiada cesze w odpowiadającej jej instancji w $ C_{m} $; %
+\item instancje każdej pary instancji w $ InsC_{m} $ sąsiadują ze sobą w przestrzeni i można je znaleźć w tabeli instancji 2-elementowych $ InsTable_{2} $.
+\end{itemize}
+\end{defin}
 
+\begin{defin}[Skondensowane drzewo instancji]Dany jest kandydat na maksymalną kolokację $ C_{m} $. Skondensowane drzewo instancji $ CInsTree$ jest konstrukcją kompresującą wszystkie uporządkowane kliki instancji $ C_{m} $.
+\end{defin}
+
+\begin{algorithm}
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{BK\_Pivot}
+\Input{$C_{m}, InsTable_{2}$}
+\Output{$CInsTree$ - skondensowane drzewo instancji $ C_{m} $}
+$ i \leftarrow 1; CInsTree \leftarrow \emptyset$; utwórz korzeń drzewa $ CInsTree $\;
+\While{$ i < size(C_{m}) $}{
+	\eIf{$ i = 1 $}{
+		\ForEach{para instancji $ InsPair_{k} \in InsTable_{2}(C_{m}(1),C_{m}(2))$}{
+			\eIf{$ InsPair(1) \in CInsTree_{0}$.children}{
+				dodaj węzeł podrzędny $InsPair_{k}(2)$ do $CInsTree_{1}(InsPair_{k}(1))$\;
+			}{
+				utwórz poddrzewo z $ InsPair_{k}(1) $ jako korzeniem i $ InsPair_{k}(2) $ jako pierwszym dzieckiem\;
+				dołącz to podrzewo do korzenia $ CInsTree $\;
+			}
+		}
+	}{
+		\ForEach{węzeł instancji $ ins_{k} \in CInsTree_{i}$}{
+			znajdź indeksy elementów równych $ ins_{k} $ od pierwszej kolumny $ InsTable_{2}(C_{m}(i), C_{m}(i + 1))$\;
+			przechowaj drugi element odpowiadającej pary instancji w liście $El$\;
+			\ForEach{$ei_{t} \in El$}{
+				$ flag \leftarrow i - 1 $\;
+				$ currIns \leftarrow ins_{k}$.parent\;
+				\While{$ flag \geq 1 $}{
+					\eIf{$(currInt, ei_{t}) \in InsTable_{2}(C_{m}(flag),C_{m}(i + 1))$}{
+						$ currIns \leftarrow currIns$.parent\;
+					}{break;}
+					$ flag \leftarrow flag - 1 $\;
+				}
+				\lIf{$ flag = 0 $}{dodaj węzeł podrzędny $ ei_{t}$ do $ CInsTree_{i}(ins_{k})$}
+			}
+		}
+	}			
+}
+\caption{Konstrukcja skondensowanego drzewa instancji $ C_{m} $}
+\end{algorithm}
 \section{Implementacja}
 
 \section{Testy efektywnościowe}

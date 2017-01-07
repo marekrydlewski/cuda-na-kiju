@@ -16,79 +16,79 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 
 void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 {
-	float effectiveThreshold = pow(threshold, 2);
+	//float effectiveThreshold = pow(threshold, 2);
 
-	Concurrency::combinable<std::vector<int>> threadTypeIncidenceCounter;
-	Concurrency::combinable<std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>>> threadInsTable;
+	//Concurrency::combinable<std::vector<int>> threadTypeIncidenceCounter;
+	//Concurrency::combinable<std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>>> threadInsTable;
 
-	//this is going to be parallelized - add parallel_for here
-	{
-		threadTypeIncidenceCounter.local().resize(typeIncidenceCounter.size());
-		//when parallelized add remaining load to last process (occurs when source.size() % GetProcessorCount() != 0)
-		unsigned long long int loadPerProcessor = source.size() / concurrency::GetProcessorCount();
+	////this is going to be parallelized - add parallel_for here
+	//{
+	//	threadTypeIncidenceCounter.local().resize(typeIncidenceCounter.size());
+	//	//when parallelized add remaining load to last process (occurs when source.size() % GetProcessorCount() != 0)
+	//	unsigned long long int loadPerProcessor = source.size() / concurrency::GetProcessorCount();
 
-		//second part needs alteration - note that if you add load at last process it will be wrong, think about it
-		//0 needs to be changed to parallel_for index
-		std::vector<DataFeed>::iterator beginIterator = source.begin() + 0 * loadPerProcessor;
+	//	//second part needs alteration - note that if you add load at last process it will be wrong, think about it
+	//	//0 needs to be changed to parallel_for index
+	//	std::vector<DataFeed>::iterator beginIterator = source.begin() + 0 * loadPerProcessor;
 
-		for (auto it1 = beginIterator; (it1 != source.end()); ++it1)
-		{
-			++threadTypeIncidenceCounter.local()[(*it1).type];
+	//	for (auto it1 = beginIterator; (it1 != source.end()); ++it1)
+	//	{
+	//		++threadTypeIncidenceCounter.local()[(*it1).type];
 
-			for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
-			{
-				if ((*it1).type != (*it2).type)
-				{
-					if (checkDistance(*it1, *it2, effectiveThreshold))
-					{
-						//smaller value always first
-						auto it1_h = it1;
-						auto it2_h = it2;
+	//		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
+	//		{
+	//			if ((*it1).type != (*it2).type)
+	//			{
+	//				if (checkDistance(*it1, *it2, effectiveThreshold))
+	//				{
+	//					//smaller value always first
+	//					auto it1_h = it1;
+	//					auto it2_h = it2;
 
-						if ((*it1_h).type > (*it2_h).type)
-							std::swap(it1_h, it2_h);
+	//					if ((*it1_h).type > (*it2_h).type)
+	//						std::swap(it1_h, it2_h);
 
-						if (threadInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
-						{
-							threadInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned int>();
-						}
-						threadInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
-					}
-				}
-			}
-		}
-	}
+	//					if (threadInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
+	//					{
+	//						threadInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned int>();
+	//					}
+	//					threadInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
-	//results reduction
-	typeIncidenceCounter = threadTypeIncidenceCounter.combine([](std::vector<int> left, std::vector<int> right)->std::vector<int> {
-		for (int i = 0; i < left.size(); ++i)
-		{
-			left[i] += right[i];
-		}
-		return left;
-	});
+	////results reduction
+	//typeIncidenceCounter = threadTypeIncidenceCounter.combine([](std::vector<int> left, std::vector<int> right)->std::vector<int> {
+	//	for (int i = 0; i < left.size(); ++i)
+	//	{
+	//		left[i] += right[i];
+	//	}
+	//	return left;
+	//});
 
-	insTable = threadInsTable.combine([](
-		std::map<unsigned int,
-			std::map<unsigned int,
-				std::map<unsigned int,
-					std::vector<unsigned int>*>>> left,
-		std::map<unsigned int,
-			std::map<unsigned int,
-				std::map<unsigned int,
-					std::vector<unsigned int>*>>> right
-		) ->
-		std::map<unsigned int,
-			std::map<unsigned int,
-				std::map<unsigned int,
-					std::vector<unsigned int>*>>> {
-		for (auto it = right.begin(); (it != right.end()); ++it)
-		{
-			//damn, hard.
-			//note: add to left (as left is returned)
-		}
-		return left;
-	});
+	//insTable = threadInsTable.combine([](
+	//	std::map<unsigned int,
+	//		std::map<unsigned int,
+	//			std::map<unsigned int,
+	//				std::vector<unsigned int>*>>> left,
+	//	std::map<unsigned int,
+	//		std::map<unsigned int,
+	//			std::map<unsigned int,
+	//				std::vector<unsigned int>*>>> right
+	//	) ->
+	//	std::map<unsigned int,
+	//		std::map<unsigned int,
+	//			std::map<unsigned int,
+	//				std::vector<unsigned int>*>>> {
+	//	for (auto it = right.begin(); (it != right.end()); ++it)
+	//	{
+	//		//damn, hard.
+	//		//note: add to left (as left is returned)
+	//	}
+	//	return left;
+	//});
 
 }
 
@@ -141,45 +141,57 @@ void CPUMiningAlgorithmParallel::createSize2ColocationsGraph()
 	}
 }
 
+
+//already parallelised
 void CPUMiningAlgorithmParallel::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
-	for (unsigned int const& vertex : degeneracy.second)
-	{
-		std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-		std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-		std::vector<unsigned int> thisVertexVector = { vertex };
-		auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
-		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
-	}
+
+	concurrency::combinable<std::vector<std::vector<unsigned int>>> concurrentMaxCliques;
+
+	concurrency::parallel_for_each(
+		degeneracy.second.begin(), 
+		degeneracy.second.end(),
+		[&] (unsigned int vertex ) {
+			std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+			std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+			std::vector<unsigned int> thisVertexVector = { vertex };
+			auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
+			concurrentMaxCliques.local().insert(concurrentMaxCliques.local().end(), generatedCliques.begin(), generatedCliques.end());
+		}
+	);
+
+	concurrentMaxCliques.combine_each([this](std::vector<std::vector<unsigned int>> vec) {
+		maximalCliques.insert(vec.begin(), vec.end(), maximalCliques.end());
+	});
 }
 
 
 //already parallelised
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::filterMaximalCliques(float prevalence)
 {
-	concurrency::combinable<std::vector<std::vector<unsigned int>>> finalMaxCliques;
+	concurrency::combinable<std::vector<std::vector<unsigned int>>> concurrentFinalMaxCliques;
 
-	concurrency::parallel_buffered_sort(maximalCliques.begin(), maximalCliques.end(), [&](std::vector<unsigned int> clique) {
-		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
-		if (maxCliques.size() != 0)
-			finalMaxCliques.local().insert(finalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
-	});
+	concurrency::parallel_for_each(
+		maximalCliques.begin(), 
+		maximalCliques.end(),
+		[&] (std::vector<unsigned int> clique) {
+			auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
+			if (maxCliques.size() != 0)
+				concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
+		}
+	);
 
-	return finalMaxCliques.combine([](
-		std::vector<std::vector<unsigned int>> left,
-		std::vector<std::vector<unsigned int>> right)
-	{
-		left.insert(right.begin(), right.end(), left.end());
-		return left;
-	});
-}
+	std::vector<std::vector<unsigned int>> finalMaxCliques;
 
-void CPUMiningAlgorithmParallel::testFilterMaxCliques()
-{
-	assert(maximalCliques[0].size() >= 2, "too big prevalence, clique must bu greater than 1");
-	constructCondensedTree(maximalCliques[0]);
+	concurrentFinalMaxCliques.combine_each(
+		[&finalMaxCliques] (std::vector<std::vector<unsigned int>> vec) {
+			finalMaxCliques.insert(vec.begin(), vec.end(), finalMaxCliques.end());
+		}
+	);
+
+	return finalMaxCliques;
 }
 
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::bkPivot(

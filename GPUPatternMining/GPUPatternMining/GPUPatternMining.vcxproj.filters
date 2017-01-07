@@ -7,7 +7,7 @@
     <CudaCompile Include="Common\CommonOperations.cu">
       <Filter>Common</Filter>
     </CudaCompile>
-    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
+    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu">
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +35,9 @@
     <ClInclude Include="Entities\FeatureInstance.h" />
     <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
     <ClInclude Include="Entities\InstanceTable.h" />
+    <ClInclude Include="Prevalence.h">
+      <Filter>Prevalence</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="HashMap">
@@ -42,9 +45,6 @@
     </Filter>
     <Filter Include="PairColocationsFiltering">
       <UniqueIdentifier>{7f94414e-4567-49c5-8379-7cb103e1e337}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SimpleOperations">
-      <UniqueIdentifier>{544bb442-def9-4e16-9036-1e7b4875bac0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{88c1fc49-9538-4a47-9656-55a7eb93d714}</UniqueIdentifier>
@@ -55,10 +55,16 @@
     <Filter Include="Entities">
       <UniqueIdentifier>{eeb6a990-5ec4-415b-91c7-194f8a920175}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Prevalence">
+      <UniqueIdentifier>{46c46ab8-f55f-426c-a9c1-e96c5e8df2e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp">
       <Filter>PairColocationsFiltering</Filter>
+    </ClCompile>
+    <ClCompile Include="Prevalence.cpp">
+      <Filter>Prevalence</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

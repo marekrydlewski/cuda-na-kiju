@@ -359,7 +359,7 @@ Kolokacje o rozmiarze 2 tworzone są na podstawie wygenerowanych w oparciu o cec
 Na podstawie wygenerowanych kolokacji oraz tzw. \textit{progu odległości} (ang. \textit{distance threshold}) tworzona jest dwuwymiarowa tablica z haszowaniem (ang. \textit{hash table}). Jest ona indeksowana cechami przestrzennymi. Każdy element tablicy zawiera wskaźnik do listy zawierającej instancje kandydatów o odpowiadających indeksom cechach przestrzennych. Instancja zostanie dodana do tej listy tylko wtedy, gdy odległość między instancjami przekracza dopuszczalny próg odległości między nimi.
 
 \begin{sample}
-Zapytanie $InsTable_{2}(A,B)$ zwróci listę kandydatów $(A_{2}, B_{2})$, $(A_{3}, B_{1})$, itd. Nie zwróci $(A_{2}, B_{100000})$, gdyż odległość między instancjami nie przekracza dopuszczalnego progu odległości.
+Zapytanie $InsTable_{2}(A,B)$ zwróci listę kandydatów $(A_{2}, B_{2})$, $(A_{3}, B_{1})$, itd. Nie znajdziemy na tej liście pary $(A_{2}, B_{100000})$, gdyż odległość między tymi instancjami przekracza dopuszczalny próg odległości.
 \end{sample}
 
 \subsection{Obliczanie miary powszechności}

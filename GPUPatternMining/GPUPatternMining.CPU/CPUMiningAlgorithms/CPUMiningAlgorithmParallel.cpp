@@ -92,6 +92,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 }
 
+
 void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 {
 	auto countedInstances = countUniqueInstances();

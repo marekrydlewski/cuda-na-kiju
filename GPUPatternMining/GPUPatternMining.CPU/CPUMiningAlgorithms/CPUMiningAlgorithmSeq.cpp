@@ -409,4 +409,14 @@ CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():
 
 CPUMiningAlgorithmSeq::~CPUMiningAlgorithmSeq()
 {
+	for (auto& a : insTable)
+	{
+		for (auto& b : a.second)
+		{
+			for (auto& c : b.second)
+			{
+				delete c.second;
+			}
+		}
+	}
 }

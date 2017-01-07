@@ -156,7 +156,7 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
 	it = std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), MpivotNeighboursDifference.begin());
 	MpivotNeighboursDifference.resize(it - MpivotNeighboursDifference.begin());
 
-	for (auto const& vertex : MpivotNeighboursDifference)
+	for (auto const vertex : MpivotNeighboursDifference)
 	{
 		std::vector<unsigned int> vertexNeighbours = size2ColocationsGraph.getVertexNeighbours(vertex);
 		std::vector<unsigned int> vertexVector = { vertex };

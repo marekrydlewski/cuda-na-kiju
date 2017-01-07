@@ -385,7 +385,7 @@ Zadaniem tego kroku jest wyszukanie w takim grafie maksymalnych klik, określany
 Kandydat na maksymalną kolokację $ C_{m} $ składa się z uporządkowanych cech przestrzennych o następujących właściwościach: każda para cech w  $ C_{m} $  jest ze sobą połączona krawędzią, a żadne dodatkowe cechy nie mogą być dodane do $ C_{m} $ bez zachowania ich kompletnego połączenia.
 \end{defin}
 
-Autorzy pracy \cite{chinczyki} udowodnili, że graf kolokacji o rozmiarze 2 można traktować jako graf rzadki. Umożliwia to korzystanie z algorytmu Brona-Kerboscha \cite{kerbosz} do wyszukiwania maksymalnych klik w grafie nieskierowanym. Wprowadzone zostały do niego pewne modyfikacje uwzględniające rozproszenie grafu oraz wybieranie \textit{pivotu} w celu usprawienia wyszukiwania kandydatów na kolokacje. 
+Autorzy pracy \cite{chinczyki} udowodnili, że graf kolokacji o rozmiarze 2 można traktować jako graf rzadki. Umożliwia to efektywne korzystanie z algorytmu Brona-Kerboscha \cite{kerbosz} do wyszukiwania maksymalnych klik w grafie nieskierowanym. Wprowadzone zostały do niego pewne modyfikacje uwzględniające rozproszenie grafu oraz wybieranie \textit{pivotu} w celu usprawienia wyszukiwania kandydatów na kolokacje. 
 
 \begin{algorithm}
 \SetKwInOut{Input}{Wejście}
@@ -413,7 +413,7 @@ $ T \leftarrow T \cup \{v_{i}\}$\;
 \caption{Generowanie maksymalnych kandydatów na kolokacje}
 \end{algorithm}
 
-Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Zgodnie z zasadą wyszukiwania wzorców maksymalnych kolokacji, może on zawierać wierzchołek $ u $ lub niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, w linii 10 następuje iteracja tylko po wierzchołku $ u $ i wszystkich innych wierzchołkach nie będących jego sąsiadami, aby ograniczyć liczbę węwnętrznych pętli w rekurencji.
+Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Wybiera on wierzchołek będący osią podziału zbioru (tzw. \textit{pivot} w oparciu o rozmiar unii sąsiadów tego wierzchołka i wierzchołków kandydatów. Każda maksymalna klika musi zawierać albo wierzchołek $ u $, albo niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, tylko wierzchołek $ u $ i jego nie-sąsiedzi muszą być przetestowani (linia 10).
 
 Druga modyfikacja opiera się o pojęcie rozproszenia grafu. Opisuje się je miarą \textit{degeneracji grafu} \cite{degenerat}:
 \begin{defin}[Degeneracja grafu]
@@ -423,6 +423,8 @@ Degeneracja grafu G jest najmniejszą wartością k, taką, że każdy niepusty 
 Wierzchołki w zewnętrznej rekurencji są uporządkowane według stopnia degeneracji (linia 2). W ciele rekurencji (linie 3-5) liczba wierzchołków czekających na weryfikację nie przekroczy $ k $. Tym sposobem ograniczono liczbę zewnętrznych rekurencji.
 
 \subsection{Proces odcinania}
+
+W ostatnim kroku w oparciu o tzw. \textit{prunning framework} \cite{framework} nastepuje otrzymywanie końcowych maksymalnych kolokacji spośród kandydatów wyznaczonym w poprzednim procesie. Na początku dla każdego z nich uruchamiany jest algorytm wyszukiwania klik instancji. Do jego zrozumienia niezbędne jest wprowadzenie poniższych definicji.
 
 \begin{defin}[Uporządkowana klika instancji]
 Dany jest kandydat na maksymalną kolokację $ C_{m} $. Jego uporządkowana klika instancji $ InsC_{m} $ jest grupą instancji przestrzennych spełniających następujące warunki:
@@ -434,6 +436,8 @@ Dany jest kandydat na maksymalną kolokację $ C_{m} $. Jego uporządkowana klik
 
 \begin{defin}[Skondensowane drzewo instancji]Dany jest kandydat na maksymalną kolokację $ C_{m} $. Skondensowane drzewo instancji $ CInsTree$ jest konstrukcją kompresującą wszystkie uporządkowane kliki instancji $ C_{m} $.
 \end{defin}
+
+Algorytm ma charakter iteracyjny. Zmienna $ i $ jest zmienną sterującą pętli. Na początku zostaje zainicjalizowane drzewo $ CInsTree $ i tworzony jest jego korzeń. Następnie uruchamiany jest proces konstrukcji drzewa, podzielony na dwa etapy. Pierwszy etap wykonywany jest tylko w pierwszej iteracji algorytmu - kolejne iteracje będą wykonywać krok drugi. 
 
 \begin{algorithm}
 \SetKwInOut{Input}{Wejście}
@@ -473,6 +477,17 @@ $ i \leftarrow 1; CInsTree \leftarrow \emptyset$; utwórz korzeń drzewa $ CInsT
 }
 \caption{Konstrukcja skondensowanego drzewa instancji $ C_{m} $}
 \end{algorithm}
+
+W pierwszym kroku (linie 3-11) dla każdej pary instancji pierwszych dwóch cech przestrzennych $ C_{m} $ nastepuje sprawdzenie, czy pierwszy element aktualnie przetwarzanej pary instancji istnieje na danym poziomie drzewa $ CInsTree $ (oznaczonego jako $CInsTree_{1}$). Jeżeli tak, następuje dodanie drugiego elementu jako węzeł podrzędny odpowiadającego mu węzła na poziomie pierwszym. W przeciwnym wypadku, na podstawie obecnej pary instancji tworzone jest poddrzewo, które następnie jest dołączane do korzenia $ CInsTree $. 
+
+Drugi etap rozpoczyna się konstrukcją listy $ El$ zawierającej instancje cechy $ C_{m}(i+1) $. Dokonuje się tego dla każdego węzła instancji na poziomie $i$-tym drzewa $CInsTree$ popzez skanowanie $ InsTable_{2}(C_{m}(i),C_{m}(i+1))$, gdzie $ c_{m}(i)$ jest i-tą cechą $ C_{m} $. Nastepnie dla każdego elementu tej listy nastepuje sprawdzenie, czy zarówno para instancji składająca się z tego elementu, jak i każdy przodek aktualnego węzła instancji $ CInsTree$ znajduje się w tablicy kolokacji o długości 2 - $InsTable_{2}$. Jeżeli tak, dodaje się ten element jako węzeł podrzędny aktualnego węzła instancji.
+
+Proces działa do czasu, gdy nie będzie żadnego węzła na $ i $-tym poziomie drzewa lub dopóki $i$ nie będzie mniejsze niż $ len(C_{m}) - 1 $.
+
+Po zakończeniu algorytmu pozostaje jeszcze wyliczenie indeksów powszechności dla odnalezionych klik instancji. Podobnie jak wcześniej, w przypadku kiedy miara powszechności nie jest mniejsza niż przyjęty na początku próg powszechności, kandydata można przyjąć jako właściwy wzorzec kolokacji \cite{huang}.
+
+\newpage
+
 \section{Implementacja}
 
 \section{Testy efektywnościowe}
@@ -516,6 +531,7 @@ Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 
 \bibitem{kerbosz}Bron, C., \& Kerbosch, J. (1973). Algorithm 457: Finding all cliques of an undirected graph. Communications of the ACM, 16 , 575–577.
 \bibitem{pivot}Tomita, E., Tanaka, A., \& Takahashi, H. (2006). The worst-case time complexity for
 generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
+\bibitem{framework}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
 \end{thebibliography}
 
 \newpage

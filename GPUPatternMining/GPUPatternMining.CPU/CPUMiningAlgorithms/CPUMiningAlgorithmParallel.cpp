@@ -56,31 +56,31 @@ void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 {
 	auto countedInstances = countUniqueInstances();
 	//filtering
-	concurrency::parallel_for_each(
-		insTable.begin(),
-		insTable.end(),
-		[&] (auto &a) {
-			for (auto& b : a.second)
-			{
-				auto aType = a.first;
-				auto bType = b.first;
+	//concurrency::parallel_for_each(
+	//	insTable.begin(),
+	//	insTable.end(),
+	//	[&] (auto &a) {
+	//		for (auto& b : a.second)
+	//		{
+	//			auto aType = a.first;
+	//			auto bType = b.first;
 
-				bool isPrevalence = countPrevalence(
-					countedInstances[std::make_pair(aType, bType)],
-					std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
+	//			bool isPrevalence = countPrevalence(
+	//				countedInstances[std::make_pair(aType, bType)],
+	//				std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
 
-				if (!isPrevalence)
-				{
-					for (auto& c : b.second)
-					{
-						delete c.second;
-						//clear vectors' memeory firstly
-					}
-					insTable[aType][bType].clear();
-					//clear all keys
-				}
-			}
-	});
+	//			if (!isPrevalence)
+	//			{
+	//				for (auto& c : b.second)
+	//				{
+	//					delete c.second;
+	//					//clear vectors' memeory firstly
+	//				}
+	//				insTable[aType][bType].clear();
+	//				//clear all keys
+	//			}
+	//		}
+	//});
 
 	for (auto& a : insTable)
 	{

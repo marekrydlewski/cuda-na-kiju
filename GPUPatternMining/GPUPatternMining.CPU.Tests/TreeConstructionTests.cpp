@@ -54,3 +54,20 @@ TEST_CASE("ColocationsWhereSomeSize2ColocationsWereNotPrevalent", "TreeConstruct
 	auto result = miner.filterMaximalCliques(prevalence);
 	REQUIRE(result.size() == 2);
 }
+
+TEST_CASE("NonPrevalentColocations", "TreeConstructionTest")
+{
+	TestDataGenerator generator;
+	CPUMiningAlgorithmSeq miner;
+	float threshold = 5.1;
+	float prevalence = 0.3;
+
+	auto data = generator.getDataForTreeTest();
+	miner.loadData(data, 14, 5);
+	miner.filterByDistance(threshold);
+	miner.filterByPrevalence(prevalence);
+	miner.constructMaximalCliques();
+
+	auto result = miner.filterMaximalCliques(prevalence);
+	REQUIRE(result.size() == 2);
+}

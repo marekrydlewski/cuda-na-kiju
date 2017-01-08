@@ -26,6 +26,7 @@ public:
 	DataFeed* getDataFor2OverlappingCliques();
 	///5 vertices, 5 types, cliques of (0,1) and (2,3,4)
 	DataFeed* getDataForDistinctCliques();
+	DataFeed * getDataForTreeTest();
 	TestDataGenerator();
 	~TestDataGenerator();
 };

@@ -5,6 +5,10 @@
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <map>
 #include <vector>
+#include <ppl.h>
+#include <concurrent_unordered_map.h>
+#include <concurrent_vector.h>
+
 
 class CPUMiningAlgorithmParallel :
 	public CPUMiningBaseAlgorithm
@@ -23,7 +27,7 @@ public:
 	void constructMaximalCliques() override;
 	std::vector<std::vector<unsigned int>> filterMaximalCliques(float prevalence);
 
-	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getInsTable()
+	concurrency::concurrent_unordered_map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getInsTable()
 	{
 		return insTable;
 	}
@@ -40,7 +44,10 @@ private:
 	std::vector<int> typeIncidenceCounter;
 	/// InsTable - 2 dimensional hashtable, where frist 2 indexes are types
 	/// the value is a map, where key is number of 1st facility's instanceId and value is a vector of 2nd facility's instancesId 
-	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> insTable;
+	concurrency::concurrent_unordered_map<unsigned int, 
+		std::map<unsigned int,
+			std::map<unsigned int,
+				std::vector<unsigned int>*>>> insTable;
 	/// Cm
 	std::vector<std::vector<unsigned int>> maximalCliques;
 	Graph size2ColocationsGraph;

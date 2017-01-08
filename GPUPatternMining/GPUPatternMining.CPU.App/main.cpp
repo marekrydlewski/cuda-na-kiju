@@ -25,10 +25,12 @@ int main()
 	cpuAlgSeq.filterByPrevalence(prevalence);
 	cpuAlgSeq.constructMaximalCliques();
 	auto solution = cpuAlgSeq.filterMaximalCliques(prevalence);
-	//cpuAlgSeq.testFilterMaxCliques();
 
 	CPUMiningAlgorithmParallel cpuAlgParallel;
 	cpuAlgParallel.loadData(data, numberOfInstances, types);
 	cpuAlgParallel.filterByDistance(threshold);
+	cpuAlgParallel.filterByPrevalence(prevalence);
+	cpuAlgParallel.constructMaximalCliques();
+	auto solution_parallel = cpuAlgParallel.filterMaximalCliques(prevalence);
 	return 0;
 }

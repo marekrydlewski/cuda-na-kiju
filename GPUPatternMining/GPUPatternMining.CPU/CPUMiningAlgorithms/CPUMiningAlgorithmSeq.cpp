@@ -96,6 +96,7 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
+	std::set<std::vector<unsigned int>> result;
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
 	for (unsigned int const& vertex : degeneracy.second)
 	{
@@ -103,8 +104,9 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 		std::set<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
 		std::set<unsigned int> thisVertex = { vertex };
 		auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertex, neighboursWithLowerIndices);
-		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+		result.insert(generatedCliques.begin(), generatedCliques.end());
 	}
+	maximalCliques.insert(maximalCliques.end(), result.begin(), result.end());
 }
 
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)

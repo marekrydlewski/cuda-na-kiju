@@ -35,7 +35,7 @@ int main()
 	bmSeq.run("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });
 	bmSeq.run("filter by prevalence", 1, [&]() { cpuAlgSeq.filterByPrevalence(prevalence); });
 	bmSeq.run("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
-	bmSeq.run("filter max cliques", 1, [&]() { cpuAlgSeq.filterMaximalCliques(prevalence); });
+	bmSeq.run("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
 
 	bmSeq.print("sequential algorithm", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
@@ -44,7 +44,7 @@ int main()
 	bmParallel.run("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
 	bmParallel.run("filter by prevalence", 1, [&]() { cpuAlgParallel.filterByPrevalence(prevalence); });
 	bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); });
-	bmParallel.run("filter max cliques", 1, [&]() { cpuAlgParallel.filterMaximalCliques(prevalence); });
+	bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
 	bmParallel.print("parallel algorithm", std::cout);
 	//bmParallel.serialize("CPU parallel algorithm", "CPUparallel.txt");

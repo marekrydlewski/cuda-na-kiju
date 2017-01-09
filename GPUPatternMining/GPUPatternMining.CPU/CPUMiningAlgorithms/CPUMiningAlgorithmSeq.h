@@ -50,10 +50,10 @@ private:
 	Graph size2ColocationsGraph;
 
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
-	std::vector<std::vector<unsigned int>> bkPivot(
-		std::vector<unsigned int> M,
-		std::vector<unsigned int> K,
-		std::vector<unsigned int> T);
+	std::set<std::vector<unsigned int>> bkPivot(
+		std::set<unsigned int> M,
+		std::set<unsigned int> K,
+		std::set<unsigned int> T);
 	bool filterNodeCandidate(
 		unsigned int type,
 		unsigned int instanceId,

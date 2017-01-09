@@ -51,7 +51,6 @@
     <ClInclude Include="Benchmark.h">
       <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -66,9 +65,6 @@
     <ClCompile Include="CinsNode.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="GPUPatternMining.Contract.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="benchmark_visualizer.py">

@@ -30,7 +30,6 @@
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
     <ClInclude Include="RandomDataProvider.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -43,9 +42,6 @@
     <ClCompile Include="CinsTree.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="RandomDataProvider.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="GPUPatternMining.Contract.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="benchmark_visualizer.py" />

@@ -48,6 +48,9 @@
     <ClInclude Include="Timer.h">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Benchmark.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -62,5 +65,10 @@
     <ClCompile Include="CinsNode.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="benchmark_visualizer.py">
+      <Filter>Utilities</Filter>
+    </None>
   </ItemGroup>
 </Project>

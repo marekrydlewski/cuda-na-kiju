@@ -5,6 +5,7 @@
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <map>
 #include <vector>
+#include <set>
 
 class CPUMiningAlgorithmSeq :
 	public CPUMiningBaseAlgorithm
@@ -58,8 +59,8 @@ private:
 		unsigned int instanceId,
 		std::vector<CinsNode*> const & ancestors);
 	unsigned int tomitaMaximalPivot(
-		const std::vector<unsigned int>& SUBG,
-		const std::vector<unsigned int>& CAND);
+		const std::set<unsigned int>& SUBG,
+		const std::set<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned int>& Cm);
 	bool isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence);

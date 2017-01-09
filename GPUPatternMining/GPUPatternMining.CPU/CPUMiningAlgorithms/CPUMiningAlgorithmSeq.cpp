@@ -98,8 +98,10 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
 	for (unsigned int const& vertex : degeneracy.second)
 	{
-		std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-		std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		std::set<unsigned int> a = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+		std::set<unsigned int> b = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		std::vector<unsigned int> neighboursWithHigherIndices(a.begin(), a.end());
+		std::vector<unsigned int> neighboursWithLowerIndices(b.begin(), b.end());
 		std::vector<unsigned int> thisVertexVector = { vertex };
 		auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
@@ -148,7 +150,10 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
 		return maximalCliques;
 	}
 
-	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
+	std::set<unsigned int> x(MTunion.begin(), MTunion.end());
+	std::set<unsigned int> y(M.begin(), M.end());
+
+	unsigned int pivot = tomitaMaximalPivot(x, y);
 
 	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
 	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
@@ -158,7 +163,9 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
 
 	for (auto const& vertex : MpivotNeighboursDifference)
 	{
-		std::vector<unsigned int> vertexNeighbours = size2ColocationsGraph.getVertexNeighbours(vertex);
+		std::set<unsigned int> c = size2ColocationsGraph.getVertexNeighbours(vertex);
+		std::vector<unsigned int> vertexNeighbours(c.begin(), c.end());
+
 		std::vector<unsigned int> vertexVector = { vertex };
 		std::vector<unsigned int> KvertexUnion(K.size() + 1);
 		std::vector<unsigned int> MvertexNeighboursIntersection(M.size());
@@ -204,7 +211,7 @@ bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 
 
 ///Tomita Tanaka 2006 maximal pivot algorithm
-unsigned int CPUMiningAlgorithmSeq::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
+unsigned int CPUMiningAlgorithmSeq::tomitaMaximalPivot(const std::set<unsigned int>& SUBG, const std::set<unsigned int>& CAND)
 {
 	unsigned int u, maxCardinality = 0;
 	for (auto& s : SUBG)

@@ -17,42 +17,42 @@ void Graph::addEdge(unsigned int v1, unsigned int v2)
 	tab[v2][v1] = true;
 }
 
-std::vector<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v)
+std::set<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v)
 {
-	std::vector<unsigned int> neighbours;
+	std::set<unsigned int> neighbours;
 
 	for (unsigned int v2 = v + 1; v2 < tab.size(); ++v2)
 	{
 		if (tab[v][v2] || tab[v2][v])
 		{
-			neighbours.push_back(v2);
+			neighbours.insert(v2);
 		}
 	}
 
 	return neighbours;
 }
 
-std::vector<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
+std::set<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
 {
-	std::vector<unsigned int> neighbours;
+	std::set<unsigned int> neighbours;
 
 	for (int v2 = v - 1; v2 >= 0; --v2)
 	{
 		if (tab[v][v2] || tab[v2][v])
 		{
-			neighbours.push_back(v2);
+			neighbours.insert(v2);
 		}
 	}
 
 	return neighbours;
 }
 
-std::vector<unsigned int> Graph::getVertexNeighbours(unsigned int v)
+std::set<unsigned int> Graph::getVertexNeighbours(unsigned int v)
 {
-	std::vector<unsigned int> neighbours = getVertexNeighboursOfHigherIndex(v);
-	std::vector<unsigned int> neighbours2 = getVertexNeighboursOfLowerIndex(v);
-	neighbours.insert(neighbours.end(), neighbours2.begin(), neighbours2.end());
+	std::set<unsigned int> neighbours = getVertexNeighboursOfHigherIndex(v);
+	std::set<unsigned int> neighbours2 = getVertexNeighboursOfLowerIndex(v);
 
+	neighbours.insert(neighbours2.begin(), neighbours2.end());
 	return neighbours;
 }
 

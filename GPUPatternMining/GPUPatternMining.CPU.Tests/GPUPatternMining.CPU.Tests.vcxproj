@@ -138,6 +138,7 @@
     <ClCompile Include="MaximalCliquesFindingTests.cpp" />
     <ClCompile Include="PrevalenceFilterTests.cpp" />
     <ClCompile Include="testDataGenerator.cpp" />
+    <ClCompile Include="TreeConstructionTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catch.hpp" />

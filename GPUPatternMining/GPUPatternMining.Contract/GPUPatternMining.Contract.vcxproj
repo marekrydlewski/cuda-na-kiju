@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Benchmark.h" />
     <ClInclude Include="CinsNode.h" />
     <ClInclude Include="CinsTree.h" />
     <ClInclude Include="Enity\DataFeed.h" />
@@ -28,6 +29,7 @@
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
     <ClInclude Include="RandomDataProvider.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\PairColocation.h">
@@ -39,6 +41,9 @@
     <ClCompile Include="CinsTree.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="RandomDataProvider.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="benchmark_visualizer.py" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>

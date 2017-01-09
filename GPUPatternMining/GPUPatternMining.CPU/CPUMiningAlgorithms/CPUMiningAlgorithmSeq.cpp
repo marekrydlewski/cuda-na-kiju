@@ -156,7 +156,6 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
 	unsigned int pivot = tomitaMaximalPivot(x, y);
 
 	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
-	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
 
 	it = std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), MpivotNeighboursDifference.begin());
 	MpivotNeighboursDifference.resize(it - MpivotNeighboursDifference.begin());
@@ -217,7 +216,6 @@ unsigned int CPUMiningAlgorithmSeq::tomitaMaximalPivot(const std::set<unsigned i
 	for (auto& s : SUBG)
 	{
 		auto neighbors = size2ColocationsGraph.getVertexNeighbours(s);
-		std::sort(neighbors.begin(), neighbors.end());
 		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
 
 		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());

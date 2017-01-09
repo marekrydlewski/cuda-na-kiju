@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Benchmark.h" />
     <ClInclude Include="CinsNode.h" />
     <ClInclude Include="CinsTree.h" />
     <ClInclude Include="Enity\DataFeed.h" />

@@ -48,6 +48,9 @@
     <ClInclude Include="Timer.h">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Benchmark.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">

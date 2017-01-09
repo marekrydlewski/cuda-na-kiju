@@ -28,6 +28,7 @@
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
     <ClInclude Include="RandomDataProvider.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\PairColocation.h">

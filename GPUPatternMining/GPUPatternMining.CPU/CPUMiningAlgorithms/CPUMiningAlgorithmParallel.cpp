@@ -148,14 +148,8 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 		}
 	);
 
-	//why it doesn't work??? - size of vector out of range lol
-	//concurrentMaxCliques.combine_each([this](std::vector<std::vector<unsigned int>>& vec) {
-	//	maximalCliques.insert(vec.begin(), vec.end(), maximalCliques.end());
-	//});
-
-	maximalCliques = concurrentMaxCliques.combine([this](auto& left, auto& right){
-		left.insert(right.begin(), right.end(), left.end());
-		return left;
+	concurrentMaxCliques.combine_each([this](std::vector<std::vector<unsigned int>>& vec) {
+		maximalCliques.insert(maximalCliques.end(), vec.begin(), vec.end());
 	});
 }
 
@@ -175,20 +169,13 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::filterMaximal
 		}
 	);
 
-	//why it doesn't work??? - size of vector out of range lol
-	//std::vector<std::vector<unsigned int>> finalMaxCliques;
-	//concurrentFinalMaxCliques.combine_each(
-	//	[&finalMaxCliques] (std::vector<std::vector<unsigned int>> vec) {
-	//		finalMaxCliques.insert(vec.begin(), vec.end(), finalMaxCliques.end());
-	//	}
-	//);
-	//return finalMaxCliques;
-
-	return concurrentFinalMaxCliques.combine(
-		[] (auto& left, auto& right) {
-			left.insert(right.begin(), left.end(), right.end());
-			return left;
-	});
+	std::vector<std::vector<unsigned int>> finalMaxCliques;
+	concurrentFinalMaxCliques.combine_each(
+		[&finalMaxCliques] (std::vector<std::vector<unsigned int>> vec) {
+			finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
+		}
+	);
+	return finalMaxCliques;
 }
 
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::bkPivot(

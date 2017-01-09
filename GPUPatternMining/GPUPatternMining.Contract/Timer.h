@@ -8,13 +8,13 @@
 namespace tim
 {
 	/**
-	* @ class measure
+	* @ class detailed_measure
 	* @ brief Class to measure the execution time of a callable
 	*/
 	template <
 		typename TimeT = std::chrono::milliseconds, class ClockT = std::chrono::system_clock
 	>
-		struct measure
+		struct detailed_measure
 	{
 		/**
 		* @ fn    execution

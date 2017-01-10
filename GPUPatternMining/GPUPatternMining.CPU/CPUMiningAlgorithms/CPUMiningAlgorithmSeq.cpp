@@ -343,7 +343,7 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 
 bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence)
 {
-	if (clique.size() == 1) return true;
+	if (clique.size() == 2) return true;
 
 	auto maxCliquesIns = constructCondensedTree(clique);
 
@@ -388,8 +388,8 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCli
 			auto smallerCliques = getAllCliquesSmallerByOne(clique);
 			for (auto c : smallerCliques)
 			{
-				if(c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
-					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+				if (c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
+					finalMaxCliques.push_back(c);
 				else
 				{
 					auto nextCliques = getPrevalentMaxCliques(c, prevalence);

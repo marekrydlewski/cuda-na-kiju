@@ -388,8 +388,11 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCli
 			auto smallerCliques = getAllCliquesSmallerByOne(clique);
 			for (auto c : smallerCliques)
 			{
-				if(c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
+				if (c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
+				{
 					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+					break; //all smallerCliques are the same size, so insert them all and break the loop
+				}
 				else
 				{
 					auto nextCliques = getPrevalentMaxCliques(c, prevalence);

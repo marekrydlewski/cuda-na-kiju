@@ -23,10 +23,8 @@ public:
 	void filterByDistance(float threshold) override;
 	void filterByPrevalence(float prevalence) override;
 	void constructMaximalCliques() override;
-	std::vector<std::vector<unsigned int>> filterMaximalCliques(float prevalence);
-	//for testing purpose
-	void testFilterMaxCliques();
 
+	std::vector<std::vector<unsigned int>> filterMaximalCliques(float prevalence);
 	std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> getInsTable()
 	{
 		return insTable;
@@ -50,17 +48,10 @@ private:
 	Graph size2ColocationsGraph;
 
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
-	std::set<std::vector<unsigned int>> bkPivot(
-		std::set<unsigned int> M,
-		std::set<unsigned int> K,
-		std::set<unsigned int> T);
 	bool filterNodeCandidate(
 		unsigned int type,
 		unsigned int instanceId,
 		std::vector<CinsNode*> const & ancestors);
-	unsigned int tomitaMaximalPivot(
-		const std::set<unsigned int>& SUBG,
-		const std::set<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned int>& Cm);
 	bool isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence);

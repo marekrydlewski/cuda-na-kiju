@@ -5,6 +5,7 @@
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <map>
 #include <vector>
+#include <set>
 
 class CPUMiningAlgorithmSeq :
 	public CPUMiningBaseAlgorithm
@@ -49,17 +50,17 @@ private:
 	Graph size2ColocationsGraph;
 
 	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> countUniqueInstances();
-	std::vector<std::vector<unsigned int>> bkPivot(
-		std::vector<unsigned int> M,
-		std::vector<unsigned int> K,
-		std::vector<unsigned int> T);
+	std::set<std::vector<unsigned int>> bkPivot(
+		std::set<unsigned int> M,
+		std::set<unsigned int> K,
+		std::set<unsigned int> T);
 	bool filterNodeCandidate(
 		unsigned int type,
 		unsigned int instanceId,
 		std::vector<CinsNode*> const & ancestors);
 	unsigned int tomitaMaximalPivot(
-		const std::vector<unsigned int>& SUBG,
-		const std::vector<unsigned int>& CAND);
+		const std::set<unsigned int>& SUBG,
+		const std::set<unsigned int>& CAND);
 	void createSize2ColocationsGraph();
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned int>& Cm);
 	bool isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence);

@@ -5,6 +5,7 @@
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
 {
@@ -95,15 +96,33 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
+	std::set<std::vector<unsigned int>> result;
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
 	for (unsigned int const vertex : degeneracy.second)
 	{
-		std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-		std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-		std::vector<unsigned int> thisVertexVector = { vertex };
-		auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
-		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+		std::set<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+		std::set<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		std::set<unsigned int> thisVertex = { vertex };
+		auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertex, neighboursWithLowerIndices);
+		result.insert(generatedCliques.begin(), generatedCliques.end());
 	}
+	maximalCliques.insert(maximalCliques.end(), result.begin(), result.end());
+	
+	//below method (where no std::sets are used at all, even in other methods) is faster, but uglier
+	//
+	//createSize2ColocationsGraph();
+	//auto degeneracy = size2ColocationsGraph.getDegeneracy();
+	//for (unsigned int const vertex : degeneracy.second)
+	//{
+	//	std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+	//	std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+	//	std::vector<unsigned int> thisVertex = { vertex };
+	//	auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertex, neighboursWithLowerIndices);
+	//	maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+	//}
+	//std::set<std::vector<unsigned int>> tmp(maximalCliques.begin(), maximalCliques.end());
+	//std::vector<std::vector<unsigned int>> tmpVec(tmp.begin(), tmp.end());
+	//maximalCliques.swap(tmpVec);
 }
 
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
@@ -125,57 +144,47 @@ void CPUMiningAlgorithmSeq::testFilterMaxCliques()
 	constructCondensedTree(maximalCliques[0]);
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
-	std::vector<unsigned int> M,
-	std::vector<unsigned int> K,
-	std::vector<unsigned int> T)
+std::set<std::vector<unsigned int>> CPUMiningAlgorithmSeq::bkPivot(
+	std::set<unsigned int> M,
+	std::set<unsigned int> K,
+	std::set<unsigned int> T)
 {
-	std::vector<std::vector<unsigned int>> maximalCliques;
-	std::vector<unsigned int> MTunion(M.size() + T.size());
-	std::vector<unsigned int> MpivotNeighboursDifference(M.size());
-	std::vector<unsigned int>::iterator it;
+	std::set<std::vector<unsigned int>> maximalCliques;
+	std::set<unsigned int> MTunion;
+	std::set<unsigned int> MpivotNeighboursDifference;
 
-	std::sort(M.begin(), M.end());
-	std::sort(T.begin(), T.end());
-	std::sort(K.begin(), K.end());
-
-	it = std::set_union(M.begin(), M.end(), T.begin(), T.end(), MTunion.begin());
-	MTunion.resize(it - MTunion.begin());
+	std::set_union(M.begin(), M.end(), T.begin(), T.end(), std::inserter(MTunion, MTunion.begin()));
 
 	if (MTunion.size() == 0)
 	{
-		maximalCliques.push_back(K);
+		std::vector<unsigned int> result(K.begin(), K.end());
+		maximalCliques.insert(result);
 		return maximalCliques;
 	}
 
 	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
 
 	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
-	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
 
-	it = std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), MpivotNeighboursDifference.begin());
-	MpivotNeighboursDifference.resize(it - MpivotNeighboursDifference.begin());
+	std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), std::inserter(MpivotNeighboursDifference, MpivotNeighboursDifference.begin()));
 
 	for (auto const vertex : MpivotNeighboursDifference)
 	{
-		std::vector<unsigned int> vertexNeighbours = size2ColocationsGraph.getVertexNeighbours(vertex);
-		std::vector<unsigned int> vertexVector = { vertex };
-		std::vector<unsigned int> KvertexUnion(K.size() + 1);
-		std::vector<unsigned int> MvertexNeighboursIntersection(M.size());
-		std::vector<unsigned int> TvertexNeighboursIntersection(T.size());
+		std::set<unsigned int> vertexNeighbours = size2ColocationsGraph.getVertexNeighbours(vertex);
 
-		std::sort(vertexNeighbours.begin(), vertexNeighbours.end());
+		std::set<unsigned int> vertexVector = { vertex };
+		std::set<unsigned int> KvertexUnion;
+		std::set<unsigned int> MvertexNeighboursIntersection;
+		std::set<unsigned int> TvertexNeighboursIntersection;
 
-		std::set_union(K.begin(), K.end(), vertexVector.begin(), vertexVector.end(), KvertexUnion.begin());
+		std::set_union(K.begin(), K.end(), vertexVector.begin(), vertexVector.end(), std::inserter(KvertexUnion, KvertexUnion.begin()));
 
-		it = std::set_intersection(M.begin(), M.end(), vertexNeighbours.begin(), vertexNeighbours.end(), MvertexNeighboursIntersection.begin());
-		MvertexNeighboursIntersection.resize(it - MvertexNeighboursIntersection.begin());
+		std::set_intersection(M.begin(), M.end(), vertexNeighbours.begin(), vertexNeighbours.end(), std::inserter(MvertexNeighboursIntersection, MvertexNeighboursIntersection.begin()));
 
-		it = std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), TvertexNeighboursIntersection.begin());
-		TvertexNeighboursIntersection.resize(it - TvertexNeighboursIntersection.begin());
+		std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), std::inserter(TvertexNeighboursIntersection, TvertexNeighboursIntersection.begin()));
 
 		auto generatedCliques = bkPivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
-		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+		maximalCliques.insert(generatedCliques.begin(), generatedCliques.end());
 	}
 
 	return maximalCliques;
@@ -204,13 +213,12 @@ bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 
 
 ///Tomita Tanaka 2006 maximal pivot algorithm
-unsigned int CPUMiningAlgorithmSeq::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
+unsigned int CPUMiningAlgorithmSeq::tomitaMaximalPivot(const std::set<unsigned int>& SUBG, const std::set<unsigned int>& CAND)
 {
 	unsigned int u, maxCardinality = 0;
 	for (auto& s : SUBG)
 	{
 		auto neighbors = size2ColocationsGraph.getVertexNeighbours(s);
-		std::sort(neighbors.begin(), neighbors.end());
 		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
 
 		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());

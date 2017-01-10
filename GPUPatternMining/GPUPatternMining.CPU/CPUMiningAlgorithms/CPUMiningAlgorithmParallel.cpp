@@ -140,8 +140,10 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 		degeneracy.second.begin(), 
 		degeneracy.second.end(),
 		[&] (unsigned int vertex ) {
-			std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-			std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		auto a = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+		auto b = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		std::vector<unsigned int> neighboursWithHigherIndices(a.begin(), a.end());
+		std::vector<unsigned int> neighboursWithLowerIndices(b.begin(), b.end());
 			std::vector<unsigned int> thisVertexVector = { vertex };
 			auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
 			concurrentMaxCliques.local().insert(concurrentMaxCliques.local().end(), generatedCliques.begin(), generatedCliques.end());
@@ -204,14 +206,14 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::bkPivot(
 	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
 
 	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
-	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
 
 	it = std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), MpivotNeighboursDifference.begin());
 	MpivotNeighboursDifference.resize(it - MpivotNeighboursDifference.begin());
 
 	for (auto const vertex : MpivotNeighboursDifference)
 	{
-		std::vector<unsigned int> vertexNeighbours = size2ColocationsGraph.getVertexNeighbours(vertex);
+		auto c = size2ColocationsGraph.getVertexNeighbours(vertex);
+		std::vector<unsigned int> vertexNeighbours(c.begin(), c.end());
 		std::vector<unsigned int> vertexVector = { vertex };
 		std::vector<unsigned int> KvertexUnion(K.size() + 1);
 		std::vector<unsigned int> MvertexNeighboursIntersection(M.size());
@@ -263,7 +265,6 @@ unsigned int CPUMiningAlgorithmParallel::tomitaMaximalPivot(const std::vector<un
 	for (auto& s : SUBG)
 	{
 		auto neighbors = size2ColocationsGraph.getVertexNeighbours(s);
-		std::sort(neighbors.begin(), neighbors.end());
 		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
 
 		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());

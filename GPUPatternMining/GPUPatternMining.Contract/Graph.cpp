@@ -1,5 +1,8 @@
 #include "Graph.h"
 #include <algorithm>
+#include <set>
+#include <vector>
+#include <iterator>
 
 
 void Graph::setSize(size_t size)
@@ -143,6 +146,74 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 Graph::Graph(size_t size)
 {
 	setSize(size);
+}
+
+///Tomita Tanaka 2006 maximal pivot algorithm
+unsigned int Graph::tomitaMaximalPivot(const std::set<unsigned int>& SUBG, const std::set<unsigned int>& CAND)
+{
+	unsigned int u, maxCardinality = 0;
+	for (auto& s : SUBG)
+	{
+		auto neighbors = getVertexNeighbours(s);
+		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
+
+		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());
+		nCANDunion.resize(itUnion - nCANDunion.begin());
+
+		if (nCANDunion.size() >= maxCardinality)
+		{
+			u = s;
+			maxCardinality = nCANDunion.size();
+		}
+	}
+	return u;
+}
+
+
+std::set<std::vector<unsigned int>> Graph::bkPivot(
+	std::set<unsigned int> M,
+	std::set<unsigned int> K,
+	std::set<unsigned int> T)
+{
+	std::set<std::vector<unsigned int>> maximalCliques;
+	std::set<unsigned int> MTunion;
+	std::set<unsigned int> MpivotNeighboursDifference;
+
+	std::set_union(M.begin(), M.end(), T.begin(), T.end(), std::inserter(MTunion, MTunion.begin()));
+
+	if (MTunion.size() == 0)
+	{
+		std::vector<unsigned int> result(K.begin(), K.end());
+		maximalCliques.insert(result);
+		return maximalCliques;
+	}
+
+	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
+
+	auto pivotNeighbours = getVertexNeighbours(pivot);
+
+	std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), std::inserter(MpivotNeighboursDifference, MpivotNeighboursDifference.begin()));
+
+	for (auto const vertex : MpivotNeighboursDifference)
+	{
+		std::set<unsigned int> vertexNeighbours = getVertexNeighbours(vertex);
+
+		std::set<unsigned int> vertexVector = { vertex };
+		std::set<unsigned int> KvertexUnion;
+		std::set<unsigned int> MvertexNeighboursIntersection;
+		std::set<unsigned int> TvertexNeighboursIntersection;
+
+		std::set_union(K.begin(), K.end(), vertexVector.begin(), vertexVector.end(), std::inserter(KvertexUnion, KvertexUnion.begin()));
+
+		std::set_intersection(M.begin(), M.end(), vertexNeighbours.begin(), vertexNeighbours.end(), std::inserter(MvertexNeighboursIntersection, MvertexNeighboursIntersection.begin()));
+
+		std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), std::inserter(TvertexNeighboursIntersection, TvertexNeighboursIntersection.begin()));
+
+		auto generatedCliques = bkPivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
+		maximalCliques.insert(generatedCliques.begin(), generatedCliques.end());
+	}
+
+	return maximalCliques;
 }
 
 Graph::Graph()

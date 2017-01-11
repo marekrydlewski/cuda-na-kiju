@@ -140,19 +140,32 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 		degeneracy.second.begin(), 
 		degeneracy.second.end(),
 		[&] (unsigned int vertex ) {
-		auto a = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-		auto b = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-		std::vector<unsigned int> neighboursWithHigherIndices(a.begin(), a.end());
-		std::vector<unsigned int> neighboursWithLowerIndices(b.begin(), b.end());
+			auto a = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+			auto b = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+
+			std::vector<unsigned int> neighboursWithHigherIndices(a.begin(), a.end());
+			std::vector<unsigned int> neighboursWithLowerIndices(b.begin(), b.end());
 			std::vector<unsigned int> thisVertexVector = { vertex };
-			auto generatedCliques = size2ColocationsGraph.bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
-			concurrentMaxCliques.local().insert(concurrentMaxCliques.local().end(), generatedCliques.begin(), generatedCliques.end());
-		}
+
+			auto generatedCliques = size2ColocationsGraph.bkPivot(
+				neighboursWithHigherIndices,
+				thisVertexVector,
+				neighboursWithLowerIndices);
+
+			concurrentMaxCliques.local().insert(
+				concurrentMaxCliques.local().end(),
+				generatedCliques.begin(),
+				generatedCliques.end());
+			}
 	);
 
 	concurrentMaxCliques.combine_each([this](std::vector<std::vector<unsigned int>>& vec) {
 		maximalCliques.insert(maximalCliques.end(), vec.begin(), vec.end());
 	});
+
+	std::set<std::vector<unsigned int>> tmp(maximalCliques.begin(), maximalCliques.end());
+	std::vector<std::vector<unsigned int>> tmpVec(tmp.begin(), tmp.end());
+	maximalCliques.swap(tmpVec);
 }
 
 

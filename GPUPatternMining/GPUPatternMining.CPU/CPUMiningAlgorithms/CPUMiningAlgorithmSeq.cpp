@@ -96,33 +96,24 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
-	std::set<std::vector<unsigned int>> result;
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
 	for (unsigned int const vertex : degeneracy.second)
 	{
-		std::set<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-		std::set<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-		std::set<unsigned int> thisVertex = { vertex };
-		auto generatedCliques = size2ColocationsGraph.bkPivot(neighboursWithHigherIndices, thisVertex, neighboursWithLowerIndices);
-		result.insert(generatedCliques.begin(), generatedCliques.end());
+		std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+		std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		std::vector<unsigned int> thisVertex = { vertex };
+
+		auto generatedCliques = size2ColocationsGraph.bkPivot(
+			neighboursWithHigherIndices,
+			thisVertex,
+			neighboursWithLowerIndices);
+
+		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
 	}
-	maximalCliques.insert(maximalCliques.end(), result.begin(), result.end());
-	
-	//below method (where no std::sets are used at all, even in other methods) is faster, but uglier
-	//
-	//createSize2ColocationsGraph();
-	//auto degeneracy = size2ColocationsGraph.getDegeneracy();
-	//for (unsigned int const vertex : degeneracy.second)
-	//{
-	//	std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-	//	std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-	//	std::vector<unsigned int> thisVertex = { vertex };
-	//	auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertex, neighboursWithLowerIndices);
-	//	maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
-	//}
-	//std::set<std::vector<unsigned int>> tmp(maximalCliques.begin(), maximalCliques.end());
-	//std::vector<std::vector<unsigned int>> tmpVec(tmp.begin(), tmp.end());
-	//maximalCliques.swap(tmpVec);
+
+	std::set<std::vector<unsigned int>> tmp(maximalCliques.begin(), maximalCliques.end());
+	std::vector<std::vector<unsigned int>> tmpVec(tmp.begin(), tmp.end());
+	maximalCliques.swap(tmpVec);
 }
 
 std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)

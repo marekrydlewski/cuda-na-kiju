@@ -12,9 +12,9 @@ struct Graph
 	void addEdge(unsigned int v1, unsigned int v2);
 	void getMock();
 
-	std::set<unsigned int> getVertexNeighboursOfHigherIndex(unsigned int v);
-	std::set<unsigned int> getVertexNeighboursOfLowerIndex(unsigned int v);
-	std::set<unsigned int> getVertexNeighbours(unsigned int v);
+	std::vector<unsigned int> getVertexNeighboursOfHigherIndex(unsigned int v);
+	std::vector<unsigned int> getVertexNeighboursOfLowerIndex(unsigned int v);
+	std::vector<unsigned int> getVertexNeighbours(unsigned int v);
 
 	std::pair<unsigned int, std::vector<unsigned int>> getDegeneracy();
 

@@ -20,42 +20,42 @@ void Graph::addEdge(unsigned int v1, unsigned int v2)
 	tab[v2][v1] = true;
 }
 
-std::set<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v)
+std::vector<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v)
 {
-	std::set<unsigned int> neighbours;
+	std::vector<unsigned int> neighbours;
 
 	for (unsigned int v2 = v + 1; v2 < tab.size(); ++v2)
 	{
 		if (tab[v][v2] || tab[v2][v])
 		{
-			neighbours.insert(v2);
+			neighbours.push_back(v2);
 		}
 	}
 
 	return neighbours;
 }
 
-std::set<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
+std::vector<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
 {
-	std::set<unsigned int> neighbours;
+	std::vector<unsigned int> neighbours;
 
 	for (int v2 = v - 1; v2 >= 0; --v2)
 	{
 		if (tab[v][v2] || tab[v2][v])
 		{
-			neighbours.insert(v2);
+			neighbours.push_back(v2);
 		}
 	}
 
 	return neighbours;
 }
 
-std::set<unsigned int> Graph::getVertexNeighbours(unsigned int v)
+std::vector<unsigned int> Graph::getVertexNeighbours(unsigned int v)
 {
-	std::set<unsigned int> neighbours = getVertexNeighboursOfHigherIndex(v);
-	std::set<unsigned int> neighbours2 = getVertexNeighboursOfLowerIndex(v);
+	auto neighbours = getVertexNeighboursOfHigherIndex(v);
+	auto neighbours2 = getVertexNeighboursOfLowerIndex(v);
 
-	neighbours.insert(neighbours2.begin(), neighbours2.end());
+	neighbours.insert(neighbours.begin(), neighbours2.begin(), neighbours2.end());
 	return neighbours;
 }
 
@@ -148,7 +148,7 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 unsigned int Graph::tomitaMaximalPivot(const std::set<unsigned int>& SUBG, const std::set<unsigned int>& CAND)
 {
 	unsigned int u, maxCardinality = 0;
-	for (auto& s : SUBG)
+	for (auto s : SUBG)
 	{
 		auto neighbors = getVertexNeighbours(s);
 		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
@@ -218,7 +218,7 @@ std::set<std::vector<unsigned int>> Graph::bkPivot(
 unsigned int Graph::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
 {
 	unsigned int u, maxCardinality = 0;
-	for (auto& s : SUBG)
+	for (auto s : SUBG)
 	{
 		auto neighbors = getVertexNeighbours(s);
 		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());

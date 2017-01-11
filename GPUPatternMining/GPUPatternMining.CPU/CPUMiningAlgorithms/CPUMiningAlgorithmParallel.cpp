@@ -140,19 +140,29 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 		degeneracy.second.begin(), 
 		degeneracy.second.end(),
 		[&] (unsigned int vertex ) {
-		auto a = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-		auto b = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-		std::vector<unsigned int> neighboursWithHigherIndices(a.begin(), a.end());
-		std::vector<unsigned int> neighboursWithLowerIndices(b.begin(), b.end());
+			std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+			std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
 			std::vector<unsigned int> thisVertexVector = { vertex };
-			auto generatedCliques = bkPivot(neighboursWithHigherIndices, thisVertexVector, neighboursWithLowerIndices);
-			concurrentMaxCliques.local().insert(concurrentMaxCliques.local().end(), generatedCliques.begin(), generatedCliques.end());
-		}
+
+			auto generatedCliques = size2ColocationsGraph.bkPivot(
+				neighboursWithHigherIndices,
+				thisVertexVector,
+				neighboursWithLowerIndices);
+
+			concurrentMaxCliques.local().insert(
+				concurrentMaxCliques.local().end(),
+				generatedCliques.begin(),
+				generatedCliques.end());
+			}
 	);
 
 	concurrentMaxCliques.combine_each([this](std::vector<std::vector<unsigned int>>& vec) {
 		maximalCliques.insert(maximalCliques.end(), vec.begin(), vec.end());
 	});
+
+	std::set<std::vector<unsigned int>> tmp(maximalCliques.begin(), maximalCliques.end());
+	std::vector<std::vector<unsigned int>> tmpVec(tmp.begin(), tmp.end());
+	maximalCliques.swap(tmpVec);
 }
 
 
@@ -180,62 +190,6 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::filterMaximal
 	return finalMaxCliques;
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::bkPivot(
-	std::vector<unsigned int> M,
-	std::vector<unsigned int> K,
-	std::vector<unsigned int> T)
-{
-	std::vector<std::vector<unsigned int>> maximalCliques;
-	std::vector<unsigned int> MTunion(M.size() + T.size());
-	std::vector<unsigned int> MpivotNeighboursDifference(M.size());
-	std::vector<unsigned int>::iterator it;
-
-	std::sort(M.begin(), M.end());
-	std::sort(T.begin(), T.end());
-	std::sort(K.begin(), K.end());
-
-	it = std::set_union(M.begin(), M.end(), T.begin(), T.end(), MTunion.begin());
-	MTunion.resize(it - MTunion.begin());
-
-	if (MTunion.size() == 0)
-	{
-		maximalCliques.push_back(K);
-		return maximalCliques;
-	}
-
-	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
-
-	auto pivotNeighbours = size2ColocationsGraph.getVertexNeighbours(pivot);
-
-	it = std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), MpivotNeighboursDifference.begin());
-	MpivotNeighboursDifference.resize(it - MpivotNeighboursDifference.begin());
-
-	for (auto const vertex : MpivotNeighboursDifference)
-	{
-		auto c = size2ColocationsGraph.getVertexNeighbours(vertex);
-		std::vector<unsigned int> vertexNeighbours(c.begin(), c.end());
-		std::vector<unsigned int> vertexVector = { vertex };
-		std::vector<unsigned int> KvertexUnion(K.size() + 1);
-		std::vector<unsigned int> MvertexNeighboursIntersection(M.size());
-		std::vector<unsigned int> TvertexNeighboursIntersection(T.size());
-
-		std::sort(vertexNeighbours.begin(), vertexNeighbours.end());
-
-		std::set_union(K.begin(), K.end(), vertexVector.begin(), vertexVector.end(), KvertexUnion.begin());
-
-		it = std::set_intersection(M.begin(), M.end(), vertexNeighbours.begin(), vertexNeighbours.end(), MvertexNeighboursIntersection.begin());
-		MvertexNeighboursIntersection.resize(it - MvertexNeighboursIntersection.begin());
-
-		it = std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), TvertexNeighboursIntersection.begin());
-		TvertexNeighboursIntersection.resize(it - TvertexNeighboursIntersection.begin());
-
-		auto generatedCliques = bkPivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
-		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
-	}
-
-	return maximalCliques;
-}
-
 bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 	unsigned int type,
 	unsigned int instanceId,
@@ -255,28 +209,6 @@ bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 		if (!isNeighborOfAncestor) return false;
 	}
 	return true;
-}
-
-
-///Tomita Tanaka 2006 maximal pivot algorithm
-unsigned int CPUMiningAlgorithmParallel::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
-{
-	unsigned int u, maxCardinality = 0;
-	for (auto& s : SUBG)
-	{
-		auto neighbors = size2ColocationsGraph.getVertexNeighbours(s);
-		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
-
-		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());
-		nCANDunion.resize(itUnion - nCANDunion.begin());
-
-		if (nCANDunion.size() >= maxCardinality)
-		{
-			u = s;
-			maxCardinality = nCANDunion.size();
-		}
-	}
-	return u;
 }
 
 std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> CPUMiningAlgorithmParallel::countUniqueInstances()
@@ -395,7 +327,9 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmParallel::constructCo
 	return finalInstances;
 }
 
-bool CPUMiningAlgorithmParallel::isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence)
+bool CPUMiningAlgorithmParallel::isCliquePrevalent(
+	std::vector<unsigned int>& clique,
+	float prevalence)
 {
 	if (clique.size() == 1) return true;
 
@@ -430,7 +364,9 @@ bool CPUMiningAlgorithmParallel::isCliquePrevalent(std::vector<unsigned int>& cl
 	return false; //empty
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::getPrevalentMaxCliques(std::vector<unsigned int> clique, float prevalence)
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::getPrevalentMaxCliques(
+	std::vector<unsigned int>& clique,
+	float prevalence)
 {
 	std::vector<std::vector<unsigned int>> finalMaxCliques;
 	if (isCliquePrevalent(clique, prevalence))
@@ -443,7 +379,10 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::getPrevalentM
 			for (auto c : smallerCliques)
 			{
 				if (c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
+				{
 					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+					break; //all smallerCliques are the same size, so insert them all and break the loop
+				}
 				else
 				{
 					auto nextCliques = getPrevalentMaxCliques(c, prevalence);
@@ -463,4 +402,14 @@ CPUMiningAlgorithmParallel::CPUMiningAlgorithmParallel() :
 
 CPUMiningAlgorithmParallel::~CPUMiningAlgorithmParallel()
 {
+	for (auto& a : insTable)
+	{
+		for (auto& b : a.second)
+		{
+			for (auto& c : b.second)
+			{
+				delete c.second;
+			}
+		}
+	}
 }

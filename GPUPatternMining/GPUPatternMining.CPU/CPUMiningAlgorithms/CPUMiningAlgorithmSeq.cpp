@@ -191,7 +191,8 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 }
 
 //Cm's size must be greater or equal 2
-std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondensedTree(const std::vector<unsigned int>& Cm)
+std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondensedTree(
+	const std::vector<unsigned int>& Cm)
 {
 	CinsTree tree;
 	std::vector<std::vector<ColocationElem>> finalInstances;
@@ -302,7 +303,9 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique,
 	return false; //empty
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(std::vector<unsigned int> clique, float prevalence)
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(
+	std::vector<unsigned int>& clique,
+	float prevalence)
 {
 	std::vector<std::vector<unsigned int>> finalMaxCliques;
 	if (isCliquePrevalent(clique, prevalence))

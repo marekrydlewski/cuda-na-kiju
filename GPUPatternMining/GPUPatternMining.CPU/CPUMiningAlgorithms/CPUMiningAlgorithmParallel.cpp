@@ -330,7 +330,9 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmParallel::constructCo
 	return finalInstances;
 }
 
-bool CPUMiningAlgorithmParallel::isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence)
+bool CPUMiningAlgorithmParallel::isCliquePrevalent(
+	std::vector<unsigned int>& clique,
+	float prevalence)
 {
 	if (clique.size() == 1) return true;
 
@@ -365,7 +367,9 @@ bool CPUMiningAlgorithmParallel::isCliquePrevalent(std::vector<unsigned int>& cl
 	return false; //empty
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::getPrevalentMaxCliques(std::vector<unsigned int> clique, float prevalence)
+std::vector<std::vector<unsigned int>> CPUMiningAlgorithmParallel::getPrevalentMaxCliques(
+	std::vector<unsigned int>& clique,
+	float prevalence)
 {
 	std::vector<std::vector<unsigned int>> finalMaxCliques;
 	if (isCliquePrevalent(clique, prevalence))

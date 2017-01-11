@@ -136,6 +136,10 @@
     <ClCompile Include="DistanceFilterTests.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MaximalCliquesFindingTests.cpp" />
+    <ClCompile Include="ParallelDistanceFilterTests.cpp" />
+    <ClCompile Include="ParallelMaximalCliquesFindingTests.cpp" />
+    <ClCompile Include="ParallelPrevalenceFilterTests.cpp" />
+    <ClCompile Include="ParallelTreeConstructionTests.cpp" />
     <ClCompile Include="PrevalenceFilterTests.cpp" />
     <ClCompile Include="testDataGenerator.cpp" />
     <ClCompile Include="TreeConstructionTests.cpp" />

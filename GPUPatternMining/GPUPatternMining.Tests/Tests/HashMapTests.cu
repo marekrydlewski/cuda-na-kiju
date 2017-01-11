@@ -16,8 +16,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "InsertTest", "HashMap")
 	unsigned int hashSize = 4;
 
 	GPUHashMapper<unsigned int, unsigned int, GPUUIntKeyProcessor> mapper(hashSize, intKeyProcessor);
-	mapper.setKeyProcessor(intKeyProcessor);
-
+	
 	unsigned int* c_keys;
 	unsigned int* c_values;
 
@@ -46,8 +45,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Insert and Read test", "HashMap")
 	unsigned int hashSize = 4;
 
 	GPUHashMapper<unsigned int, unsigned int, GPUUIntKeyProcessor> mapper(hashSize, intKeyProcessor);
-	mapper.setKeyProcessor(intKeyProcessor);
-
+	
 	unsigned int* c_keys;
 	unsigned int* c_values;
 
@@ -93,8 +91,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Insert and Read test with HEX key", "Hash
 	unsigned int hashSize = 4;
 
 	GPUHashMapper<unsigned int, unsigned int, GPUUIntKeyProcessor> mapper(hashSize, intKeyProcessor);
-	mapper.setKeyProcessor(intKeyProcessor);
-
+	
 	unsigned int* c_keys;
 	unsigned int* c_values;
 

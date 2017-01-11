@@ -64,9 +64,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 	thrust::device_vector<float> dx = x;
 	thrust::device_vector<float> dy = y;
 
-	std::shared_ptr<GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>> hashMap;
-	thrust::device_vector<FeatureInstance> resultA;
-	thrust::device_vector<FeatureInstance> resultB;
+	PlaneSweepTableInstanceResultPtr result = std::make_shared<PlaneSweepTableInstanceResult>();
 
 	PlaneSweep::InstanceTable::PlaneSweep(
 		dx
@@ -74,9 +72,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 		, instances
 		, instancesCount
 		, distanceTreshold
-		, hashMap
-		, resultA
-		, resultB
+		, result
 	);
 
 	Entities::InstanceTable expectedAB(2, 0);
@@ -97,7 +93,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 
 	cudaMalloc(reinterpret_cast<void**>(&dResults), 3 * sizeof(Entities::InstanceTable));
 	
-	hashMap->getValues(
+	result->instanceTableMap->getValues(
 		thrust::raw_pointer_cast(dResultKeys.data())
 		, dResults
 		, 3);
@@ -164,9 +160,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 	thrust::device_vector<float> dx = x;
 	thrust::device_vector<float> dy = y;
 
-	std::shared_ptr<GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>> hashMap;
-	thrust::device_vector<FeatureInstance> resultA;
-	thrust::device_vector<FeatureInstance> resultB;
+
+	PlaneSweepTableInstanceResultPtr result = std::make_shared<PlaneSweepTableInstanceResult>();
 
 	PlaneSweep::InstanceTable::PlaneSweep(
 		dx
@@ -174,9 +169,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 		, instances
 		, instancesCount
 		, distanceTreshold
-		, hashMap
-		, resultA
-		, resultB
+		, result
 	);
 
 	Entities::InstanceTable expectedAC(1, 0);
@@ -192,7 +185,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 
 	cudaMalloc(reinterpret_cast<void**>(&dResults), 1 * sizeof(Entities::InstanceTable));
 
-	hashMap->getValues(
+	result->instanceTableMap->getValues(
 		thrust::raw_pointer_cast(dResultKeys.data())
 		, dResults
 		, 1);

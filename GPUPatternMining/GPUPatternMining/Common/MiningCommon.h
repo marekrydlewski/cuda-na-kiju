@@ -24,14 +24,3 @@ void __syncthreads();
 //-------------------------------------------------------------------------------
 
 
-__device__ __host__
-inline bool operator==(const FeatureInstance& a, const FeatureInstance& b)
-{
-	return a.field == b.field;
-}
-
-__device__ __host__
-inline bool operator!=(const FeatureInstance& a, const FeatureInstance& b)
-{
-	return a.field != b.field;
-}

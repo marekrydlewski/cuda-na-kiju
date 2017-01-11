@@ -143,76 +143,6 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 	return std::make_pair(k, L);
 }
 
-//sets
-///Tomita Tanaka 2006 maximal pivot algorithm
-unsigned int Graph::tomitaMaximalPivot(const std::set<unsigned int>& SUBG, const std::set<unsigned int>& CAND)
-{
-	unsigned int u, maxCardinality = 0;
-	for (auto s : SUBG)
-	{
-		auto neighbors = getVertexNeighbours(s);
-		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
-
-		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());
-		nCANDunion.resize(itUnion - nCANDunion.begin());
-
-		if (nCANDunion.size() >= maxCardinality)
-		{
-			u = s;
-			maxCardinality = nCANDunion.size();
-		}
-	}
-	return u;
-}
-
-//sets
-std::set<std::vector<unsigned int>> Graph::bkPivot(
-	std::set<unsigned int> M,
-	std::set<unsigned int> K,
-	std::set<unsigned int> T)
-{
-	std::set<std::vector<unsigned int>> maximalCliques;
-	std::set<unsigned int> MTunion;
-	std::set<unsigned int> MpivotNeighboursDifference;
-
-	std::set_union(M.begin(), M.end(), T.begin(), T.end(), std::inserter(MTunion, MTunion.begin()));
-
-	if (MTunion.size() == 0)
-	{
-		std::vector<unsigned int> result(K.begin(), K.end());
-		maximalCliques.insert(result);
-		return maximalCliques;
-	}
-
-	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
-
-	auto pivotNeighbours = getVertexNeighbours(pivot);
-
-	std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), std::inserter(MpivotNeighboursDifference, MpivotNeighboursDifference.begin()));
-
-	for (auto const vertex : MpivotNeighboursDifference)
-	{
-		std::set<unsigned int> vertexNeighbours = getVertexNeighbours(vertex);
-
-		std::set<unsigned int> vertexVector = { vertex };
-		std::set<unsigned int> KvertexUnion;
-		std::set<unsigned int> MvertexNeighboursIntersection;
-		std::set<unsigned int> TvertexNeighboursIntersection;
-
-		std::set_union(K.begin(), K.end(), vertexVector.begin(), vertexVector.end(), std::inserter(KvertexUnion, KvertexUnion.begin()));
-
-		std::set_intersection(M.begin(), M.end(), vertexNeighbours.begin(), vertexNeighbours.end(), std::inserter(MvertexNeighboursIntersection, MvertexNeighboursIntersection.begin()));
-
-		std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), std::inserter(TvertexNeighboursIntersection, TvertexNeighboursIntersection.begin()));
-
-		auto generatedCliques = bkPivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
-		maximalCliques.insert(generatedCliques.begin(), generatedCliques.end());
-	}
-
-	return maximalCliques;
-}
-
-
 //vectors
 ///Tomita Tanaka 2006 maximal pivot algorithm
 unsigned int Graph::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
@@ -221,6 +151,8 @@ unsigned int Graph::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, co
 	for (auto s : SUBG)
 	{
 		auto neighbors = getVertexNeighbours(s);
+		std::sort(neighbors.begin(), neighbors.end());
+		
 		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
 
 		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());
@@ -244,13 +176,20 @@ std::vector<std::vector<unsigned int>> Graph::bkPivot(
 	std::vector<std::vector<unsigned int>> maximalCliques;
 	std::vector<unsigned int> MTunion(M.size() + T.size());
 	std::vector<unsigned int> MpivotNeighboursDifference(M.size());
+
 	std::vector<unsigned int>::iterator it;
 
 	std::sort(M.begin(), M.end());
 	std::sort(T.begin(), T.end());
 	std::sort(K.begin(), K.end());
 
-	it = std::set_union(M.begin(), M.end(), T.begin(), T.end(), MTunion.begin());
+	it = std::set_union(
+		M.begin(),
+		M.end(),
+		T.begin(),
+		T.end(),
+		MTunion.begin());
+
 	MTunion.resize(it - MTunion.begin());
 
 	if (MTunion.size() == 0)
@@ -262,13 +201,21 @@ std::vector<std::vector<unsigned int>> Graph::bkPivot(
 	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
 
 	auto pivotNeighbours = getVertexNeighbours(pivot);
+	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
 
-	it = std::set_difference(M.begin(), M.end(), pivotNeighbours.begin(), pivotNeighbours.end(), MpivotNeighboursDifference.begin());
+	it = std::set_difference(
+		M.begin(),
+		M.end(),
+		pivotNeighbours.begin(),
+		pivotNeighbours.end(),
+		MpivotNeighboursDifference.begin());
+
 	MpivotNeighboursDifference.resize(it - MpivotNeighboursDifference.begin());
 
 	for (auto const vertex : MpivotNeighboursDifference)
 	{
 		auto c = getVertexNeighbours(vertex);
+
 		std::vector<unsigned int> vertexNeighbours(c.begin(), c.end());
 		std::vector<unsigned int> vertexVector = { vertex };
 		std::vector<unsigned int> KvertexUnion(K.size() + 1);
@@ -277,18 +224,38 @@ std::vector<std::vector<unsigned int>> Graph::bkPivot(
 
 		std::sort(vertexNeighbours.begin(), vertexNeighbours.end());
 
-		std::set_union(K.begin(), K.end(), vertexVector.begin(), vertexVector.end(), KvertexUnion.begin());
+		std::set_union(
+			K.begin(),
+			K.end(),
+			vertexVector.begin(),
+			vertexVector.end(),
+			KvertexUnion.begin());
 
-		it = std::set_intersection(M.begin(), M.end(), vertexNeighbours.begin(), vertexNeighbours.end(), MvertexNeighboursIntersection.begin());
+		it = std::set_intersection(
+			M.begin(),
+			M.end(),
+			vertexNeighbours.begin(),
+			vertexNeighbours.end(),
+			MvertexNeighboursIntersection.begin());
+
 		MvertexNeighboursIntersection.resize(it - MvertexNeighboursIntersection.begin());
 
-		it = std::set_intersection(T.begin(), T.end(), vertexNeighbours.begin(), vertexNeighbours.end(), TvertexNeighboursIntersection.begin());
+		it = std::set_intersection(
+			T.begin(),
+			T.end(),
+			vertexNeighbours.begin(),
+			vertexNeighbours.end(),
+			TvertexNeighboursIntersection.begin());
+
 		TvertexNeighboursIntersection.resize(it - TvertexNeighboursIntersection.begin());
 
-		auto generatedCliques = bkPivot(MvertexNeighboursIntersection, KvertexUnion, TvertexNeighboursIntersection);
+		auto generatedCliques = bkPivot(
+			MvertexNeighboursIntersection,
+			KvertexUnion,
+			TvertexNeighboursIntersection);
+
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
 	}
-
 	return maximalCliques;
 }
 

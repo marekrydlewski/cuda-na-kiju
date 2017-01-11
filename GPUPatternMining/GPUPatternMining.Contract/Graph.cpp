@@ -214,9 +214,7 @@ std::vector<std::vector<unsigned int>> Graph::bkPivot(
 
 	for (auto const vertex : MpivotNeighboursDifference)
 	{
-		auto c = getVertexNeighbours(vertex);
-
-		std::vector<unsigned int> vertexNeighbours(c.begin(), c.end());
+		std::vector<unsigned int> vertexNeighbours = getVertexNeighbours(vertex);
 		std::vector<unsigned int> vertexVector = { vertex };
 		std::vector<unsigned int> KvertexUnion(K.size() + 1);
 		std::vector<unsigned int> MvertexNeighboursIntersection(M.size());

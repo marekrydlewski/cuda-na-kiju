@@ -140,11 +140,8 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 		degeneracy.second.begin(), 
 		degeneracy.second.end(),
 		[&] (unsigned int vertex ) {
-			auto a = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-			auto b = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-
-			std::vector<unsigned int> neighboursWithHigherIndices(a.begin(), a.end());
-			std::vector<unsigned int> neighboursWithLowerIndices(b.begin(), b.end());
+			std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+			std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
 			std::vector<unsigned int> thisVertexVector = { vertex };
 
 			auto generatedCliques = size2ColocationsGraph.bkPivot(

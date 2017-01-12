@@ -7,6 +7,9 @@
     <Filter Include="Providers">
       <UniqueIdentifier>{1201464d-d08d-4a19-a9d6-cfe53d9f0f48}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{08cd3841-380a-4991-9be8-38210210a89e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\DataFeed.h">
@@ -42,6 +45,12 @@
     <ClInclude Include="Enity\FeatureInstance.h">
       <Filter>Entity</Filter>
     </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Benchmark.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -56,5 +65,10 @@
     <ClCompile Include="CinsNode.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="benchmark_visualizer.py">
+      <Filter>Utilities</Filter>
+    </None>
   </ItemGroup>
 </Project>

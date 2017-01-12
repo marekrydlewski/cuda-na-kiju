@@ -1,11 +1,11 @@
 #include "catch.hpp"
-#include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
+#include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmParallel.h"
 #include "../GPUPatternMining.CPU.Tests/testDataGenerator.h"
 
-TEST_CASE("PrevalenceTooLow", "PrevalenceFilterTests")
+TEST_CASE("PrevalenceTooLowParallel", "ParallelPrevalenceFilterTests")
 {
 	TestDataGenerator generator;
-	CPUMiningAlgorithmSeq miner;
+	CPUMiningAlgorithmParallel miner;
 	DataFeed* data = generator.getDataForPrevalenceTests();
 	int threshold = 5;
 	float prevalence = 0.7;
@@ -34,10 +34,10 @@ TEST_CASE("PrevalenceTooLow", "PrevalenceFilterTests")
 	REQUIRE(notEmptyTypePairs == 0);
 }
 
-TEST_CASE("PrevalenceHighEnough", "PrevalenceFilterTests")
+TEST_CASE("PrevalenceHighEnoughParallel", "ParallelPrevalenceFilterTests")
 {
 	TestDataGenerator generator;
-	CPUMiningAlgorithmSeq miner;
+	CPUMiningAlgorithmParallel miner;
 	DataFeed* data = generator.getDataForPrevalenceTests();
 	int threshold = 5;
 	float prevalence = 0.45; //actual prevalence should be 0.5 - 2 colocations, 4 type0 instances, 2 type1 instances
@@ -68,10 +68,10 @@ TEST_CASE("PrevalenceHighEnough", "PrevalenceFilterTests")
 	REQUIRE((*result[0][1][1])[0] == 1);
 }
 
-TEST_CASE("MixedPrevalenceResults", "PrevalenceFilterTests")
+TEST_CASE("MixedPrevalenceResultsParallel", "ParallelPrevalenceFilterTests")
 {
 	TestDataGenerator generator;
-	CPUMiningAlgorithmSeq miner;
+	CPUMiningAlgorithmParallel miner;
 	DataFeed* data = generator.getDataForMixedPrevalenceResults();
 	int threshold = 5;
 	float prevalence = 0.4;

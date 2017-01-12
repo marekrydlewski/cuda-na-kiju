@@ -1,10 +1,10 @@
 #include "catch.hpp"
-#include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
+#include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmParallel.h"
 #include "../GPUPatternMining.CPU.Tests/testDataGenerator.h"
 
-TEST_CASE("2ElementClique", "MaximalCliquesFindingTests")
+TEST_CASE("2ElementCliqueParallel", "ParallelMaximalCliquesFindingTests")
 {
-	CPUMiningAlgorithmSeq miner;
+	CPUMiningAlgorithmParallel miner;
 	TestDataGenerator generator;
 	int threshold = 5;
 	float prevalence = 0.5;
@@ -21,9 +21,9 @@ TEST_CASE("2ElementClique", "MaximalCliquesFindingTests")
 	REQUIRE(result[0].size() == 2);
 }
 
-TEST_CASE("1ElementCliques", "MaximalCliquesFindingTests")
+TEST_CASE("1ElementCliquesParallel", "ParallelMaximalCliquesFindingTests")
 {
-	CPUMiningAlgorithmSeq miner;
+	CPUMiningAlgorithmParallel miner;
 	TestDataGenerator generator;
 	int threshold = 5;
 	float prevalence = 0.5;
@@ -41,9 +41,9 @@ TEST_CASE("1ElementCliques", "MaximalCliquesFindingTests")
 	REQUIRE(result[1].size() == 1);
 }
 
-TEST_CASE("4ElementClique", "MaximalCliquesFindingTests")
+TEST_CASE("4ElementCliqueParallel", "ParallelMaximalCliquesFindingTests")
 {
-	CPUMiningAlgorithmSeq miner;
+	CPUMiningAlgorithmParallel miner;
 	TestDataGenerator generator;
 	int threshold = 5;
 	float prevalence = 0.5;
@@ -60,9 +60,9 @@ TEST_CASE("4ElementClique", "MaximalCliquesFindingTests")
 	REQUIRE(result[0].size() == 4);
 }
 
-TEST_CASE("2OverlappingCliques", "MaximalCliquesFindingTests")
+TEST_CASE("2OverlappingCliquesParallel", "ParallelMaximalCliquesFindingTests")
 {
-	CPUMiningAlgorithmSeq miner;
+	CPUMiningAlgorithmParallel miner;
 	TestDataGenerator generator;
 	int threshold = 5;
 	float prevalence = 0.1;
@@ -78,9 +78,9 @@ TEST_CASE("2OverlappingCliques", "MaximalCliquesFindingTests")
 	REQUIRE(result.size() == 2);
 }
 
-TEST_CASE("DistinctCliques", "MaximalCliquesFindingTests")
+TEST_CASE("DistinctCliquesParallel", "ParallelMaximalCliquesFindingTests")
 {
-	CPUMiningAlgorithmSeq miner;
+	CPUMiningAlgorithmParallel miner;
 	TestDataGenerator generator;
 	int threshold = 5;
 	float prevalence = 0.1;

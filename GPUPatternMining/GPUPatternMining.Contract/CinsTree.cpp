@@ -1,9 +1,9 @@
 #include "CinsTree.h"
 
 ///Root is level 0
-unsigned int CinsTree::getDepth()
+unsigned short CinsTree::getDepth()
 {
-	std::vector<unsigned int> depths;
+	std::vector<unsigned short> depths;
 	for (auto& c : root->children)
 	{
 		depths.push_back(c->getDepth());

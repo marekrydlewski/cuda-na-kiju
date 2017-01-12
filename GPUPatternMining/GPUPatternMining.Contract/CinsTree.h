@@ -9,7 +9,7 @@ public:
 	std::unique_ptr<CinsNode> root;
 	std::vector<CinsNode*> lastLevelChildren;
 
-	unsigned int getDepth();
+	unsigned short getDepth();
 	CinsTree();
 	~CinsTree();
 };

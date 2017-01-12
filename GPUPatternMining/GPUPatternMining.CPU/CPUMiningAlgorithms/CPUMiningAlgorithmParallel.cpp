@@ -126,26 +126,8 @@ void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 {
 	auto countedInstances = countUniqueInstances();
 
-	concurrency::concurrent_vector<std::pair<short, short>> pairsToClear;
-
 	int cores = concurrency::GetProcessorCount();
-
-	std::vector<unsigned int> loadPerProcessor(cores);
-
-	for (int i = 0; i < cores; ++i)
-	{
-		if (i == cores - 1)
-		{
-			unsigned int tmp = 0;
-			for (int j = 0; j < i; ++j)
-			{
-				tmp += loadPerProcessor[j];
-			}
-			loadPerProcessor[i] = insTable.size() - tmp;
-			break;
-		}
-		loadPerProcessor[i] = insTable.size() / cores;
-	}
+	auto loadPerProcessor = getWorkloadForInsTable(cores);
 
 	concurrency::parallel_for(0, cores, [&](int i) 
 	{
@@ -296,37 +278,56 @@ std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, un
 {
 	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
 
+	int cores = concurrency::GetProcessorCount();
+	auto loadPerProcessor = getWorkloadForInsTable(cores);
+
 	//counting types incidence
-	for (auto& a : insTable)
+	concurrency::parallel_for(0, cores, [&](int i)
 	{
-		for (auto& b : a.second)
+		unsigned int startIndex = 0;
+
+		for (int j = 0; j < i; j++)
 		{
-			auto aType = a.first;
-			auto bType = b.first;
+			startIndex += loadPerProcessor[j];
+		}
 
-			unsigned short aElements = b.second.size();
-			unsigned short bElements = 0;
+		auto beginIterator = insTable.begin();
+		std::advance(beginIterator, startIndex);
 
-			std::map<unsigned short, bool> inIncidenceColocations;
+		auto endIterator = beginIterator;
+		std::advance(endIterator, loadPerProcessor[i]);
 
-			for (auto& c : b.second)
+		for (auto a = beginIterator; (a != endIterator); ++a)
+		{
+			for (auto& b : (*a).second)
 			{
-				auto aInstance = c.first;
-				auto bInstances = c.second;
+				auto aType = (*a).first;
+				auto bType = b.first;
 
-				for (auto &bInstance : *bInstances)
+				unsigned short aElements = b.second.size();
+				unsigned short bElements = 0;
+
+				std::map<unsigned short, bool> inIncidenceColocations;
+
+				for (auto& c : b.second)
 				{
-					if (inIncidenceColocations[bInstance] != true)
+					auto aInstance = c.first;
+					auto bInstances = c.second;
+
+					for (auto &bInstance : *bInstances)
 					{
-						inIncidenceColocations[bInstance] = true;
-						++bElements;
+						if (inIncidenceColocations[bInstance] != true)
+						{
+							inIncidenceColocations[bInstance] = true;
+							++bElements;
+						}
 					}
 				}
-			}
 
-			typeIncidenceColocations[std::make_pair(aType, bType)] = std::make_pair(aElements, bElements);
+				typeIncidenceColocations[std::make_pair(aType, bType)] = std::make_pair(aElements, bElements);
+			}
 		}
-	}
+	});
 
 	return typeIncidenceColocations;
 }
@@ -473,6 +474,28 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 		}
 	}
 	return finalMaxCliques;
+}
+
+std::vector<unsigned short> inline CPUMiningAlgorithmParallel::getWorkloadForInsTable(unsigned int cores)
+{
+	std::vector<unsigned short> loadPerProcessor(cores);
+
+	for (auto i = 0; i < cores; ++i)
+	{
+		if (i == cores - 1)
+		{
+			auto tmp = 0;
+			for (auto j = 0; j < i; ++j)
+			{
+				tmp += loadPerProcessor[j];
+			}
+			loadPerProcessor[i] = insTable.size() - tmp;
+			break;
+		}
+		loadPerProcessor[i] = insTable.size() / cores;
+	}
+
+	return loadPerProcessor;
 }
 
 CPUMiningAlgorithmParallel::CPUMiningAlgorithmParallel() :

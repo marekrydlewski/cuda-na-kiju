@@ -51,7 +51,6 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		loadPerProcessor[i] = source.size() / divider;
 	}
 
-	concurrency::concurrent_vector<int> concurrentTypeIncidenceCounter(typeIncidenceCounter.size());
 	concurrency::combinable<std::map<unsigned short,
 		std::map<unsigned short,
 		std::map<unsigned short,
@@ -67,7 +66,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 		for (auto it1 = source.begin() + startIndex; (it1 != source.begin() + startIndex + loadPerProcessor[i]); ++it1)
 		{
-			++concurrentTypeIncidenceCounter[(*it1).type];
+			++typeIncidenceCounter[(*it1).type];
 			for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 			{
 				if ((*it1).type != (*it2).type)
@@ -92,13 +91,11 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		}
 	}, concurrency::static_partitioner());
 	
-	//combine results here
-	std::vector<int> resultVector(concurrentTypeIncidenceCounter.begin(), concurrentTypeIncidenceCounter.end());
-	typeIncidenceCounter = resultVector;
-
 	combinableInsTable.combine_each([&](
 	std::map<unsigned short, 
-		std::map<unsigned short, std::map<unsigned short, std::vector<unsigned short>*>>> local) 
+		std::map<unsigned short, 
+			std::map<unsigned short,
+				std::vector<unsigned short>*>>> local) 
 	{
 		for (auto it1 = local.begin(); (it1 != local.end()); ++it1)
 		{

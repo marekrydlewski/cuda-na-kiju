@@ -96,9 +96,6 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 	std::vector<int> resultVector(concurrentTypeIncidenceCounter.begin(), concurrentTypeIncidenceCounter.end());
 	typeIncidenceCounter = resultVector;
 
-	std::map<unsigned short,
-		std::map<unsigned short, std::map<unsigned short, std::vector<unsigned short>*>>> resultInsTable;
-
 	combinableInsTable.combine_each([&](
 	std::map<unsigned short, 
 		std::map<unsigned short, std::map<unsigned short, std::vector<unsigned short>*>>> local) 
@@ -109,19 +106,21 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			{
 				for (auto it3 = (*it2).second.begin(); (it3 != (*it2).second.end()); ++it3)
 				{
-					if (resultInsTable[(*it1).first][(*it2).first][(*it3).first] == nullptr)
+					if (insTable[(*it1).first][(*it2).first][(*it3).first] == nullptr)
 					{
-						resultInsTable[(*it1).first][(*it2).first][(*it3).first] = (*it3).second;
+						insTable[(*it1).first][(*it2).first][(*it3).first] = (*it3).second;
 					}	
 					else
 					{
-						resultInsTable[(*it1).first][(*it2).first][(*it3).first]->insert(resultInsTable[(*it1).first][(*it2).first][(*it3).first]->end(), (*(*it3).second).begin(), (*(*it3).second).end());
+						insTable[(*it1).first][(*it2).first][(*it3).first]->insert(
+							insTable[(*it1).first][(*it2).first][(*it3).first]->end(),
+								(*(*it3).second).begin(),
+								(*(*it3).second).end());
 					}	
 				}
 			}
 		}
 	});
-	insTable = resultInsTable;
 }
 
 

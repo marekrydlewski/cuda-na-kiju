@@ -25,8 +25,8 @@ inline bool CPUMiningBaseAlgorithm::checkDistance(
 }
 
 inline bool CPUMiningBaseAlgorithm::countPrevalence(
-	std::pair<unsigned int, unsigned int> particularInstance,
-	std::pair<unsigned int, unsigned int> generalInstance,
+	std::pair<unsigned short, unsigned short> particularInstance,
+	std::pair<unsigned short, unsigned short> generalInstance,
 	float prevalence) const
 {
 	float aPrev = particularInstance.first / (float)generalInstance.first;
@@ -35,8 +35,8 @@ inline bool CPUMiningBaseAlgorithm::countPrevalence(
 }
 
 bool CPUMiningBaseAlgorithm::countPrevalence(
-	const std::vector<unsigned int>& particularInstances,
-	const std::vector<unsigned int>& generalInstances,
+	const std::vector<unsigned short>& particularInstances,
+	const std::vector<unsigned short>& generalInstances,
 	float prevalence) const
 {
 	std::vector<float> tempMins;
@@ -47,17 +47,17 @@ bool CPUMiningBaseAlgorithm::countPrevalence(
 		particularInstances.end(),
 		generalInstances.begin(),
 		tempMins.begin(),
-		[](unsigned int a, unsigned int b) { return (a / (float) b); });
+		[](unsigned short a, unsigned short b) { return (a / (float) b); });
 
 	return prevalence < *std::min_element(tempMins.begin(), tempMins.end());
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningBaseAlgorithm::getAllCliquesSmallerByOne(std::vector<unsigned int>& clique) const
+std::vector<std::vector<unsigned short>> CPUMiningBaseAlgorithm::getAllCliquesSmallerByOne(std::vector<unsigned short>& clique) const
 {
-	std::vector<std::vector<unsigned int>> smallCliques;
+	std::vector<std::vector<unsigned short>> smallCliques;
 	for (auto i = 0; i < clique.size(); ++i)
 	{
-		std::vector<unsigned int> smallClique;
+		std::vector<unsigned short> smallClique;
 		for (auto j = 0; j < clique.size(); ++j)
 		{
 			if (j != i) smallClique.push_back(clique[j]);

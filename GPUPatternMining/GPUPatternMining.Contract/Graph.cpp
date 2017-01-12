@@ -8,23 +8,23 @@
 void Graph::setSize(size_t size)
 {
 	tab.resize(size);
-	for (unsigned int i = 0; i < size; i++)
+	for (unsigned short i = 0; i < size; i++)
 	{
 		tab[i].resize(size);
 	}
 }
 
-void Graph::addEdge(unsigned int v1, unsigned int v2)
+void Graph::addEdge(unsigned short v1, unsigned short v2)
 {
 	tab[v1][v2] = true;
 	tab[v2][v1] = true;
 }
 
-std::vector<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v)
+std::vector<unsigned short> Graph::getVertexNeighboursOfHigherIndex(unsigned short v)
 {
-	std::vector<unsigned int> neighbours;
+	std::vector<unsigned short> neighbours;
 
-	for (unsigned int v2 = v + 1; v2 < tab.size(); ++v2)
+	for (unsigned short v2 = v + 1; v2 < tab.size(); ++v2)
 	{
 		if (tab[v][v2] || tab[v2][v])
 		{
@@ -35,9 +35,9 @@ std::vector<unsigned int> Graph::getVertexNeighboursOfHigherIndex(unsigned int v
 	return neighbours;
 }
 
-std::vector<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
+std::vector<unsigned short> Graph::getVertexNeighboursOfLowerIndex(unsigned short v)
 {
-	std::vector<unsigned int> neighbours;
+	std::vector<unsigned short> neighbours;
 
 	for (int v2 = v - 1; v2 >= 0; --v2)
 	{
@@ -50,7 +50,7 @@ std::vector<unsigned int> Graph::getVertexNeighboursOfLowerIndex(unsigned int v)
 	return neighbours;
 }
 
-std::vector<unsigned int> Graph::getVertexNeighbours(unsigned int v)
+std::vector<unsigned short> Graph::getVertexNeighbours(unsigned short v)
 {
 	auto neighbours = getVertexNeighboursOfHigherIndex(v);
 	auto neighbours2 = getVertexNeighboursOfLowerIndex(v);
@@ -62,7 +62,7 @@ std::vector<unsigned int> Graph::getVertexNeighbours(unsigned int v)
 ///China example Fig. 4
 void Graph::getMock()
 {
-	for (unsigned int i = 0; i < tab.size(); i++)
+	for (unsigned short i = 0; i < tab.size(); i++)
 	{
 		tab[i].clear();
 	}
@@ -81,10 +81,10 @@ void Graph::getMock()
 }
 
 /// Matula & Beck (1983) wikipedia, linear O(n)
-std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
+std::pair<unsigned short, std::vector<unsigned short>> Graph::getDegeneracy()
 {
-	std::vector<unsigned int> L;
-	std::vector<std::vector<unsigned int>> D;
+	std::vector<unsigned short> L;
+	std::vector<std::vector<unsigned short>> D;
 	int k = 0;
 
 	//Initialize an array D such that D[i] contains a list of the vertices v that are not already in L for which dv = i.
@@ -105,7 +105,7 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 	{
 		//Scan the array cells D[0], D[1], ... until finding an i for which D[i] is nonempty.
 		auto itNonEmpty = std::find_if(D.begin(), D.end(),
-			[](const std::vector<unsigned int>& s) { return s.size() != 0; });
+			[](const std::vector<unsigned short>& s) { return s.size() != 0; });
 		int i = (itNonEmpty - D.begin());
 		//Set k to max(k, i)
 		k = std::max(k, i);
@@ -123,17 +123,17 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 				for (auto dRowIndex = 0; dRowIndex < D.size(); ++dRowIndex)
 				{
 					auto neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(),
-						[&vi](const unsigned int& dvalue) { return dvalue == vi; });
+						[&vi](const unsigned short& dvalue) { return dvalue == vi; });
 
 					//Subtract one from dw and move w to the cell of D corresponding to the new value of dw.
 					while (neighborFound != D[dRowIndex].end())
 					{
-						unsigned int neighborValue = *neighborFound;
+						unsigned short neighborValue = *neighborFound;
 						D[dRowIndex].erase(neighborFound);
 						D[dRowIndex - 1].push_back(neighborValue);
 
 						neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(),
-							[&vi](const unsigned int& dvalue) { return dvalue == vi; });
+							[&vi](const unsigned short& dvalue) { return dvalue == vi; });
 					}
 				}
 			}
@@ -145,15 +145,15 @@ std::pair<unsigned int, std::vector<unsigned int>> Graph::getDegeneracy()
 
 //vectors
 ///Tomita Tanaka 2006 maximal pivot algorithm
-unsigned int Graph::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND)
+unsigned short Graph::tomitaMaximalPivot(const std::vector<unsigned short>& SUBG, const std::vector<unsigned short>& CAND)
 {
-	unsigned int u, maxCardinality = 0;
+	unsigned short u, maxCardinality = 0;
 	for (auto s : SUBG)
 	{
 		auto neighbors = getVertexNeighbours(s);
 		std::sort(neighbors.begin(), neighbors.end());
 		
-		std::vector<unsigned int> nCANDunion(neighbors.size() + CAND.size());
+		std::vector<unsigned short> nCANDunion(neighbors.size() + CAND.size());
 
 		auto itUnion = std::set_union(CAND.begin(), CAND.end(), neighbors.begin(), neighbors.end(), nCANDunion.begin());
 		nCANDunion.resize(itUnion - nCANDunion.begin());
@@ -168,16 +168,16 @@ unsigned int Graph::tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, co
 }
 
 //vectors
-std::vector<std::vector<unsigned int>> Graph::bkPivot(
-	std::vector<unsigned int> M,
-	std::vector<unsigned int> K,
-	std::vector<unsigned int> T)
+std::vector<std::vector<unsigned short>> Graph::bkPivot(
+	std::vector<unsigned short> M,
+	std::vector<unsigned short> K,
+	std::vector<unsigned short> T)
 {
-	std::vector<std::vector<unsigned int>> maximalCliques;
-	std::vector<unsigned int> MTunion(M.size() + T.size());
-	std::vector<unsigned int> MpivotNeighboursDifference(M.size());
+	std::vector<std::vector<unsigned short>> maximalCliques;
+	std::vector<unsigned short> MTunion(M.size() + T.size());
+	std::vector<unsigned short> MpivotNeighboursDifference(M.size());
 
-	std::vector<unsigned int>::iterator it;
+	std::vector<unsigned short>::iterator it;
 
 	std::sort(M.begin(), M.end());
 	std::sort(T.begin(), T.end());
@@ -198,7 +198,7 @@ std::vector<std::vector<unsigned int>> Graph::bkPivot(
 		return maximalCliques;
 	}
 
-	unsigned int pivot = tomitaMaximalPivot(MTunion, M);
+	unsigned short pivot = tomitaMaximalPivot(MTunion, M);
 
 	auto pivotNeighbours = getVertexNeighbours(pivot);
 	std::sort(pivotNeighbours.begin(), pivotNeighbours.end());
@@ -214,11 +214,11 @@ std::vector<std::vector<unsigned int>> Graph::bkPivot(
 
 	for (auto const vertex : MpivotNeighboursDifference)
 	{
-		std::vector<unsigned int> vertexNeighbours = getVertexNeighbours(vertex);
-		std::vector<unsigned int> vertexVector = { vertex };
-		std::vector<unsigned int> KvertexUnion(K.size() + 1);
-		std::vector<unsigned int> MvertexNeighboursIntersection(M.size());
-		std::vector<unsigned int> TvertexNeighboursIntersection(T.size());
+		std::vector<unsigned short> vertexNeighbours = getVertexNeighbours(vertex);
+		std::vector<unsigned short> vertexVector = { vertex };
+		std::vector<unsigned short> KvertexUnion(K.size() + 1);
+		std::vector<unsigned short> MvertexNeighboursIntersection(M.size());
+		std::vector<unsigned short> TvertexNeighboursIntersection(T.size());
 
 		std::sort(vertexNeighbours.begin(), vertexNeighbours.end());
 

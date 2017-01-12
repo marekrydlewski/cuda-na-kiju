@@ -4,7 +4,7 @@
 #include <memory>
 
 
-unsigned int CinsNode::addChild(unsigned int instanceId, unsigned int type)
+unsigned short CinsNode::addChild(unsigned short instanceId, unsigned short type)
 {
 	std::unique_ptr<CinsNode> ptr(new CinsNode());
 	ptr->instanceId = instanceId;
@@ -16,7 +16,7 @@ unsigned int CinsNode::addChild(unsigned int instanceId, unsigned int type)
 	return index;
 }
 
-CinsNode * CinsNode::addChildPtr(unsigned int instanceId, unsigned int type)
+CinsNode * CinsNode::addChildPtr(unsigned short instanceId, unsigned short type)
 {
 	std::unique_ptr<CinsNode> ptr(new CinsNode());
 	ptr->instanceId = instanceId;
@@ -28,7 +28,7 @@ CinsNode * CinsNode::addChildPtr(unsigned int instanceId, unsigned int type)
 }
 
 
-CinsNode* CinsNode::indexChild(unsigned int instanceId, unsigned int type)
+CinsNode* CinsNode::indexChild(unsigned short instanceId, unsigned short type)
 {
 	for (auto& u : children)
 	{
@@ -63,9 +63,9 @@ std::vector<CinsNode*> CinsNode::getPath()
 	return ancestors;
 }
 
-unsigned int CinsNode::getDepth()
+unsigned short CinsNode::getDepth()
 {
-	std::vector<unsigned int> depths;
+	std::vector<unsigned short> depths;
 	for (auto& c : children)
 	{
 		depths.push_back(c->getDepth() + 1);

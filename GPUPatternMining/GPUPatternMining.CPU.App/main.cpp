@@ -12,7 +12,7 @@ int main()
 	const unsigned int types = 5;
 	const unsigned int rangeY = 300;
 	const unsigned int rangeX = 300;
-	const unsigned int numberOfInstances = 1000;
+	const unsigned int numberOfInstances = 2000;
 	const float threshold = 20;
 	const float prevalence = 0.2;
 
@@ -22,7 +22,7 @@ int main()
 	auto data = rdp.getData(numberOfInstances);
 
 	//output data
-	std::vector<std::vector<unsigned int>> solutionSeq, solutionParallel;
+	std::vector<std::vector<unsigned short>> solutionSeq, solutionParallel;
 
 	//////////////////////////////////////////////////
 	//benchmarking particular methods

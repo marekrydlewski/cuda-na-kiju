@@ -9,17 +9,17 @@ struct Graph
 	std::vector<std::vector<bool>> tab;
 
 	void setSize(size_t size);
-	void addEdge(unsigned int v1, unsigned int v2);
+	void addEdge(unsigned short v1, unsigned short v2);
 	void getMock();
 
-	std::vector<unsigned int> getVertexNeighboursOfHigherIndex(unsigned int v);
-	std::vector<unsigned int> getVertexNeighboursOfLowerIndex(unsigned int v);
-	std::vector<unsigned int> getVertexNeighbours(unsigned int v);
+	std::vector<unsigned short> getVertexNeighboursOfHigherIndex(unsigned short v);
+	std::vector<unsigned short> getVertexNeighboursOfLowerIndex(unsigned short v);
+	std::vector<unsigned short> getVertexNeighbours(unsigned short v);
 
-	std::pair<unsigned int, std::vector<unsigned int>> getDegeneracy();
+	std::pair<unsigned short, std::vector<unsigned short>> getDegeneracy();
 
-	unsigned int tomitaMaximalPivot(const std::vector<unsigned int>& SUBG, const std::vector<unsigned int>& CAND);
-	std::vector<std::vector<unsigned int>> bkPivot(std::vector<unsigned int> M, std::vector<unsigned int> K, std::vector<unsigned int> T);
+	unsigned short tomitaMaximalPivot(const std::vector<unsigned short>& SUBG, const std::vector<unsigned short>& CAND);
+	std::vector<std::vector<unsigned short>> bkPivot(std::vector<unsigned short> M, std::vector<unsigned short> K, std::vector<unsigned short> T);
 
 	Graph();
 	~Graph();

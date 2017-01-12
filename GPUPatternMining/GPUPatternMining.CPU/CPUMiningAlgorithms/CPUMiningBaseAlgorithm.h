@@ -13,7 +13,7 @@ public:
 	virtual void filterByDistance(float threshold) = 0;
 	virtual void filterByPrevalence(float prevalence) = 0;
 	virtual void constructMaximalCliques() = 0;
-	virtual void loadData(DataFeed* data, size_t size, unsigned int types) = 0;
+	virtual void loadData(DataFeed* data, size_t size, unsigned short types) = 0;
 
 
 protected:
@@ -26,13 +26,13 @@ protected:
 		const DataFeed& second,
 		float effectiveThreshold) const;
 	virtual bool inline countPrevalence(
-		std::pair<unsigned int, unsigned int> particularInstance,
-		std::pair<unsigned int, unsigned int> generalInstance,
+		std::pair<unsigned short, unsigned short> particularInstance,
+		std::pair<unsigned short, unsigned short> generalInstance,
 		float prevalence) const;
 	virtual bool countPrevalence(
-		const std::vector<unsigned int>& particularInstances,
-		const std::vector<unsigned int>& generalInstances,
+		const std::vector<unsigned short>& particularInstances,
+		const std::vector<unsigned short>& generalInstances,
 		float prevalence) const;
-	virtual std::vector<std::vector<unsigned int>> getAllCliquesSmallerByOne(std::vector<unsigned int>& clique) const;
+	virtual std::vector<std::vector<unsigned short>> getAllCliquesSmallerByOne(std::vector<unsigned short>& clique) const;
 };
 

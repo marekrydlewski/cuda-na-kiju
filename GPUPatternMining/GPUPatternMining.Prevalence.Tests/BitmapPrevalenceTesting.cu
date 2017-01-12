@@ -27,11 +27,12 @@
 */
 TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple")
 {
-	printf("<Bitmap prevalence | simple>\n");
-
-	std::vector<TypeCount> counts = { { 0xA, 2 },{ 0xB, 2 },{ 0xC, 2 } };
-	
-
+	std::vector<TypeCount> counts;
+	{
+		counts.push_back(TypeCount(0xA, 2));
+		counts.push_back(TypeCount(0xB, 2));
+		counts.push_back(TypeCount(0xC, 2));
+	}
 
 	Prevalence::Bitmap::BitmapPairPrevalenceCounter bppc(counts);
 
@@ -113,14 +114,168 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple")
 		minimalPrevalence
 		, plRes
 	);
-	
 
-	printf("pairs\n");
-	for (FeatureTypePair& ftp : result)
-		printf("0x%8x\n", ftp.combined);
-	printf("end pairs\n");
 
-	printf("</Bitmap prevalence | simple>\n");
+	std::vector<FeatureTypePair> expected;
+	{
+		FeatureTypePair ftp;
+		ftp.types.a = 0x000A;
+		ftp.types.b = 0x000B;
+
+		expected.push_back(ftp);
+	}
+
+	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+}
+/*
+Test for graph
+
+C2-C3
+|  |
+A1-B1    A5-B5
+A2-B2     \ /
+A3-B3	   C1
+A4-B4
+   |
+A6-C4
+
+*/
+TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple 2")
+{
+	std::vector<TypeCount> counts;
+	{
+		counts.push_back(TypeCount(0xA, 6));
+		counts.push_back(TypeCount(0xB, 5));
+		counts.push_back(TypeCount(0xC, 4));
+	}
+
+	Prevalence::Bitmap::BitmapPairPrevalenceCounter bppc(counts);
+
+	const float minimalPrevalence = 3.f / 5.1f;
+
+	auto plRes = std::make_shared<PlaneSweepTableInstanceResult>();
+
+	{
+		thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> huniques;
+
+		FeatureInstance a;
+		FeatureInstance b;
+
+		a.field = 0x000A0001;
+		b.field = 0x000B0001;
+		huniques.push_back(thrust::make_tuple(a, b));
+
+		a.field = 0x000A0001;
+		b.field = 0x000C0002;
+		huniques.push_back(thrust::make_tuple(a, b));
+
+		a.field = 0x000B0001;
+		b.field = 0x000C0003;
+		huniques.push_back(thrust::make_tuple(a, b));
+
+		plRes->uniques = huniques;
+	}
+
+	{
+		thrust::host_vector<FeatureInstance> hPairsA;
+		thrust::host_vector<FeatureInstance> hPairsB;
+
+		FeatureInstance a;
+		FeatureInstance b;
+
+		// A-B
+		a.field = 0x000A0001;
+		hPairsA.push_back(a);
+		b.field = 0x000B0001;
+		hPairsB.push_back(b);
+
+		a.field = 0x000A0002;
+		hPairsA.push_back(a);
+		b.field = 0x000B0002;
+		hPairsB.push_back(b);
+
+		a.field = 0x000A0003;
+		hPairsA.push_back(a);
+		b.field = 0x000B0004;
+		hPairsB.push_back(b);
+
+		a.field = 0x000A0004;
+		hPairsA.push_back(a);
+		b.field = 0x000B0004;
+		hPairsB.push_back(b);
+
+		a.field = 0x000A0005;
+		hPairsA.push_back(a);
+		b.field = 0x000B0005;
+		hPairsB.push_back(b);
+
+		// A-C
+		a.field = 0x000A0001;
+		hPairsA.push_back(a);
+		b.field = 0x000C0002;
+		hPairsB.push_back(b);
+
+		a.field = 0x000A0005;
+		hPairsA.push_back(a);
+		b.field = 0x000C0001;
+		hPairsB.push_back(b);
+		
+		a.field = 0x000A0006;
+		hPairsA.push_back(a);
+		b.field = 0x000C0004;
+		hPairsB.push_back(b);
+
+		// B-C
+		a.field = 0x000B0001;
+		hPairsA.push_back(a);
+		b.field = 0x000C0003;
+		hPairsB.push_back(b);
+
+		a.field = 0x000B0004;
+		hPairsA.push_back(a);
+		b.field = 0x000C0004;
+		hPairsB.push_back(b);
+		
+		a.field = 0x000B0005;
+		hPairsA.push_back(a);
+		b.field = 0x000C0001;
+		hPairsB.push_back(b);
+
+		plRes->pairsA = hPairsA;
+		plRes->pairsB = hPairsB;
+	}
+
+	{
+		std::vector<unsigned int> counts = { 5, 3, 3 };
+		plRes->counts = counts;
+	}
+
+	{
+		std::vector<unsigned int> indices = { 0, 5, 8 };
+		plRes->indices = indices;
+	}
+
+	thrust::host_vector<FeatureTypePair> result = bppc.getPrevalentPairConnections(
+		minimalPrevalence
+		, plRes
+	);
+
+
+	std::vector<FeatureTypePair> expected;
+	{
+		FeatureTypePair ftp;
+		ftp.types.a = 0x000A;
+		ftp.types.b = 0x000B;
+
+		expected.push_back(ftp);
+		
+		ftp.types.a = 0x000B;
+		ftp.types.b = 0x000C;
+
+		expected.push_back(ftp);
+	}
+
+	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | flag setter")
@@ -244,10 +399,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unique tuple functor"
 
 	thrust::host_vector<float> res = result;
 
-	printf("results\n");
-	for (float val : res)
-		printf("%f\n", val);
-	printf("end results\n");
+	std::vector<float> expected = { 1.f, 0.5f, 1.f };
+	REQUIRE(std::equal(expected.begin(), expected.end(), res.begin()));
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unary transfrom")
@@ -369,3 +522,13 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | write throught mask")
 	REQUIRE(std::equal(expected.begin(), expected.end(), gained.begin()));
 }
 // -----------------------------------------------------------------
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | FeaturePairType union fields order")
+{
+	FeatureTypePair ftp;
+
+	ftp.types.a = 0x000A;
+	ftp.types.b = 0x000B;
+
+	REQUIRE(ftp.combined == 0x000A000B);
+}

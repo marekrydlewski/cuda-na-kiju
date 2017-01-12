@@ -1,13 +1,13 @@
 #pragma once
 
-union FeatureTypePair
+union __declspec(align(4)) FeatureTypePair
 {
 	unsigned int combined;
 
 	struct
 	{
-		unsigned short a;
 		unsigned short b;
+		unsigned short a;
 	} types;
 };
 //------------------------------------------------------------------------------

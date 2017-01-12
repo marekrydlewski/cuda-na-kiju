@@ -49,8 +49,6 @@ namespace Prevalence
 			if (tid < count)
 				if (mask[tid])
 					prevalentPairs[writePos[tid]] = uniques[tid];
-				
-			
 		}
 		// -------------------------------------------------------------------------------------------------
 
@@ -83,14 +81,11 @@ namespace Prevalence
 
 			std::vector<unsigned int> pending;
 
-			thrust::device_vector<unsigned int> idxs(uniquesCount);
-			thrust::sequence(idxs.begin(), idxs.end());
-
-			thrust::device_vector<unsigned int> aCounts(uniquesCount);
-			thrust::device_vector<unsigned int> bCounts(uniquesCount);
+			thrust::device_vector<unsigned int> aCounts;
+			thrust::device_vector<unsigned int> bCounts;
 			{
-				thrust::host_vector<unsigned int> haCounts(uniquesCount);
-				thrust::host_vector<unsigned int> hbCounts(uniquesCount);
+				thrust::host_vector<unsigned int> haCounts;
+				thrust::host_vector<unsigned int> hbCounts;
 
 				for (thrust::tuple<FeatureInstance, FeatureInstance> tup : localUniques)
 				{
@@ -129,20 +124,16 @@ namespace Prevalence
 				bPrev.results = bResults.data();
 			}
 
-			thrust::for_each(thrust::device, idxs.begin(), idxs.end(), aPrev);
-			thrust::for_each(thrust::device, idxs.begin(), idxs.end(), bPrev);
+			thrust::device_vector<unsigned int> idxsa(uniquesCount);
+			thrust::sequence(idxsa.begin(), idxsa.end());
+
+			thrust::device_vector<unsigned int> idxsb(uniquesCount);
+			thrust::sequence(idxsb.begin(), idxsb.end());
+
+			thrust::for_each(thrust::device, idxsa.begin(), idxsa.end(), aPrev);
+			thrust::for_each(thrust::device, idxsb.begin(), idxsb.end(), bPrev);
 
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-			
-			{
-				// testing
-				thrust::host_vector<float> a = aResults;
-				thrust::host_vector<float> b = bResults;
-				for (int i = 0; i < a.size(); ++i)
-				{
-					printf("%f %f\n", a[i], b[i]);
-				}
-			}
 
 			thrust::device_vector<bool> flags(uniquesCount);
 			thrust::device_vector<unsigned int> writePos(uniquesCount);
@@ -164,12 +155,9 @@ namespace Prevalence
 			unsigned int prevalentCount;
 			{
 				unsigned int lastEl = writePos[uniquesCount - 1];
-				printf("lastEl %i\n", lastEl);
 				thrust::exclusive_scan(thrust::device, writePos.begin(), writePos.end(), writePos.begin());
 				prevalentCount = lastEl + writePos[uniquesCount - 1];
 			}
-
-			printf("Prevalent count %i\n", prevalentCount);
 
 			thrust::device_vector<FeatureTypePair> transformed(uniquesCount);
 			auto f_trans = FeatureInstancesTupleToFeatureTypePair();
@@ -185,7 +173,7 @@ namespace Prevalence
 			thrust::device_vector<FeatureTypePair> dResult(prevalentCount);
 			
 			writeThroughtMask <<< grid, 256 >>> (
-				prevalentCount
+				uniquesCount
 				, transformed.data()
 				, flags.data()
 				, writePos.data()

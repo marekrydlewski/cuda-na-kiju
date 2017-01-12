@@ -22,7 +22,7 @@ int main()
 	auto data = rdp.getData(numberOfInstances);
 
 	//output data
-	std::vector<std::vector<unsigned int>> solutionSeq, solutionParallel;
+	std::vector<std::vector<unsigned short>> solutionSeq, solutionParallel;
 
 	//////////////////////////////////////////////////
 	//benchmarking particular methods

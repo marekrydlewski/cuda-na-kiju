@@ -7,7 +7,7 @@
 #include <cassert>
 #include <iterator>
 
-void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned int types)
+void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned short types)
 {
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
@@ -35,7 +35,7 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 
 					if (insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
 					{
-						insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned int>();
+						insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned short>();
 					}
 					insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 				}
@@ -97,11 +97,11 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
-	for (unsigned int const vertex : degeneracy.second)
+	for (unsigned short const vertex : degeneracy.second)
 	{
-		std::vector<unsigned int> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-		std::vector<unsigned int> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-		std::vector<unsigned int> thisVertex = { vertex };
+		std::vector<unsigned short> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+		std::vector<unsigned short> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		std::vector<unsigned short> thisVertex = { vertex };
 
 		auto generatedCliques = size2ColocationsGraph.bkPivot(
 			neighboursWithHigherIndices,
@@ -111,14 +111,14 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
 	}
 
-	std::set<std::vector<unsigned int>> tmp(maximalCliques.begin(), maximalCliques.end());
-	std::vector<std::vector<unsigned int>> tmpVec(tmp.begin(), tmp.end());
+	std::set<std::vector<unsigned short>> tmp(maximalCliques.begin(), maximalCliques.end());
+	std::vector<std::vector<unsigned short>> tmpVec(tmp.begin(), tmp.end());
 	maximalCliques.swap(tmpVec);
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
+std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
-	std::vector<std::vector<unsigned int>> finalMaxCliques;
+	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
 	for (auto clique : maximalCliques)
 	{
@@ -130,8 +130,8 @@ std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::filterMaximalCliqu
 }
 
 bool CPUMiningAlgorithmSeq::filterNodeCandidate(
-	unsigned int type,
-	unsigned int instanceId,
+	unsigned short type,
+	unsigned short instanceId,
 	std::vector<CinsNode*> const & ancestors)
 {
 	for (auto nodePtr : ancestors)
@@ -151,9 +151,9 @@ bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 }
 
 
-std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> CPUMiningAlgorithmSeq::countUniqueInstances()
+std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> CPUMiningAlgorithmSeq::countUniqueInstances()
 {
-	std::map<std::pair <unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> typeIncidenceColocations;
+	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
 
 	//counting types incidence
 	for (auto& a : insTable)
@@ -163,10 +163,10 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 			auto aType = a.first;
 			auto bType = b.first;
 
-			unsigned int aElements = b.second.size();
-			unsigned int bElements = 0;
+			unsigned short aElements = b.second.size();
+			unsigned short bElements = 0;
 
-			std::map<unsigned int, bool> inIncidenceColocations;
+			std::map<unsigned short, bool> inIncidenceColocations;
 
 			for (auto& c : b.second)
 			{
@@ -192,7 +192,7 @@ std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned
 
 //Cm's size must be greater or equal 2
 std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondensedTree(
-	const std::vector<unsigned int>& Cm)
+	const std::vector<unsigned short>& Cm)
 {
 	CinsTree tree;
 	std::vector<std::vector<ColocationElem>> finalInstances;
@@ -221,7 +221,7 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 			for (auto lastChildPtr : tree.lastLevelChildren)
 			{
 				//list El contains candidates for new level of tree
-				std::vector<unsigned int> candidateIds, finalCandidatesIds;
+				std::vector<unsigned short> candidateIds, finalCandidatesIds;
 				auto ancestors = lastChildPtr->getAncestors();
 
 				//generate candidates based on last leaf
@@ -268,7 +268,7 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 	return finalInstances;
 }
 
-bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique, float prevalence)
+bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& clique, float prevalence)
 {
 	if (clique.size() == 1) return true;
 
@@ -277,7 +277,7 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique,
 	if (maxCliquesIns.size() != 0)
 	{
 		//prepare to count prevalence
-		std::vector<unsigned int> particularIns, generalIns;
+		std::vector<unsigned short> particularIns, generalIns;
 		for (auto ins : maxCliquesIns[0])
 		{
 			generalIns.push_back(typeIncidenceCounter[ins.type]);
@@ -286,8 +286,8 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique,
 		for (auto i = 0; i < maxCliquesIns[0].size(); ++i)
 		{
 			//new map for every type, instances are keys
-			std::map<unsigned int, bool> isUsed;
-			unsigned int insCounter = 0;
+			std::map<unsigned short, bool> isUsed;
+			unsigned short insCounter = 0;
 			for (auto j = 0; j < maxCliquesIns.size(); ++j)
 			{
 				if (!isUsed[maxCliquesIns[j][i].instanceId])
@@ -303,11 +303,11 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned int>& clique,
 	return false; //empty
 }
 
-std::vector<std::vector<unsigned int>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(
-	std::vector<unsigned int>& clique,
+std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(
+	std::vector<unsigned short>& clique,
 	float prevalence)
 {
-	std::vector<std::vector<unsigned int>> finalMaxCliques;
+	std::vector<std::vector<unsigned short>> finalMaxCliques;
 	if (isCliquePrevalent(clique, prevalence))
 		finalMaxCliques.push_back(clique);
 	else 

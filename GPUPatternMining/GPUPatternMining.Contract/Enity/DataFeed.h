@@ -17,8 +17,8 @@ struct Coords
 // ONE instance of DataFeed contains ALL given data  
 struct DataFeed
 {
-	int type;
-	int instanceId;
+	unsigned short type;
+	unsigned short instanceId;
 	Coords xy;
 
 	DataFeed() {}
@@ -51,12 +51,12 @@ struct array_deleter
 
 struct ColocationElem
 {
-	unsigned int type;
-	unsigned int instanceId;
+	unsigned short type;
+	unsigned short instanceId;
 
 	ColocationElem() {};
 
-	ColocationElem(unsigned int type, unsigned int instanceId): type(type), instanceId(instanceId){}
+	ColocationElem(unsigned short type, unsigned short instanceId): type(type), instanceId(instanceId){}
 
 	bool operator < (const ColocationElem& str) const
 	{

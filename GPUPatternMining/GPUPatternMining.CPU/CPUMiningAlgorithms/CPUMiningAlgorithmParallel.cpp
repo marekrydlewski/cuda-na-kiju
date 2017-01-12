@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cassert>
 #include <ppl.h>
+#include <concrtrm.h>
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
 
@@ -55,56 +56,67 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 {
 	auto countedInstances = countUniqueInstances();
-	//filtering
-	//concurrency::parallel_for_each(
-	//	insTable.begin(),
-	//	insTable.end(),
-	//	[&] (auto &a) {
-	//		for (auto& b : a.second)
-	//		{
-	//			auto aType = a.first;
-	//			auto bType = b.first;
 
-	//			bool isPrevalence = countPrevalence(
-	//				countedInstances[std::make_pair(aType, bType)],
-	//				std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
+	concurrency::concurrent_vector<std::pair<short, short>> pairsToClear;
 
-	//			if (!isPrevalence)
-	//			{
-	//				for (auto& c : b.second)
-	//				{
-	//					delete c.second;
-	//					//clear vectors' memeory firstly
-	//				}
-	//				insTable[aType][bType].clear();
-	//				//clear all keys
-	//			}
-	//		}
-	//});
+	int cores = concurrency::GetProcessorCount();
 
-	for (auto& a : insTable)
+	std::vector<unsigned int> loadPerProcessor(cores);
+
+	for (int i = 0; i < cores; ++i)
 	{
-		for (auto& b : a.second)
+		if (i == cores - 1)
 		{
-			auto aType = a.first;
-			auto bType = b.first;
-
-			bool isPrevalence = countPrevalence(
-				countedInstances[std::make_pair(aType, bType)],
-				std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
-
-			if (!isPrevalence)
+			unsigned int tmp = 0;
+			for (int j = 0; j < i; ++j)
 			{
-				for (auto& c : b.second)
+				tmp += loadPerProcessor[j];
+			}
+			loadPerProcessor[i] = insTable.size() - tmp;
+			break;
+		}
+		loadPerProcessor[i] = insTable.size() / cores;
+	}
+
+	concurrency::parallel_for(0, cores, [&](int i) 
+	{
+		unsigned int startIndex = 0;
+
+		for (int j = 0; j < i; j++)
+		{
+			startIndex += loadPerProcessor[j];
+		}
+
+		auto beginIterator = insTable.begin();
+		std::advance(beginIterator, startIndex);
+
+		auto endIterator = beginIterator;
+		std::advance(endIterator, loadPerProcessor[i]);
+
+		for (auto a = beginIterator; (a != endIterator); ++a)
+		{
+			for (auto& b : (*a).second)
+			{
+				auto aType = (*a).first;
+				auto bType = b.first;
+
+				bool isPrevalence = countPrevalence(
+					countedInstances[std::make_pair(aType, bType)],
+					std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
+
+				if (!isPrevalence)
 				{
-					delete c.second;
-					//clear vectors' memeory firstly
+					for (auto& c : b.second)
+					{
+						delete c.second;
+						//clear vectors' memeory firstly
+					}
+					insTable[aType][bType].clear();
+					//clear all keys
 				}
-				insTable[aType][bType].clear();
-				//clear all keys
 			}
 		}
-	}
+	});
 }
 
 void CPUMiningAlgorithmParallel::createSize2ColocationsGraph()

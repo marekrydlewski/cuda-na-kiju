@@ -8,7 +8,6 @@
 #include <cassert>
 #include <ppl.h>
 #include <concrtrm.h>
-#include <Windows.h>
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
 

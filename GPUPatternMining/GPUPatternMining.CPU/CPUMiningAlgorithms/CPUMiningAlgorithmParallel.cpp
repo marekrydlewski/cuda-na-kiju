@@ -51,13 +51,13 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		loadPerProcessor[i] = source.size() / divider;
 	}
 
-	Concurrency::concurrent_vector<int> concurrentTypeIncidenceCounter(typeIncidenceCounter.size());
-	Concurrency::combinable<std::map<unsigned int,
+	concurrency::concurrent_vector<int> concurrentTypeIncidenceCounter(typeIncidenceCounter.size());
+	concurrency::combinable<std::map<unsigned int,
 		std::map<unsigned int,
 		std::map<unsigned int,
 		std::vector<unsigned int>*>>>> combinableInsTable;
 
-	Concurrency::parallel_for(0, cores , [&](int i) 
+	concurrency::parallel_for(0, cores , [&](int i) 
 	{
 		unsigned int startIndex = 0;
 		for (int j = 0; j < i; ++j)
@@ -90,7 +90,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 				}
 			}
 		}
-	}, Concurrency::static_partitioner());
+	}, concurrency::static_partitioner());
 	
 	//combine results here
 	std::vector<int> resultVector(concurrentTypeIncidenceCounter.begin(), concurrentTypeIncidenceCounter.end());

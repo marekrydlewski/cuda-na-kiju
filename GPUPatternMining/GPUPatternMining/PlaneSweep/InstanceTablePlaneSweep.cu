@@ -356,9 +356,7 @@ namespace PlaneSweep
 			, thrust::device_vector<FeatureInstance>& instances
 			, UInt count
 			, float distanceTreshold
-			, std::shared_ptr<GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>>& resultHashMap
-			, thrust::device_vector<FeatureInstance>& resultPairsA
-			, thrust::device_vector<FeatureInstance>& resultPairsB)
+			, PlaneSweepTableInstanceResultPtr result)
 		{
 			UInt warpsCount = count;
 			thrust::device_vector<UInt> neighboursCount(count);
@@ -377,14 +375,16 @@ namespace PlaneSweep
 				, thrust::raw_pointer_cast(neighboursCount.data())
 				);
 
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+			
 			UInt totalPairsCount = neighboursCount[count - 1];
 			thrust::exclusive_scan(neighboursCount.begin(), neighboursCount.end(), neighboursCount.begin());
 			totalPairsCount += neighboursCount[count - 1];
 
 			typedef thrust::device_vector<FeatureInstance> InstancesDeviceVector;
 
-			resultPairsA = InstancesDeviceVector(totalPairsCount);
-			resultPairsB = InstancesDeviceVector(totalPairsCount);
+			result->pairsA = InstancesDeviceVector(totalPairsCount);
+			result->pairsB = InstancesDeviceVector(totalPairsCount);
 
 			findNeighbours <<< grid, 256 >>> (
 				thrust::raw_pointer_cast(xCoords.data())
@@ -395,28 +395,30 @@ namespace PlaneSweep
 				, distanceTreshold * distanceTreshold
 				, warpsCount
 				, thrust::raw_pointer_cast(neighboursCount.data())
-				, thrust::raw_pointer_cast(resultPairsA.data())
-				, thrust::raw_pointer_cast(resultPairsB.data())
+				, thrust::raw_pointer_cast(result->pairsA.data())
+				, thrust::raw_pointer_cast(result->pairsB.data())
 				);
 
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 			MiningCommon::zipSort(
-				resultPairsA
-				, resultPairsB
+				result->pairsA
+				, result->pairsB
 			);			
 
 			FeatureInstanceTupleIterator zippedBegin = thrust::make_zip_iterator(thrust::make_tuple(
-				resultPairsA.begin()
-				, resultPairsB.begin()
+				result->pairsA.begin()
+				, result->pairsB.begin()
 			));
 			
 			FeatureInstanceTupleIterator zippedEnd = thrust::make_zip_iterator(thrust::make_tuple(
-				resultPairsA.end()
-				, resultPairsB.end()
+				result->pairsA.end()
+				, result->pairsB.end()
 			));
 			
-			thrust::device_vector<FeatureInstanceTuple> uniques(totalPairsCount);
-			thrust::device_vector<UInt> indices(totalPairsCount);
-			thrust::device_vector<UInt> counts(totalPairsCount);
+			result->uniques = thrust::device_vector<FeatureInstanceTuple>(totalPairsCount);
+			result->indices = thrust::device_vector<UInt>(totalPairsCount);
+			result->counts = thrust::device_vector<UInt>(totalPairsCount);
 			
 			UInt entryCount = thrust::reduce_by_key(
 				zippedBegin,
@@ -427,20 +429,20 @@ namespace PlaneSweep
 						thrust::constant_iterator<UInt>(1)
 					)
 				),
-				uniques.begin(),
+				result->uniques.begin(),
 				thrust::make_zip_iterator(
 					thrust::make_tuple(
-						indices.begin(),
-						counts.begin()
+						result->indices.begin(),
+						result->counts.begin()
 					)
 				),
 				FeatureInstanceTupleEquality(),
 				MiningCommon::FirstIndexAndCount<UInt>()
-			).first - uniques.begin();
+			).first - result->uniques.begin();
 			
 			constexpr float entryCountHashMapMultiplier = 1.5f;
 
-			resultHashMap.reset(new GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>(
+			result->instanceTableMap.reset(new GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>(
 				entryCount * entryCountHashMapMultiplier,
 				new  GPUKeyProcessor<UInt>())
 			);
@@ -449,12 +451,14 @@ namespace PlaneSweep
 			findSmallest2D(entryCount, 256, insertGrid.x, insertGrid.y);
 			
 			InsertFeatureInstanceTupleIntoHashMap <<< insertGrid, 256 >>>(
-				resultHashMap->getBean(),
-				thrust::raw_pointer_cast(uniques.data())
-				, thrust::raw_pointer_cast(indices.data())
-				, thrust::raw_pointer_cast(counts.data()),
+				result->instanceTableMap->getBean(),
+				thrust::raw_pointer_cast(result->uniques.data())
+				, thrust::raw_pointer_cast(result->indices.data())
+				, thrust::raw_pointer_cast(result->counts.data()),
 				entryCount
 				);
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 		}
 		// --------------------------------------------------------------------------------------------------------------------------------------
 

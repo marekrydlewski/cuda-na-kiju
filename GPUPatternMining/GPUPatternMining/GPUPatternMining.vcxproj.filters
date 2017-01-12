@@ -1,70 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="HashMap\gpuutils.cu">
-      <Filter>HashMap</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Common\CommonOperations.cu">
-      <Filter>Common</Filter>
-    </CudaCompile>
-    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu">
+    <CudaCompile Include="Common\CommonOperations.cu" />
+    <CudaCompile Include="HashMap\gpuutils.cu" />
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
+    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
+    <CudaCompile Include="Prevalence\UniquePairPrevalence.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HashMap\gpuhashmapper.h">
-      <Filter>HashMap</Filter>
-    </ClInclude>
-    <ClInclude Include="HashMap\gpuutils.h">
-      <Filter>HashMap</Filter>
-    </ClInclude>
-    <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h">
-      <Filter>PairColocationsFiltering</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\MiningCommon.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\CommonOperations.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h">
-      <Filter>PlaneSweep</Filter>
-    </ClInclude>
-    <ClInclude Include="Entities\NeighboursListInfoHolder.h">
-      <Filter>Entities</Filter>
-    </ClInclude>
+    <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common\CommonOperations.h" />
     <ClInclude Include="Entities\FeatureInstance.h" />
-    <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
     <ClInclude Include="Entities\InstanceTable.h" />
-    <ClInclude Include="Prevalence.h">
-      <Filter>Prevalence</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="HashMap">
-      <UniqueIdentifier>{dc89f479-b387-4d0e-9f79-7a71a7c23921}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="PairColocationsFiltering">
-      <UniqueIdentifier>{7f94414e-4567-49c5-8379-7cb103e1e337}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{88c1fc49-9538-4a47-9656-55a7eb93d714}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="PlaneSweep">
-      <UniqueIdentifier>{9dc71700-33a9-4ae1-a162-a133d607b897}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Entities">
-      <UniqueIdentifier>{eeb6a990-5ec4-415b-91c7-194f8a920175}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Prevalence">
-      <UniqueIdentifier>{46c46ab8-f55f-426c-a9c1-e96c5e8df2e6}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp">
-      <Filter>PairColocationsFiltering</Filter>
-    </ClCompile>
-    <ClCompile Include="Prevalence.cpp">
-      <Filter>Prevalence</Filter>
-    </ClCompile>
+    <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
+    <ClInclude Include="HashMap\gpuhashmapper.h" />
+    <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
+    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
+    <ClInclude Include="HashMap\gpuutils.h" />
+    <ClInclude Include="Common\MiningCommon.h" />
+    <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
+    <ClInclude Include="Entities\TypeCount.h" />
+    <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
+    <ClInclude Include="Entities\FeatureTypePair.h" />
+    <ClInclude Include="Prevalence\UniquePairPrevalence.h" />
   </ItemGroup>
 </Project>

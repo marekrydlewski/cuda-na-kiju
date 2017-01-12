@@ -46,6 +46,37 @@ public:
 
 typedef GPUKeyProcessor<unsigned int> GPUUIntKeyProcessor;
 
+template <> class GPUKeyProcessor<unsigned short>
+{
+public:
+	__device__ __inline__ unsigned short reduceKey(unsigned short& key)
+	{
+		return key;
+	}
+
+	__device__ __inline__ bool compareKeys(unsigned short& key1, unsigned short& key2)
+	{
+		return key1 == key2;
+	}
+
+	__device__ __inline__ bool isKeyEmpty(unsigned short& key)
+	{
+		return key == emptyKey();
+	}
+
+	__device__ __inline__ unsigned short emptyKey()
+	{
+		return 0xffff;
+	}
+
+	__device__ __inline__ unsigned short inSequence(unsigned short& start, unsigned short pos, unsigned short step)
+	{
+		return start + pos*step;
+	}
+};
+
+typedef GPUKeyProcessor<unsigned short> GPUUShortKeyProcessor;
+
 class GPUULongIntKeyProcessor :public GPUKeyProcessor<unsigned long long int>
 {
 public:

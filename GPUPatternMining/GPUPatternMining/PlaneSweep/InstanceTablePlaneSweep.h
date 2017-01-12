@@ -7,7 +7,7 @@
 
 #include "../Entities/InstanceTable.h"
 #include "../Common/CommonOperations.h"
-
+#include "PlaneSweepTableInstanceResult.h"
 
 
 namespace PlaneSweep
@@ -113,9 +113,7 @@ namespace PlaneSweep
 			, thrust::device_vector<FeatureInstance>& instances
 			, UInt count
 			, float distanceTreshold
-			, std::shared_ptr<GPUHashMapper<UInt, Entities::InstanceTable, GPUKeyProcessor<UInt>>>& resultHashMap
-			, thrust::device_vector<FeatureInstance>& resultPairsA
-			, thrust::device_vector<FeatureInstance>& resultPairsB
+			, PlaneSweepTableInstanceResultPtr result
 		);
 		// --------------------------------------------------------------------------------------------------------------------------------------
 	}

@@ -62,5 +62,5 @@ private:
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned short>& Cm);
 	bool isCliquePrevalent(std::vector<unsigned short>& clique, float prevalence);
 	std::vector<std::vector<unsigned short>> getPrevalentMaxCliques(std::vector<unsigned short>& clique, float prevalence);
-
+	std::vector<unsigned short> inline getWorkloadForInsTable(unsigned int);
 };

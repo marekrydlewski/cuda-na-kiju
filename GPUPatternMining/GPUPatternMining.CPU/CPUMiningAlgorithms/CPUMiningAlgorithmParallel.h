@@ -41,7 +41,7 @@ private:
 
 	std::vector<DataFeed> source;
 	/// typeIncidenceCounter - count from 1
-	std::vector<int> typeIncidenceCounter;
+	concurrency::concurrent_vector<unsigned short> typeIncidenceCounter;
 	/// InsTable - 2 dimensional hashtable, where frist 2 indexes are types
 	/// the value is a map, where key is number of 1st facility's instanceId and value is a vector of 2nd facility's instancesId 
 	std::map<unsigned short, 

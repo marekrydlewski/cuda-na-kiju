@@ -57,7 +57,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		std::map<unsigned short,
 		std::vector<unsigned short>*>>>> combinableInsTable;
 
-	concurrency::parallel_for(0, cores , [&](int i) 
+	concurrency::parallel_for(0, cores, [&](int i) 
 	{
 		unsigned int startIndex = 0;
 		for (int j = 0; j < i; ++j)

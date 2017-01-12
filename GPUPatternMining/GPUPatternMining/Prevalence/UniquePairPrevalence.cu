@@ -1,4 +1,4 @@
-#include "BitmapPairPrevalence.h"
+#include "UniquePairPrevalence.h"
 
 #include <thrust/execution_policy.h>
 #include <thrust/unique.h>
@@ -8,7 +8,7 @@
 
 namespace Prevalence
 {
-	namespace Bitmap
+	namespace UniqueFilter
 	{
 		__global__
 			void setPrevalentFlag(
@@ -52,7 +52,7 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		BitmapPairPrevalenceCounter::BitmapPairPrevalenceCounter(
+		PairPrevalenceFilter::PairPrevalenceFilter(
 			std::vector<TypeCount>& typesCounts
 		) :  typeCountMap(std::map<unsigned int, unsigned short>())
 		{
@@ -63,7 +63,7 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		BitmapPairPrevalenceCounter::~BitmapPairPrevalenceCounter()
+		PairPrevalenceFilter::~PairPrevalenceFilter()
 		{
 
 		}
@@ -71,7 +71,7 @@ namespace Prevalence
 
 		
 
-		thrust::device_vector<FeatureTypePair> BitmapPairPrevalenceCounter::getPrevalentPairConnections(
+		thrust::device_vector<FeatureTypePair> PairPrevalenceFilter::getPrevalentPairConnections(
 			float minimalPrevalence
 			, PlaneSweepTableInstanceResultPtr planeSweepResult
 		)
@@ -141,7 +141,7 @@ namespace Prevalence
 			dim3 grid;
 			findSmallest2D(uniquesCount, 256, grid.x, grid.y);
 
-			Prevalence::Bitmap::setPrevalentFlag <<< grid, 256 >>> (
+			Prevalence::UniqueFilter::setPrevalentFlag <<< grid, 256 >>> (
 				minimalPrevalence
 				, uniquesCount
 				, aResults.data()

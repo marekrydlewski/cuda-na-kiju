@@ -5,7 +5,7 @@
     <CudaCompile Include="HashMap\gpuutils.cu" />
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
-    <CudaCompile Include="Prevalence\BitmapPairPrevalence.cu" />
+    <CudaCompile Include="Prevalence\UniquePairPrevalence.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
@@ -22,8 +22,8 @@
     <ClInclude Include="Common\MiningCommon.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
     <ClInclude Include="Entities\TypeCount.h" />
-    <ClInclude Include="Prevalence\BitmapPairPrevalence.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
     <ClInclude Include="Entities\FeatureTypePair.h" />
+    <ClInclude Include="Prevalence\UniquePairPrevalence.h" />
   </ItemGroup>
 </Project>

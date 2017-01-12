@@ -24,7 +24,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="BitmapPrevalenceTesting.cu">
+    <CudaCompile Include="UniquePrevalenceTesting.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
   </ItemGroup>

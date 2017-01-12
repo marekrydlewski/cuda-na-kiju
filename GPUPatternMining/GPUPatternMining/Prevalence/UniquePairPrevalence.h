@@ -19,7 +19,7 @@ class PlaneSweepTableInstanceResult;
 
 namespace Prevalence
 {
-	namespace Bitmap
+	namespace UniqueFilter
 	{
 
 		typedef GPUHashMapper<unsigned int, Entities::InstanceTable, GPUKeyProcessor<unsigned int>> InstanceTableMap;
@@ -92,15 +92,15 @@ namespace Prevalence
 		// -------------------------------------------------------------------------------------------------
 
 
-		class BitmapPairPrevalenceCounter
+		class PairPrevalenceFilter
 		{
 		public:
 
-			BitmapPairPrevalenceCounter(
+			PairPrevalenceFilter(
 				std::vector<TypeCount>& typesCounts
 			);
 
-			~BitmapPairPrevalenceCounter();
+			~PairPrevalenceFilter();
 
 			/*
 			@params

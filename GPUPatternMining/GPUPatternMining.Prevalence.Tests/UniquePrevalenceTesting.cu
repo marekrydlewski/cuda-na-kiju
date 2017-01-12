@@ -12,7 +12,7 @@
 #include "BaseCudaTestHandler.h"
 
 #include "../GPUPatternMining/HashMap/gpuhashmapper.h"
-#include "../GPUPatternMining/Prevalence/BitmapPairPrevalence.h"
+#include "../GPUPatternMining/Prevalence/UniquePairPrevalence.h"
 
 
 #include <thrust/execution_policy.h>
@@ -25,7 +25,7 @@
 
 	A0-B0-C0-B1-A1-C1
 */
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple")
+TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple")
 {
 	std::vector<TypeCount> counts;
 	{
@@ -34,7 +34,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple")
 		counts.push_back(TypeCount(0xC, 2));
 	}
 
-	Prevalence::Bitmap::BitmapPairPrevalenceCounter bppc(counts);
+	Prevalence::UniqueFilter::PairPrevalenceFilter bppc(counts);
 
 	const float minimalPrevalence = 0.6f;
 
@@ -140,7 +140,7 @@ A4-B4
 A6-C4
 
 */
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple 2")
+TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple 2")
 {
 	std::vector<TypeCount> counts;
 	{
@@ -149,7 +149,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple 2")
 		counts.push_back(TypeCount(0xC, 4));
 	}
 
-	Prevalence::Bitmap::BitmapPairPrevalenceCounter bppc(counts);
+	Prevalence::UniqueFilter::PairPrevalenceFilter bppc(counts);
 
 	const float minimalPrevalence = 3.f / 5.1f;
 
@@ -278,7 +278,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple 2")
 	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
 }
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | flag setter")
+TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | flag setter")
 {
 	thrust::device_vector<float> resultA;
 	{
@@ -306,7 +306,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | flag setter")
 
 	findSmallest2D(34, 256, grid.x, grid.y);
 	
-	Prevalence::Bitmap::setPrevalentFlag <<< grid, 256 >>> (
+	Prevalence::UniqueFilter::setPrevalentFlag <<< grid, 256 >>> (
 		0.5f
 		, 34u
 		, resultA.data()
@@ -328,7 +328,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | flag setter")
 // -----------------------------------------------------------------
 
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unique tuple functor")
+TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | unique tuple functor")
 {
 	thrust::device_vector<FeatureInstance> pairsA;
 	{
@@ -380,7 +380,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unique tuple functor"
 
 	thrust::device_vector<float> result(3);
 
-	Prevalence::Bitmap::UniqueTupleCountFunctor f_in;
+	Prevalence::UniqueFilter::UniqueTupleCountFunctor f_in;
 	{
 		f_in.data = pairsA.data();
 		f_in.begins = begins.data();
@@ -403,7 +403,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unique tuple functor"
 	REQUIRE(std::equal(expected.begin(), expected.end(), res.begin()));
 }
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unary transfrom")
+TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | unary transfrom")
 {
 	const unsigned int uniquesCount = 34;
 
@@ -435,7 +435,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unary transfrom")
 		expected.push_back(ftp);
 	}
 
-	auto f_trans = Prevalence::Bitmap::FeatureInstancesTupleToFeatureTypePair();
+	auto f_trans = Prevalence::UniqueFilter::FeatureInstancesTupleToFeatureTypePair();
 
 	thrust::transform(
 		thrust::device
@@ -457,7 +457,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unary transfrom")
 /*
 	uniques = { { A1-B1}, {B1-C1}, {C1-D1} ... }
 */
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | write throught mask")
+TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | write throught mask")
 {
 	const unsigned int uniquesCount = 34;
 
@@ -507,7 +507,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | write throught mask")
 	dim3 grid;
 	findSmallest2D(uniquesCount, 256, grid.x, grid.y);
 
-	Prevalence::Bitmap::writeThroughtMask<<< grid, 256 >>>(
+	Prevalence::UniqueFilter::writeThroughtMask<<< grid, 256 >>>(
 		uniquesCount
 		, dataFeed.data()
 		, mask.data()
@@ -523,7 +523,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | write throught mask")
 }
 // -----------------------------------------------------------------
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | FeaturePairType union fields order")
+TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | FeaturePairType union fields order")
 {
 	FeatureTypePair ftp;
 

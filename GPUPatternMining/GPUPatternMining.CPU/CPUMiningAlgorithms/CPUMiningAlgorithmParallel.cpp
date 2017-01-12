@@ -27,7 +27,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 	std::vector<unsigned int> loadPerProcessor(cores);
 
-	unsigned int divider = pow(2, cores - 1);
+	unsigned int divider = std::pow(2, cores - 1);
 
 	//further iterations will have less work (for first item in data you have to go through whole data, for
 	//each next one you have to do one data item less)

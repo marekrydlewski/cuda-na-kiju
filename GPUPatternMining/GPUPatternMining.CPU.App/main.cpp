@@ -12,8 +12,8 @@ int main()
 	const unsigned int types = 5;
 	const unsigned int rangeY = 300;
 	const unsigned int rangeX = 300;
-	const unsigned int numberOfInstances = 7000;
-	const float threshold = 50;
+	const unsigned int numberOfInstances = 2000;
+	const float threshold = 20;
 	const float prevalence = 0.2;
 
 	RandomDataProvider rdp;

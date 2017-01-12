@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <cassert>
 #include <ppl.h>
+#include <concrtrm.h>
+#include <Windows.h>
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
 
@@ -22,32 +24,105 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 {
 	float effectiveThreshold = pow(threshold, 2);
 
+	int cores = concurrency::GetProcessorCount();
 
-	for (auto it1 = source.begin(); (it1 != source.end()); ++it1)
+	std::vector<unsigned int> loadPerProcessor(cores);
+
+	unsigned int divider = pow(2, cores - 1);
+
+	//further iterations will have less work (for first item in data you have to go through whole data, for
+	//each next one you have to do one data item less)
+	for (int i = 0; i < cores; ++i)
 	{
-		++this->typeIncidenceCounter[(*it1).type];
-		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
+		if (i > 1)
+			divider /= 2;
+
+		//last thread gets remaining load
+		if (i == cores - 1)
 		{
-			if ((*it1).type != (*it2).type)
+			unsigned int tmp = 0;
+			for (int j = 0; j < i; ++j) 
 			{
-				if (checkDistance(*it1, *it2, effectiveThreshold))
+				tmp += loadPerProcessor[j];
+			}
+			loadPerProcessor[i] = source.size() - tmp;
+			break;
+		}
+
+		loadPerProcessor[i] = source.size() / divider;
+	}
+
+	Concurrency::concurrent_vector<int> concurrentTypeIncidenceCounter(typeIncidenceCounter.size());
+	Concurrency::combinable<std::map<unsigned int,
+		std::map<unsigned int,
+		std::map<unsigned int,
+		std::vector<unsigned int>*>>>> combinableInsTable;
+
+	Concurrency::parallel_for(0, cores , [&](int i) 
+	{
+		unsigned int startIndex = 0;
+		for (int j = 0; j < i; ++j)
+		{
+			startIndex += loadPerProcessor[j];
+		}
+
+		for (auto it1 = source.begin() + startIndex; (it1 != source.begin() + startIndex + loadPerProcessor[i]); ++it1)
+		{
+			++concurrentTypeIncidenceCounter[(*it1).type];
+			for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
+			{
+				if ((*it1).type != (*it2).type)
 				{
-					//smaller value always first
-					auto it1_h = it1;
-					auto it2_h = it2;
-
-					if ((*it1_h).type > (*it2_h).type)
-						std::swap(it1_h, it2_h);
-
-					if (insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
+					if (checkDistance(*it1, *it2, effectiveThreshold))
 					{
-						insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned int>();
+						//smaller value always first
+						auto it1_h = it1;
+						auto it2_h = it2;
+
+						if ((*it1_h).type > (*it2_h).type)
+							std::swap(it1_h, it2_h);
+
+						if (combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
+						{
+							combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned int>();
+						}
+						combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 					}
-					insTable[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 				}
 			}
 		}
-	}
+	}, Concurrency::static_partitioner());
+	
+	//combine results here
+	std::vector<int> resultVector(concurrentTypeIncidenceCounter.begin(), concurrentTypeIncidenceCounter.end());
+	typeIncidenceCounter = resultVector;
+
+	std::map<unsigned int,
+		std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> resultInsTable;
+
+	combinableInsTable.combine_each([&](
+	std::map<unsigned int, 
+		std::map<unsigned int, std::map<unsigned int, std::vector<unsigned int>*>>> local) 
+	{
+		for (auto it1 = local.begin(); (it1 != local.end()); ++it1)
+		{
+			for (auto it2 = (*it1).second.begin(); (it2 != (*it1).second.end()); ++it2)
+			{
+				for (auto it3 = (*it2).second.begin(); (it3 != (*it2).second.end()); ++it3)
+				{
+					if (resultInsTable[(*it1).first][(*it2).first][(*it3).first] == nullptr)
+					{
+						resultInsTable[(*it1).first][(*it2).first][(*it3).first] = (*it3).second;
+					}	
+					else
+					{
+						resultInsTable[(*it1).first][(*it2).first][(*it3).first]->insert(resultInsTable[(*it1).first][(*it2).first][(*it3).first]->end(), (*(*it3).second).begin(), (*(*it3).second).end());
+					}	
+				}
+			}
+		}
+	});
+	insTable = resultInsTable;
 }
 
 

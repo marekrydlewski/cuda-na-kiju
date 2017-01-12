@@ -75,6 +75,16 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 		, result
 	);
 
+	cudaDeviceSynchronize();
+
+	{
+		thrust::host_vector<unsigned int> indicies = result->indices;
+		printf("indices\n");
+
+		for (unsigned int val : indicies)
+			printf("%u\n", val);
+	}
+
 	Entities::InstanceTable expectedAB(2, 0);
 	Entities::InstanceTable expectedAC(1, 2);
 	Entities::InstanceTable expectedBC(2, 3);
@@ -171,6 +181,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 		, distanceTreshold
 		, result
 	);
+
+	cudaDeviceSynchronize();
 
 	Entities::InstanceTable expectedAC(1, 0);
 	

@@ -25,159 +25,103 @@
 
 	A0-B0-C0-B1-A1-C1
 */
-/*
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | init")
+TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple")
 {
-	// creating vector with available types
-	std::vector<TypeCount> availableTypes = { 
-		TypeCount(0x000A, 2 )
-		, TypeCount( 0x000B, 2)
-		, TypeCount( 0x000C, 2)
-	};
+	printf("<Bitmap prevalence | simple>\n");
 
-	// creating hashMap with types count
-	GPUKeyProcessor<unsigned int> *intKeyProcessor = new GPUKeyProcessor<unsigned int>();
-
-	unsigned int hashSize = 5;
-	GPUHashMapper<unsigned int, unsigned short, GPUKeyProcessor<unsigned int>> mapper(hashSize, intKeyProcessor);
-
-	unsigned int h_keys[] = { 0x000A, 0x000B, 0x000C };
-	unsigned short h_values[] = { 2, 2, 2 };
-
-	unsigned int* c_keys;
-	unsigned short* c_values;
-
-	cudaMalloc(reinterpret_cast<void**>(&c_keys), (sizeof(unsigned int) * 3));
-	cudaMalloc(reinterpret_cast<void**>(&c_values), (sizeof(unsigned short) * 3));
-
-	cudaMemcpy(c_keys, h_keys, (sizeof(unsigned int) * 3), cudaMemcpyHostToDevice);
-	cudaMemcpy(c_values, h_values, (sizeof(unsigned short) * 3), cudaMemcpyHostToDevice);
-
-	mapper.insertKeyValuePairs(c_keys, c_values, 3);
-
-	// init test
-
-	//Prevalence::Bitmap::BitmapPairPrevalenceCounter(availableTypes, &mapper);
-}
-*/
-
-/*
-Test for graph
-
-A0-B0-C0-B1-A1-C1
-*/
-/*
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple prevalence")
-{
-	// creating vector with available types
-	std::vector<TypeCount> availableTypes = {
-		TypeCount(0x000A, 2)
-		, TypeCount(0x000B, 2)
-		, TypeCount(0x000C, 2)
-	};
-
-	// creating hashMap with types count
-	GPUKeyProcessor<unsigned int> *intKeyProcessor = new GPUKeyProcessor<unsigned int>();
-
-	unsigned int hashSize = 5;
-	GPUHashMapper<unsigned int, unsigned short, GPUKeyProcessor<unsigned int>> mapper(hashSize, intKeyProcessor);
-
-	unsigned int h_keys[] = { 0x000A, 0x000B, 0x000C };
-	unsigned short h_values[] = { 2, 2, 2 };
-
-	unsigned int* c_keys;
-	unsigned short* c_values;
-
-	cudaMalloc(reinterpret_cast<void**>(&c_keys), (sizeof(unsigned int) * 3));
-	cudaMalloc(reinterpret_cast<void**>(&c_values), (sizeof(unsigned short) * 3));
-
-	cudaMemcpy(c_keys, h_keys, (sizeof(unsigned int) * 3), cudaMemcpyHostToDevice);
-	cudaMemcpy(c_values, h_values, (sizeof(unsigned short) * 3), cudaMemcpyHostToDevice);
-
-	mapper.insertKeyValuePairs(c_keys, c_values, 3);
-
-	// init test
-
-	//Prevalence::Bitmap::BitmapPairPrevalenceCounter(availableTypes, &mapper);
-}
-*/
-/*
-struct uniqueCountFunctor
-{
-	thrust::device_ptr<int> data;
-	thrust::device_ptr<unsigned int> begins;
-	thrust::device_ptr<unsigned int> counts;
+	std::vector<TypeCount> counts = { { 0xA, 2 },{ 0xB, 2 },{ 0xC, 2 } };
 	
-	thrust::device_ptr<signed int> results;
 
-	__host__ __device__
-	void operator()(unsigned int idx)
+
+	Prevalence::Bitmap::BitmapPairPrevalenceCounter bppc(counts);
+
+	const float minimalPrevalence = 0.6f;
+
+	auto plRes = std::make_shared<PlaneSweepTableInstanceResult>();
+
 	{
-		results[idx] = thrust::distance(
-			data + begins[idx]
-			, thrust::unique(
-				thrust::device,
-				data + begins[idx],
-				data + begins[idx] + counts[idx]
-			) 
-		);
-	}
-};
+		thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> huniques;
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | simple functor mechanism test")
-{
-	thrust::device_vector<int> data;
-	{
-			std::vector<int> hData = {
-			1, 1, 2, 2, // 0, 4
-			2, 3, 3,	// 4, 3
-			1, 2, 3, 4, // 7, 4
-		};
+		FeatureInstance a;
+		FeatureInstance b;
 
-		data = hData;
-	}
+		a.field = 0x000A0000;
+		b.field = 0x000B0000;		
+		huniques.push_back(thrust::make_tuple(a, b));
 
-	thrust::device_vector<unsigned int> begins;
-	{
-		thrust::host_vector<unsigned int> hbegins;
+		a.field = 0x000A0001;
+		b.field = 0x000C0001;
+		huniques.push_back(thrust::make_tuple(a, b));
 
-		hbegins.push_back(0);
-		hbegins.push_back(4);
-		hbegins.push_back(7);
+		a.field = 0x000B0000;
+		b.field = 0x000C0000;
+		huniques.push_back(thrust::make_tuple(a, b));
 
-		begins = hbegins;
+		plRes->uniques = huniques;
 	}
 
-	thrust::device_vector<unsigned int> counts;
 	{
-		thrust::host_vector<unsigned int> hCounts;
+		thrust::host_vector<FeatureInstance> hPairsA;
+		thrust::host_vector<FeatureInstance> hPairsB;
 
-		hCounts.push_back(4);
-		hCounts.push_back(3);
-		hCounts.push_back(4);
+		FeatureInstance a;
+		FeatureInstance b;
+		
+		// A-B
+		a.field = 0x000A0000;
+		hPairsA.push_back(a);
+		b.field = 0x000B0000;
+		hPairsB.push_back(b);
 
-		counts = hCounts;
+		a.field = 0x000A0001;
+		hPairsA.push_back(a);
+		b.field = 0x000B0001;
+		hPairsB.push_back(b);
+		
+		// A-C
+		a.field = 0x000A0001;
+		hPairsA.push_back(a);
+		b.field = 0x000C0001;
+		hPairsB.push_back(b);
+
+		// B-C
+		a.field = 0x000B0000;
+		hPairsA.push_back(a);
+		b.field = 0x000C0000;
+		hPairsB.push_back(b);
+
+		a.field = 0x000B0001;
+		hPairsA.push_back(a);
+		b.field = 0x000C0000;
+		hPairsB.push_back(b);
+
+		plRes->pairsA = hPairsA;
+		plRes->pairsB = hPairsB;
 	}
 	
-	thrust::device_vector<unsigned int> idxs(3);
-	thrust::sequence(idxs.begin(), idxs.end());
+	{
+		std::vector<unsigned int> counts = { 2, 1, 2 };
+		plRes->counts = counts;
+	}
 
-	thrust::device_vector<signed int> results(3);
-
-
-	uniqueCountFunctor f_uq = { data.data(), begins.data(), counts.data(), results.data() };
-
-	thrust::for_each(idxs.begin(), idxs.end(), f_uq);
-
-	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-
-	std::vector<unsigned int> expected = { 2, 2, 4 };
+	{
+		std::vector<unsigned int> indices = { 0, 2, 3 };
+		plRes->indices = indices;
+	}
 	
-	thrust::host_vector<signed int> hResult = results;
+	thrust::host_vector<FeatureTypePair> result = bppc.getPrevalentPairConnections(
+		minimalPrevalence
+		, plRes
+	);
+	
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()) == true);
+	printf("pairs\n");
+	for (FeatureTypePair& ftp : result)
+		printf("0x%8x\n", ftp.combined);
+	printf("end pairs\n");
+
+	printf("</Bitmap prevalence | simple>\n");
 }
-
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | flag setter")
 {
@@ -207,7 +151,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | flag setter")
 
 	findSmallest2D(34, 256, grid.x, grid.y);
 	
-	Prevalence::Bitmap::setPrevalentFlag << < grid, 256 >> > (
+	Prevalence::Bitmap::setPrevalentFlag <<< grid, 256 >>> (
 		0.5f
 		, 34u
 		, resultA.data()
@@ -227,12 +171,86 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | flag setter")
 	REQUIRE(std::equal(expected.begin(), expected.end(), gained.begin()) == true);
 }
 // -----------------------------------------------------------------
-*/
 
-/*
-	uniques = { { A1-B1}, {B1-C1}, {C1-D1} ... }
-*/
-TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | tranform throught mask")
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unique tuple functor")
+{
+	thrust::device_vector<FeatureInstance> pairsA;
+	{
+		thrust::host_vector<FeatureInstance> hPairsA;
+
+		FeatureInstance a;
+
+		// A-B
+		a.field = 0x000A0000;
+		hPairsA.push_back(a);
+
+		a.field = 0x000A0001;
+		hPairsA.push_back(a);
+
+		// A-C
+		a.field = 0x000A0001;
+		hPairsA.push_back(a);
+
+		// B-C
+		a.field = 0x000B0000;
+		hPairsA.push_back(a);
+
+		a.field = 0x000B0001;
+		hPairsA.push_back(a);
+
+		pairsA = hPairsA;
+	}
+
+	thrust::device_vector<unsigned int> begins;
+	{
+		std::vector<unsigned int> hBegins = { 0, 2, 3 };
+		begins = hBegins;
+	}
+	
+	thrust::device_vector<unsigned int> counts;
+	{
+		std::vector<unsigned int> hcounts = { 2, 1, 2 };
+		counts = hcounts;
+	}
+
+
+	thrust::device_vector<unsigned int> typesCounts;
+	{
+		std::vector<unsigned int> hTypesCounts = { 2, 2, 2 };
+		typesCounts = hTypesCounts;
+	}
+
+	thrust::device_vector<FeatureInstance> uniqueFeatureInstancesInPairType(6);
+
+	thrust::device_vector<float> result(3);
+
+	Prevalence::Bitmap::UniqueTupleCountFunctor f_in;
+	{
+		f_in.data = pairsA.data();
+		f_in.begins = begins.data();
+		f_in.count = counts.data();
+		f_in.typeCount = typesCounts.data();
+		f_in.uniquesOutput = uniqueFeatureInstancesInPairType.data();
+		f_in.results = result.data();
+	}
+
+	thrust::device_vector<unsigned int> idxs(3);
+	thrust::sequence(idxs.begin(), idxs.end());
+
+	thrust::for_each(thrust::device, idxs.begin(), idxs.end(), f_in);
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	thrust::host_vector<float> res = result;
+
+	printf("results\n");
+	for (float val : res)
+		printf("%f\n", val);
+	printf("end results\n");
+}
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | unary transfrom")
 {
 	const unsigned int uniquesCount = 34;
 
@@ -254,6 +272,54 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | tranform throught mas
 		uniques = huniques;
 	}
 
+	thrust::device_vector<FeatureTypePair> result(uniquesCount);
+
+	std::vector<FeatureTypePair> expected;
+	for (int i = 0; i < uniquesCount; ++i)
+	{
+		FeatureTypePair ftp;
+		ftp.combined = ((i << 16) & 0xFFFF0000) | (i + 1);
+		expected.push_back(ftp);
+	}
+
+	auto f_trans = Prevalence::Bitmap::FeatureInstancesTupleToFeatureTypePair();
+
+	thrust::transform(
+		thrust::device
+		, uniques.begin()
+		, uniques.end()
+		, result.begin()
+		, f_trans
+	);
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	thrust::host_vector<FeatureTypePair> gained = result;
+
+	REQUIRE(std::equal(expected.begin(), expected.end(), gained.begin()));
+}
+
+// -----------------------------------------------------------------
+
+/*
+	uniques = { { A1-B1}, {B1-C1}, {C1-D1} ... }
+*/
+TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | write throught mask")
+{
+	const unsigned int uniquesCount = 34;
+
+	thrust::device_vector<FeatureTypePair> dataFeed;
+	{
+		std::vector<FeatureTypePair> hdataFeed;
+		for (int i = 0; i < uniquesCount; ++i)
+		{
+			FeatureTypePair ftp;
+			ftp.combined = ((i << 16) & 0xFFFF0000) | (i + 1);
+			hdataFeed.push_back(ftp);
+		}
+
+		dataFeed = hdataFeed;
+	}
 
 	thrust::device_vector<bool> mask;
 	{
@@ -273,6 +339,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | tranform throught mas
 
 		std::fill(hwritePos.begin(), hwritePos.begin() + 16, 0);
 		std::fill(hwritePos.begin() + 16, hwritePos.begin() + uniquesCount, 1);
+
+		writePos = hwritePos;
 	}
 
 	thrust::device_vector<FeatureTypePair> result(2);
@@ -288,7 +356,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | tranform throught mas
 
 	Prevalence::Bitmap::writeThroughtMask<<< grid, 256 >>>(
 		uniquesCount
-		, thrust::raw_pointer_cast(uniques.data())
+		, dataFeed.data()
 		, mask.data()
 		, writePos.data()
 		, result.data()
@@ -301,5 +369,3 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Bitmap prevalence | tranform throught mas
 	REQUIRE(std::equal(expected.begin(), expected.end(), gained.begin()));
 }
 // -----------------------------------------------------------------
-
-

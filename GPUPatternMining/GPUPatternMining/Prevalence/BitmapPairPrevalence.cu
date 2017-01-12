@@ -30,11 +30,16 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		
+//		__host__ __device__
+//		FeatureTypePair FeatureInstancesTupleToFeatureTypePair::operator()(thrust::tuple<FeatureInstance, FeatureInstance> ftt)
+
+
+		// -------------------------------------------------------------------------------------------------
+
 		__global__
 			void writeThroughtMask(
 				unsigned int count
-				, thrust::device_ptr<FeatureInstance> uniques
+				, thrust::device_ptr<FeatureTypePair> uniques
 				, thrust::device_ptr<bool> mask
 				, thrust::device_ptr<unsigned int> writePos
 				, thrust::device_ptr<FeatureTypePair> prevalentPairs)
@@ -42,30 +47,16 @@ namespace Prevalence
 			unsigned int tid = computeLinearAddressFrom2D();
 
 			if (tid < count)
-			{
 				if (mask[tid])
-				{
-					FeatureTypePair ftp;
-
-					ftp.combined =
-						uniques[tid].fields.featureId & 0xFFFF0000
-						| ((uniques[tid].get<1>().fields.featureId >> 16) & 0x0000FFFF);
-
-					prevalentPairs[writePos[tid]] = ftp;
-				}
-			}
+					prevalentPairs[writePos[tid]] = uniques[tid];
+				
+			
 		}
 		// -------------------------------------------------------------------------------------------------
 
 		BitmapPairPrevalenceCounter::BitmapPairPrevalenceCounter(
-			CountMapPtr countMap
-			, InstanceTableMapPtr instanceTableMap
-			, unsigned int bitmapSize
-			, std::vector<TypeCount>& typesCounts
-		) : gpuCountMap(countMap)
-			, instanceTableMap(instanceTableMap)
-			, bitmapSize(bitmapSize)
-			, typeCountMap(std::map<unsigned int, unsigned short>())
+			std::vector<TypeCount>& typesCounts
+		) :  typeCountMap(std::map<unsigned int, unsigned short>())
 		{
 			for (const TypeCount& tc : typesCounts)
 			{
@@ -80,44 +71,15 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		struct UniqueTupleCountFunctor
-		{
-			thrust::device_ptr<FeatureInstance> data;
-			thrust::device_ptr<unsigned int> begins;
-			thrust::device_ptr<unsigned int> counts;
-			thrust::device_ptr<unsigned int> count;
+		
 
-			thrust::device_ptr<FeatureInstance> uniquesOutput;
-
-			thrust::device_ptr<float> results;
-
-			__host__ __device__
-				void operator()(unsigned int idx)
-			{
-				results[idx] = thrust::distance(
-					uniquesOutput + begins[idx]
-					, thrust::unique_copy
-					(
-						thrust::device
-						, data + begins[idx]
-						, data + begins[idx] + counts[idx]
-						, uniquesOutput + begins[idx]
-					)
-				) / static_cast<float>(count[idx]);
-			}
-		};
-		// -------------------------------------------------------------------------------------------------
-
-
-		thrust::host_vector<FeatureTypePair> BitmapPairPrevalenceCounter::getPrevalentPairConnections(
+		thrust::device_vector<FeatureTypePair> BitmapPairPrevalenceCounter::getPrevalentPairConnections(
 			float minimalPrevalence
 			, PlaneSweepTableInstanceResultPtr planeSweepResult
 		)
 		{
 			const unsigned int uniquesCount = planeSweepResult->uniques.size();
 			thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> localUniques = planeSweepResult->uniques;
-
-			// TODO free uniques
 
 			std::vector<unsigned int> pending;
 
@@ -152,7 +114,7 @@ namespace Prevalence
 				aPrev.data = planeSweepResult->pairsA.data();
 				aPrev.begins = planeSweepResult->indices.data();
 				aPrev.count = planeSweepResult->counts.data();
-				aPrev.counts = aCounts.data();
+				aPrev.typeCount = aCounts.data();
 				aPrev.uniquesOutput = tempResultA.data();
 				aPrev.results = aResults.data();
 			}
@@ -162,7 +124,7 @@ namespace Prevalence
 				bPrev.data = planeSweepResult->pairsB.data();
 				bPrev.begins = planeSweepResult->indices.data();
 				bPrev.count = planeSweepResult->counts.data();
-				bPrev.counts = bCounts.data();
+				bPrev.typeCount = bCounts.data();
 				bPrev.uniquesOutput = tempResultB.data();
 				bPrev.results = bResults.data();
 			}
@@ -170,7 +132,17 @@ namespace Prevalence
 			thrust::for_each(thrust::device, idxs.begin(), idxs.end(), aPrev);
 			thrust::for_each(thrust::device, idxs.begin(), idxs.end(), bPrev);
 
-			cudaDeviceSynchronize();
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+			
+			{
+				// testing
+				thrust::host_vector<float> a = aResults;
+				thrust::host_vector<float> b = bResults;
+				for (int i = 0; i < a.size(); ++i)
+				{
+					printf("%f %f\n", a[i], b[i]);
+				}
+			}
 
 			thrust::device_vector<bool> flags(uniquesCount);
 			thrust::device_vector<unsigned int> writePos(uniquesCount);
@@ -178,7 +150,7 @@ namespace Prevalence
 			dim3 grid;
 			findSmallest2D(uniquesCount, 256, grid.x, grid.y);
 
-			Prevalence::Bitmap::setPrevalentFlag << < grid, 256 >> > (
+			Prevalence::Bitmap::setPrevalentFlag <<< grid, 256 >>> (
 				minimalPrevalence
 				, uniquesCount
 				, aResults.data()
@@ -192,25 +164,37 @@ namespace Prevalence
 			unsigned int prevalentCount;
 			{
 				unsigned int lastEl = writePos[uniquesCount - 1];
+				printf("lastEl %i\n", lastEl);
 				thrust::exclusive_scan(thrust::device, writePos.begin(), writePos.end(), writePos.begin());
 				prevalentCount = lastEl + writePos[uniquesCount - 1];
 			}
 
-			thrust::device_vector<FeatureTypePair> dResult(prevalentCount);
+			printf("Prevalent count %i\n", prevalentCount);
 
-			writeThroughtMask << < grid, 256 >> > (
+			thrust::device_vector<FeatureTypePair> transformed(uniquesCount);
+			auto f_trans = FeatureInstancesTupleToFeatureTypePair();
+
+			thrust::transform(
+				thrust::device
+				, planeSweepResult->uniques.begin()
+				, planeSweepResult->uniques.end()
+				, transformed.begin()
+				, f_trans
+			);
+			
+			thrust::device_vector<FeatureTypePair> dResult(prevalentCount);
+			
+			writeThroughtMask <<< grid, 256 >>> (
 				prevalentCount
-				, thrust::raw_pointer_cast(planeSweepResult->uniques.data())
+				, transformed.data()
 				, flags.data()
 				, writePos.data()
 				, dResult.data()
 				);
-
+				
 			cudaDeviceSynchronize();
 
-			thrust::host_vector<FeatureTypePair> result = dResult;
-
-			return result;
+			return dResult;
 		}
 		// -------------------------------------------------------------------------------------------------
 	}

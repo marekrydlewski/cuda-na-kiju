@@ -40,7 +40,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		if (i == cores - 1)
 		{
 			unsigned int tmp = 0;
-			for (int j = 0; j < i; ++j) 
+			for (int j = 0; j < i; ++j)
 			{
 				tmp += loadPerProcessor[j];
 			}
@@ -56,7 +56,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		std::map<unsigned short,
 		std::vector<unsigned short>*>>>> combinableInsTable;
 
-	concurrency::parallel_for(0, cores, [&](int i) 
+	concurrency::parallel_for(0, cores, [&](int i)
 	{
 		unsigned int startIndex = 0;
 		for (int j = 0; j < i; ++j)
@@ -90,12 +90,12 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			}
 		}
 	}, concurrency::static_partitioner());
-	
+
 	combinableInsTable.combine_each([&](
-	std::map<unsigned short, 
-		std::map<unsigned short, 
-			std::map<unsigned short,
-				std::vector<unsigned short>*>>> local) 
+		std::map<unsigned short,
+		std::map<unsigned short,
+		std::map<unsigned short,
+		std::vector<unsigned short>*>>> local)
 	{
 		for (auto it1 = local.begin(); (it1 != local.end()); ++it1)
 		{
@@ -106,14 +106,14 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 					if (insTable[(*it1).first][(*it2).first][(*it3).first] == nullptr)
 					{
 						insTable[(*it1).first][(*it2).first][(*it3).first] = (*it3).second;
-					}	
+					}
 					else
 					{
 						insTable[(*it1).first][(*it2).first][(*it3).first]->insert(
 							insTable[(*it1).first][(*it2).first][(*it3).first]->end(),
-								(*(*it3).second).begin(),
-								(*(*it3).second).end());
-					}	
+							(*(*it3).second).begin(),
+							(*(*it3).second).end());
+					}
 				}
 			}
 		}
@@ -129,7 +129,7 @@ void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 	int cores = concurrency::GetProcessorCount();
 	auto loadPerProcessor = getWorkloadForInsTable(cores);
 
-	concurrency::parallel_for(0, cores, [&](int i) 
+	concurrency::parallel_for(0, cores, [&](int i)
 	{
 		unsigned int startIndex = 0;
 
@@ -200,23 +200,23 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 	concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentMaxCliques;
 
 	concurrency::parallel_for_each(
-		degeneracy.second.begin(), 
+		degeneracy.second.begin(),
 		degeneracy.second.end(),
-		[&] (unsigned short vertex ) {
-			std::vector<unsigned short> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
-			std::vector<unsigned short> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
-			std::vector<unsigned short> thisVertexVector = { vertex };
+		[&](unsigned short vertex) {
+		std::vector<unsigned short> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
+		std::vector<unsigned short> neighboursWithLowerIndices = size2ColocationsGraph.getVertexNeighboursOfLowerIndex(vertex);
+		std::vector<unsigned short> thisVertexVector = { vertex };
 
-			auto generatedCliques = size2ColocationsGraph.bkPivot(
-				neighboursWithHigherIndices,
-				thisVertexVector,
-				neighboursWithLowerIndices);
+		auto generatedCliques = size2ColocationsGraph.bkPivot(
+			neighboursWithHigherIndices,
+			thisVertexVector,
+			neighboursWithLowerIndices);
 
-			concurrentMaxCliques.local().insert(
-				concurrentMaxCliques.local().end(),
-				generatedCliques.begin(),
-				generatedCliques.end());
-			}
+		concurrentMaxCliques.local().insert(
+			concurrentMaxCliques.local().end(),
+			generatedCliques.begin(),
+			generatedCliques.end());
+	}
 	);
 
 	concurrentMaxCliques.combine_each([this](std::vector<std::vector<unsigned short>>& vec) {
@@ -235,20 +235,20 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 	concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentFinalMaxCliques;
 
 	concurrency::parallel_for_each(
-		maximalCliques.begin(), 
+		maximalCliques.begin(),
 		maximalCliques.end(),
-		[&] (std::vector<unsigned short> clique) {
-			auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
-			if (maxCliques.size() != 0)
-				concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
-		}
+		[&](std::vector<unsigned short> clique) {
+		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
+		if (maxCliques.size() != 0)
+			concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
+	}
 	);
 
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 	concurrentFinalMaxCliques.combine_each(
-		[&finalMaxCliques] (std::vector<std::vector<unsigned short>> vec) {
-			finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
-		}
+		[&finalMaxCliques](std::vector<std::vector<unsigned short>> vec) {
+		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
+	}
 	);
 	return finalMaxCliques;
 }
@@ -276,7 +276,7 @@ bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 
 std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> CPUMiningAlgorithmParallel::countUniqueInstances()
 {
-	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
+	std::map< std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
 
 	int cores = concurrency::GetProcessorCount();
 	auto loadPerProcessor = getWorkloadForInsTable(cores);

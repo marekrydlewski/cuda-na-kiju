@@ -42,13 +42,13 @@
     <ClInclude Include="CinsNode.h">
       <Filter>Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Enity\FeatureInstance.h">
-      <Filter>Entity</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Benchmark.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader.h">
       <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>

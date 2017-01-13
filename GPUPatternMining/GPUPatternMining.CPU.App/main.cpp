@@ -1,7 +1,11 @@
+#include <string>
+#include <iostream>
+
 #include "../GPUPatternMining.Contract/RandomDataProvider.h"
 #include "../GPUPatternMining.Contract/Graph.h"
 #include "../GPUPatternMining.Contract/Timer.h"
 #include "../GPUPatternMining.Contract/Benchmark.h"
+#include "../GPUPatternMining.Contract/DataLoader.h"
 
 #include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
 #include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmParallel.h"
@@ -9,17 +13,25 @@
 int main()
 {
 	//input data
-	const unsigned int types = 10;
-	const unsigned int rangeY = 1000;
-	const unsigned int rangeX = 1000;
-	const unsigned int numberOfInstances = 5000;
+	//const unsigned int types = 10;
+	//const unsigned int rangeY = 1000;
+	//const unsigned int rangeX = 1000;
+	//const unsigned int numberOfInstances = 5000;
 	const float threshold = 20;
 	const float prevalence = 0.2;
 
-	RandomDataProvider rdp;
-	rdp.setNumberOfTypes(types);
-	rdp.setRange(rangeX, rangeY);
-	auto data = rdp.getData(numberOfInstances);
+	//RandomDataProvider rdp;
+	//rdp.setNumberOfTypes(types);
+	//rdp.setRange(rangeX, rangeY);
+	//auto data = rdp.getData(numberOfInstances);
+	std::string path;
+
+	std::cout << "Provide path to data file" << std::endl;
+
+	std::cin >> path;
+
+	DataLoader loader;
+	loader.loadFromTxtFile(path);
 
 	//output data
 	std::vector<std::vector<unsigned short>> solutionSeq, solutionParallel;
@@ -31,7 +43,7 @@ int main()
 	CPUMiningAlgorithmParallel cpuAlgParallel;
 	bmk::benchmark<std::chrono::nanoseconds> bmSeq, bmParallel;
 
-	bmSeq.run("load data", 1, [&]() { cpuAlgSeq.loadData(data, numberOfInstances, types); });
+	bmSeq.run("load data", 1, [&]() { cpuAlgSeq.loadData(loader.getData(), loader.getDataSize(), loader.getNumberOfTypes()); });
 	bmSeq.run("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });
 	bmSeq.run("filter by prevalence", 1, [&]() { cpuAlgSeq.filterByPrevalence(prevalence); });
 	//bmSeq.run("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
@@ -40,7 +52,7 @@ int main()
 	bmSeq.print("sequential algorithm", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
 
-	bmParallel.run("load data", 1, [&]() { cpuAlgParallel.loadData(data, numberOfInstances, types); });
+	bmParallel.run("load data", 1, [&]() { cpuAlgParallel.loadData(loader.getData(), loader.getDataSize(), loader.getNumberOfTypes()); });
 	bmParallel.run("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
 	bmParallel.run("filter by prevalence", 1, [&]() { cpuAlgParallel.filterByPrevalence(prevalence); });
 	//bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); });

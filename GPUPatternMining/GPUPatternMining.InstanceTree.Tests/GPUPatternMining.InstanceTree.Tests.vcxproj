@@ -18,33 +18,52 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BaseCudaTestHandler.h" />
+    <ClInclude Include="catch.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="Tests\InstanceTreeTests.cu" />
+    <CudaCompile Include="Tests\InstanceTypedNeighboursMapCreatorTests.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GPUPatternMining.Contract\GPUPatternMining.Contract.vcxproj">
+      <Project>{9875bacf-2709-46a9-abd3-2cfa01256025}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GPUPatternMining\GPUPatternMining.vcxproj">
+      <Project>{ae2fa75a-5535-460c-8632-6fb973b87817}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{AE2FA75A-5535-460C-8632-6FB973B87817}</ProjectGuid>
-    <RootNamespace>GPUPatternMining</RootNamespace>
+    <ProjectGuid>{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}</ProjectGuid>
+    <RootNamespace>GPUPatternMining_InstanceTree_Tests</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
@@ -102,7 +121,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
-      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -123,7 +141,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
-      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,7 +163,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
@@ -171,53 +187,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="Common\CommonOperations.h" />
-    <ClInclude Include="Entities\FeatureInstance.h" />
-    <ClInclude Include="Entities\FeatureTypePair.h" />
-    <ClInclude Include="Entities\InstanceTable.h" />
-    <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
-    <ClInclude Include="Entities\TypeCount.h" />
-    <ClInclude Include="HashMap\gpuhashmapper.h" />
-    <ClInclude Include="InstanceTree\InstanceTree.h" />
-    <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
-    <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
-    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
-    <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
-    <ClInclude Include="Prevalence\UniquePairPrevalence.h" />
-    <CudaCompile Include="Common\CommonOperations.cu" />
-    <CudaCompile Include="HashMap\gpuutils.cu">
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_30,sm_30</CodeGeneration>
-    </CudaCompile>
-    <ClInclude Include="HashMap\gpuutils.h" />
-    <ClInclude Include="Common\MiningCommon.h" />
-    <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
-    <CudaCompile Include="InstanceTree\InstanceTree.cu">
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_30,sm_30</CodeGeneration>
-    </CudaCompile>
-    <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu">
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_30,sm_30</CodeGeneration>
-    </CudaCompile>
-    <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
-    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
-    <CudaCompile Include="Prevalence\UniquePairPrevalence.cu" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.targets" />

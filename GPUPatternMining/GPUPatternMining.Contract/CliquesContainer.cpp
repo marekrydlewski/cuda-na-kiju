@@ -8,16 +8,24 @@ CliquesContainer::CliquesContainer()
 	cliquesCounter = 0;
 }
 
-void CliquesContainer::insertClique(std::vector<unsigned short> clique)
+void CliquesContainer::insertClique(std::vector<unsigned short>& clique)
 {
-	for (auto type : clique)
+	for (auto type	: clique)
 	{
 		typesMap[type].push_back(cliquesCounter);
 	}
 	++cliquesCounter;
 }
 
-bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short> clique)
+void CliquesContainer::insertCliques(std::vector<std::vector<unsigned short>>& cliques)
+{
+	for (auto& clique : cliques)
+	{
+		insertClique(clique);
+	}
+}
+
+bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
 {
 	assert(clique.size() >= 2);
 

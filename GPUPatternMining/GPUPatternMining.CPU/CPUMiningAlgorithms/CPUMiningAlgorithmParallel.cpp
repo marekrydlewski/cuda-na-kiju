@@ -10,7 +10,8 @@
 #include <concrtrm.h>
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
-
+#include <iostream>
+#include <chrono>
 
 void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned short types)
 {
@@ -21,6 +22,19 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 //imho impossible to do effective parallelisation
 void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 {
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	
+	concurrency::parallel_buffered_sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
+	{
+		return first.xy.x < second.xy.x;
+	});
+
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+
+	begin = std::chrono::steady_clock::now();
+
 	float effectiveThreshold = pow(threshold, 2);
 
 	int cores = concurrency::GetProcessorCount();
@@ -69,6 +83,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			++typeIncidenceCounter[(*it1).type];
 			for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 			{
+				if (std::abs((*it1).xy.x - (*it2).xy.x) > threshold) break;
 				if ((*it1).type != (*it2).type)
 				{
 					if (checkDistance(*it1, *it2, effectiveThreshold))
@@ -90,6 +105,11 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			}
 		}
 	}, concurrency::static_partitioner());
+	end = std::chrono::steady_clock::now();
+
+	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+
+	begin = std::chrono::steady_clock::now();
 
 	combinableInsTable.combine_each([&](
 		std::map<unsigned short,
@@ -118,6 +138,10 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			}
 		}
 	});
+
+	end = std::chrono::steady_clock::now();
+
+	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 }
 
 

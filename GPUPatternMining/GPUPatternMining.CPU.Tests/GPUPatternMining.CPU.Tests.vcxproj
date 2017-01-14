@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CliquesContainer.cpp" />
     <ClCompile Include="DistanceFilterTests.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MaximalCliquesFindingTests.cpp" />

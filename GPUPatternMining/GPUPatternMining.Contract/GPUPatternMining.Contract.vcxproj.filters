@@ -10,6 +10,9 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{08cd3841-380a-4991-9be8-38210210a89e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{9cb4d56d-ec3f-456d-9135-d8b92bcc4264}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\DataFeed.h">
@@ -42,14 +45,14 @@
     <ClInclude Include="CinsNode.h">
       <Filter>Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Enity\FeatureInstance.h">
-      <Filter>Entity</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Benchmark.h">
       <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="CliquesContainer.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -64,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="CinsNode.cpp">
       <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="CliquesContainer.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

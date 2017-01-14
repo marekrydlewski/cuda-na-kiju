@@ -17,8 +17,8 @@ int main()
 	//const unsigned int rangeY = 1000;
 	//const unsigned int rangeX = 1000;
 	//const unsigned int numberOfInstances = 5000;
-	const float threshold = 20;
-	const float prevalence = 0.2;
+	const float threshold = 3;
+	const float prevalence = 0.0;
 
 	//RandomDataProvider rdp;
 	//rdp.setNumberOfTypes(types);
@@ -44,19 +44,27 @@ int main()
 	bmk::benchmark<std::chrono::nanoseconds> bmSeq, bmParallel;
 
 	bmSeq.run("load data", 1, [&]() { cpuAlgSeq.loadData(loader.getData(), loader.getDataSize(), loader.getNumberOfTypes()); });
+	printf("SeqLoaded\n");
 	bmSeq.run("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });
+	printf("Seq1\n");
 	bmSeq.run("filter by prevalence", 1, [&]() { cpuAlgSeq.filterByPrevalence(prevalence); });
-	//bmSeq.run("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
-	//bmSeq.run("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
+	printf("Seq2\n");
+	bmSeq.run("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
+	printf("Seq3\n");
+	bmSeq.run("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
 
 	bmSeq.print("sequential algorithm", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
 
 	bmParallel.run("load data", 1, [&]() { cpuAlgParallel.loadData(loader.getData(), loader.getDataSize(), loader.getNumberOfTypes()); });
+	printf("ParallelLoaded\n");
 	bmParallel.run("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
+	printf("Parallel1\n");
 	bmParallel.run("filter by prevalence", 1, [&]() { cpuAlgParallel.filterByPrevalence(prevalence); });
-	//bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); });
-	//bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
+	printf("Parallel2\n");
+	bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); }); 
+	printf("Parallel3\n");
+	bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
 	bmParallel.print("parallel algorithm", std::cout);
 	//bmParallel.serialize("CPU parallel algorithm", "CPUparallel.txt");

@@ -97,6 +97,8 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
+	int count = 0;
+	printf("%d iterations of BK next\n", degeneracy.second.size());
 	for (unsigned short const vertex : degeneracy.second)
 	{
 		std::vector<unsigned short> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
@@ -109,6 +111,8 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 			neighboursWithLowerIndices);
 
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+		printf("Iteration %d done\n", count);
+		++count;
 	}
 
 	std::set<std::vector<unsigned short>> tmp(maximalCliques.begin(), maximalCliques.end());
@@ -119,13 +123,18 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
-
+	int count = 0;
+	printf("Iterations: %d\n", maximalCliques.size());
 	for (auto clique : maximalCliques)
 	{
+		printf("Clique size: %d\n", clique.size());
 		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
 		if(maxCliques.size() != 0)
 			finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+		printf("Iteration %d\n", count);
+		++count;
 	}
+	printf("Collocations found: %d\n", finalMaxCliques.size());
 	return finalMaxCliques;
 }
 

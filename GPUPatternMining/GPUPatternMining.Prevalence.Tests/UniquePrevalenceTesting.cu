@@ -13,6 +13,7 @@
 
 #include "../GPUPatternMining/HashMap/gpuhashmapper.h"
 #include "../GPUPatternMining/Prevalence/UniquePairPrevalence.h"
+#include "../GPUPatternMining/InstanceTree/IntanceTablesMapCreator.h"
 
 
 #include <thrust/execution_policy.h>
@@ -34,11 +35,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple")
 		counts.push_back(TypeCount(0xC, 2));
 	}
 
-	Prevalence::UniqueFilter::PairPrevalenceFilter bppc(counts);
-
 	const float minimalPrevalence = 0.6f;
 
 	auto plRes = std::make_shared<PlaneSweepTableInstanceResult>();
+
+	auto itmPack = std::make_shared<IntanceTablesMapCreator::ITMPack>();
 
 	{
 		thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> huniques;
@@ -58,7 +59,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple")
 		b.field = 0x000C0000;
 		huniques.push_back(thrust::make_tuple(a, b));
 
-		plRes->uniques = huniques;
+		itmPack->uniques = huniques;
 	}
 
 	{
@@ -102,14 +103,17 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple")
 	
 	{
 		std::vector<unsigned int> counts = { 2, 1, 2 };
-		plRes->counts = counts;
+		itmPack->counts = counts;
 	}
 
 	{
 		std::vector<unsigned int> indices = { 0, 2, 3 };
-		plRes->indices = indices;
+		itmPack->begins = indices;
 	}
 	
+	Prevalence::UniqueFilter::PairPrevalenceFilter bppc(
+		counts, itmPack);
+
 	thrust::host_vector<FeatureTypePair> result = bppc.getPrevalentPairConnections(
 		minimalPrevalence
 		, plRes
@@ -149,11 +153,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple 2")
 		counts.push_back(TypeCount(0xC, 4));
 	}
 
-	Prevalence::UniqueFilter::PairPrevalenceFilter bppc(counts);
-
 	const float minimalPrevalence = 3.f / 5.1f;
 
 	auto plRes = std::make_shared<PlaneSweepTableInstanceResult>();
+
+	auto itmPack = std::make_shared<IntanceTablesMapCreator::ITMPack>();
 
 	{
 		thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> huniques;
@@ -173,7 +177,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple 2")
 		b.field = 0x000C0003;
 		huniques.push_back(thrust::make_tuple(a, b));
 
-		plRes->uniques = huniques;
+		itmPack->uniques = huniques;
 	}
 
 	{
@@ -247,13 +251,16 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple 2")
 
 	{
 		std::vector<unsigned int> counts = { 5, 3, 3 };
-		plRes->counts = counts;
+		itmPack->counts = counts;
 	}
 
 	{
 		std::vector<unsigned int> indices = { 0, 5, 8 };
-		plRes->indices = indices;
+		itmPack->begins = indices;
 	}
+
+	Prevalence::UniqueFilter::PairPrevalenceFilter bppc(
+		counts, itmPack);
 
 	thrust::host_vector<FeatureTypePair> result = bppc.getPrevalentPairConnections(
 		minimalPrevalence

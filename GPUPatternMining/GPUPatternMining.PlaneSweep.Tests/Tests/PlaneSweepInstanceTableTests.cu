@@ -77,47 +77,27 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 
 	cudaDeviceSynchronize();
 
-	{
-		thrust::host_vector<unsigned int> indicies = result->indices;
-		printf("indices\n");
-
-		for (unsigned int val : indicies)
-			printf("%u\n", val);
-	}
-
-	Entities::InstanceTable expectedAB(2, 0);
-	Entities::InstanceTable expectedAC(1, 2);
-	Entities::InstanceTable expectedBC(2, 3);
-
-	std::vector<UInt> resultKeys = {
-		0x000A000B
-		, 0x000A000C
-		, 0x000B000C
+	std::vector<FeatureInstance> expectedA= {
+		 { 0x000A0000 }
+		,{ 0x000A0001 }
+		,{ 0x000A0001 }
+		,{ 0x000B0000 }
+		,{ 0x000B0001 }
 	};
 
-	thrust::device_vector<UInt> dResultKeys = resultKeys;
+	std::vector<FeatureInstance> expectedB = {
+		{ 0x000B0000 }
+		,{ 0x000B0001 }
+		,{ 0x000C0001 }
+		,{ 0x000C0000 }
+		,{ 0x000C0000 }
+	};
 
+	thrust::host_vector<FeatureInstance> pA = result->pairsA;
+	thrust::host_vector<FeatureInstance> pB = result->pairsB;
 
-	Entities::InstanceTable* dResults;
-	Entities::InstanceTable results[3];
-
-	cudaMalloc(reinterpret_cast<void**>(&dResults), 3 * sizeof(Entities::InstanceTable));
-	
-	result->instanceTableMap->getValues(
-		thrust::raw_pointer_cast(dResultKeys.data())
-		, dResults
-		, 3);
-
-	cudaMemcpy(results, dResults, 3 * sizeof(Entities::InstanceTable), cudaMemcpyDeviceToHost);
-
-	REQUIRE(results[0].count == expectedAB.count);
-	REQUIRE(results[0].startIdx == expectedAB.startIdx);
-
-	REQUIRE(results[1].count == expectedAC.count);
-	REQUIRE(results[1].startIdx == expectedAC.startIdx);
-
-	REQUIRE(results[2].count == expectedBC.count);
-	REQUIRE(results[2].startIdx == expectedBC.startIdx);
+	REQUIRE(std::equal(expectedA.begin(), expectedA.end(), pA.begin()));
+	REQUIRE(std::equal(expectedB.begin(), expectedB.end(), pB.begin()));
 }
 // ----------------------------------------------------------------------------
 
@@ -184,28 +164,21 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 
 	cudaDeviceSynchronize();
 
-	Entities::InstanceTable expectedAC(1, 0);
-	
-	std::vector<UInt> resultKeys = {
-		0x000A000C
+
+	std::vector<FeatureInstance> expectedA = {
+		{ 0x000A0000 }
 	};
 
-	thrust::device_vector<UInt> dResultKeys = resultKeys;
+	std::vector<FeatureInstance> expectedB = {
+		{ 0x000C0001 }
+	};
 
-	Entities::InstanceTable* dResults;
-	Entities::InstanceTable results[1];
+	thrust::host_vector<FeatureInstance> pA = result->pairsA;
+	thrust::host_vector<FeatureInstance> pB = result->pairsB;
 
-	cudaMalloc(reinterpret_cast<void**>(&dResults), 1 * sizeof(Entities::InstanceTable));
 
-	result->instanceTableMap->getValues(
-		thrust::raw_pointer_cast(dResultKeys.data())
-		, dResults
-		, 1);
-
-	cudaMemcpy(results, dResults, 1 * sizeof(Entities::InstanceTable), cudaMemcpyDeviceToHost);
-
-	REQUIRE(results[0].count == expectedAC.count);
-	REQUIRE(results[0].startIdx == expectedAC.startIdx);
+	REQUIRE(std::equal(expectedA.begin(), expectedA.end(), pA.begin()));
+	REQUIRE(std::equal(expectedB.begin(), expectedB.end(), pB.begin()));
 }
 // ----------------------------------------------------------------------------
 

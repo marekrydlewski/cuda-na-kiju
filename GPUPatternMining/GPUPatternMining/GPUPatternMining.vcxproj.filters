@@ -8,6 +8,7 @@
     <CudaCompile Include="Prevalence\UniquePairPrevalence.cu" />
     <CudaCompile Include="InstanceTree\InstanceTree.cu" />
     <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu" />
+    <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
@@ -29,5 +30,6 @@
     <ClInclude Include="Prevalence\UniquePairPrevalence.h" />
     <ClInclude Include="InstanceTree\InstanceTree.h" />
     <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
+    <ClInclude Include="InstanceTree\IntanceTablesMapCreator.h" />
   </ItemGroup>
 </Project>

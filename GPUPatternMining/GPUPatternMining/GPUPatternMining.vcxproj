@@ -185,6 +185,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="HashMap\gpuhashmapper.h" />
     <ClInclude Include="InstanceTree\InstanceTree.h" />
     <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
+    <ClInclude Include="InstanceTree\IntanceTablesMapCreator.h" />
     <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
@@ -211,6 +212,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_30,sm_30</CodeGeneration>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_30,sm_30</CodeGeneration>
     </CudaCompile>
+    <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
     <CudaCompile Include="Prevalence\UniquePairPrevalence.cu" />

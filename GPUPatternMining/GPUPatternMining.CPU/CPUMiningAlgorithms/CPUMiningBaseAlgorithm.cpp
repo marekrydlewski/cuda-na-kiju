@@ -1,6 +1,7 @@
 #include "CPUMiningBaseAlgorithm.h"
 
 #include <algorithm>
+#include <ppl.h>
 
 CPUMiningBaseAlgorithm::CPUMiningBaseAlgorithm()
 {
@@ -48,6 +49,24 @@ bool CPUMiningBaseAlgorithm::countPrevalence(
 		generalInstances.begin(),
 		tempMins.begin(),
 		[](unsigned short a, unsigned short b) { return (a / (float) b); });
+
+	return prevalence < *std::min_element(tempMins.begin(), tempMins.end());
+}
+
+bool CPUMiningBaseAlgorithm::countPrevalenceParallel(
+	const std::vector<unsigned short>& particularInstances,
+	const std::vector<unsigned short>& generalInstances,
+	float prevalence) const
+{
+	std::vector<float> tempMins;
+	tempMins.resize(particularInstances.size());
+
+	concurrency::parallel_transform(
+		particularInstances.begin(),
+		particularInstances.end(),
+		generalInstances.begin(),
+		tempMins.begin(),
+		[](unsigned short a, unsigned short b) { return (a / (float)b); });
 
 	return prevalence < *std::min_element(tempMins.begin(), tempMins.end());
 }

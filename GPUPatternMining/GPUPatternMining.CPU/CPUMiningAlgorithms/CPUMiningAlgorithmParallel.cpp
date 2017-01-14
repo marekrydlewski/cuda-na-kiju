@@ -232,15 +232,29 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 //already parallelised
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaximalCliques(float prevalence)
 {
+	int cores = concurrency::GetProcessorCount();
+
+	std::vector<std::vector<std::vector<unsigned short>>> cliquesPerProcessor(cores);
+
+	std::sort(maximalCliques.begin(), maximalCliques.end());
+
+	printf("%d\n", maximalCliques.size());
+
+	for (int i = 0; i < maximalCliques.size(); ++i)
+	{
+		cliquesPerProcessor[i%cores].push_back(maximalCliques[i]);
+	}
+
 	concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentFinalMaxCliques;
 
-	concurrency::parallel_for_each(
-		maximalCliques.begin(),
-		maximalCliques.end(),
-		[&](std::vector<unsigned short> clique) {
-		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
-		if (maxCliques.size() != 0)
-			concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
+	concurrency::parallel_for(0, cores,
+		[&](int i) {
+		for (auto clique : cliquesPerProcessor[i])
+		{
+			auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
+			if (maxCliques.size() != 0)
+				concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
+		}
 	}
 	);
 

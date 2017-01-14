@@ -191,7 +191,7 @@ void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 				}
 			}
 		}
-	});
+	}, concurrency::static_partitioner());
 }
 
 void CPUMiningAlgorithmParallel::createSize2ColocationsGraph()
@@ -256,24 +256,38 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 //already parallelised
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaximalCliques(float prevalence)
 {
+	int cores = concurrency::GetProcessorCount();
+
+	std::vector<std::vector<std::vector<unsigned short>>> cliquesPerProcessor(cores);
+
+	std::sort(maximalCliques.begin(), maximalCliques.end());
+
+	printf("%d\n", maximalCliques.size());
+
+	for (int i = 0; i < maximalCliques.size(); ++i)
+	{
+		cliquesPerProcessor[i%cores].push_back(maximalCliques[i]);
+	}
+
 	concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentFinalMaxCliques;
 
-	concurrency::parallel_for_each(
-		maximalCliques.begin(),
-		maximalCliques.end(),
-		[&](std::vector<unsigned short> clique) {
-		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
-		if (maxCliques.size() != 0)
-			concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
-	}
+	concurrency::parallel_for(0, cores,
+		[&](int i) {
+		for (auto clique : cliquesPerProcessor[i])
+		{
+			auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
+			if (maxCliques.size() != 0)
+				concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
+		}
+	}, concurrency::static_partitioner()
 	);
 
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 	concurrentFinalMaxCliques.combine_each(
 		[&finalMaxCliques](std::vector<std::vector<unsigned short>> vec) {
 		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
-	}
-	);
+	});
+
 	return finalMaxCliques;
 }
 
@@ -482,18 +496,29 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 		if (clique.size() > 2) //it's possible, no idea why
 		{
 			auto smallerCliques = getAllCliquesSmallerByOne(clique);
-			for (auto c : smallerCliques)
+			if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 			{
-				if (c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
-				{
-					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
-					break; //all smallerCliques are the same size, so insert them all and break the loop
-				}
-				else
-				{
-					auto nextCliques = getPrevalentMaxCliques(c, prevalence);
-					finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
-				}
+				finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+				//all smallerCliques are the same size, so insert them all and break the loop
+			}
+			else
+			{
+				concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentMaxCliques;
+
+				concurrency::parallel_for_each(
+					smallerCliques.begin(),
+					smallerCliques.end(), [&](std::vector<unsigned short>& c) {
+						auto nextCliques = getPrevalentMaxCliques(c, prevalence);
+						concurrentMaxCliques.local().insert(
+							concurrentMaxCliques.local().end(),
+							nextCliques.begin(),
+							nextCliques.end());
+				});
+
+				concurrentMaxCliques.combine_each(
+					[&finalMaxCliques](std::vector<std::vector<unsigned short>>& vec) {
+					finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
+				});
 			}
 		}
 	}

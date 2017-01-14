@@ -5,8 +5,9 @@
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <iterator>
-
+#include <chrono>
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned short types)
 {
 	this->typeIncidenceCounter.resize(types, 0);
@@ -15,13 +16,27 @@ void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned shor
 
 void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 {
-	float effectiveThreshold = pow(threshold, 2);
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+	std::sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
+	{
+		return (first.xy.x < second.xy.x);
+	});
+
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+
+	begin = std::chrono::steady_clock::now();
+
+	float effectiveThreshold = std::pow(threshold, 2);
 
 	for (auto it1 = source.begin(); (it1 != source.end()); ++it1)
 	{
 		++this->typeIncidenceCounter[(*it1).type];
 		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 		{
+			if (std::abs((*it1).xy.x - (*it2).xy.x) > threshold) break;
 			if ((*it1).type != (*it2).type)
 			{
 				if (checkDistance(*it1, *it2, effectiveThreshold))
@@ -42,6 +57,9 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 			}
 		}
 	}
+	end = std::chrono::steady_clock::now();
+
+	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 }
 
 void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)

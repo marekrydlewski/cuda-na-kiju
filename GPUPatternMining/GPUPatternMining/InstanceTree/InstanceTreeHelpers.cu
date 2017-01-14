@@ -76,7 +76,6 @@ namespace InstanceTreeHelpers
 		thrust::device_vector<unsigned int>& groupSizes,
 		unsigned int bs)
 	{
-
 		unsigned int nGroups = groupSizes.size();
 
 		thrust::device_vector<unsigned int> scannedGroupSizes = thrust::device_vector<unsigned int>(nGroups);//temp
@@ -95,8 +94,7 @@ namespace InstanceTreeHelpers
 			thrust::fill(res->groupNumbers.begin(), res->groupNumbers.end(), 0);
 			thrust::fill(res->itemNumbers.begin(), res->itemNumbers.end(), 0);
 
-
-			scatterOnesAndPositions << < computeGrid(nGroups, bs), bs >> >(nGroups, nThreads,
+			scatterOnesAndPositions <<< computeGrid(nGroups, bs), bs >>>(nGroups, nThreads,
 				groupSizes.data().get(),
 				scannedGroupSizes.data().get(),
 				res->groupNumbers.data().get(),
@@ -108,7 +106,7 @@ namespace InstanceTreeHelpers
 
 			thrust::transform(res->groupNumbers.begin(), res->groupNumbers.end(), res->groupNumbers.begin(), decrease());
 
-			substractTid << <computeGrid(nThreads, bs), bs >> >(nThreads, res->itemNumbers.data().get());
+			substractTid <<< computeGrid(nThreads, bs), bs >>>(nThreads, res->itemNumbers.data().get());
 		}
 
 		res->threadCount = nThreads;
@@ -117,5 +115,38 @@ namespace InstanceTreeHelpers
 	}
 	// -----------------------------------------------------------------------------
 
+
+	__global__ 
+	void writeFirstTwoLevels(
+		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
+		, thrust::device_ptr<const unsigned short>* cliquesCandidates
+		, thrust::device_ptr<unsigned int> groupNumber
+		, thrust::device_ptr<unsigned int> itemNumber
+		, thrust::device_ptr<FeatureInstance> pairsA
+		, thrust::device_ptr<FeatureInstance> pairsB
+		, unsigned int count
+		, thrust::device_ptr<FeatureInstance> firstLevel
+		, thrust::device_ptr<FeatureInstance> secondLevel
+	)
+	{
+		unsigned int tid = computeLinearAddressFrom2D();
+
+		if (tid < count)
+		{
+			auto clique = cliquesCandidates[groupNumber[tid]];
+
+			unsigned int key = (static_cast<unsigned int>(clique[0]) << 16) | clique[1];
+
+			Entities::InstanceTable instanceTable;
+
+			GPUHashMapperProcedures::getValue(
+				bean
+				, key
+				, instanceTable);
+
+			firstLevel[tid] = pairsA[instanceTable.startIdx + itemNumber[tid]];
+			secondLevel[tid] = pairsB[instanceTable.startIdx + itemNumber[tid]];
+		}
+	}
 }
 

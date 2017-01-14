@@ -39,6 +39,11 @@ namespace InstanceTree
 			cliques = hcliques;
 		}
 
+		std::vector<thrust::device_vector<FeatureInstance>> instancesElementsInLevelVectors;
+		std::vector<thrust::device_ptr<FeatureInstance>> instancesElementsInLevel;
+		std::vector<thrust::device_ptr<unsigned int>> groupNumberLevels;
+		std::vector<thrust::device_ptr<unsigned int>> itemNumberLevels;
+
 		// build first tree level
 		thrust::device_vector<unsigned int> pairCounts(cliquesCandidates.size());
 		
@@ -50,18 +55,53 @@ namespace InstanceTree
 		InstanceTreeHelpers::fillFirstPairCountFromMap <<< insertGrid, 256 >>>(
 			instanceTablePack->map->getBean()
 			, thrust::raw_pointer_cast(cliques.data())
-			, 3
+			, cliques.size()
 			, newEntriesCounts.data()
 		);
+		
+		cudaDeviceSynchronize();
 
-		unsigned int levelSize = thrust::reduce(
-			thrust::device
-			, newEntriesCounts.begin()
-			, newEntriesCounts.end()
-		);
+		std::vector<InstanceTreeHelpers::ForGroupsResultPtr> levelResults;
+
+		auto firstTwoLevelsFg = InstanceTreeHelpers::forGroups(newEntriesCounts);
+		
+		// level 0
+		instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(firstTwoLevelsFg->threadCount));
+		instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back().data());
+		groupNumberLevels.push_back(firstTwoLevelsFg->groupNumbers.data());
+		itemNumberLevels.push_back(firstTwoLevelsFg->itemNumbers.data());
+		levelResults.push_back(firstTwoLevelsFg);
+
+		// level 1
+		instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(firstTwoLevelsFg->threadCount));
+		instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back().data());
+		groupNumberLevels.push_back(firstTwoLevelsFg->groupNumbers.data());
+		itemNumberLevels.push_back(firstTwoLevelsFg->itemNumbers.data());
+		levelResults.push_back(firstTwoLevelsFg);
 
 
 
+		// fill first two tree levels with FeatureInstance
+		dim3 writeFirstTwoLevelsGrid;
+		findSmallest2D(firstTwoLevelsFg->threadCount, 256, writeFirstTwoLevelsGrid.x, writeFirstTwoLevelsGrid.y);
+
+
+		InstanceTreeHelpers::writeFirstTwoLevels << < writeFirstTwoLevelsGrid, 256 >> > (
+			instanceTablePack->map->getBean()
+			, thrust::raw_pointer_cast(cliques.data())
+			, firstTwoLevelsFg->groupNumbers.data()
+			, firstTwoLevelsFg->itemNumbers.data()
+			, planeSweepResult->pairsA.data()
+			, planeSweepResult->pairsB.data()
+			, firstTwoLevelsFg->threadCount
+			, instancesElementsInLevel[0]
+			, instancesElementsInLevel[1]
+			);
+
+		// TODO add generating bigger trees
+
+		// TODO reverse generate instances
+		
 		return result;
 	}
 }

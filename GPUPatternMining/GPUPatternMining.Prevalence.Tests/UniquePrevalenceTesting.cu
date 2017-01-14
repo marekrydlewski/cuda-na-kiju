@@ -142,7 +142,6 @@ A3-B3	   C1
 A4-B4
    |
 A6-C4
-
 */
 TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple 2")
 {

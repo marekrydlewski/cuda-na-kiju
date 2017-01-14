@@ -27,4 +27,19 @@ namespace  InstanceTreeHelpers
 	ForGroupsResultPtr forGroups(
 		thrust::device_vector<unsigned int>& groupSizes,
 		unsigned int bs = 256);
+	// -----------------------------------------------------------------------------
+
+	__global__
+		void writeFirstTwoLevels(
+			HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
+			, thrust::device_ptr<const unsigned short>* cliquesCandidates
+			, thrust::device_ptr<unsigned int> groupNumber
+			, thrust::device_ptr<unsigned int> itemNumber
+			, thrust::device_ptr<FeatureInstance> pairsA
+			, thrust::device_ptr<FeatureInstance> pairsB
+			, unsigned int count
+			, thrust::device_ptr<FeatureInstance> firstLevel
+			, thrust::device_ptr<FeatureInstance> secondLevel
+		);
+	// -----------------------------------------------------------------------------
 }

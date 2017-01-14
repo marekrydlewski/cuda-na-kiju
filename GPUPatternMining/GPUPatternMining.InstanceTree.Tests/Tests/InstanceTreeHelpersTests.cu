@@ -5,6 +5,7 @@
 //--------------------------------------------------------------
 
 #include "..\..\GPUPatternMining/InstanceTree/InstanceTreeHelpers.h"
+#include "../../GPUPatternMining/InstanceTree/IntanceTablesMapCreator.h"
 //--------------------------------------------------------------
 
 using namespace InstanceTreeHelpers;
@@ -135,5 +136,183 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | for groups simple
 	REQUIRE(std::equal(expectedGroupNumbers.begin(), expectedGroupNumbers.end(), resultGroupNumbers.begin()));
 	REQUIRE(std::equal(expectedItemNumbers.begin(), expectedItemNumbers.end(), resultItemNumbers.begin()));
 	REQUIRE(result->threadCount == 8);
+}
+//--------------------------------------------------------------
+
+
+/*
+Test for graph
+
+         C3
+          |
+A1-B1-C1-B2-A2-C2
+*/
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert first two levels")
+{
+	thrust::device_vector<FeatureInstance> pairsA;
+	thrust::device_vector<FeatureInstance> pairsB;
+	{
+		/*
+		a1 - b1
+		a2 - b2
+		a2 - c2
+		b1 - c1
+		b2 - c1
+		b2 - c3
+		*/
+		std::vector<FeatureInstance> hPairsA = {
+			{ 0x000A0001 }
+			,{ 0x000A0002 }
+			,{ 0x000A0002 }
+			,{ 0x000B0001 }
+			,{ 0x000B0002 }
+			,{ 0x000B0002 }
+		};
+
+		std::vector<FeatureInstance> hPairsB = {
+			{ 0x000B0001 }
+			,{ 0x000B0002 }
+			,{ 0x000C0002 }
+			,{ 0x000C0001 }
+			,{ 0x000C0001 }
+			,{ 0x000C0003 }
+		};
+
+		pairsA = hPairsA;
+		pairsB = hPairsB;
+	}
+
+	auto instanceMapResult = IntanceTablesMapCreator::createTypedNeighboursListMap(
+		pairsA
+		, pairsB
+	);
+
+	thrust::device_vector<thrust::device_vector<unsigned short>> cliquesData;
+	thrust::host_vector<thrust::device_vector<unsigned short>> hcliquesData;
+	{
+
+		std::vector<unsigned short> first = { 0x000A, 0x000B, 0x000C };
+		std::vector<unsigned short> second = { 0x000B, 0x000C, 0x000D };
+
+		hcliquesData.push_back(first);
+		hcliquesData.push_back(second);
+
+		cliquesData = hcliquesData;
+	}
+
+	thrust::device_vector<thrust::device_ptr<const unsigned short>> cliques;
+	{
+		std::vector<thrust::device_ptr<const unsigned short>> hcliques;
+		for (const thrust::device_vector<unsigned short>& vec : hcliquesData)
+			hcliques.push_back(vec.data());
+
+		cliques = hcliques;
+	}
+
+	thrust::device_vector<unsigned int> groupNumber;
+	{
+		std::vector<unsigned int> hGroupNumber
+		{
+			0, 0, 1, 1, 1
+		};
+
+		groupNumber = hGroupNumber;
+	}
+
+	thrust::device_vector<unsigned int> itemNumber;
+	{
+		std::vector<unsigned int> hItemNumber
+		{
+			0, 1, 0, 1, 2
+		};
+
+		itemNumber = hItemNumber;
+	}
+
+	dim3 insertGrid;
+	findSmallest2D(5, 256, insertGrid.x, insertGrid.y);
+
+
+	thrust::device_vector<FeatureInstance> firstLevel(5);
+	thrust::device_vector<FeatureInstance> secondLevel(5);
+
+	writeFirstTwoLevels <<< insertGrid, 256 >>> (
+		instanceMapResult->map->getBean()
+		, thrust::raw_pointer_cast(cliques.data())
+		, groupNumber.data()
+		, itemNumber.data()
+		, pairsA.data()
+		, pairsB.data()
+		, 5
+		, firstLevel.data()
+		, secondLevel.data()
+		);
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	std::vector<FeatureInstance> expectedFirstLevel;
+	{
+		FeatureInstance fi;
+		
+		/*
+		a1 - b1
+		a2 - b2
+		a2 - c2
+		b1 - c1
+		b2 - c1
+		b2 - c3
+		*/
+
+		fi.field = 0x000A0001;
+		expectedFirstLevel.push_back(fi);
+
+		fi.field = 0x000A0002;
+		expectedFirstLevel.push_back(fi);
+
+		fi.field = 0x000B0001;
+		expectedFirstLevel.push_back(fi);
+
+		fi.field = 0x000B0002;
+		expectedFirstLevel.push_back(fi);
+
+		fi.field = 0x000B0002;
+		expectedFirstLevel.push_back(fi);
+	}
+
+	std::vector<FeatureInstance> expectedSecondLevel;
+	{
+		FeatureInstance fi;
+
+		/*
+		a1 - b1
+		a2 - b2
+		a2 - c2
+		b1 - c1
+		b2 - c1
+		b2 - c3
+		*/
+
+		fi.field = 0x000B0001;
+		expectedSecondLevel.push_back(fi);
+
+		fi.field = 0x000B0002;
+		expectedSecondLevel.push_back(fi);
+
+		fi.field = 0x000C0001;
+		expectedSecondLevel.push_back(fi);
+
+		fi.field = 0x000C0001;
+		expectedSecondLevel.push_back(fi);
+
+		fi.field = 0x000C0003;
+		expectedSecondLevel.push_back(fi);
+	}
+	
+
+	thrust::host_vector<FeatureInstance> resultFirstLevel = firstLevel;
+	thrust::host_vector<FeatureInstance> resultSecondLevel = secondLevel;
+
+	REQUIRE(std::equal(expectedFirstLevel.begin(), expectedFirstLevel.end(), resultFirstLevel.begin()));
+	REQUIRE(std::equal(expectedSecondLevel.begin(), expectedSecondLevel.end(), resultSecondLevel.begin()));
 }
 //--------------------------------------------------------------

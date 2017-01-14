@@ -26,6 +26,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="Tests\InstanceTreeHelpersTests.cu" />
     <CudaCompile Include="Tests\InstanceTreeTests.cu" />
     <CudaCompile Include="Tests\InstanceTypedNeighboursMapCreatorTests.cu" />
     <CudaCompile Include="Tests\IntanceTablesMapCreatorTests.cu" />

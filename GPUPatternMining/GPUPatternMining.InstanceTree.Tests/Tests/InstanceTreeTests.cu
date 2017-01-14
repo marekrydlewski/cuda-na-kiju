@@ -7,7 +7,7 @@
 #include "..\..\GPUPatternMining\InstanceTree\InstanceTree.h"
 //--------------------------------------------------------------
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "PlaneSweep_instanceTable | Planesweep main")
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | size-2")
 {
 
 }

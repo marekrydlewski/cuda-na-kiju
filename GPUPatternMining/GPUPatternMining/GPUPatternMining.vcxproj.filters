@@ -9,6 +9,7 @@
     <CudaCompile Include="InstanceTree\InstanceTree.cu" />
     <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu" />
     <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
+    <CudaCompile Include="InstanceTree\InstanceTreeHelpers.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
@@ -31,5 +32,6 @@
     <ClInclude Include="InstanceTree\InstanceTree.h" />
     <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
     <ClInclude Include="InstanceTree\IntanceTablesMapCreator.h" />
+    <ClInclude Include="InstanceTree\InstanceTreeHelpers.h" />
   </ItemGroup>
 </Project>

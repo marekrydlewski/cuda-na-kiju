@@ -184,6 +184,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="Entities\TypeCount.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h" />
     <ClInclude Include="InstanceTree\InstanceTree.h" />
+    <ClInclude Include="InstanceTree\InstanceTreeHelpers.h" />
     <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
     <ClInclude Include="InstanceTree\IntanceTablesMapCreator.h" />
     <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
@@ -206,6 +207,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_30,sm_30</CodeGeneration>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_30,sm_30</CodeGeneration>
     </CudaCompile>
+    <CudaCompile Include="InstanceTree\InstanceTreeHelpers.cu" />
     <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu">
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_30,sm_30</CodeGeneration>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">compute_30,sm_30</CodeGeneration>

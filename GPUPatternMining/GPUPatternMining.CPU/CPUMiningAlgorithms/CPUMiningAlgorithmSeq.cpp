@@ -136,6 +136,7 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
+	CliquesContainer clq;
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 	std::vector<std::vector<std::vector<unsigned short>>> cliquesToProcess((*std::max_element(maximalCliques.begin(), 
 		maximalCliques.end(), 
@@ -153,11 +154,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 	{
 		while (cliquesToProcess[i].size() != 0)
 		{
-			auto clique = cliquesToProcess[i].front();
-			cliquesToProcess[i].erase(cliquesToProcess[i].begin());
-			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
+			auto clique = cliquesToProcess[i].back();
+			cliquesToProcess[i].pop_back();
+			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess, clq);
 			if (maxCliques.size() != 0)
 				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+
 		}
 	}
 
@@ -342,26 +344,33 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& cliqu
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(
 	std::vector<unsigned short>& clique,
 	float prevalence,
-	std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess)
+	std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess,
+	CliquesContainer& clq)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
-	if (isCliquePrevalent(clique, prevalence))
-		finalMaxCliques.push_back(clique);
-	else 
+	if (!clq.checkCliqueExistence(clique)) 
 	{
-		if (clique.size() > 2) //it's possible, no idea why
+		if (isCliquePrevalent(clique, prevalence))
 		{
-			auto smallerCliques = getAllCliquesSmallerByOne(clique);
-			if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
+			finalMaxCliques.push_back(clique);
+			clq.insertClique(clique);
+		}
+		else
+		{
+			if (clique.size() > 2) //it's possible, no idea why
 			{
-				finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
-			}
-			else
-			{
-				cliquesToProcess[clique.size()-2].insert(cliquesToProcess[clique.size() - 2].end(), smallerCliques.begin(), smallerCliques.end());
+				auto smallerCliques = getAllCliquesSmallerByOne(clique);
+				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
+				{
+					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+				}
+				else
+				{
+					cliquesToProcess[clique.size() - 2].insert(cliquesToProcess[clique.size() - 2].end(), smallerCliques.begin(), smallerCliques.end());
+				}
 			}
 		}
-	}
+	};
 	return finalMaxCliques;
 }
 

@@ -9,10 +9,10 @@
 int main()
 {
 	//input data
-	const unsigned int types = 10;
+	const unsigned int types = 7;
 	const unsigned int rangeY = 1000;
 	const unsigned int rangeX = 1000;
-	const unsigned int numberOfInstances = 5000;
+	const unsigned int numberOfInstances = 1000;
 	const float threshold = 20;
 	const float prevalence = 0.2;
 

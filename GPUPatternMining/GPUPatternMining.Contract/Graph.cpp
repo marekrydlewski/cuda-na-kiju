@@ -123,7 +123,7 @@ std::pair<unsigned short, std::vector<unsigned short>> Graph::getDegeneracy()
 				for (auto dRowIndex = 0; dRowIndex < D.size(); ++dRowIndex)
 				{
 					auto neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(),
-						[&vi](const unsigned short& dvalue) { return dvalue == vi; });
+						[vi](const unsigned short dvalue) { return dvalue == vi; });
 
 					//Subtract one from dw and move w to the cell of D corresponding to the new value of dw.
 					while (neighborFound != D[dRowIndex].end())
@@ -133,7 +133,7 @@ std::pair<unsigned short, std::vector<unsigned short>> Graph::getDegeneracy()
 						D[dRowIndex - 1].push_back(neighborValue);
 
 						neighborFound = std::find_if(D[dRowIndex].begin(), D[dRowIndex].end(),
-							[&vi](const unsigned short& dvalue) { return dvalue == vi; });
+							[vi](const unsigned short dvalue) { return dvalue == vi; });
 					}
 				}
 			}

@@ -167,7 +167,7 @@ void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 				}
 			}
 		}
-	});
+	}, concurrency::static_partitioner());
 }
 
 void CPUMiningAlgorithmParallel::createSize2ColocationsGraph()
@@ -248,8 +248,8 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 	concurrentFinalMaxCliques.combine_each(
 		[&finalMaxCliques](std::vector<std::vector<unsigned short>> vec) {
 		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
-	}
-	);
+	});
+
 	return finalMaxCliques;
 }
 
@@ -458,18 +458,29 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 		if (clique.size() > 2) //it's possible, no idea why
 		{
 			auto smallerCliques = getAllCliquesSmallerByOne(clique);
-			for (auto c : smallerCliques)
+			if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 			{
-				if (c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
-				{
-					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
-					break; //all smallerCliques are the same size, so insert them all and break the loop
-				}
-				else
-				{
-					auto nextCliques = getPrevalentMaxCliques(c, prevalence);
-					finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
-				}
+				finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+				//all smallerCliques are the same size, so insert them all and break the loop
+			}
+			else
+			{
+				concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentMaxCliques;
+
+				concurrency::parallel_for_each(
+					smallerCliques.begin(),
+					smallerCliques.end(), [&](std::vector<unsigned short>& c) {
+						auto nextCliques = getPrevalentMaxCliques(c, prevalence);
+						concurrentMaxCliques.local().insert(
+							concurrentMaxCliques.local().end(),
+							nextCliques.begin(),
+							nextCliques.end());
+				});
+
+				concurrentMaxCliques.combine_each(
+					[&finalMaxCliques](std::vector<std::vector<unsigned short>>& vec) {
+					finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
+				});
 			}
 		}
 	}

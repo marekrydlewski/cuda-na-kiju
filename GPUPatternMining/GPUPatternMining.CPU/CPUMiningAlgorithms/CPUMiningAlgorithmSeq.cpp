@@ -150,7 +150,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 		cliquesToProcess[cl.size()-1].push_back(cl);
 	}
 
-	for (int i = cliquesToProcess.size() - 1; i >= 0; --i)
+	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
 	{
 		while (cliquesToProcess[i].size() != 0)
 		{
@@ -159,7 +159,6 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess, clq);
 			if (maxCliques.size() != 0)
 				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
-
 		}
 	}
 
@@ -362,7 +361,14 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);
 				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 				{
-					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+					for (auto smallClique : smallerCliques)
+					{
+						if (!clq.checkCliqueExistence(smallClique))
+						{
+							finalMaxCliques.push_back(smallClique);
+							clq.insertClique(smallClique);
+						}
+					}
 				}
 				else
 				{

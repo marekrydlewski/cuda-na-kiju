@@ -137,13 +137,31 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
+	std::vector<std::vector<std::vector<unsigned short>>> cliquesToProcess((*std::max_element(maximalCliques.begin(), 
+		maximalCliques.end(), 
+		[](std::vector<unsigned short> left, std::vector<unsigned short> right) 
+		{
+			return left.size() < right.size();
+		})).size());
 
-	for (auto clique : maximalCliques)
+	for (auto cl : maximalCliques)
 	{
-		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
-		if(maxCliques.size() != 0)
-			finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+		cliquesToProcess[cl.size()-1].push_back(cl);
 	}
+
+	for (int i = cliquesToProcess.size() - 1; i >= 0; --i)
+	{
+		while (cliquesToProcess[i].size() != 0)
+		{
+			auto clique = cliquesToProcess[i].front();
+			cliquesToProcess[i].erase(cliquesToProcess[i].begin());
+			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
+			if (maxCliques.size() != 0)
+				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+		}
+	}
+
+	
 	return finalMaxCliques;
 }
 
@@ -323,7 +341,8 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& cliqu
 
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(
 	std::vector<unsigned short>& clique,
-	float prevalence)
+	float prevalence,
+	std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 	if (isCliquePrevalent(clique, prevalence))
@@ -333,18 +352,13 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 		if (clique.size() > 2) //it's possible, no idea why
 		{
 			auto smallerCliques = getAllCliquesSmallerByOne(clique);
-			for (auto c : smallerCliques)
+			if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 			{
-				if (c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
-				{
-					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
-					break; //all smallerCliques are the same size, so insert them all and break the loop
-				}
-				else
-				{
-					auto nextCliques = getPrevalentMaxCliques(c, prevalence);
-					finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
-				}
+				finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
+			}
+			else
+			{
+				cliquesToProcess[clique.size()-2].insert(cliquesToProcess[clique.size() - 2].end(), smallerCliques.begin(), smallerCliques.end());
 			}
 		}
 	}

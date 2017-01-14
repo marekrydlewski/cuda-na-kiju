@@ -39,7 +39,7 @@ bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short> clique)
 		std::fill(typesNew.begin(), typesNew.end(), false);
 	}
 
-	if (std::find(types.begin(), types.end(), false) != types.end())
+	if (std::find(types.begin(), types.end(), true) != types.end())
 		return true;
 
 	return false;

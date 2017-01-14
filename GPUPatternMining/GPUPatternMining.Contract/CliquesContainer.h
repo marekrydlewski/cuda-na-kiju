@@ -10,8 +10,8 @@ private:
 	std::map<short, std::vector<unsigned short>> typesMap;
 public:
 	CliquesContainer();
-	void insertClique(std::vector<short> clique, unsigned int id);
-	bool checkCliqueExistence(std::vector<short> clique);
+	void insertClique(std::vector<unsigned short> clique);
+	bool checkCliqueExistence(std::vector<unsigned short> clique);
 
 	virtual ~CliquesContainer();
 };

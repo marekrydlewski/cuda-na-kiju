@@ -255,7 +255,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 			if (maxCliques.size() != 0)
 				concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
 		}
-	}
+	}, concurrency::static_partitioner()
 	);
 
 	std::vector<std::vector<unsigned short>> finalMaxCliques;

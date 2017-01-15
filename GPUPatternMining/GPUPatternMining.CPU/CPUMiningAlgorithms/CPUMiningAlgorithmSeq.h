@@ -4,6 +4,7 @@
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/CliquesContainer.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
+
 #include <map>
 #include <vector>
 #include <set>

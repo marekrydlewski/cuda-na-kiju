@@ -51,15 +51,25 @@ private:
 	std::vector<std::vector<unsigned short>> maximalCliques;
 	Graph size2ColocationsGraph;
 
+	void createSize2ColocationsGraph();
 	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> countUniqueInstances();
+
 	bool filterNodeCandidate(
 		unsigned short type,
 		unsigned short instanceId,
 		std::vector<CinsNode*> const & ancestors);
-	void createSize2ColocationsGraph();
+
+	bool isCliquePrevalent(
+		std::vector<unsigned short>& clique,
+		float prevalence);
+
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned short>& Cm);
-	bool isCliquePrevalent(std::vector<unsigned short>& clique, float prevalence);
-	std::vector<std::vector<unsigned short>> getPrevalentMaxCliques(std::vector<unsigned short>& clique, float prevalence, std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess, CliquesContainer& clq);
+
+	std::vector<std::vector<unsigned short>> getPrevalentMaxCliques(
+		std::vector<unsigned short>& clique,
+		float prevalence,
+		std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess,
+		CliquesContainer& clq);
 
 };
 

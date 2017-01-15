@@ -3,11 +3,13 @@
 #include "../../GPUPatternMining.Contract/CinsTree.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
+
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <iterator>
 #include <chrono>
+
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned short types)
 {
 	this->typeIncidenceCounter.resize(types, 0);
@@ -138,14 +140,18 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 {
 	CliquesContainer clq;
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
-	std::vector<std::vector<std::vector<unsigned short>>> cliquesToProcess((*std::max_element(maximalCliques.begin(), 
-		maximalCliques.end(), 
-		[](std::vector<unsigned short> left, std::vector<unsigned short> right) 
-		{
-			return left.size() < right.size();
-		})).size());
 
-	for (auto cl : maximalCliques)
+	std::vector<std::vector<std::vector<unsigned short>>> cliquesToProcess(
+		(*std::max_element(
+			maximalCliques.begin(), 
+			maximalCliques.end(), 
+			[] (std::vector<unsigned short>& left, std::vector<unsigned short>& right) 
+			{
+				return left.size() < right.size();
+			})
+		).size());
+
+	for (auto& cl : maximalCliques)
 	{
 		cliquesToProcess[cl.size()-1].push_back(cl);
 	}
@@ -157,12 +163,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 			auto clique = cliquesToProcess[i].back();
 			cliquesToProcess[i].pop_back();
 			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess, clq);
+
 			if (maxCliques.size() != 0)
 				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
 		}
 	}
 
-	
 	return finalMaxCliques;
 }
 
@@ -347,6 +353,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 	CliquesContainer& clq)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
+
 	if (!clq.checkCliqueExistence(clique)) 
 	{
 		if (isCliquePrevalent(clique, prevalence))
@@ -372,7 +379,10 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 				}
 				else
 				{
-					cliquesToProcess[clique.size() - 2].insert(cliquesToProcess[clique.size() - 2].end(), smallerCliques.begin(), smallerCliques.end());
+					cliquesToProcess[clique.size() - 2].insert(
+						cliquesToProcess[clique.size() - 2].end(),
+						smallerCliques.begin(),
+						smallerCliques.end());
 				}
 			}
 		}

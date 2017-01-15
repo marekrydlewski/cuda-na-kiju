@@ -138,7 +138,6 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
-	CliquesContainer clq;
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
 	std::vector<std::vector<std::vector<unsigned short>>> cliquesToProcess(
@@ -162,7 +161,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 		{
 			auto clique = cliquesToProcess[i].back();
 			cliquesToProcess[i].pop_back();
-			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess, clq);
+			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
 
 			if (maxCliques.size() != 0)
 				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
@@ -331,6 +330,7 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& cliqu
 			//new map for every type, instances are keys
 			std::map<unsigned short, bool> isUsed;
 			unsigned short insCounter = 0;
+
 			for (auto j = 0; j < maxCliquesIns.size(); ++j)
 			{
 				if (!isUsed[maxCliquesIns[j][i].instanceId])
@@ -349,17 +349,16 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& cliqu
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(
 	std::vector<unsigned short>& clique,
 	float prevalence,
-	std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess,
-	CliquesContainer& clq)
+	std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
-	if (!clq.checkCliqueExistence(clique)) 
+	if (!cliquesContainer.checkCliqueExistence(clique)) 
 	{
 		if (isCliquePrevalent(clique, prevalence))
 		{
 			finalMaxCliques.push_back(clique);
-			clq.insertClique(clique);
+			cliquesContainer.insertClique(clique);
 		}
 		else
 		{
@@ -370,10 +369,10 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 				{
 					for (auto smallClique : smallerCliques)
 					{
-						if (!clq.checkCliqueExistence(smallClique))
+						if (!cliquesContainer.checkCliqueExistence(smallClique))
 						{
 							finalMaxCliques.push_back(smallClique);
-							clq.insertClique(smallClique);
+							cliquesContainer.insertClique(smallClique);
 						}
 					}
 				}

@@ -47,11 +47,14 @@ private:
 		std::map<unsigned short,
 			std::map<unsigned short,
 				std::vector<unsigned short>*>>> insTable;
+
+	Graph size2ColocationsGraph;
+	CliquesContainer cliquesContainer;
 	/// Cm
 	std::vector<std::vector<unsigned short>> maximalCliques;
-	Graph size2ColocationsGraph;
 
 	void createSize2ColocationsGraph();
+
 	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> countUniqueInstances();
 
 	bool filterNodeCandidate(
@@ -68,8 +71,7 @@ private:
 	std::vector<std::vector<unsigned short>> getPrevalentMaxCliques(
 		std::vector<unsigned short>& clique,
 		float prevalence,
-		std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess,
-		CliquesContainer& clq);
+		std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess);
 
 };
 

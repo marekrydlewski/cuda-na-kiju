@@ -12,7 +12,7 @@ int main()
 	const unsigned int types = 7;
 	const unsigned int rangeY = 1000;
 	const unsigned int rangeX = 1000;
-	const unsigned int numberOfInstances = 5000;
+	const unsigned int numberOfInstances = 30000;
 	const float threshold = 20;
 	const float prevalence = 0.2;
 
@@ -44,7 +44,7 @@ int main()
 	bmParallel.run("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
 	bmParallel.run("filter by prevalence", 1, [&]() { cpuAlgParallel.filterByPrevalence(prevalence); });
 	bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); });
-	//bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
+	bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
 	bmParallel.print("parallel algorithm  ", std::cout);
 	//bmParallel.serialize("CPU parallel algorithm", "CPUparallel.txt");

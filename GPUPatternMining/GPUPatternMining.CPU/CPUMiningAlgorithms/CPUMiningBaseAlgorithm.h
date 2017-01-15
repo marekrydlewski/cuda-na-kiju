@@ -15,7 +15,6 @@ public:
 	virtual void constructMaximalCliques() = 0;
 	virtual void loadData(DataFeed* data, size_t size, unsigned short types) = 0;
 
-
 protected:
 
 	virtual float inline calculateDistance(
@@ -30,6 +29,10 @@ protected:
 		std::pair<unsigned short, unsigned short> generalInstance,
 		float prevalence) const;
 	virtual bool countPrevalence(
+		const std::vector<unsigned short>& particularInstances,
+		const std::vector<unsigned short>& generalInstances,
+		float prevalence) const;
+	virtual bool countPrevalenceParallel(
 		const std::vector<unsigned short>& particularInstances,
 		const std::vector<unsigned short>& generalInstances,
 		float prevalence) const;

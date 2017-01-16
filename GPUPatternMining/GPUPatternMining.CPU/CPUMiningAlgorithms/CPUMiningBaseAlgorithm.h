@@ -14,6 +14,7 @@ public:
 	virtual void filterByPrevalence(float prevalence) = 0;
 	virtual void constructMaximalCliques() = 0;
 	virtual void loadData(DataFeed* data, size_t size, unsigned short types) = 0;
+	virtual std::vector<std::vector<unsigned short>> filterMaximalCliques(float prevalence) = 0;
 
 
 protected:

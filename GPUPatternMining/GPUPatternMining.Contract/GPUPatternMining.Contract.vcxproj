@@ -29,6 +29,7 @@
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
+    <ClInclude Include="ParallelCliquesContainer.h" />
     <ClInclude Include="RandomDataProvider.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
@@ -42,6 +43,7 @@
     <ClCompile Include="CinsTree.cpp" />
     <ClCompile Include="CliquesContainer.cpp" />
     <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="ParallelCliquesContainer.cpp" />
     <ClCompile Include="RandomDataProvider.cpp" />
   </ItemGroup>
   <ItemGroup>

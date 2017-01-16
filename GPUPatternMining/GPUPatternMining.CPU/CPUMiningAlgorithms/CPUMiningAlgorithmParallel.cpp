@@ -110,6 +110,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			}
 		}
 	}, concurrency::static_partitioner());
+
 	end = std::chrono::steady_clock::now();
 
 	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
@@ -266,45 +267,6 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 	maximalCliques.swap(tmpVec);
 }
 
-
-//already parallelised
-//std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaximalCliques(float prevalence)
-//{
-//	int cores = concurrency::GetProcessorCount();
-//
-//	std::vector<std::vector<std::vector<unsigned short>>> cliquesPerProcessor(cores);
-//
-//	std::sort(maximalCliques.begin(), maximalCliques.end());
-//
-//	printf("%d\n", maximalCliques.size());
-//
-//	for (int i = 0; i < maximalCliques.size(); ++i)
-//	{
-//		cliquesPerProcessor[i%cores].push_back(maximalCliques[i]);
-//	}
-//
-//	concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentFinalMaxCliques;
-//
-//	concurrency::parallel_for(0, cores,
-//		[&](int i) {
-//		for (auto clique : cliquesPerProcessor[i])
-//		{
-//			auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
-//			if (maxCliques.size() != 0)
-//				concurrentFinalMaxCliques.local().insert(concurrentFinalMaxCliques.local().end(), maxCliques.begin(), maxCliques.end());
-//		}
-//	}, concurrency::static_partitioner()
-//	);
-//
-//	std::vector<std::vector<unsigned short>> finalMaxCliques;
-//	concurrentFinalMaxCliques.combine_each(
-//		[&finalMaxCliques](std::vector<std::vector<unsigned short>> vec) {
-//		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
-//	});
-//
-//	return finalMaxCliques;
-//}
-
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaximalCliques(float prevalence)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
@@ -313,11 +275,10 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 		(*std::max_element(
 			maximalCliques.begin(),
 			maximalCliques.end(),
-			[](std::vector<unsigned short>& left, std::vector<unsigned short>& right)
-	{
-		return left.size() < right.size();
-	})
-			).size());
+			[] (std::vector<unsigned short>& left, std::vector<unsigned short>& right) {
+				return left.size() < right.size();
+			})
+		).size());
 
 	for (auto& cl : maximalCliques)
 	{
@@ -326,15 +287,26 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 
 	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
 	{
-		while (cliquesToProcess[i].size() != 0)
-		{
-			auto clique = cliquesToProcess[i].back();
-			cliquesToProcess[i].pop_back();
-			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
+		concurrency::combinable<std::vector<std::vector<unsigned short>>> combinableFinalMaxCliques;
 
-			if (maxCliques.size() != 0)
-				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
-		}
+		concurrency::parallel_for_each(
+			cliquesToProcess[i].begin(),
+			cliquesToProcess[i].end(),
+			[&] (auto& clique) {
+				auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
+
+				if (maxCliques.size() != 0)
+					finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+			},
+			concurrency::static_partitioner()
+		);
+
+		cliquesToProcess[i].clear();
+
+		combinableFinalMaxCliques.combine_each(
+			[&finalMaxCliques] (auto& vec) {
+			finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
+		});
 	}
 
 	return finalMaxCliques;
@@ -454,6 +426,7 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmParallel::constructCo
 
 				//generate candidates based on last leaf
 				auto mapIt = insTable[lastChildPtr->type][Cm[i]].find(lastChildPtr->instanceId);
+
 				if (mapIt != insTable[lastChildPtr->type][Cm[i]].end())//if exists such a key
 				{
 					for (auto b : *mapIt->second)
@@ -576,47 +549,6 @@ bool CPUMiningAlgorithmParallel::isCliquePrevalent(
 	}
 	return false; //empty
 }
-
-//std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalentMaxCliques(
-//	std::vector<unsigned short>& clique,
-//	float prevalence)
-//{
-//	std::vector<std::vector<unsigned short>> finalMaxCliques;
-//	if (isCliquePrevalent(clique, prevalence))
-//		finalMaxCliques.push_back(clique);
-//	else
-//	{
-//		if (clique.size() > 2) //it's possible, no idea why
-//		{
-//			auto smallerCliques = getAllCliquesSmallerByOne(clique);
-//			if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
-//			{
-//				finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
-//				//all smallerCliques are the same size, so insert them all and break the loop
-//			}
-//			else
-//			{
-//				concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentMaxCliques;
-//
-//				concurrency::parallel_for_each(
-//					smallerCliques.begin(),
-//					smallerCliques.end(), [&](std::vector<unsigned short>& c) {
-//						auto nextCliques = getPrevalentMaxCliques(c, prevalence);
-//						concurrentMaxCliques.local().insert(
-//							concurrentMaxCliques.local().end(),
-//							nextCliques.begin(),
-//							nextCliques.end());
-//				});
-//
-//				concurrentMaxCliques.combine_each(
-//					[&finalMaxCliques](std::vector<std::vector<unsigned short>>& vec) {
-//					finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
-//				});
-//			}
-//		}
-//	}
-//	return finalMaxCliques;
-//}
 
 std::vector<unsigned short> inline CPUMiningAlgorithmParallel::getWorkloadForInsTable(unsigned int cores)
 {

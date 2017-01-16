@@ -17,11 +17,9 @@ ParallelCliquesContainer::ParallelCliquesContainer(unsigned short numberOfTypes)
 void ParallelCliquesContainer::insertClique(std::vector<unsigned short>& clique)
 {
 	concurrency::critical_section mutex;
+
 	mutex.lock();
-
-	auto localCounter = cliquesCounter;
-	++cliquesCounter;
-
+	auto localCounter = cliquesCounter++;
 	mutex.unlock();
 
 	for (auto type : clique)

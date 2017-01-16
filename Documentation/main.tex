@@ -6,6 +6,7 @@
 \usepackage{geometry}
 \usepackage[nottoc]{tocbibind}
 \usepackage[linesnumbered]{algorithm2e}
+\usepackage{listings}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
@@ -488,7 +489,76 @@ Po zakończeniu algorytmu pozostaje jeszcze wyliczenie indeksów powszechności 
 
 \newpage
 
-\section{Implementacja}
+\section{Implementacja CPU}
+
+\subsection{Ogólne założenia, opis klas i struktur pomocnicze}
+
+\subsubsection{Ogólne założenia}
+Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera implementacje pomocnych nam metod pomocniczych oraz cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
+
+\begin{itemize}
+\item
+Filtrowanie sąsiadów na podstawie progu odległości:
+\begin{lstlisting}[language=C++]
+virtual void filterByDistance(float threshold) = 0;
+\end{lstlisting}
+
+\item
+Filtrowanie sąsiadów na podstawie progu minimalnej powszechności:
+\begin{lstlisting}[language=C++]
+virtual void filterByPrevalence(float prevalence) = 0;
+\end{lstlisting}
+
+\item
+Generowanie kandydatów na kolokacje maksymalne:
+\begin{lstlisting}[language=C++]
+virtual void constructMaximalCliques() = 0;
+\end{lstlisting}
+
+\item
+Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne i ich filtrowanie na podstawie progu minimalnej powszechności:
+\begin{lstlisting}[language=C++]
+virtual std::vector<std::vector<unsigned short>> 
+    filterMaximalCliques(float prevalence) = 0;
+\end{lstlisting}
+\end{itemize}
+
+Klasy CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel zawierają implementację owych metod odpowiednio w wersji sekwencyjnej jak i równoległej.
+
+W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz implementacji która za nimi stoi.
+
+\subsubsection{Opis struktur i klas pomocniczych}
+    
+\begin{itemize}
+\item CinsTree
+\item CinsNode
+\item Graph
+\item CliquesContainer
+\item ParallelCliquesContainer
+\item RandomDataProvider
+\item SimulatedRealDataProvider
+\item Timer
+\item Benchmark
+
+\end{itemize}
+
+\subsection{Wersja sekwencyjna}
+
+\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
+\subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
+\subsubsection{Generowanie kandydatów na kolokacje maksymalne}
+\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
+\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
+
+\subsection{Wersja wielowątkowa}
+
+\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
+\subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
+\subsubsection{Generowanie kandydatów na kolokacje maksymalne}
+\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
+\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
+
+\section{Implementacja GPU}
 
 \section{Testy efektywnościowe}
 

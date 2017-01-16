@@ -2,6 +2,7 @@
 #include <host_defines.h>
 
 #include "IntanceTablesMapCreator.h"
+#include "InstanceTypedNeighboursMapCreator.h"
 
 namespace  InstanceTreeHelpers
 {
@@ -10,6 +11,19 @@ namespace  InstanceTreeHelpers
 		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
 		, thrust::device_ptr<const unsigned short>* cliquesCandidates
 		, unsigned int count
+		, thrust::device_ptr<unsigned int> result
+	);
+	// -----------------------------------------------------------------------------
+	
+	__global__
+	void fillWithNextLevelCountsFromTypedNeighbour(
+		InstanceTypedNeighboursMapCreator::TypedNeighboursListMapBean bean
+		, thrust::device_ptr<const unsigned short>* cliquesCandidates
+		, thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<FeatureInstance> previousLevelInstances
+		, thrust::device_ptr<unsigned int> fixMask
+		, unsigned int count
+		, unsigned int currentLevel
 		, thrust::device_ptr<unsigned int> result
 	);
 	// -----------------------------------------------------------------------------
@@ -30,16 +44,43 @@ namespace  InstanceTreeHelpers
 	// -----------------------------------------------------------------------------
 
 	__global__
-		void writeFirstTwoLevels(
-			HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
-			, thrust::device_ptr<const unsigned short>* cliquesCandidates
-			, thrust::device_ptr<unsigned int> groupNumber
-			, thrust::device_ptr<unsigned int> itemNumber
-			, thrust::device_ptr<FeatureInstance> pairsA
-			, thrust::device_ptr<FeatureInstance> pairsB
-			, unsigned int count
-			, thrust::device_ptr<FeatureInstance> firstLevel
-			, thrust::device_ptr<FeatureInstance> secondLevel
-		);
+	void writeFirstTwoLevels(
+		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
+		, thrust::device_ptr<const unsigned short>* cliquesCandidates
+		, thrust::device_ptr<unsigned int> groupNumber
+		, thrust::device_ptr<unsigned int> itemNumber
+		, thrust::device_ptr<FeatureInstance> pairsA
+		, thrust::device_ptr<FeatureInstance> pairsB
+		, unsigned int count
+		, thrust::device_ptr<FeatureInstance> firstLevel
+		, thrust::device_ptr<FeatureInstance> secondLevel
+	);
+	// -----------------------------------------------------------------------------
+
+	__global__
+	void fillWithNextLevelCountsFromTypedNeighbour(
+		InstanceTypedNeighboursMapCreator::TypedNeighboursListMapBean bean
+		, thrust::device_ptr<unsigned short>* cliquesCandidates
+		, thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<FeatureInstance> previousLevelInstances
+		, thrust::device_ptr<unsigned int> fixMask
+		, unsigned int count
+		, unsigned int currentLevel
+		, thrust::device_ptr<unsigned int> result
+	);
+	// -----------------------------------------------------------------------------
+
+	__global__
+	void fillLevelInstancesFromNeighboursList(
+		InstanceTypedNeighboursMapCreator::TypedNeighboursListMapBean bean
+		, thrust::device_ptr<const unsigned short>* cliquesCandidates
+		, thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<unsigned int> itemNumbers
+		, thrust::device_ptr<FeatureInstance> previousLevelInstances
+		, thrust::device_ptr<FeatureInstance> pairB
+		, unsigned int count
+		, unsigned int currentLevel
+		, thrust::device_ptr<FeatureInstance> result
+	);
 	// -----------------------------------------------------------------------------
 }

@@ -12,6 +12,7 @@
 namespace InstanceTypedNeighboursMapCreator
 {
 	typedef GPUHashMapper<unsigned long long, NeighboursListInfoHolder, GPUULongIntKeyProcessor> TypedNeighboursListMap;
+	typedef HashMapperBean<unsigned long long, NeighboursListInfoHolder, GPUULongIntKeyProcessor> TypedNeighboursListMapBean;
 	typedef std::shared_ptr<TypedNeighboursListMap> TypedNeighboursListMapPtr;
 	// --------------------------------------------------------------------------
 
@@ -25,7 +26,6 @@ namespace InstanceTypedNeighboursMapCreator
 	
 	typedef std::shared_ptr<ITNMPack> ITNMPackPtr;
 	// --------------------------------------------------------------------------
-
 
 	__host__ __device__
 	inline unsigned long long createITNMKey(FeatureInstance instance, unsigned short type)

@@ -19,6 +19,11 @@ namespace InstanceTree
 
 	InstanceTreeResultPtr InstanceTree::getInstancesResult(CliquesCandidates cliquesCandidates)
 	{
+		if (cliquesCandidates.empty())
+			return nullptr;
+
+		const unsigned int currentCliquesSize = cliquesCandidates[0].size();
+
 		InstanceTreeResultPtr result = std::make_shared<InstanceTreeResult>();
 		
 		// migrate data to GPU
@@ -41,8 +46,13 @@ namespace InstanceTree
 
 		std::vector<thrust::device_vector<FeatureInstance>> instancesElementsInLevelVectors;
 		std::vector<thrust::device_ptr<FeatureInstance>> instancesElementsInLevel;
-		std::vector<thrust::device_ptr<unsigned int>> groupNumberLevels;
-		std::vector<thrust::device_ptr<unsigned int>> itemNumberLevels;
+
+
+		thrust::device_vector<thrust::device_ptr<bool>> masksOnLevels;
+
+		thrust::device_vector<thrust::device_ptr<unsigned int>> groupNumbersOnLevels;
+		thrust::device_vector<thrust::device_ptr<unsigned int>> itemNumbersOnLevels;
+		
 
 		// build first tree level
 		thrust::device_vector<unsigned int> pairCounts(cliquesCandidates.size());
@@ -68,25 +78,22 @@ namespace InstanceTree
 		// level 0
 		instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(firstTwoLevelsFg->threadCount));
 		instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back().data());
-		groupNumberLevels.push_back(firstTwoLevelsFg->groupNumbers.data());
-		itemNumberLevels.push_back(firstTwoLevelsFg->itemNumbers.data());
+		groupNumbersOnLevels.push_back(firstTwoLevelsFg->groupNumbers.data());
+		itemNumbersOnLevels.push_back(firstTwoLevelsFg->itemNumbers.data());
 		levelResults.push_back(firstTwoLevelsFg);
 
 		// level 1
 		instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(firstTwoLevelsFg->threadCount));
 		instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back().data());
-		groupNumberLevels.push_back(firstTwoLevelsFg->groupNumbers.data());
-		itemNumberLevels.push_back(firstTwoLevelsFg->itemNumbers.data());
+		groupNumbersOnLevels.push_back(firstTwoLevelsFg->groupNumbers.data());
+		itemNumbersOnLevels.push_back(firstTwoLevelsFg->itemNumbers.data());
 		levelResults.push_back(firstTwoLevelsFg);
-
-
 
 		// fill first two tree levels with FeatureInstance
 		dim3 writeFirstTwoLevelsGrid;
 		findSmallest2D(firstTwoLevelsFg->threadCount, 256, writeFirstTwoLevelsGrid.x, writeFirstTwoLevelsGrid.y);
 
-
-		InstanceTreeHelpers::writeFirstTwoLevels << < writeFirstTwoLevelsGrid, 256 >> > (
+		InstanceTreeHelpers::writeFirstTwoLevels <<< writeFirstTwoLevelsGrid, 256 >>> (
 			instanceTablePack->map->getBean()
 			, thrust::raw_pointer_cast(cliques.data())
 			, firstTwoLevelsFg->groupNumbers.data()
@@ -99,6 +106,44 @@ namespace InstanceTree
 			);
 
 		// TODO add generating bigger trees
+
+		for (unsigned int currentLevel = 2; currentLevel < currentCliquesSize; ++currentLevel)
+		{
+			unsigned int elementsCount = instancesElementsInLevelVectors.back().size();
+
+			dim3 levelDim;
+			findSmallest2D(elementsCount, 256, levelDim.x, levelDim.y);
+
+			thrust::device_vector<unsigned int> fixMask(elementsCount);
+			thrust::device_vector<unsigned int> result(elementsCount);
+
+			InstanceTreeHelpers::fillWithNextLevelCountsFromTypedNeighbour <<< levelDim, 256 >>> (
+				typedInstanceNeighboursPack->map->getBean()
+				, thrust::raw_pointer_cast(cliques.data())
+				, thrust::raw_pointer_cast(groupNumbersOnLevels.data())
+				, instancesElementsInLevel[currentLevel - 1]
+				, fixMask.data()
+				, elementsCount
+				, currentLevel
+				, result.data()
+			);
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+			auto forGroupsResult = InstanceTreeHelpers::forGroups(result);
+
+
+			thrust::exclusive_scan(thrust::device
+				, fixMask.begin(), fixMask.begin() + elementsCount
+				, fixMask.begin());
+
+			
+
+			thrust::transform(thrust::device
+				, result.begin(), result.end(), fixMask.begin(), fixMask.begin(), thrust::plus<unsigned int>());
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+		}
 
 		// TODO reverse generate instances
 		

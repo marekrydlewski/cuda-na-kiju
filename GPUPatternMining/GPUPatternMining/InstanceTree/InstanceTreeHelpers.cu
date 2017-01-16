@@ -26,6 +26,100 @@ namespace InstanceTreeHelpers
 	}
 	// ------------------------------------------------------------------------------
 
+	__global__
+	void fillWithNextLevelCountsFromTypedNeighbour(
+		InstanceTypedNeighboursMapCreator::TypedNeighboursListMapBean bean
+		, thrust::device_ptr<const unsigned short>* cliquesCandidates
+		, thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<FeatureInstance> previousLevelInstances
+		, thrust::device_ptr<unsigned int> fixMask
+		, unsigned int count
+		, unsigned int currentLevel
+		, thrust::device_ptr<unsigned int> result
+	)
+	{
+		unsigned int tid = computeLinearAddressFrom2D();
+
+		if (tid < count)
+		{
+			unsigned int cliqueId = groupNumberLevels[currentLevel - 1][tid];
+
+			// this for in real case is never used beacuse this method shold be invoked
+			// only for lvl2 (counting from 0)
+			for (int level = currentLevel - 2; level != 0; --level)
+			{
+				cliqueId = groupNumberLevels[level][cliqueId];
+			}
+
+			unsigned long long key = InstanceTypedNeighboursMapCreator::createITNMKey(
+				previousLevelInstances[tid]
+				, cliquesCandidates[cliqueId][currentLevel]
+			);
+			
+
+			if (!GPUHashMapperProcedures::containsKey(bean, key))
+			{
+				fixMask[tid] = 1;
+				result[tid] = 0;
+			}
+			else
+			{
+				NeighboursListInfoHolder nlih;
+
+				GPUHashMapperProcedures::getValue(bean, key, nlih);
+
+				fixMask[tid] = 0;
+				result[tid] = nlih.count;
+			}
+		}
+	}
+	// ------------------------------------------------------------------------------
+
+	__global__
+	void fillLevelInstancesFromNeighboursList(
+		InstanceTypedNeighboursMapCreator::TypedNeighboursListMapBean bean
+		, thrust::device_ptr<const unsigned short>* cliquesCandidates
+		, thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<unsigned int> itemNumbers
+		, thrust::device_ptr<FeatureInstance> previousLevelInstances
+		, thrust::device_ptr<FeatureInstance> pairB
+		, unsigned int count
+		, unsigned int currentLevel
+		, thrust::device_ptr<FeatureInstance> result
+	)
+	{
+		unsigned int tid = computeLinearAddressFrom2D();
+
+		if (tid < count)
+		{
+			unsigned int currentGroupId = groupNumberLevels[currentLevel][tid];
+			unsigned int cliqueId = currentGroupId;
+
+			printf("tid[%u] cliqueId[%u] lvl[%u]\n", tid, cliqueId, currentLevel);
+
+			for (unsigned int level = currentLevel - 1; level != 0; --level)
+			{
+				cliqueId = groupNumberLevels[level][cliqueId];
+				printf("tid[%u] cliqueId[%u] lvl[%u]\n", tid, cliqueId, level);
+			}
+
+			unsigned long long key = InstanceTypedNeighboursMapCreator::createITNMKey(
+				previousLevelInstances[currentGroupId]
+				, cliquesCandidates[cliqueId][currentLevel]
+			);
+
+			NeighboursListInfoHolder nlih;
+			GPUHashMapperProcedures::getValue(bean, key, nlih);
+				
+			printf("tid[%u] start[%u] num[%u]\n", 
+				tid, nlih.startIdx, 
+				*(thrust::raw_pointer_cast(itemNumbers) + tid));
+
+			result[tid] = pairB[nlih.startIdx + itemNumbers[tid]];
+		}
+	}
+	// ------------------------------------------------------------------------------
+
 	__global__ void scatterOnesAndPositions(unsigned int nGroups, unsigned int nThreads, unsigned int* groupSizes, unsigned int* scannedGroupSizes, unsigned int *ones, unsigned int *positions)
 	{
 		unsigned int tid = computeLinearAddressFrom2D();
@@ -56,7 +150,7 @@ namespace InstanceTreeHelpers
 	{
 		unsigned int tid = computeLinearAddressFrom2D();
 
-		if (tid < nThreads)
+		if (tid < nThreads) 
 		{
 			positions[tid] = tid - positions[tid];
 		}
@@ -94,12 +188,15 @@ namespace InstanceTreeHelpers
 			thrust::fill(res->groupNumbers.begin(), res->groupNumbers.end(), 0);
 			thrust::fill(res->itemNumbers.begin(), res->itemNumbers.end(), 0);
 
-			scatterOnesAndPositions <<< computeGrid(nGroups, bs), bs >>>(nGroups, nThreads,
+			scatterOnesAndPositions <<< computeGrid(nGroups, bs), bs >>>(
+				nGroups,
+				nThreads,
 				groupSizes.data().get(),
 				scannedGroupSizes.data().get(),
 				res->groupNumbers.data().get(),
 				res->itemNumbers.data().get());
 
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			thrust::inclusive_scan(res->groupNumbers.begin(), res->groupNumbers.end(), res->groupNumbers.begin());
 			thrust::inclusive_scan(res->itemNumbers.begin(), res->itemNumbers.end(), res->itemNumbers.begin(), thrust::maximum<unsigned int>());

@@ -12,9 +12,9 @@ int main()
 	const unsigned int types = 7;
 	const unsigned int rangeY = 1000;
 	const unsigned int rangeX = 1000;
-	const unsigned int numberOfInstances = 30000;
-	const float threshold = 20;
-	const float prevalence = 0.2;
+	const unsigned int numberOfInstances = 25000;
+	const float threshold = 24;
+	const float prevalence = 0.01;
 
 	RandomDataProvider rdp;
 	rdp.setNumberOfTypes(types);

@@ -285,10 +285,10 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 		cliquesToProcess[cl.size() - 1].push_back(cl);
 	}
 
+	concurrency::combinable<std::vector<std::vector<unsigned short>>> combinableFinalMaxCliques;
+
 	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
 	{
-		concurrency::combinable<std::vector<std::vector<unsigned short>>> combinableFinalMaxCliques;
-
 		concurrency::parallel_for_each(
 			cliquesToProcess[i].begin(),
 			cliquesToProcess[i].end(),
@@ -296,18 +296,22 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 				auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
 
 				if (maxCliques.size() != 0)
-					finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+					combinableFinalMaxCliques.local().insert(
+						combinableFinalMaxCliques.local().end(),
+						maxCliques.begin(),
+						maxCliques.end()
+					);
 			},
 			concurrency::static_partitioner()
 		);
 
 		cliquesToProcess[i].clear();
-
-		combinableFinalMaxCliques.combine_each(
-			[&finalMaxCliques] (auto& vec) {
-			finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
-		});
 	}
+
+	combinableFinalMaxCliques.combine_each(
+		[&finalMaxCliques](auto& vec) {
+		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
+	});
 
 	return finalMaxCliques;
 }

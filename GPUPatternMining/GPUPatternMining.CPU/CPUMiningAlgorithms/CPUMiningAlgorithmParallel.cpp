@@ -314,6 +314,9 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
 	});
 
+	//add colocations of size 1 
+	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[0].begin(), cliquesToProcess[0].end()); 
+	
 	return finalMaxCliques;
 }
 
@@ -521,7 +524,7 @@ bool CPUMiningAlgorithmParallel::isCliquePrevalent(
 	std::vector<unsigned short>& clique,
 	float prevalence)
 {
-	if (clique.size() == 1) return true;
+	if (clique.size() == 1 || clique.size() == 2) return true;
 
 	auto maxCliquesIns = constructCondensedTree(clique);
 

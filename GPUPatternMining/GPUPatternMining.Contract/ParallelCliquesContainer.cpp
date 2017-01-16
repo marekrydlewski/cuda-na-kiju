@@ -4,8 +4,13 @@
 #include <cassert>
 #include <ppl.h>
 
-ParallelCliquesContainer::ParallelCliquesContainer()
+ParallelCliquesContainer::ParallelCliquesContainer(unsigned short numberOfTypes)
 {
+	for (auto i = 0; i < numberOfTypes; ++i)
+	{
+		typesMap[i] = concurrency::concurrent_vector<unsigned short>();
+	}
+
 	cliquesCounter = 0;
 }
 

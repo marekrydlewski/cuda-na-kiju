@@ -3,7 +3,7 @@
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
-#include "../../GPUPatternMining.Contract/CliquesContainer.h"
+#include "../../GPUPatternMining.Contract/ParallelCliquesContainer.h"
 
 #include <map>
 #include <vector>
@@ -53,7 +53,7 @@ private:
 	/// Cm
 	std::vector<std::vector<unsigned short>> maximalCliques;
 
-	CliquesContainer cliquesContainer;
+	ParallelCliquesContainer* cliquesContainer;
 	Graph size2ColocationsGraph;
 
 	void createSize2ColocationsGraph();

@@ -10,10 +10,10 @@
 class ParallelCliquesContainer
 {
 private:
-	unsigned int cliquesCounter;
-	concurrency::concurrent_unordered_map<short, concurrency::concurrent_vector<unsigned short>> typesMap;
+	unsigned short cliquesCounter;
+	std::map<short, concurrency::concurrent_vector<unsigned short>> typesMap;
 public:
-	ParallelCliquesContainer();
+	ParallelCliquesContainer(unsigned short numberOfTypes);
 	void insertClique(std::vector<unsigned short>& clique);
 	void insertCliques(std::vector<std::vector<unsigned short>>& cliques);
 	bool checkCliqueExistence(std::vector<unsigned short>& clique);

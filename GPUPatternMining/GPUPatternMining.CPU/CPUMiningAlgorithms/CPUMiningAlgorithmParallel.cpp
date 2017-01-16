@@ -17,6 +17,7 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 {
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
+	this->cliquesContainer = new ParallelCliquesContainer(types);
 }
 
 //imho impossible to do effective parallelisation
@@ -480,12 +481,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
-	if (!cliquesContainer.checkCliqueExistence(clique))
+	if (!cliquesContainer->checkCliqueExistence(clique))
 	{
 		if (isCliquePrevalent(clique, prevalence))
 		{
 			finalMaxCliques.push_back(clique);
-			cliquesContainer.insertClique(clique);
+			cliquesContainer->insertClique(clique);
 		}
 		else
 		{
@@ -496,10 +497,10 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 				{
 					for (auto smallClique : smallerCliques)
 					{
-						if (!cliquesContainer.checkCliqueExistence(smallClique))
+						if (!cliquesContainer->checkCliqueExistence(smallClique))
 						{
 							finalMaxCliques.push_back(smallClique);
-							cliquesContainer.insertClique(smallClique);
+							cliquesContainer->insertClique(smallClique);
 						}
 					}
 				}
@@ -584,6 +585,8 @@ CPUMiningAlgorithmParallel::CPUMiningAlgorithmParallel() :
 
 CPUMiningAlgorithmParallel::~CPUMiningAlgorithmParallel()
 {
+	delete cliquesContainer;
+
 	for (auto& a : insTable)
 	{
 		for (auto& b : a.second)

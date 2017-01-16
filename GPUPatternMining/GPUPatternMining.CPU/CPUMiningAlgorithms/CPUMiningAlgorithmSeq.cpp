@@ -162,6 +162,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 		}
 	}
 
+	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[0].begin(), cliquesToProcess[0].end()); //add colocations of size 1
 	
 	return finalMaxCliques;
 }

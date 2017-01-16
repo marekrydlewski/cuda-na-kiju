@@ -19,6 +19,11 @@
  bottom=25mm,
  right=25mm,
  }
+\lstset{
+language=C++,
+basicstyle=\ttfamily
+}
+
 \begin{document}
 \begin{titlepage}
 	\centering
@@ -499,25 +504,25 @@ Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz 
 \begin{itemize}
 \item
 Filtrowanie sąsiadów na podstawie progu odległości:
-\begin{lstlisting}[language=C++]
+\begin{lstlisting}
 virtual void filterByDistance(float threshold) = 0;
 \end{lstlisting}
 
 \item
 Filtrowanie sąsiadów na podstawie progu minimalnej powszechności:
-\begin{lstlisting}[language=C++]
+\begin{lstlisting}
 virtual void filterByPrevalence(float prevalence) = 0;
 \end{lstlisting}
 
 \item
 Generowanie kandydatów na kolokacje maksymalne:
-\begin{lstlisting}[language=C++]
+\begin{lstlisting}
 virtual void constructMaximalCliques() = 0;
 \end{lstlisting}
 
 \item
 Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne i ich filtrowanie na podstawie progu minimalnej powszechności:
-\begin{lstlisting}[language=C++]
+\begin{lstlisting}
 virtual std::vector<std::vector<unsigned short>> 
     filterMaximalCliques(float prevalence) = 0;
 \end{lstlisting}
@@ -545,6 +550,21 @@ W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz impleme
 \subsection{Wersja sekwencyjna}
 
 \subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
+Na tym etapie odbywa się generowanie dwuelementowych kandydatów na kolokacje i ich filtrowanie na podstawie progu odległości. Wykorzystano tutaj podejście tzw. \textit{wymiatania} (ang. \textit{plane sweep algorithm}) które jest paradygmatem algorytmów wykorzystywanych do rozwiązywania różnych problemów w przestrzeni Euklidesowej. W zastosowanej implementacji można wyróżnić następujące kroki:
+\begin{itemize}
+\item Sortowanie wektora \lstinline{std::vector<DataFeed> source} zawierającego dane wejściowe. Wykorzystano tutaj sortowanie szybkie z biblioteki \lstinline{<algorithm>}. Kryterium sortowania jest tutaj relacja między arbitralnie wybranym wymiarem przestrzeni.
+\item Wyliczanie \textit{efektywnego progu odległości} przez podniesienie progu odległości do kwadratu - dzięki temu można uniknąć kosztownego pierwiastkowania przy obliczaniu odległości między dwoma punktami. Jest to możliwe, gdyż potrzebna jest tylko informacja o relacji między ową odległością a progiem odległości. Zbędna jest wiedza o rzeczywistej odległości między punktami.
+\item Dla każdego elementu danych iterujemy w wybranym kierunku sprawdzając odległość między tym punktem a aktualnie iterowanym, w przypadku gdy odległość jest mniejsza od progowej umieszczamy taki element na odpowiednim miejscu w \lstinline{insTable}. Główną ideą jest tutaj przerwanie wewnętrznej pętli gdy wartość bezwzględna różnicy posortowanych współrzędnych owych punktów jest większa od progu odległości tj. \textit{tutaj matematyczny wzorek}. Zajście takiej sytuacji gwarantuje, że odległość między każdym kolejnym punktem będzie większa od progu odległości, stąd możliwość przerwania pętli. 
+
+Tablica \lstinline{insTable} zawierające dwuelementowych kandydatów na kolokacje ma postać trójwymiarowej mapy wskaźników na wektor liczb:
+\begin{lstlisting}
+std::map<unsigned short, std::map<unsigned short,
+	std::map<unsigned short, std::vector<
+    	unsigned short>*>>> insTable;
+\end{lstlisting}
+ Pierwsze dwa wymiary określają typy elementów \textit{A} i \textit{B}, natomiast trzeci wymiar określa numer instancji przestrzennej \textit{A}. W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. Dodatkowo dane są umieszczane w ten sposób że zawsze spełniona jest relacja \textit{tutaj matematyczny znaczek: numer cechy A \textless numer cechy B}. Taka implementacja umożliwia łatwe i efektywne odczytywanie sąsiadów o danej cesze konkretnego elementu.
+
+\end{itemize}
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
 \subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}

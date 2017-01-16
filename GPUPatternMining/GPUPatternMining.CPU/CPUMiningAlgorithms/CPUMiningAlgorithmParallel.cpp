@@ -150,7 +150,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			typeIncidenceCounter.begin(),
 			typeIncidenceCounter.end(),
 			local.begin(),
-			local.begin(),
+			typeIncidenceCounter.begin(),
 			std::plus<int>());
 	});
 

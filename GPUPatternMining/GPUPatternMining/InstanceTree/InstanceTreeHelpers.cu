@@ -32,7 +32,6 @@ namespace InstanceTreeHelpers
 		, thrust::device_ptr<const unsigned short>* cliquesCandidates
 		, thrust::device_ptr<unsigned int>* groupNumberLevels
 		, thrust::device_ptr<FeatureInstance> previousLevelInstances
-		, thrust::device_ptr<unsigned int> fixMask
 		, unsigned int count
 		, unsigned int currentLevel
 		, thrust::device_ptr<unsigned int> result
@@ -59,7 +58,6 @@ namespace InstanceTreeHelpers
 
 			if (!GPUHashMapperProcedures::containsKey(bean, key))
 			{
-				fixMask[tid] = 1;
 				result[tid] = 0;
 			}
 			else
@@ -67,8 +65,6 @@ namespace InstanceTreeHelpers
 				NeighboursListInfoHolder nlih;
 
 				GPUHashMapperProcedures::getValue(bean, key, nlih);
-
-				fixMask[tid] = 0;
 				result[tid] = nlih.count;
 			}
 		}
@@ -120,7 +116,13 @@ namespace InstanceTreeHelpers
 	}
 	// ------------------------------------------------------------------------------
 
-	__global__ void scatterOnesAndPositions(unsigned int nGroups, unsigned int nThreads, unsigned int* groupSizes, unsigned int* scannedGroupSizes, unsigned int *ones, unsigned int *positions)
+	__global__ void scatterOnesAndPositions(
+		unsigned int nGroups
+		, unsigned int nThreads
+		, unsigned int* groupSizes
+		, unsigned int* scannedGroupSizes
+		, unsigned int *groupsNumbers
+		, unsigned int *inGroupsPositions)
 	{
 		unsigned int tid = computeLinearAddressFrom2D();
 
@@ -128,10 +130,10 @@ namespace InstanceTreeHelpers
 		{
 			if (scannedGroupSizes[tid]<nThreads)
 			{
-				atomicAdd(ones + scannedGroupSizes[tid], 1);
+				atomicAdd(groupsNumbers + scannedGroupSizes[tid], 1);
 				if (groupSizes[tid] != 0)
 				{
-					positions[scannedGroupSizes[tid]] = scannedGroupSizes[tid];
+					inGroupsPositions[scannedGroupSizes[tid]] = scannedGroupSizes[tid];
 				}
 			}
 		}

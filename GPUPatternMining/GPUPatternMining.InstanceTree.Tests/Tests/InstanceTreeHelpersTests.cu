@@ -172,6 +172,67 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | for groups last z
 }
 //--------------------------------------------------------------
 
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | for groups inner zeros")
+{
+
+	thrust::device_vector<unsigned int> counts;
+	{
+		std::vector<unsigned int> hCount = {
+			1, 2, 0, 0, 1
+		};
+
+		counts = hCount;
+	}
+
+	auto result = forGroups(counts);
+
+	std::vector<unsigned int> expectedGroupNumbers = {
+		0, 1, 1, 4
+	};
+
+	std::vector<unsigned int> expectedItemNumbers = {
+		0, 0, 1, 0
+	};
+
+	thrust::host_vector<unsigned int> resultGroupNumbers = result->groupNumbers;
+	thrust::host_vector<unsigned int> resultItemNumbers = result->itemNumbers;
+
+	REQUIRE(std::equal(expectedGroupNumbers.begin(), expectedGroupNumbers.end(), resultGroupNumbers.begin()));
+	REQUIRE(std::equal(expectedItemNumbers.begin(), expectedItemNumbers.end(), resultItemNumbers.begin()));
+	REQUIRE(result->threadCount == 4);
+}
+//--------------------------------------------------------------
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | for groups inner zeros extended")
+{
+
+	thrust::device_vector<unsigned int> counts;
+	{
+		std::vector<unsigned int> hCount = {
+			1, 2, 0, 0, 4, 1
+		};
+
+		counts = hCount;
+	}
+
+	auto result = forGroups(counts);
+
+	std::vector<unsigned int> expectedGroupNumbers = {
+		0, 1, 1, 4, 4, 4, 4, 5
+	};
+
+	std::vector<unsigned int> expectedItemNumbers = {
+		0, 0, 1, 0, 1, 2, 3, 0
+	};
+
+	thrust::host_vector<unsigned int> resultGroupNumbers = result->groupNumbers;
+	thrust::host_vector<unsigned int> resultItemNumbers = result->itemNumbers;
+
+	REQUIRE(std::equal(expectedGroupNumbers.begin(), expectedGroupNumbers.end(), resultGroupNumbers.begin()));
+	REQUIRE(std::equal(expectedItemNumbers.begin(), expectedItemNumbers.end(), resultItemNumbers.begin()));
+	REQUIRE(result->threadCount == expectedGroupNumbers.size());
+}
+//--------------------------------------------------------------
 
 /*
 Test for graph
@@ -496,7 +557,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third leve
 	const unsigned int outpuCount = secondLevelInstances.size();
 
 	thrust::device_vector<unsigned int> thirdLevelCounts(outpuCount);
-	thrust::device_vector<unsigned int> fixMask(outpuCount);
 
 	thrust::device_vector<unsigned int> result(outpuCount);
 
@@ -508,7 +568,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third leve
 		, thrust::raw_pointer_cast(cliques.data())
 		, thrust::raw_pointer_cast(groups.data())
 		, secondLevelInstances.data()
-		, fixMask.data()
 		, outpuCount
 		, 2
 		, result.data()
@@ -517,13 +576,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third leve
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	std::vector<unsigned int> expectedCounts{ 1, 2, 0, 0, 1 };
-	std::vector<unsigned int> expectedfixMask{ 0, 0, 1, 1, 0 };
 
 	thrust::host_vector<unsigned int> resultCounts = result;
-	thrust::host_vector<unsigned int> resultMask = fixMask;
 
 	REQUIRE(std::equal(expectedCounts.begin(), expectedCounts.end(), resultCounts.begin()));
-	REQUIRE(std::equal(expectedfixMask.begin(), expectedfixMask.end(), resultMask.begin()));
 }
 
 

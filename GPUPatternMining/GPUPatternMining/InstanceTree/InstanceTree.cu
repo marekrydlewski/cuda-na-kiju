@@ -51,6 +51,8 @@ namespace InstanceTree
 		thrust::device_vector<thrust::device_ptr<bool>> masksOnLevels;
 
 		thrust::device_vector<thrust::device_ptr<unsigned int>> groupNumbersOnLevels;
+
+		//TODO check if is needed
 		thrust::device_vector<thrust::device_ptr<unsigned int>> itemNumbersOnLevels;
 		
 
@@ -69,11 +71,13 @@ namespace InstanceTree
 			, newEntriesCounts.data()
 		);
 		
-		cudaDeviceSynchronize();
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 		std::vector<InstanceTreeHelpers::ForGroupsResultPtr> levelResults;
 
 		auto firstTwoLevelsFg = InstanceTreeHelpers::forGroups(newEntriesCounts);
+
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 		
 		// level 0
 		instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(firstTwoLevelsFg->threadCount));
@@ -111,38 +115,51 @@ namespace InstanceTree
 		{
 			unsigned int elementsCount = instancesElementsInLevelVectors.back().size();
 
-			dim3 levelDim;
-			findSmallest2D(elementsCount, 256, levelDim.x, levelDim.y);
+			dim3 getLevelCounts;
+			findSmallest2D(elementsCount, 256, getLevelCounts.x, getLevelCounts.y);
 
-			thrust::device_vector<unsigned int> fixMask(elementsCount);
-			thrust::device_vector<unsigned int> result(elementsCount);
+			thrust::device_vector<unsigned int> levelCountsResult(elementsCount);
 
-			InstanceTreeHelpers::fillWithNextLevelCountsFromTypedNeighbour <<< levelDim, 256 >>> (
+			InstanceTreeHelpers::fillWithNextLevelCountsFromTypedNeighbour <<< getLevelCounts, 256 >>> (
 				typedInstanceNeighboursPack->map->getBean()
 				, thrust::raw_pointer_cast(cliques.data())
 				, thrust::raw_pointer_cast(groupNumbersOnLevels.data())
 				, instancesElementsInLevel[currentLevel - 1]
-				, fixMask.data()
 				, elementsCount
 				, currentLevel
-				, result.data()
+				, levelCountsResult.data()
 			);
 
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
-			auto forGroupsResult = InstanceTreeHelpers::forGroups(result);
-
-
-			thrust::exclusive_scan(thrust::device
-				, fixMask.begin(), fixMask.begin() + elementsCount
-				, fixMask.begin());
-
-			
-
-			thrust::transform(thrust::device
-				, result.begin(), result.end(), fixMask.begin(), fixMask.begin(), thrust::plus<unsigned int>());
+			auto forGroupsResult = InstanceTreeHelpers::forGroups(levelCountsResult);
 
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+			// maintain history
+			instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(forGroupsResult->threadCount));
+			instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back().data());
+			groupNumbersOnLevels.push_back(forGroupsResult->groupNumbers.data());
+			itemNumbersOnLevels.push_back(forGroupsResult->itemNumbers.data());
+			levelResults.push_back(forGroupsResult);
+
+			dim3 insertLevelInstances;
+			findSmallest2D(forGroupsResult->threadCount, 256, insertLevelInstances.x, insertLevelInstances.y);
+
+			InstanceTreeHelpers::fillLevelInstancesFromNeighboursList << < insertLevelInstances, 256 >> > (
+				typedInstanceNeighboursPack->map->getBean()
+				, thrust::raw_pointer_cast(cliques.data())
+				, thrust::raw_pointer_cast(groupNumbersOnLevels.data())
+				, forGroupsResult->itemNumbers.data()
+				, instancesElementsInLevel[currentLevel - 1]
+				, planeSweepResult->pairsB.data()
+				, forGroupsResult->threadCount
+				, currentLevel
+				, instancesElementsInLevel[currentLevel]
+			);
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 		}
 
 		// TODO reverse generate instances

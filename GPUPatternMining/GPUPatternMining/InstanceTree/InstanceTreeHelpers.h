@@ -21,7 +21,6 @@ namespace  InstanceTreeHelpers
 		, thrust::device_ptr<const unsigned short>* cliquesCandidates
 		, thrust::device_ptr<unsigned int>* groupNumberLevels
 		, thrust::device_ptr<FeatureInstance> previousLevelInstances
-		, thrust::device_ptr<unsigned int> fixMask
 		, unsigned int count
 		, unsigned int currentLevel
 		, thrust::device_ptr<unsigned int> result
@@ -60,10 +59,9 @@ namespace  InstanceTreeHelpers
 	__global__
 	void fillWithNextLevelCountsFromTypedNeighbour(
 		InstanceTypedNeighboursMapCreator::TypedNeighboursListMapBean bean
-		, thrust::device_ptr<unsigned short>* cliquesCandidates
+		, thrust::device_ptr<const unsigned short>* cliquesCandidates
 		, thrust::device_ptr<unsigned int>* groupNumberLevels
 		, thrust::device_ptr<FeatureInstance> previousLevelInstances
-		, thrust::device_ptr<unsigned int> fixMask
 		, unsigned int count
 		, unsigned int currentLevel
 		, thrust::device_ptr<unsigned int> result

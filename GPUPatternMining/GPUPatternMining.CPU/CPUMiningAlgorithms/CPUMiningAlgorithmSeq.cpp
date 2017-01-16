@@ -157,15 +157,15 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 
 	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
 	{
-		while (cliquesToProcess[i].size() != 0)
+		//no need to 'while' here, getPrevalentMaxCliques edits cliquesToProcess but in other rows
+		for (auto& clique : cliquesToProcess[i])
 		{
-			auto clique = cliquesToProcess[i].back();
-			cliquesToProcess[i].pop_back();
 			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
 
 			if (maxCliques.size() != 0)
 				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
 		}
+		cliquesToProcess[i].clear();
 	}
 
 	return finalMaxCliques;

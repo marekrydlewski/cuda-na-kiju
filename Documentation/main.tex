@@ -21,7 +21,11 @@
  }
 \lstset{
 language=C++,
-basicstyle=\ttfamily
+basicstyle=\ttfamily,
+breaklines=true,
+breakatwhitespace=true,
+breakindent=2ex,
+postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookrightarrow\space}}
 }
 
 \begin{document}
@@ -532,13 +536,29 @@ Klasy CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel zawierają implement
 
 W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz implementacji która za nimi stoi.
 
-\subsubsection{Opis struktur i klas pomocniczych}
+\subsubsection{Opis struktur \& klas pomocniczych i ich implementacji}
     
 \begin{itemize}
-\item CinsTree
-\item CinsNode
-\item Graph
-\item CliquesContainer
+\item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}. Zawiera wskaźnik do korzenia drzewa \raggedright \lstinline{std::unique_ptr<CinsNode> root}) oraz wektor \lstinline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
+
+\item CinsNode - Klasa zawierająca implementację pojedynczego węzła skondensowanego drzewa instancji \textit{CinsTree}. Obiekty tej klasy zawierają informacje o cesze \lstinline{unsigned short type} i numerze \lstinline{unsigned short instanceId} instancji przestrzennej, wektor wskaźników potomków \lstinline{std::vector<std::unique_ptr<CinsNode>> children} oraz wskaźnik pokazujący na rodzica danego węzła \lstinline{CinsNode* parent}. Klasa zawiera metody umożliwiające m.in.:
+
+\begin{itemize}
+\item dodanie potomka.
+\item zwrócenie potomka o danej cesze i numerze instancji.
+\item zwrócenie listy wszystkich przodków.
+\end{itemize}
+
+\item Graph - Klasa implementująca graf nieskierowany, bazująca na macierzy sąsiedztwa (ang. \textit{adjacency matrix}). Oprócz podstawowych metod umożliwiających działanie i budowanie grafu, klasa zawiera również metody pozwalające na:
+
+\begin{itemize}
+\item obliczenie maksymalnych klik w grafie za pomocą zmodyfikowanego algorytmu Brona-Kerboscha \cite{chinczyki}.
+\item obliczenie optymalnego \textit{pivotu} \cite{pivot} dla algorytmu Brona-Kerboscha.
+\item obliczenie stopnia degeneracji grafu (ang. \textit{degeneracy}) i uporządkowanie wierzchołków według miary degeneracji (ang.\textit{degeneracy ordering}) \cite{degenerat}.
+\end{itemize}
+
+\item CliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \lstinline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \lstinline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik. Weryfikację umożliwia algorytm: \textit{borewicz wstaw tu algorytm z \lstinline{bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)} :v}
+	
 \item ParallelCliquesContainer
 \item RandomDataProvider
 \item SimulatedRealDataProvider
@@ -562,7 +582,9 @@ std::map<unsigned short, std::map<unsigned short,
 	std::map<unsigned short, std::vector<
     	unsigned short>*>>> insTable;
 \end{lstlisting}
- Pierwsze dwa wymiary określają typy elementów \textit{A} i \textit{B}, natomiast trzeci wymiar określa numer instancji przestrzennej \textit{A}. W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. Dodatkowo, dane są umieszczane w ten sposób że zawsze spełniona jest relacja \textit{tutaj matematyczny znaczek: numer cechy A \textless numer cechy B}. Taka implementacja umożliwia łatwe i efektywne odczytywanie sąsiadów o danej cesze konkretnego elementu.
+ Pierwsze dwa wymiary określają typy elementów \textit{A} i \textit{B}, natomiast trzeci wymiar określa numer instancji przestrzennej \textit{A}. W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. Dodatkowo, dane są umieszczane w ten sposób że zawsze spełniona jest relacja \textit{tutaj matematyczny znaczek: numer cechy A \textless numer cechy B}. Taka implementacja umożliwia łatwe i efektywne odczytywanie sąsiadów o danej cesze konkretnej instancji przestrzennej.
+ 
+ \item Korzystając z faktu, że w trakcie działania metody następuje iteracja po wszystkich elementach, równocześnie tworzony jest wektor \lstinline{std::vector<unsigned short> typeIncidenceCounter}, w którym zliczane są wystąpienia kolejnych cech instancji przestrzennych.
 
 \end{itemize}
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}

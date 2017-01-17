@@ -41,19 +41,25 @@ bool ParallelCliquesContainer::checkCliqueExistence(std::vector<unsigned short>&
 {
 	assert(clique.size() >= 2);
 
-	std::vector<bool> types(cliquesCounter, false);
-	std::vector<bool> typesNew(cliquesCounter, false);
+	unsigned short currentCliquesCounter = cliquesCounter;
+
+	std::vector<bool> types(currentCliquesCounter, false);
+	std::vector<bool> typesNew(currentCliquesCounter, false);
 
 	for (auto type : typesMap[clique[0]])
 	{
-		types[type] = true;
+		if(type < currentCliquesCounter)
+			types[type] = true;
 	}
 
 	for (auto i = 1; i < clique.size(); ++i)
 	{
 		for (auto id : typesMap[clique[i]])
 		{
-			if (types[id]) typesNew[id] = true;
+			if (id < currentCliquesCounter)
+			{
+				if (types[id]) typesNew[id] = true;
+			}
 		}
 		types = typesNew;
 		std::fill(typesNew.begin(), typesNew.end(), false);

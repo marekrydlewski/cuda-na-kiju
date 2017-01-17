@@ -11,7 +11,7 @@
 using namespace InstanceTreeHelpers;
 //--------------------------------------------------------------
 
-/*
+
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert first pair count")
 {
 	thrust::device_vector<unsigned int> keys;
@@ -107,7 +107,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert first pair
 	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }
 //--------------------------------------------------------------
-*/
 
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | for groups simple")
@@ -241,7 +240,6 @@ Test for graph
           |
 A1-B1-C1-B2-A2-C2
 */
-/*
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert first two levels")
 {
 	thrust::device_vector<FeatureInstance> pairsA;
@@ -400,7 +398,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert first two 
 	REQUIRE(std::equal(expectedSecondLevel.begin(), expectedSecondLevel.end(), resultSecondLevel.begin()));
 }
 //--------------------------------------------------------------
-*/
 
 
 /*
@@ -563,6 +560,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third leve
 	dim3 insertGrid;
 	findSmallest2D(outpuCount, 256, insertGrid.x, insertGrid.y);
 
+	thrust::device_vector<bool> integrityMask(outpuCount, true);
+
 	fillWithNextLevelCountsFromTypedNeighbour <<< insertGrid, 256 >>> (
 		instanceNeighboursMap->map->getBean()
 		, thrust::raw_pointer_cast(cliques.data())
@@ -570,6 +569,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third leve
 		, secondLevelInstances.data()
 		, outpuCount
 		, 2
+		, integrityMask.data()
 		, result.data()
 	);
 
@@ -586,10 +586,20 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third leve
 /*
 Test for graph
 
-C3-D2
-|
+		 C3-D2
+		 |
 A1-B1-C1-B2-A2-C2-D1
 
+
+a1-b1-c1  1
+
+a2-b2 c1  2
+	  c3
+
+b1-c1-	  0
+b2-c1-    0
+
+b2-c3-d2  1
 */
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third..n level instances")
 {
@@ -666,23 +676,34 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third..n l
 
 	// forgroups result
 	
-	std::vector<thrust::device_vector<unsigned int>> forGroupGroups;
-	thrust::device_vector<thrust::device_ptr<unsigned int>> forGroupGroupsDevPtrs(3);
+	typedef thrust::device_vector<unsigned int> UIntThrustVector;
+	typedef std::shared_ptr<UIntThrustVector> UIntThrustVectorPtr;
+
+	std::vector<UIntThrustVectorPtr> forGroupGroups;
+	thrust::device_vector<thrust::device_ptr<unsigned int>> forGroupGroupsDevPtrs;
 	{
-		std::vector<unsigned int> firstAndSecondLevel = { 0, 0, 1, 1, 1 };
+		std::vector<thrust::device_ptr<unsigned int>> tempDevPtr;
 
-		forGroupGroups.push_back(firstAndSecondLevel);
+		std::vector<unsigned int> hFirstLevelGroups = { 0, 0, 1, 1, 1 };
 
-		forGroupGroupsDevPtrs[0] = forGroupGroups.back().data();
-		forGroupGroupsDevPtrs[1] = forGroupGroups.back().data();
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hFirstLevelGroups));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		std::vector<unsigned int> hsecondLevelGroup = { 0, 0, 1, 1, 1 };
+
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hsecondLevelGroup));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
 		/*
 			groups count 
 			1, 2, 0, 0, 1
 		*/
-		std::vector<unsigned int> thirdLevel = { 0, 0, 1, 4 };
+		std::vector<unsigned int> hthirdLevel = { 0, 1, 1, 4 };
 
-		forGroupGroups.push_back(thirdLevel);
-		forGroupGroupsDevPtrs[2] = forGroupGroups.back().data();
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hthirdLevel));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		forGroupGroupsDevPtrs = tempDevPtr;
 	}
 
 	thrust::device_vector<unsigned int> itemsNumber;
@@ -719,8 +740,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third..n l
 
 
 	// ####################################################################
-
-	const unsigned int outpuCount = forGroupGroups.back().size();
+	
+	const unsigned int outpuCount = forGroupGroups.back()->size();
 
 	thrust::device_vector<FeatureInstance> result(outpuCount);
 
@@ -729,8 +750,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third..n l
 	
 	fillLevelInstancesFromNeighboursList << < insertGrid, 256 >> > (
 		instanceNeighboursMap->map->getBean()
-		, thrust::raw_pointer_cast(cliques.data())
-		, thrust::raw_pointer_cast(forGroupGroupsDevPtrs.data())
+		, cliques.data().get()
+		, forGroupGroupsDevPtrs.data().get()
 		, itemsNumber.data()
 		, secondLevelInstances.data()
 		, pairsB.data()
@@ -769,10 +790,241 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third..n l
 		expectedThirdLevelInstances.push_back(fi);
 	}
 
-	thrust::host_vector<FeatureInstance> resultCounts = result;
+	thrust::host_vector<FeatureInstance> calculatedThirdLevelInstances = result;
 
-	for (FeatureInstance& rfi : resultCounts)
-		printf("0x%8x\n", rfi.field);
+	REQUIRE(std::equal(expectedThirdLevelInstances.begin(), expectedThirdLevelInstances.end(), calculatedThirdLevelInstances.begin()));
+}
+// -------------------------------------------------------------------------------------------------------------------------------
 
-	REQUIRE(std::equal(expectedThirdLevelInstances.begin(), expectedThirdLevelInstances.end(), resultCounts.begin()));
+/*
+Test for graph
+
+		 C3-D2
+		 | /
+A1-B1-C1-B2-A2-C2-D1
+
+*/
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | check clique integrity")
+{
+	// planessweep data
+	thrust::device_vector<FeatureInstance> pairsA;
+	thrust::device_vector<FeatureInstance> pairsB;
+	{
+		/*
+		a1 - b1
+		a2 - b2
+		a2 - c2
+		b1 - c1
+		b2 - c1
+		b2 - c3
+		b2 - d2
+		c2 - d1
+		c3 - d2
+		*/
+		std::vector<FeatureInstance> hPairsA = {
+			{ 0x000A0001 }
+			,{ 0x000A0002 }
+			,{ 0x000A0002 }
+			,{ 0x000B0001 }
+			,{ 0x000B0002 }
+			,{ 0x000B0002 }
+			,{ 0x000B0002 }
+			,{ 0x000C0002 }
+			,{ 0x000C0003 }
+		};
+
+		std::vector<FeatureInstance> hPairsB = {
+			{ 0x000B0001 }
+			,{ 0x000B0002 }
+			,{ 0x000C0002 }
+			,{ 0x000C0001 }
+			,{ 0x000C0001 }
+			,{ 0x000C0003 }
+			,{ 0x000D0002 }
+			,{ 0x000D0001 }
+			,{ 0x000D0002 }
+		};
+
+		pairsA = hPairsA;
+		pairsB = hPairsB;
+	}
+
+
+	// instance neighbour map
+	auto instanceNeighboursMap = InstanceTypedNeighboursMapCreator::createTypedNeighboursListMap(
+		pairsA
+		, pairsB
+	);
+
+	// clique data
+	thrust::device_vector<thrust::device_vector<unsigned short>> cliquesData;
+	thrust::host_vector<thrust::device_vector<unsigned short>> hcliquesData;
+	{
+
+		std::vector<unsigned short> first = { 0x000A, 0x000B, 0x000C };
+		std::vector<unsigned short> second = { 0x000B, 0x000C, 0x000D };
+
+		hcliquesData.push_back(first);
+		hcliquesData.push_back(second);
+
+		cliquesData = hcliquesData;
+	}
+
+	thrust::device_vector<thrust::device_ptr<const unsigned short>> cliques;
+	{
+		std::vector<thrust::device_ptr<const unsigned short>> hcliques;
+		for (const thrust::device_vector<unsigned short>& vec : hcliquesData)
+			hcliques.push_back(vec.data());
+
+		cliques = hcliques;
+	}
+
+
+	// forgroups result
+
+	std::vector<thrust::device_vector<unsigned int>> forGroupGroups;
+	thrust::device_vector<thrust::device_ptr<unsigned int>> forGroupGroupsDevPtrs(3);
+	{
+		std::vector<unsigned int> firstAndSecondLevel = { 0, 0, 1, 1, 1 };
+
+		forGroupGroups.push_back(firstAndSecondLevel);
+
+		forGroupGroupsDevPtrs[0] = forGroupGroups.back().data();
+		forGroupGroupsDevPtrs[1] = forGroupGroups.back().data();
+		/*
+		groups count
+		1, 2, 0, 0, 1
+		*/
+		std::vector<unsigned int> thirdLevel = { 0, 1, 1, 4 };
+
+		forGroupGroups.push_back(thirdLevel);
+		forGroupGroupsDevPtrs[2] = forGroupGroups.back().data();
+	}
+
+	thrust::device_vector<unsigned int> itemsNumber;
+	{
+		std::vector<unsigned int> hItemumbers = { 0, 0, 1, 0 };
+		itemsNumber = hItemumbers;
+	}
+
+	// instances levels
+	thrust::device_vector<FeatureInstance> firstLevelInstances;
+	{
+		/*
+		a1-b1-c1  1
+
+		a2-b2 c1  2
+			  c3
+
+		b1-c1-	  0
+		b2-c1-    0
+
+		b2-c3-d2  1
+		*/
+
+		std::vector<FeatureInstance> hFirstLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000A0001;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000A0002;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0001;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hFirstLevelInstances.push_back(fi);
+		}
+
+		firstLevelInstances = hFirstLevelInstances;
+	}
+
+	thrust::device_vector<FeatureInstance> secondLevelInstances;
+	{
+		std::vector<FeatureInstance> hSecondLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000B0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0003;
+			hSecondLevelInstances.push_back(fi);
+		}
+
+		secondLevelInstances = hSecondLevelInstances;
+	}
+
+	thrust::device_vector<FeatureInstance> thirdLevelInstances;
+	{
+		std::vector<FeatureInstance> hThirdLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000C0001;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0003;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000D0002;
+			hThirdLevelInstances.push_back(fi);
+		}
+
+		thirdLevelInstances = hThirdLevelInstances;
+	}
+
+	thrust::device_vector<thrust::device_ptr<FeatureInstance>> instancesOnLevels;
+	{
+		std::vector<thrust::device_ptr<FeatureInstance>> hInstancesOnLevels;
+
+		hInstancesOnLevels.push_back(firstLevelInstances.data());
+		hInstancesOnLevels.push_back(secondLevelInstances.data());
+		hInstancesOnLevels.push_back(thirdLevelInstances.data());
+
+		instancesOnLevels = hInstancesOnLevels;
+	}
+
+	const unsigned int outpuCount = forGroupGroups.back().size();
+
+	thrust::device_vector<bool> result(outpuCount);
+
+	dim3 insertGrid;
+	findSmallest2D(outpuCount, 256, insertGrid.x, insertGrid.y);
+
+	markAsPartOfCurrentCliqueInstance <<< insertGrid, 256 >>> (
+		instanceNeighboursMap->map->getBean()
+		, forGroupGroupsDevPtrs.data().get()
+		, instancesOnLevels.data().get()
+		, thirdLevelInstances.data()
+		, pairsB.data()
+		, outpuCount
+		, 2
+		, result.data()
+	);
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	std::vector<bool> expected = { false, false, false, true };
+	thrust::host_vector<bool> calculated = result;
+
+	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
 }

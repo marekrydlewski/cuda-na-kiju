@@ -5,6 +5,14 @@
 
 namespace InstanceTree
 {
+	typedef thrust::device_vector<unsigned int> UIntThrustVector;
+	typedef std::shared_ptr<UIntThrustVector> UIntThrustVectorPtr;
+
+	typedef thrust::device_vector<FeatureInstance> FeatureInstanceThrustVector;
+	typedef std::shared_ptr<FeatureInstanceThrustVector> FeatureInstanceThrustVectorPtr;
+	
+
+
 	InstanceTree::InstanceTree(
 		PlaneSweepTableInstanceResultPtr planeSweepResult
 		, IntanceTablesMapCreator::ITMPackPtr instanceTablePack
@@ -44,8 +52,8 @@ namespace InstanceTree
 			cliques = hcliques;
 		}
 
-		std::vector<thrust::device_vector<FeatureInstance>> instancesElementsInLevelVectors;
-		std::vector<thrust::device_ptr<FeatureInstance>> instancesElementsInLevel;
+		std::vector<FeatureInstanceThrustVectorPtr> instancesElementsInLevelVectors;
+		thrust::device_vector<thrust::device_ptr<FeatureInstance>> instancesElementsInLevel;
 
 
 		thrust::device_vector<thrust::device_ptr<bool>> masksOnLevels;
@@ -80,18 +88,18 @@ namespace InstanceTree
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 		
 		// level 0
-		instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(firstTwoLevelsFg->threadCount));
-		instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back().data());
+		levelResults.push_back(firstTwoLevelsFg);
+		instancesElementsInLevelVectors.push_back(std::make_shared<FeatureInstanceThrustVector>(firstTwoLevelsFg->threadCount));
+		instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back()->data());
 		groupNumbersOnLevels.push_back(firstTwoLevelsFg->groupNumbers.data());
 		itemNumbersOnLevels.push_back(firstTwoLevelsFg->itemNumbers.data());
-		levelResults.push_back(firstTwoLevelsFg);
 
 		// level 1
-		instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(firstTwoLevelsFg->threadCount));
-		instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back().data());
+		levelResults.push_back(firstTwoLevelsFg);
+		instancesElementsInLevelVectors.push_back(std::make_shared<FeatureInstanceThrustVector>(firstTwoLevelsFg->threadCount));
+		instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back()->data());
 		groupNumbersOnLevels.push_back(firstTwoLevelsFg->groupNumbers.data());
 		itemNumbersOnLevels.push_back(firstTwoLevelsFg->itemNumbers.data());
-		levelResults.push_back(firstTwoLevelsFg);
 
 		// fill first two tree levels with FeatureInstance
 		dim3 writeFirstTwoLevelsGrid;
@@ -107,26 +115,27 @@ namespace InstanceTree
 			, firstTwoLevelsFg->threadCount
 			, instancesElementsInLevel[0]
 			, instancesElementsInLevel[1]
-			);
-
-		// TODO add generating bigger trees
+		);
+		
+		thrust::device_vector<bool> integrityMask(firstTwoLevelsFg->threadCount, true);
 
 		for (unsigned int currentLevel = 2; currentLevel < currentCliquesSize; ++currentLevel)
 		{
-			unsigned int elementsCount = instancesElementsInLevelVectors.back().size();
+			unsigned int previousLevelInstancesCount = instancesElementsInLevelVectors.back()->size();
 
 			dim3 getLevelCounts;
-			findSmallest2D(elementsCount, 256, getLevelCounts.x, getLevelCounts.y);
+			findSmallest2D(previousLevelInstancesCount, 256, getLevelCounts.x, getLevelCounts.y);
 
-			thrust::device_vector<unsigned int> levelCountsResult(elementsCount);
+			thrust::device_vector<unsigned int> levelCountsResult(previousLevelInstancesCount);
 
 			InstanceTreeHelpers::fillWithNextLevelCountsFromTypedNeighbour <<< getLevelCounts, 256 >>> (
 				typedInstanceNeighboursPack->map->getBean()
 				, thrust::raw_pointer_cast(cliques.data())
 				, thrust::raw_pointer_cast(groupNumbersOnLevels.data())
 				, instancesElementsInLevel[currentLevel - 1]
-				, elementsCount
+				, previousLevelInstancesCount
 				, currentLevel
+				, integrityMask.data()
 				, levelCountsResult.data()
 			);
 
@@ -137,19 +146,19 @@ namespace InstanceTree
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			// maintain history
-			instancesElementsInLevelVectors.push_back(thrust::device_vector<FeatureInstance>(forGroupsResult->threadCount));
-			instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back().data());
+			levelResults.push_back(forGroupsResult);
+			instancesElementsInLevelVectors.push_back(std::make_shared<FeatureInstanceThrustVector>(forGroupsResult->threadCount));
+			instancesElementsInLevel.push_back(instancesElementsInLevelVectors.back()->data());
 			groupNumbersOnLevels.push_back(forGroupsResult->groupNumbers.data());
 			itemNumbersOnLevels.push_back(forGroupsResult->itemNumbers.data());
-			levelResults.push_back(forGroupsResult);
 
 			dim3 insertLevelInstances;
 			findSmallest2D(forGroupsResult->threadCount, 256, insertLevelInstances.x, insertLevelInstances.y);
 
-			InstanceTreeHelpers::fillLevelInstancesFromNeighboursList << < insertLevelInstances, 256 >> > (
+			InstanceTreeHelpers::fillLevelInstancesFromNeighboursList <<< insertLevelInstances, 256 >>> (
 				typedInstanceNeighboursPack->map->getBean()
-				, thrust::raw_pointer_cast(cliques.data())
-				, thrust::raw_pointer_cast(groupNumbersOnLevels.data())
+				, cliques.data().get()
+				, groupNumbersOnLevels.data().get()
 				, forGroupsResult->itemNumbers.data()
 				, instancesElementsInLevel[currentLevel - 1]
 				, planeSweepResult->pairsB.data()
@@ -159,7 +168,26 @@ namespace InstanceTree
 			);
 
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+			
+			dim3 checkCliqueIntegrity = insertLevelInstances;
 
+			unsigned int currentLevelElementsCount = instancesElementsInLevelVectors.back()->size();
+
+			if (integrityMask.size() < currentLevelElementsCount)
+				integrityMask = thrust::device_vector<bool>(currentLevelElementsCount);
+
+			InstanceTreeHelpers::markAsPartOfCurrentCliqueInstance <<< checkCliqueIntegrity, 256 >>> (
+				typedInstanceNeighboursPack->map->getBean()
+				, groupNumbersOnLevels.data().get()
+				, instancesElementsInLevel.data().get()
+				, instancesElementsInLevel[currentLevel]
+				, planeSweepResult->pairsB.data()
+				, forGroupsResult->threadCount
+				, currentLevel
+				, integrityMask.data()
+			);
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 		}
 
 		// TODO reverse generate instances

@@ -1,8 +1,9 @@
 #include "InstanceTreeHelpers.h"
 
+#define TEST_PRINTF()
+
 namespace InstanceTreeHelpers
 {
-
 	__global__
 	void fillFirstPairCountFromMap(
 		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
@@ -34,6 +35,7 @@ namespace InstanceTreeHelpers
 		, thrust::device_ptr<FeatureInstance> previousLevelInstances
 		, unsigned int count
 		, unsigned int currentLevel
+		, thrust::device_ptr<bool> integrityMask
 		, thrust::device_ptr<unsigned int> result
 	)
 	{
@@ -41,13 +43,19 @@ namespace InstanceTreeHelpers
 
 		if (tid < count)
 		{
+			if (!integrityMask[tid])
+			{
+				result[tid] = 0;
+				return;
+			}
+
 			unsigned int cliqueId = groupNumberLevels[currentLevel - 1][tid];
 
 			// this for in real case is never used beacuse this method shold be invoked
 			// only for lvl2 (counting from 0)
 			for (int level = currentLevel - 2; level != 0; --level)
 			{
-				cliqueId = groupNumberLevels[level][cliqueId];
+				cliqueId = groupNumberLevels[level - 1][cliqueId];
 			}
 
 			unsigned long long key = InstanceTypedNeighboursMapCreator::createITNMKey(
@@ -91,12 +99,11 @@ namespace InstanceTreeHelpers
 			unsigned int currentGroupId = groupNumberLevels[currentLevel][tid];
 			unsigned int cliqueId = currentGroupId;
 
-			printf("tid[%u] cliqueId[%u] lvl[%u]\n", tid, cliqueId, currentLevel);
-
-			for (unsigned int level = currentLevel - 1; level != 0; --level)
+			//printf("tid[%u] lvl[%u]| clique=%u\n", tid, currentLevel, cliqueId);
+			for (signed int level = currentLevel - 1; level > 0; --level)
 			{
-				cliqueId = groupNumberLevels[level][cliqueId];
-				printf("tid[%u] cliqueId[%u] lvl[%u]\n", tid, cliqueId, level);
+				cliqueId = groupNumberLevels[0][cliqueId];
+				//printf("tid[%u] lvl[%i]| clique=%u\n", tid, level, cliqueId);
 			}
 
 			unsigned long long key = InstanceTypedNeighboursMapCreator::createITNMKey(
@@ -107,14 +114,94 @@ namespace InstanceTreeHelpers
 			NeighboursListInfoHolder nlih;
 			GPUHashMapperProcedures::getValue(bean, key, nlih);
 				
-			printf("tid[%u] start[%u] num[%u]\n", 
-				tid, nlih.startIdx, 
-				*(thrust::raw_pointer_cast(itemNumbers) + tid));
+			//printf("tid[%u] key[%#llx] start[%u] num[%u]\n", 
+			//	tid
+			//	, key
+			//	, nlih.startIdx
+			//	, *(thrust::raw_pointer_cast(itemNumbers) + tid));
 
 			result[tid] = pairB[nlih.startIdx + itemNumbers[tid]];
 		}
 	}
 	// ------------------------------------------------------------------------------
+
+	__global__
+	void markAsPartOfCurrentCliqueInstance(
+		InstanceTypedNeighboursMapCreator::TypedNeighboursListMapBean bean
+		, thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<FeatureInstance>* instancesOnLevels
+		, thrust::device_ptr<FeatureInstance> currentLevelInstances
+		, thrust::device_ptr<FeatureInstance> pairB
+		, unsigned int count
+		, unsigned int currentLevel
+		, thrust::device_ptr<bool> result
+	)
+	{
+		unsigned int tid = computeLinearAddressFrom2D();
+		bool isPartOfClique = false;
+
+		if (tid < count)
+		{
+			FeatureInstance newFeatureInstance = currentLevelInstances[tid];
+			unsigned short newFeatureType = newFeatureInstance.fields.featureId;
+
+			unsigned int currentGroupId = groupNumberLevels[currentLevel][tid];
+
+			for (signed int level = currentLevel - 1; level >= 0; --level)
+			{
+				//printf("tid[%u] lvl [%i]| gId [%u]\n", tid, level, currentGroupId);
+
+				FeatureInstance currentFi = instancesOnLevels[level][currentGroupId];
+
+				unsigned long long key = InstanceTypedNeighboursMapCreator::createITNMKey(
+					currentFi
+					, newFeatureType
+				);
+
+				isPartOfClique = false;
+
+				if (!GPUHashMapperProcedures::containsKey(bean, key))
+				{
+					//printf("tid[%u] lvl[%i] | %#8x have no neighbours of type %#8x\n"
+					//	, tid, level, currentFi.field, newFeatureType);
+					break;
+				}
+
+				NeighboursListInfoHolder nlih;
+
+				GPUHashMapperProcedures::getValue(bean, key, nlih);
+
+				// TODO check dynamic parallelism
+				for (unsigned int i = nlih.startIdx; i < nlih.startIdx + nlih.count; ++i)
+				{
+					if (pairB[i] == newFeatureInstance)
+					{
+						isPartOfClique = true;
+						//printf("tid[%u] lvl[%i] %#8x found %#8x\n"
+						//	, tid, level, currentFi.field, newFeatureInstance.field);
+						break;
+					}
+				}
+
+				if (!isPartOfClique)
+				{
+					//printf("tid[%u] lvl[%i] %#8x have no neighbour %#8x\n"
+					//	, tid, level, currentFi.field, newFeatureInstance.field);
+					break;
+				}
+
+
+				__syncthreads();
+				// first two levels have same positions
+				if (level > 1)
+					currentGroupId = groupNumberLevels[level][currentGroupId];
+			}
+
+			result[tid] = isPartOfClique;
+		}
+	}
+	// ------------------------------------------------------------------------------
+
 
 	__global__ void scatterOnesAndPositions(
 		unsigned int nGroups

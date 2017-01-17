@@ -64,6 +64,7 @@ namespace  InstanceTreeHelpers
 		, thrust::device_ptr<FeatureInstance> previousLevelInstances
 		, unsigned int count
 		, unsigned int currentLevel
+		, thrust::device_ptr<bool> integrityMask
 		, thrust::device_ptr<unsigned int> result
 	);
 	// -----------------------------------------------------------------------------
@@ -79,6 +80,19 @@ namespace  InstanceTreeHelpers
 		, unsigned int count
 		, unsigned int currentLevel
 		, thrust::device_ptr<FeatureInstance> result
+	);
+	// -----------------------------------------------------------------------------
+
+	__global__
+	void markAsPartOfCurrentCliqueInstance(
+		InstanceTypedNeighboursMapCreator::TypedNeighboursListMapBean bean
+		, thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<FeatureInstance>* instancesOnLevels
+		, thrust::device_ptr<FeatureInstance> currentLevelInstances
+		, thrust::device_ptr<FeatureInstance> pairB
+		, unsigned int count
+		, unsigned int currentLevel
+		, thrust::device_ptr<bool> result
 	);
 	// -----------------------------------------------------------------------------
 }

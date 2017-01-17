@@ -3,6 +3,8 @@
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
+#include "../../GPUPatternMining.Contract/ParallelCliquesContainer.h"
+
 #include <map>
 #include <vector>
 #include <ppl.h>
@@ -41,7 +43,7 @@ private:
 
 	std::vector<DataFeed> source;
 	/// typeIncidenceCounter - count from 1
-	concurrency::concurrent_vector<unsigned short> typeIncidenceCounter;
+	std::vector<unsigned short> typeIncidenceCounter;
 	/// InsTable - 2 dimensional hashtable, where frist 2 indexes are types
 	/// the value is a map, where key is number of 1st facility's instanceId and value is a vector of 2nd facility's instancesId 
 	std::map<unsigned short, 
@@ -50,17 +52,28 @@ private:
 				std::vector<unsigned short>*>>> insTable;
 	/// Cm
 	std::vector<std::vector<unsigned short>> maximalCliques;
+
+	ParallelCliquesContainer* cliquesContainer;
 	Graph size2ColocationsGraph;
 
+	void createSize2ColocationsGraph();
 	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> countUniqueInstances();
 
 	bool filterNodeCandidate(
 		unsigned short type,
 		unsigned short instanceId,
 		std::vector<CinsNode*> const & ancestors);
-	void createSize2ColocationsGraph();
+
+	bool isCliquePrevalent(
+		std::vector<unsigned short>& clique,
+		float prevalence);
+
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned short>& Cm);
-	bool isCliquePrevalent(std::vector<unsigned short>& clique, float prevalence);
-	std::vector<std::vector<unsigned short>> getPrevalentMaxCliques(std::vector<unsigned short>& clique, float prevalence);
+
+	std::vector<std::vector<unsigned short>> getPrevalentMaxCliques(
+		std::vector<unsigned short>& clique,
+		float prevalence,
+		std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess);
+
 	std::vector<unsigned short> inline getWorkloadForInsTable(unsigned int);
 };

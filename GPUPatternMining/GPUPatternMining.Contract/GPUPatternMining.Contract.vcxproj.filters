@@ -54,6 +54,9 @@
     <ClInclude Include="CliquesContainer.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="ParallelCliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -69,6 +72,9 @@
       <Filter>Entity</Filter>
     </ClCompile>
     <ClCompile Include="CliquesContainer.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ParallelCliquesContainer.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>

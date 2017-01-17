@@ -2,15 +2,21 @@
 #include "..\BaseCudaTestHandler.h"
 
 #define TEST_CUDA_CHECK_RETURN
-//--------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
 
 #include "..\..\GPUPatternMining/InstanceTree/InstanceTreeHelpers.h"
 #include "../../GPUPatternMining/InstanceTree/IntanceTablesMapCreator.h"
-//--------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
 
 using namespace InstanceTreeHelpers;
-//--------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
 
+typedef thrust::device_vector<unsigned int> UIntThrustVector;
+typedef std::shared_ptr<UIntThrustVector> UIntThrustVectorPtr;
+
+typedef thrust::device_vector<FeatureInstance> FeatureInstanceThrustVector;
+typedef std::shared_ptr<FeatureInstanceThrustVector> FeatureInstanceThrustVectorPtr;
+//---------------------------------------------------------------------------------------------------
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert first pair count")
 {
@@ -583,6 +589,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third leve
 }
 
 
+
 /*
 Test for graph
 
@@ -675,9 +682,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert third..n l
 
 
 	// forgroups result
-	
-	typedef thrust::device_vector<unsigned int> UIntThrustVector;
-	typedef std::shared_ptr<UIntThrustVector> UIntThrustVectorPtr;
 
 	std::vector<UIntThrustVectorPtr> forGroupGroups;
 	thrust::device_vector<thrust::device_ptr<unsigned int>> forGroupGroupsDevPtrs;
@@ -882,23 +886,31 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | check clique inte
 
 	// forgroups result
 
-	std::vector<thrust::device_vector<unsigned int>> forGroupGroups;
-	thrust::device_vector<thrust::device_ptr<unsigned int>> forGroupGroupsDevPtrs(3);
+	std::vector<UIntThrustVectorPtr> forGroupGroups;
+	thrust::device_vector<thrust::device_ptr<unsigned int>> forGroupGroupsDevPtrs;
 	{
-		std::vector<unsigned int> firstAndSecondLevel = { 0, 0, 1, 1, 1 };
+		std::vector<thrust::device_ptr<unsigned int>> tempDevPtr;
 
-		forGroupGroups.push_back(firstAndSecondLevel);
+		std::vector<unsigned int> hFirstLevelGroups = { 0, 0, 1, 1, 1 };
 
-		forGroupGroupsDevPtrs[0] = forGroupGroups.back().data();
-		forGroupGroupsDevPtrs[1] = forGroupGroups.back().data();
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hFirstLevelGroups));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		std::vector<unsigned int> hsecondLevelGroup = { 0, 0, 1, 1, 1 };
+
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hsecondLevelGroup));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
 		/*
 		groups count
 		1, 2, 0, 0, 1
 		*/
-		std::vector<unsigned int> thirdLevel = { 0, 1, 1, 4 };
+		std::vector<unsigned int> hthirdLevel = { 0, 1, 1, 4 };
 
-		forGroupGroups.push_back(thirdLevel);
-		forGroupGroupsDevPtrs[2] = forGroupGroups.back().data();
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hthirdLevel));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		forGroupGroupsDevPtrs = tempDevPtr;
 	}
 
 	thrust::device_vector<unsigned int> itemsNumber;
@@ -906,6 +918,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | check clique inte
 		std::vector<unsigned int> hItemumbers = { 0, 0, 1, 0 };
 		itemsNumber = hItemumbers;
 	}
+
+
 
 	// instances levels
 	thrust::device_vector<FeatureInstance> firstLevelInstances;
@@ -1003,7 +1017,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | check clique inte
 		instancesOnLevels = hInstancesOnLevels;
 	}
 
-	const unsigned int outpuCount = forGroupGroups.back().size();
+	const unsigned int outpuCount = forGroupGroups.back()->size();
 
 	thrust::device_vector<bool> result(outpuCount);
 
@@ -1026,5 +1040,409 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | check clique inte
 	std::vector<bool> expected = { false, false, false, true };
 	thrust::host_vector<bool> calculated = result;
 
+	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
+}
+// ---------------------------------------------------------------------------------------------
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate simple 1")
+{
+	// instances levels
+	thrust::device_vector<FeatureInstance> firstLevelInstances;
+	{
+		std::vector<FeatureInstance> hFirstLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000A0001; 
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000A0002;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0001;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hFirstLevelInstances.push_back(fi);
+		}
+
+		firstLevelInstances = hFirstLevelInstances;
+	}
+
+	thrust::device_vector<FeatureInstance> secondLevelInstances;
+	{
+		std::vector<FeatureInstance> hSecondLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000B0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0003;
+			hSecondLevelInstances.push_back(fi);
+		}
+
+		secondLevelInstances = hSecondLevelInstances;
+	}
+
+	thrust::device_vector<FeatureInstance> thirdLevelInstances;
+	{
+		std::vector<FeatureInstance> hThirdLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000C0001;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0003;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000D0002;
+			hThirdLevelInstances.push_back(fi);
+		}
+
+		thirdLevelInstances = hThirdLevelInstances;
+	}
+
+	thrust::device_vector<thrust::device_ptr<FeatureInstance>> instancesOnLevels;
+	{
+		std::vector<thrust::device_ptr<FeatureInstance>> hInstancesOnLevels;
+
+		hInstancesOnLevels.push_back(firstLevelInstances.data());
+		hInstancesOnLevels.push_back(secondLevelInstances.data());
+		hInstancesOnLevels.push_back(thirdLevelInstances.data());
+
+		instancesOnLevels = hInstancesOnLevels;
+	}
+
+
+	// forgroups result
+
+	std::vector<UIntThrustVectorPtr> forGroupGroups;
+	thrust::device_vector<thrust::device_ptr<unsigned int>> forGroupGroupsDevPtrs;
+	{
+		std::vector<thrust::device_ptr<unsigned int>> tempDevPtr;
+
+		std::vector<unsigned int> hFirstLevelGroups = { 0, 0, 1, 1, 1 };
+
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hFirstLevelGroups));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		std::vector<unsigned int> hsecondLevelGroup = { 0, 0, 1, 1, 1 };
+
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hsecondLevelGroup));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		/*
+		groups count
+		1, 2, 0, 0, 1
+		*/
+		std::vector<unsigned int> hthirdLevel = { 0, 1, 1, 4 };
+
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hthirdLevel));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		forGroupGroupsDevPtrs = tempDevPtr;
+	}
+	
+	// write positions
+	thrust::device_vector<unsigned int> writePositions;
+	{
+		std::vector<unsigned int> hWritePositions = { 0, 1, 1, 2 };
+		writePositions = hWritePositions;			
+	}
+
+	// integrity mask
+	thrust::device_vector<bool> integrityMask;
+	{
+		std::vector<bool> hIntegrityMask = { true, true, false, true };
+		integrityMask = hIntegrityMask;
+	}
+
+	// result
+	
+	const unsigned int endCount = 4;
+	const unsigned int prevalentCount = 3;
+	const unsigned int cliqueSize = 3;
+
+	thrust::device_vector<FeatureInstance> result(prevalentCount * cliqueSize);
+
+	dim3 insertGrid;
+	findSmallest2D(endCount, 256, insertGrid.x, insertGrid.y);
+
+	reverseGenerateCliquesInstances <<< insertGrid, 256 >>> (
+		forGroupGroupsDevPtrs.data().get()
+		, instancesOnLevels.data().get()
+		, endCount
+		, cliqueSize
+		, integrityMask.data()
+		, writePositions.data()
+		, result.data()
+	);
+
+
+	/*
+	a1-b1-c1  1
+
+	a2-b2 c1  2
+		  c3
+
+	b1-c1-	  0
+	b2-c1-    0
+
+	b2-c3-d2  1
+	*/
+
+	std::vector<FeatureInstance> expected = {
+		 { 0x000A0001 }, { 0x000A0002 }, { 0x000B0002 }
+		,{ 0x000B0001 }, { 0x000B0002 }, { 0x000C0003 }
+		,{ 0x000C0001 }, { 0x000C0001 }, { 0x000D0002 }
+	};
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	thrust::host_vector<FeatureInstance> copmuted = result;
+
+	REQUIRE(std::equal(expected.begin(), expected.end(), copmuted.begin()));
+}
+
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate simple 2")
+{
+	// instances levels
+	thrust::device_vector<FeatureInstance> firstLevelInstances;
+	{
+		std::vector<FeatureInstance> hFirstLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000A0001;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000A0002;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0001;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hFirstLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hFirstLevelInstances.push_back(fi);
+		}
+
+		firstLevelInstances = hFirstLevelInstances;
+	}
+
+	thrust::device_vector<FeatureInstance> secondLevelInstances;
+	{
+		std::vector<FeatureInstance> hSecondLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000B0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000B0002;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hSecondLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0003;
+			hSecondLevelInstances.push_back(fi);
+		}
+
+		secondLevelInstances = hSecondLevelInstances;
+	}
+
+	thrust::device_vector<FeatureInstance> thirdLevelInstances;
+	{
+		std::vector<FeatureInstance> hThirdLevelInstances;
+		{
+			FeatureInstance fi;
+
+			fi.field = 0x000C0001;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0001;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000C0003;
+			hThirdLevelInstances.push_back(fi);
+
+			fi.field = 0x000D0002;
+			hThirdLevelInstances.push_back(fi);
+		}
+
+		thirdLevelInstances = hThirdLevelInstances;
+	}
+
+	thrust::device_vector<thrust::device_ptr<FeatureInstance>> instancesOnLevels;
+	{
+		std::vector<thrust::device_ptr<FeatureInstance>> hInstancesOnLevels;
+
+		hInstancesOnLevels.push_back(firstLevelInstances.data());
+		hInstancesOnLevels.push_back(secondLevelInstances.data());
+		hInstancesOnLevels.push_back(thirdLevelInstances.data());
+
+		instancesOnLevels = hInstancesOnLevels;
+	}
+
+
+	// forgroups result
+
+	std::vector<UIntThrustVectorPtr> forGroupGroups;
+	thrust::device_vector<thrust::device_ptr<unsigned int>> forGroupGroupsDevPtrs;
+	{
+		std::vector<thrust::device_ptr<unsigned int>> tempDevPtr;
+
+		std::vector<unsigned int> hFirstLevelGroups = { 0, 0, 1, 1, 1 };
+
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hFirstLevelGroups));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		std::vector<unsigned int> hsecondLevelGroup = { 0, 0, 1, 1, 1 };
+
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hsecondLevelGroup));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		/*
+		groups count
+		1, 2, 0, 0, 1
+		*/
+		std::vector<unsigned int> hthirdLevel = { 0, 1, 1, 4 };
+
+		forGroupGroups.push_back(std::make_shared<UIntThrustVector>(hthirdLevel));
+		tempDevPtr.push_back(forGroupGroups.back()->data());
+
+		forGroupGroupsDevPtrs = tempDevPtr;
+	}
+
+	// write positions
+	thrust::device_vector<unsigned int> writePositions;
+	{
+		std::vector<unsigned int> hWritePositions = { 0, 1, 1, 2 };
+		writePositions = hWritePositions;
+	}
+
+	// integrity mask
+	thrust::device_vector<bool> integrityMask;
+	{
+		std::vector<bool> hIntegrityMask = { true, false, true, true };
+		integrityMask = hIntegrityMask;
+	}
+
+	// result
+
+	const unsigned int endCount = 4;
+	const unsigned int prevalentCount = 3;
+	const unsigned int cliqueSize = 3;
+
+	thrust::device_vector<FeatureInstance> result(prevalentCount * cliqueSize);
+
+	dim3 insertGrid;
+	findSmallest2D(endCount, 256, insertGrid.x, insertGrid.y);
+
+	reverseGenerateCliquesInstances << < insertGrid, 256 >> > (
+		forGroupGroupsDevPtrs.data().get()
+		, instancesOnLevels.data().get()
+		, endCount
+		, cliqueSize
+		, integrityMask.data()
+		, writePositions.data()
+		, result.data()
+		);
+
+
+	/*
+	a1-b1-c1  1
+
+	a2-b2 c1  2
+	      c3
+
+	b1-c1-	  0
+	b2-c1-    0
+
+	b2-c3-d2  1
+	*/
+
+	std::vector<FeatureInstance> expected = {
+		{ 0x000A0001 },{ 0x000A0002 },{ 0x000B0002 }
+		,{ 0x000B0001 },{ 0x000B0002 },{ 0x000C0003 }
+		,{ 0x000C0001 },{ 0x000C0003 },{ 0x000D0002 }
+	};
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	thrust::host_vector<FeatureInstance> copmuted = result;
+
+	REQUIRE(std::equal(expected.begin(), expected.end(), copmuted.begin()));
+}
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | generate write positions")
+{
+	thrust::device_vector<bool> integrityMask;
+	{
+		std::vector<bool> hIntegrityMask{ true, true, true, false, false, true };
+		integrityMask = hIntegrityMask;
+	}
+
+	thrust::device_vector<unsigned int> writePositions(6);
+
+	auto consistentCount = fillWritePositionsAndReturnCount(
+		integrityMask
+		, writePositions
+		, 6
+	);
+							
+	std::vector<unsigned int> expected = { 0, 1, 2, 3, 3, 3 };
+
+	thrust::host_vector<unsigned int> calculated = writePositions;
+
+	REQUIRE(consistentCount == 4);
+	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
+}
+
+TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | generate write positions, redundant integrity mask")
+{
+	thrust::device_vector<bool> integrityMask;
+	{
+		std::vector<bool> hIntegrityMask{ true, true, true, false, false, true, false, false, true };
+		integrityMask = hIntegrityMask;
+	}
+
+	thrust::device_vector<unsigned int> writePositions(6);
+
+	auto consistentCount = fillWritePositionsAndReturnCount(
+		integrityMask
+		, writePositions
+		, 6
+	);
+
+	std::vector<unsigned int> expected = { 0, 1, 2, 3, 3, 3 };
+
+	thrust::host_vector<unsigned int> calculated = writePositions;
+
+	REQUIRE(consistentCount == 4);
 	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
 }

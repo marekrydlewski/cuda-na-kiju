@@ -31,8 +31,6 @@ namespace InstanceTree
 			return nullptr;
 
 		const unsigned int currentCliquesSize = cliquesCandidates[0].size();
-
-		InstanceTreeResultPtr result = std::make_shared<InstanceTreeResult>();
 		
 		// migrate data to GPU
 		thrust::device_vector<thrust::device_vector<unsigned short>> cliquesData;
@@ -190,8 +188,36 @@ namespace InstanceTree
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 		}
 
-		// TODO reverse generate instances
+		unsigned int candidatesCount = levelResults.back()->threadCount;
+
 		
+		thrust::device_vector<unsigned int> writePositions(candidatesCount);
+
+		InstanceTreeResultPtr result = std::make_shared<InstanceTreeResult>();
+		
+		unsigned int consistentCount = InstanceTreeHelpers::fillWritePositionsAndReturnCount(
+			integrityMask
+			, writePositions
+			, candidatesCount
+		);
+
+		result->instances = thrust::device_vector<FeatureInstance>(consistentCount);
+
+		dim3 reverseGenerateInstancesDim;
+		findSmallest2D(candidatesCount, 256, reverseGenerateInstancesDim.x, reverseGenerateInstancesDim.y);
+
+		InstanceTreeHelpers::reverseGenerateCliquesInstances <<< reverseGenerateInstancesDim, 256 >>>(
+			groupNumbersOnLevels.data().get()
+			, instancesElementsInLevel.data().get()
+			, candidatesCount
+			, currentCliquesSize
+			, integrityMask.data()
+			, writePositions.data()
+			, result->instances.data()
+		);
+
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 		return result;
 	}
 }

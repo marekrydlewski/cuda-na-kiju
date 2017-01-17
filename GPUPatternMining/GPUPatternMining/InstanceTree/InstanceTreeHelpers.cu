@@ -1,9 +1,50 @@
 #include "InstanceTreeHelpers.h"
+#include <thrust/execution_policy.h>
 
 #define TEST_PRINTF()
 
 namespace InstanceTreeHelpers
 {
+	struct ConvertBoolToUInt : public thrust::unary_function<unsigned int, bool>
+	{
+		__host__ __device__
+		unsigned int operator()(bool bl)
+		{
+			return bl;
+		}
+	};
+
+	unsigned int fillWritePositionsAndReturnCount(
+		thrust::device_vector<bool>& integrityMask
+		, thrust::device_vector<unsigned int>& result
+		, unsigned int candidatesCount)
+	{
+		auto f = ConvertBoolToUInt();
+
+		thrust::transform(
+			thrust::device
+			, integrityMask.begin()
+			, integrityMask.begin() + candidatesCount
+			, result.begin()
+			, f
+		);
+
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+		unsigned int last = result[candidatesCount - 1];
+
+		thrust::exclusive_scan(
+			thrust::device
+			, result.begin()
+			, result.begin() + candidatesCount
+			, result.begin()
+		);
+
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+		return last + result[candidatesCount - 1];
+	}
+
 	__global__
 	void fillFirstPairCountFromMap(
 		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
@@ -121,6 +162,40 @@ namespace InstanceTreeHelpers
 			//	, *(thrust::raw_pointer_cast(itemNumbers) + tid));
 
 			result[tid] = pairB[nlih.startIdx + itemNumbers[tid]];
+		}
+	}
+	// ------------------------------------------------------------------------------
+
+	__global__
+	void reverseGenerateCliquesInstances(
+		thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<FeatureInstance>* instancesOnLevels
+		, unsigned int instancesCount
+		, unsigned int length
+		, thrust::device_ptr<bool> integrityMask
+		, thrust::device_ptr<unsigned int> writePositions
+		, thrust::device_ptr<FeatureInstance> result
+	)
+	{
+		// TODO tune by buffered write
+
+		unsigned int tid = computeLinearAddressFrom2D();
+
+		if (tid < instancesCount)
+		{
+			if (!integrityMask[tid])
+				return;
+
+			int instanceLevelIdx = tid;
+
+			for (int currentPos = length - 1; currentPos >= 0; --currentPos)
+			{
+				result[currentPos * length + writePositions[tid]] = instancesOnLevels[currentPos][instanceLevelIdx];
+
+				// first two positions have same position
+				if (currentPos > 1)
+					instanceLevelIdx = groupNumberLevels[currentPos][instanceLevelIdx];
+			}
 		}
 	}
 	// ------------------------------------------------------------------------------

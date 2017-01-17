@@ -6,6 +6,11 @@
 
 namespace  InstanceTreeHelpers
 {
+	unsigned int fillWritePositionsAndReturnCount(
+		thrust::device_vector<bool>& integrityMask
+		, thrust::device_vector<unsigned int>& result
+		, unsigned int candidatesCount);
+
 	__global__
 	void fillFirstPairCountFromMap(
 		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
@@ -79,6 +84,18 @@ namespace  InstanceTreeHelpers
 		, thrust::device_ptr<FeatureInstance> pairB
 		, unsigned int count
 		, unsigned int currentLevel
+		, thrust::device_ptr<FeatureInstance> result
+	);
+	// -----------------------------------------------------------------------------
+
+	__global__
+	void reverseGenerateCliquesInstances(
+		thrust::device_ptr<unsigned int>* groupNumberLevels
+		, thrust::device_ptr<FeatureInstance>* instancesOnLevels
+		, unsigned int instancesCount
+		, unsigned int length
+		, thrust::device_ptr<bool> integrityMask
+		, thrust::device_ptr<unsigned int> writePositions
 		, thrust::device_ptr<FeatureInstance> result
 	);
 	// -----------------------------------------------------------------------------

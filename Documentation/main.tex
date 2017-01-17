@@ -557,7 +557,38 @@ W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz impleme
 \item obliczenie stopnia degeneracji grafu (ang. \textit{degeneracy}) i uporządkowanie wierzchołków według miary degeneracji (ang.\textit{degeneracy ordering}) \cite{degenerat}.
 \end{itemize}
 
-\item CliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \lstinline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \lstinline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik. Weryfikację umożliwia algorytm: \textit{borewicz wstaw tu algorytm z \lstinline{bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)} :v}
+\item CliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \lstinline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \lstinline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
+
+Weryfikację umożliwia algorytm: 
+\begin{lstlisting}
+bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
+{
+	assert(clique.size() >= 2);
+
+	std::vector<bool> types(cliquesCounter, false);
+	std::vector<bool> typesNew(cliquesCounter, false);
+
+	for (auto type : typesMap[clique[0]])
+	{
+		types[type] = true;
+	}
+
+	for (auto i = 1; i < clique.size(); ++i)
+	{
+		for (auto id : typesMap[clique[i]])
+		{
+			if (types[id]) typesNew[id] = true;
+		}
+		types = typesNew;
+		std::fill(typesNew.begin(), typesNew.end(), false);
+	}
+
+	if (std::find(types.begin(), types.end(), true) != types.end())
+		return true;
+
+	return false;
+}
+\end{lstlisting}
 	
 \item ParallelCliquesContainer
 \item RandomDataProvider

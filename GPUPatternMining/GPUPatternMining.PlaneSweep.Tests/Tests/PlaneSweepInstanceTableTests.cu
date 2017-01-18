@@ -183,6 +183,96 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | Planesweep main
 // ----------------------------------------------------------------------------
 
 /*
+Test for graph
+
+	 A0 --B0--D0--B1
+	 |   /  \  | /
+	 C0 /    \C1/ 
+*/ 
+TEST_CASE_METHOD(BaseCudaTestHandler, "PlaneSweep_instanceTable | Planesweep several")
+{
+	unsigned int instancesCount = 6;
+	float distanceTreshold = 1;
+
+	std::vector<float> x = { 1, 1, 2, 3, 3, 4 };
+	std::vector<float> y = { 1, 1, 1, 1, 1, 1 };
+
+	thrust::device_vector<FeatureInstance> instances(instancesCount);
+	{
+		FeatureInstance fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xC;
+		instances[0] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		instances[1] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xB;
+		instances[2] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xD;
+		instances[3] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xC;
+		instances[4] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xB;
+		instances[5] = fi;
+	}
+
+	thrust::device_vector<float> dx = x;
+	thrust::device_vector<float> dy = y;
+
+	PlaneSweepTableInstanceResultPtr result = std::make_shared<PlaneSweepTableInstanceResult>();
+
+	PlaneSweep::InstanceTable::PlaneSweep(
+		dx
+		, dy
+		, instances
+		, instancesCount
+		, distanceTreshold
+		, result
+	);
+
+	cudaDeviceSynchronize();
+
+	std::vector<FeatureInstance> expectedA = {
+		{ 0xA0000 }
+		,{ 0xA0000 }
+		,{ 0xB0000 }
+		,{ 0xB0000 }
+		,{ 0xB0001 }
+		,{ 0xB0000 }
+		,{ 0xB0001 }
+		,{ 0xC0001 }
+	};
+
+	std::vector<FeatureInstance> expectedB = {
+		{ 0xB0000 }
+		,{ 0xC0000 }
+		,{ 0xC0000 }
+		,{ 0xC0001 }
+		,{ 0xC0001 }
+		,{ 0xD0000 }
+		,{ 0xD0000 }
+		,{ 0xD0000 }
+	};
+
+	thrust::host_vector<FeatureInstance> pA = result->pairsA;
+	thrust::host_vector<FeatureInstance> pB = result->pairsB;
+
+	REQUIRE(std::equal(expectedA.begin(), expectedA.end(), pA.begin()));
+	REQUIRE(std::equal(expectedB.begin(), expectedB.end(), pB.begin()));
+}
+// ----------------------------------------------------------------------------
+
+/*
 	Test for graph
 
 	A0-B0-C0-B1-A1-C1

@@ -1044,6 +1044,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | check clique inte
 }
 // ---------------------------------------------------------------------------------------------
 
+
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate simple 1")
 {
 	// instances levels

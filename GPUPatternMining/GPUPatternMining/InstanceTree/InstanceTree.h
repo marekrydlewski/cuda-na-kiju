@@ -47,7 +47,7 @@ namespace InstanceTree
 			, InstanceTypedNeighboursMapCreator::ITNMPackPtr typedInstanceNeighboursPack
 		);
 
-		InstanceTreeResultPtr getInstancesResult(CliquesCandidates cliquesCandidates);
+		InstanceTreeResultPtr getInstancesResult(CliquesCandidates& cliquesCandidates);
 
 	private:
 

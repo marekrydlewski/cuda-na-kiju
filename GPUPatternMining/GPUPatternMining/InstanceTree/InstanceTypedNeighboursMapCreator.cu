@@ -91,7 +91,7 @@ namespace InstanceTypedNeighboursMapCreator
 			MiningCommon::FirstIndexAndCount<unsigned int>()
 		).first - firstUniqueElements.begin();
 
-		cudaDeviceSynchronize();
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 		// insert into hash map
 
@@ -106,14 +106,14 @@ namespace InstanceTypedNeighboursMapCreator
 		findSmallest2D(result->count, 256, insertGrid.x, insertGrid.y);
 
 		InsertIntoHashMap << <insertGrid, 256 >> >(
-			result->map->getBean(),
-			thrust::raw_pointer_cast(firstUniqueElements.data())
-			, thrust::raw_pointer_cast(result->begins.data())
-			, thrust::raw_pointer_cast(result->counts.data()),
-			result->count
-			);
+			result->map->getBean()
+			, firstUniqueElements.data().get()
+			, result->begins.data().get()
+			, result->counts.data().get()
+			, result->count
+		);
 		
-		cudaDeviceSynchronize();
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 		return result;
 	}

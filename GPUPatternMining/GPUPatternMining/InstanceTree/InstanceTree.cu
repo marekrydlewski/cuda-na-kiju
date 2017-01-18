@@ -5,6 +5,9 @@
 
 namespace InstanceTree
 {
+	typedef thrust::device_vector<unsigned short> UShortThrustVector;
+	typedef std::shared_ptr<UShortThrustVector> UShortThrustVectorPtr;
+
 	typedef thrust::device_vector<unsigned int> UIntThrustVector;
 	typedef std::shared_ptr<UIntThrustVector> UIntThrustVectorPtr;
 
@@ -25,7 +28,7 @@ namespace InstanceTree
 		
 	}
 
-	InstanceTreeResultPtr InstanceTree::getInstancesResult(CliquesCandidates cliquesCandidates)
+	InstanceTreeResultPtr InstanceTree::getInstancesResult(CliquesCandidates& cliquesCandidates)
 	{
 		if (cliquesCandidates.empty())
 			return nullptr;
@@ -33,19 +36,15 @@ namespace InstanceTree
 		const unsigned int currentCliquesSize = cliquesCandidates[0].size();
 		
 		// migrate data to GPU
-		thrust::device_vector<thrust::device_vector<unsigned short>> cliquesData;
+		std::vector<UShortThrustVectorPtr> cliquesData;
 		thrust::device_vector<thrust::device_ptr<const unsigned short>> cliques;
 		{
-			thrust::host_vector<thrust::device_vector<unsigned short>> hcliquesData;
-
 			for (CliqueCandidate cc : cliquesCandidates)
-				hcliquesData.push_back(cc);
-
-			cliquesData = hcliquesData;
+				cliquesData.push_back(std::make_shared<UShortThrustVector>(cc));
 
 			std::vector<thrust::device_ptr<const unsigned short>> hcliques;
-			for (thrust::device_vector<unsigned short> tdus : hcliquesData)
-				hcliques.push_back(tdus.data());
+			for (UShortThrustVectorPtr tdus : cliquesData)
+				hcliques.push_back(tdus->data());
 
 			cliques = hcliques;
 		}
@@ -60,7 +59,6 @@ namespace InstanceTree
 
 		//TODO check if is needed
 		thrust::device_vector<thrust::device_ptr<unsigned int>> itemNumbersOnLevels;
-		
 
 		// build first tree level
 		thrust::device_vector<unsigned int> pairCounts(cliquesCandidates.size());
@@ -80,7 +78,7 @@ namespace InstanceTree
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 		std::vector<InstanceTreeHelpers::ForGroupsResultPtr> levelResults;
-
+		
 		auto firstTwoLevelsFg = InstanceTreeHelpers::forGroups(newEntriesCounts);
 
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
@@ -150,6 +148,10 @@ namespace InstanceTree
 			groupNumbersOnLevels.push_back(forGroupsResult->groupNumbers.data());
 			itemNumbersOnLevels.push_back(forGroupsResult->itemNumbers.data());
 
+			// zero new elements added - there are no instances of any queried candidates
+			if (forGroupsResult->threadCount == 0)
+				break;
+
 			dim3 insertLevelInstances;
 			findSmallest2D(forGroupsResult->threadCount, 256, insertLevelInstances.x, insertLevelInstances.y);
 
@@ -184,24 +186,32 @@ namespace InstanceTree
 				, currentLevel
 				, integrityMask.data()
 			);
-
+			
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 		}
 
 		unsigned int candidatesCount = levelResults.back()->threadCount;
 
-		
-		thrust::device_vector<unsigned int> writePositions(candidatesCount);
-
 		InstanceTreeResultPtr result = std::make_shared<InstanceTreeResult>();
+
+		if (candidatesCount == 0)
+		{
+			result->instances = thrust::device_vector<FeatureInstance>(0);
+			return result;
+		}
+
+		const unsigned int writePosVectorMaxSize = candidatesCount * currentCliquesSize;
 		
+		thrust::device_vector<unsigned int> writePositions(writePosVectorMaxSize);
+
 		unsigned int consistentCount = InstanceTreeHelpers::fillWritePositionsAndReturnCount(
 			integrityMask
 			, writePositions
 			, candidatesCount
 		);
 
-		result->instances = thrust::device_vector<FeatureInstance>(consistentCount);
+		const unsigned int resultVectorSize = consistentCount * currentCliquesSize;
+		result->instances = thrust::device_vector<FeatureInstance>(resultVectorSize);
 
 		dim3 reverseGenerateInstancesDim;
 		findSmallest2D(candidatesCount, 256, reverseGenerateInstancesDim.x, reverseGenerateInstancesDim.y);
@@ -210,6 +220,7 @@ namespace InstanceTree
 			groupNumbersOnLevels.data().get()
 			, instancesElementsInLevel.data().get()
 			, candidatesCount
+			, consistentCount
 			, currentCliquesSize
 			, integrityMask.data()
 			, writePositions.data()

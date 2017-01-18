@@ -30,7 +30,7 @@ Test for graph
 		 |
 A1-B1-C1-B2-A2-C2
 */
-TEST_CASE_METHOD(BaseCudaTestHandler, "InstanceTypedNeighboursMapCreator | simple")
+TEST_CASE_METHOD(BaseCudaTestHandler, "InstanceTypedNeighboursMapCreator | simple 1")
 {
 	using namespace InstanceTypedNeighboursMapCreator;
 
@@ -163,3 +163,149 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "InstanceTypedNeighboursMapCreator | simpl
 	
 	REQUIRE(std::equal(expected.begin(), expected.end(), hValues.begin()));
 }
+
+/*
+Test for graph
+
+   A0-C0
+	\ /
+	B0
+	/ \
+   D0-C1
+	\ /
+	 B1
+*/
+TEST_CASE_METHOD(BaseCudaTestHandler, "InstanceTypedNeighboursMapCreator | complex 1")
+{
+	using namespace InstanceTypedNeighboursMapCreator;
+
+	// CREATE DATA
+
+	thrust::device_vector<FeatureInstance> pairsA;
+	thrust::device_vector<FeatureInstance> pairsB;
+	{
+		std::vector<FeatureInstance> hPairsA = {
+			{ 0xA0000 }
+			,{ 0xA0000 }
+			,{ 0xB0000 }
+			,{ 0xB0000 }
+			,{ 0xB0000 }
+			,{ 0xB0001 }
+			,{ 0xB0001 }
+			,{ 0xC0001 }
+		};
+
+		std::vector<FeatureInstance> hPairsB = {
+			{ 0xB0000 }
+			,{ 0xC0000 }
+			,{ 0xC0000 }
+			,{ 0xC0001 }
+			,{ 0xD0000 }
+			,{ 0xC0001 }
+			,{ 0xD0000 }
+			,{ 0xD0000 }
+		};
+
+		pairsA = hPairsA;
+		pairsB = hPairsB;
+	}
+
+
+	// INVOKE TEST METHOD
+
+	auto result = createTypedNeighboursListMap(
+		pairsA
+		, pairsB
+	);
+
+	// GET DATA FROM MAP
+
+	thrust::device_vector<unsigned long long> keys;
+	{
+		std::vector<unsigned long long> hKeys;
+
+		FeatureInstance fi;
+		unsigned short nType;
+
+		fi = { 0xA0000 };
+		nType = 0x0000B;
+		hKeys.push_back(createITNMKey(fi, nType));
+
+		fi = { 0xA0000 };
+		nType = 0x0000C;
+		hKeys.push_back(createITNMKey(fi, nType));
+
+		fi = { 0xB0000 };
+		nType = 0x0000C;
+		hKeys.push_back(createITNMKey(fi, nType));
+
+		fi = { 0xB0000 };
+		nType = 0x0000D;
+		hKeys.push_back(createITNMKey(fi, nType));
+
+		fi = { 0xB0001 };
+		nType = 0x0000C;
+		hKeys.push_back(createITNMKey(fi, nType));
+
+		fi = { 0xB0001 };
+		nType = 0x0000D;
+		hKeys.push_back(createITNMKey(fi, nType));
+
+		fi = { 0xC0001 };
+		nType = 0x0000D;
+		hKeys.push_back(createITNMKey(fi, nType));
+
+		keys = hKeys;
+	}
+
+	thrust::device_vector<NeighboursListInfoHolder> values(7);
+
+	result->map->getValues(
+		keys.data().get()
+		, values.data().get()
+		, 7
+	);
+
+	// CHECK
+
+	thrust::device_vector<unsigned int> counts;
+	{
+		std::vector<unsigned int> hCounts =
+		{
+			1, 1, 2, 1, 1, 1, 1
+		};
+
+		counts = hCounts;
+	}
+
+	thrust::device_vector<unsigned int> begins;
+	{
+		std::vector<unsigned int> hBegins =
+		{
+			0, 1, 2, 4, 5, 6, 7
+		};
+
+		begins = hBegins;
+	}
+
+	std::vector<NeighboursListInfoHolder> expected
+	{
+		NeighboursListInfoHolder(1, 0)
+		, NeighboursListInfoHolder(1, 1)
+		, NeighboursListInfoHolder(2, 2)
+		, NeighboursListInfoHolder(1, 4)
+		, NeighboursListInfoHolder(1, 5)
+		, NeighboursListInfoHolder(1, 6)
+		, NeighboursListInfoHolder(1, 7)
+	};
+
+	thrust::host_vector<unsigned int> calculatedCounts = result->counts;
+	REQUIRE(std::equal(counts.begin(), counts.end(), calculatedCounts.begin()));
+
+	thrust::host_vector<unsigned int> calculatedBegins = result->begins;
+	REQUIRE(std::equal(begins.begin(), begins.end(), calculatedBegins.begin()));
+	
+	thrust::host_vector<NeighboursListInfoHolder> hValues = values;
+	REQUIRE(std::equal(expected.begin(), expected.end(), hValues.begin()));
+}
+// ------------------------------------------------------------------------------------------

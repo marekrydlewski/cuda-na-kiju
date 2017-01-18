@@ -12,7 +12,7 @@ int main()
 	const unsigned int types = 7;
 	const unsigned int rangeY = 1000;
 	const unsigned int rangeX = 1000;
-	const unsigned int numberOfInstances = 50000;
+	const unsigned int numberOfInstances = 70000;
 	const float threshold = 60;
 	const float prevalence = 0.01;
 

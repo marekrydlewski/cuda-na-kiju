@@ -12,7 +12,11 @@
 #include <concurrent_vector.h>
 #include <iostream>
 #include <chrono>
-#include<memory>
+#include <memory>
+#include <functional>
+#include <string>
+#include <utility>
+
 
 void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned short types)
 {
@@ -39,9 +43,9 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 	float effectiveThreshold = pow(threshold, 2);
 
-	concurrency::combinable<std::map<unsigned short,
-		std::map<unsigned short,
-		std::map<unsigned short,
+	concurrency::combinable<std::unordered_map<unsigned short,
+		std::unordered_map<unsigned short,
+		std::unordered_map<unsigned short,
 		std::vector<unsigned short>*>>>> combinableInsTable;
 
 	concurrency::combinable<std::vector<unsigned short>> combinableTypeIncidenceCounter;
@@ -83,11 +87,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 	begin = std::chrono::steady_clock::now();
 
-	combinableInsTable.combine_each([&](
-		std::map<unsigned short,
-		std::map<unsigned short,
-		std::map<unsigned short,
-		std::vector<unsigned short>*>>> local)
+	combinableInsTable.combine_each([&](auto& local)
 	{
 		for (auto it1 = local.begin(); (it1 != local.end()); ++it1)
 		{
@@ -317,7 +317,7 @@ bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 
 std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> CPUMiningAlgorithmParallel::countUniqueInstances()
 {
-	std::map< std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
+	std::map< std::pair <unsigned short, unsigned short>, std::pair <unsigned short, unsigned short>> typeIncidenceColocations;
 
 	int cores = concurrency::GetProcessorCount();
 	auto loadPerProcessor = getWorkloadForInsTable(cores);

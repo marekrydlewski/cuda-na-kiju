@@ -4,6 +4,8 @@
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include "../../GPUPatternMining.Contract/ParallelCliquesContainer.h"
+#include "../../GPUPatternMining.Contract/PairHash.h"
+
 
 #include <map>
 #include <unordered_map>

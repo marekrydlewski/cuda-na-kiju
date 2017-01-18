@@ -25,6 +25,7 @@
     <ClInclude Include="CliquesContainer.h" />
     <ClInclude Include="Enity\DataFeed.h" />
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="PairHash.h" />
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h" />
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />

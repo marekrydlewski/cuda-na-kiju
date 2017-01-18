@@ -57,6 +57,9 @@
     <ClInclude Include="ParallelCliquesContainer.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="PairHash.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">

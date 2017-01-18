@@ -46,57 +46,26 @@ public:
 
 typedef GPUKeyProcessor<unsigned int> GPUUIntKeyProcessor;
 
-template <> class GPUKeyProcessor<unsigned short>
+class GPUULongIntKeyProcessor :public GPUKeyProcessor<unsigned long long>
 {
 public:
-	__device__ __inline__ unsigned short reduceKey(unsigned short& key)
-	{
-		return key;
-	}
-
-	__device__ __inline__ bool compareKeys(unsigned short& key1, unsigned short& key2)
-	{
-		return key1 == key2;
-	}
-
-	__device__ __inline__ bool isKeyEmpty(unsigned short& key)
-	{
-		return key == emptyKey();
-	}
-
-	__device__ __inline__ unsigned short emptyKey()
-	{
-		return 0xffff;
-	}
-
-	__device__ __inline__ unsigned short inSequence(unsigned short& start, unsigned short pos, unsigned short step)
-	{
-		return start + pos*step;
-	}
-};
-
-typedef GPUKeyProcessor<unsigned short> GPUUShortKeyProcessor;
-
-class GPUULongIntKeyProcessor :public GPUKeyProcessor<unsigned long long int>
-{
-public:
-	__device__ __inline__ unsigned int reduceKey(unsigned long long int key)
+	__device__ __inline__ unsigned int reduceKey(unsigned long long& key)
 	{
 		return key + (key >> 32);
 	}
-	__device__ __inline__ bool compareKeys(unsigned long long int key1, unsigned long long int key2)
+	__device__ __inline__ bool compareKeys(unsigned long long& key1, unsigned long long& key2)
 	{
 		return key1 == key2;
 	}
-	__device__ __inline__ bool isKeyEmpty(unsigned long long int key)
+	__device__ __inline__ bool isKeyEmpty(unsigned long long& key)
 	{
 		return key == emptyKey();
 	}
-	__device__ __inline__ unsigned long long int emptyKey()
+	__device__ __inline__ unsigned long long emptyKey()
 	{
 		return 0xffffffffffffffffL;
 	}
-	__device__ __inline__ unsigned long long int inSequence(unsigned long long  start, unsigned int pos, unsigned int step)
+	__device__ __inline__ unsigned long long inSequence(unsigned long long& start, unsigned int pos, unsigned int step)
 	{
 		return start + pos*step;
 	}

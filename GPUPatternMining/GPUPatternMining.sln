@@ -28,6 +28,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPUPatternMining.Prevalence
 		{9875BACF-2709-46A9-ABD3-2CFA01256025} = {9875BACF-2709-46A9-ABD3-2CFA01256025}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPUPatternMining.InstanceTree.Tests", "GPUPatternMining.InstanceTree.Tests\GPUPatternMining.InstanceTree.Tests.vcxproj", "{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -108,6 +110,14 @@ Global
 		{34BE6B60-795C-45A0-8D73-192864FB3869}.Release|x64.Build.0 = Release|x64
 		{34BE6B60-795C-45A0-8D73-192864FB3869}.Release|x86.ActiveCfg = Release|Win32
 		{34BE6B60-795C-45A0-8D73-192864FB3869}.Release|x86.Build.0 = Release|Win32
+		{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}.Debug|x64.ActiveCfg = Debug|x64
+		{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}.Debug|x64.Build.0 = Debug|x64
+		{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}.Debug|x86.ActiveCfg = Debug|Win32
+		{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}.Debug|x86.Build.0 = Debug|Win32
+		{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}.Release|x64.ActiveCfg = Release|x64
+		{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}.Release|x64.Build.0 = Release|x64
+		{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}.Release|x86.ActiveCfg = Release|Win32
+		{29C3C5F7-F1A8-46ED-BE93-08D076CBF597}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

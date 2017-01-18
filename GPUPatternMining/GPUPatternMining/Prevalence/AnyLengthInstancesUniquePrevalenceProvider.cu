@@ -8,8 +8,6 @@ AnyLengthInstancesUniquePrevalenceProvider::AnyLengthInstancesUniquePrevalencePr
 	
 }
 
-
-
 std::vector<float> AnyLengthInstancesUniquePrevalenceProvider::getPrevalenceFromCandidatesInstances(
 	CliquesCandidates& cliquesCandidates
 	, InstanceTree::InstanceTreeResultPtr instanceTreeResult

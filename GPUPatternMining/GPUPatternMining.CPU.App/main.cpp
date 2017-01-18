@@ -13,7 +13,7 @@
 int main()
 {
 	//input data
-	const float threshold = 3;
+	const float threshold = 5;
 	const float prevalence = 0.0;
 
 	SimulatedRealDataProvider dataProvider;
@@ -41,10 +41,11 @@ int main()
 	bmParallel.run("load data", 1, [&]() { cpuAlgParallel.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
 	bmParallel.run("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
 	bmParallel.run("filter by prevalence", 1, [&]() { cpuAlgParallel.filterByPrevalence(prevalence); });
-	bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); }); 
+	bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); });
+
 	bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
-	bmParallel.print("parallel algorithm", std::cout);
+	bmParallel.print("parallel algorithm  ", std::cout);
 	//bmParallel.serialize("CPU parallel algorithm", "CPUparallel.txt");
 
 	//////////////////////////////////////////////////

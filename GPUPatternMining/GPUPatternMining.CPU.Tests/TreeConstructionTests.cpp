@@ -69,5 +69,5 @@ TEST_CASE("NonPrevalentColocations", "TreeConstructionTest")
 	miner.constructMaximalCliques();
 
 	auto result = miner.filterMaximalCliques(prevalence);
-	REQUIRE(result.size() == 4);
+	REQUIRE(result.size() == 3);
 }

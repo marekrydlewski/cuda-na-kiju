@@ -13,6 +13,9 @@
     <Filter Include="Resource Files">
       <UniqueIdentifier>{44ea507a-71e7-488e-8768-ed92ee5a2f53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{9cb4d56d-ec3f-456d-9135-d8b92bcc4264}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\DataFeed.h">
@@ -57,6 +60,12 @@
     <ClInclude Include="SimulatedRealDataProvider.h">
       <Filter>Providers</Filter>
     </ClInclude>
+    <ClInclude Include="CliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ParallelCliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -73,6 +82,12 @@
     </ClCompile>
     <ClCompile Include="SimulatedRealDataProvider.cpp">
       <Filter>Providers</Filter>
+    </ClCompile>
+    <ClCompile Include="CliquesContainer.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ParallelCliquesContainer.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

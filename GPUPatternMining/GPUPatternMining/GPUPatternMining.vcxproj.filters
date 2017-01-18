@@ -6,6 +6,10 @@
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
     <CudaCompile Include="Prevalence\UniquePairPrevalence.cu" />
+    <CudaCompile Include="InstanceTree\InstanceTree.cu" />
+    <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu" />
+    <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
+    <CudaCompile Include="InstanceTree\InstanceTreeHelpers.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
@@ -25,5 +29,9 @@
     <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
     <ClInclude Include="Entities\FeatureTypePair.h" />
     <ClInclude Include="Prevalence\UniquePairPrevalence.h" />
+    <ClInclude Include="InstanceTree\InstanceTree.h" />
+    <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
+    <ClInclude Include="InstanceTree\IntanceTablesMapCreator.h" />
+    <ClInclude Include="InstanceTree\InstanceTreeHelpers.h" />
   </ItemGroup>
 </Project>

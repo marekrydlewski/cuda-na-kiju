@@ -23,12 +23,14 @@
     <ClInclude Include="CinsNode.h" />
     <ClInclude Include="CinsTree.h" />
     <ClInclude Include="DataLoader.h" />
+    <ClInclude Include="CliquesContainer.h" />
     <ClInclude Include="Enity\DataFeed.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h" />
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
+    <ClInclude Include="ParallelCliquesContainer.h" />
     <ClInclude Include="RandomDataProvider.h" />
     <ClInclude Include="SimulatedRealDataProvider.h" />
     <ClInclude Include="Timer.h" />
@@ -41,7 +43,9 @@
   <ItemGroup>
     <ClCompile Include="CinsNode.cpp" />
     <ClCompile Include="CinsTree.cpp" />
+    <ClCompile Include="CliquesContainer.cpp" />
     <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="ParallelCliquesContainer.cpp" />
     <ClCompile Include="RandomDataProvider.cpp" />
     <ClCompile Include="SimulatedRealDataProvider.cpp" />
   </ItemGroup>

@@ -13,6 +13,7 @@
 #include "../Entities/FeatureInstance.h"
 #include "../Entities/TypeCount.h"
 #include "../PlaneSweep/PlaneSweepTableInstanceResult.h"
+#include "../InstanceTree/IntanceTablesMapCreator.h"
 //------------------------------------------------------------------
 
 class PlaneSweepTableInstanceResult;
@@ -21,7 +22,6 @@ namespace Prevalence
 {
 	namespace UniqueFilter
 	{
-
 		typedef GPUHashMapper<unsigned int, Entities::InstanceTable, GPUKeyProcessor<unsigned int>> InstanceTableMap;
 		typedef std::shared_ptr<InstanceTableMap> InstanceTableMapPtr;
 
@@ -98,6 +98,7 @@ namespace Prevalence
 
 			PairPrevalenceFilter(
 				std::vector<TypeCount>& typesCounts
+				, IntanceTablesMapCreator::ITMPackPtr itmPack
 			);
 
 			~PairPrevalenceFilter();
@@ -117,6 +118,7 @@ namespace Prevalence
 		private:
 
 			std::map<unsigned int, unsigned short> typeCountMap;
+			IntanceTablesMapCreator::ITMPackPtr itmPack;
 		};
 	}
 }

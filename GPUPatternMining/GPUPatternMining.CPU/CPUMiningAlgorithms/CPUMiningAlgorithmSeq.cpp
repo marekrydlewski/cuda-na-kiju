@@ -3,9 +3,12 @@
 #include "../../GPUPatternMining.Contract/CinsTree.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
+
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <iterator>
+#include <chrono>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned short types)
 {
@@ -15,13 +18,27 @@ void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned shor
 
 void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 {
-	float effectiveThreshold = pow(threshold, 2);
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+	std::sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
+	{
+		return (first.xy.x < second.xy.x);
+	});
+
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+
+	begin = std::chrono::steady_clock::now();
+
+	float effectiveThreshold = std::pow(threshold, 2);
 
 	for (auto it1 = source.begin(); (it1 != source.end()); ++it1)
 	{
 		++this->typeIncidenceCounter[(*it1).type];
 		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 		{
+			if (std::abs((*it1).xy.x - (*it2).xy.x) > threshold) break;
 			if ((*it1).type != (*it2).type)
 			{
 				if (checkDistance(*it1, *it2, effectiveThreshold))
@@ -42,6 +59,9 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 			}
 		}
 	}
+	end = std::chrono::steady_clock::now();
+
+	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 }
 
 void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)
@@ -121,14 +141,38 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
-	int count = 0;
-	for (auto clique : maximalCliques)
+
+	std::vector<std::vector<std::vector<unsigned short>>> cliquesToProcess(
+		(*std::max_element(
+			maximalCliques.begin(), 
+			maximalCliques.end(), 
+			[] (std::vector<unsigned short>& left, std::vector<unsigned short>& right) 
+			{
+				return left.size() < right.size();
+			})
+		).size());
+
+	for (auto& cl : maximalCliques)
 	{
-		auto maxCliques = getPrevalentMaxCliques(clique, prevalence);
-		if(maxCliques.size() != 0)
-			finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
-		++count;
+		cliquesToProcess[cl.size()-1].push_back(cl);
 	}
+
+	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
+	{
+		//no need to 'while' here, getPrevalentMaxCliques edits cliquesToProcess but in other rows
+		for (auto& clique : cliquesToProcess[i])
+		{
+			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
+
+			if (maxCliques.size() != 0)
+				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+		}
+		cliquesToProcess[i].clear();
+	}
+
+	//add colocations of size 1
+	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[0].begin(), cliquesToProcess[0].end());
+
 	return finalMaxCliques;
 }
 
@@ -273,7 +317,7 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 
 bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& clique, float prevalence)
 {
-	if (clique.size() == 1) return true;
+	if (clique.size() == 1 || clique.size() == 2) return true;
 
 	auto maxCliquesIns = constructCondensedTree(clique);
 
@@ -291,6 +335,7 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& cliqu
 			//new map for every type, instances are keys
 			std::map<unsigned short, bool> isUsed;
 			unsigned short insCounter = 0;
+
 			for (auto j = 0; j < maxCliquesIns.size(); ++j)
 			{
 				if (!isUsed[maxCliquesIns[j][i].instanceId])
@@ -308,31 +353,44 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& cliqu
 
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(
 	std::vector<unsigned short>& clique,
-	float prevalence)
+	float prevalence,
+	std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
-	if (isCliquePrevalent(clique, prevalence))
-		finalMaxCliques.push_back(clique);
-	else 
+
+	if (!cliquesContainer.checkCliqueExistence(clique)) 
 	{
-		if (clique.size() > 2) //it's possible, no idea why
+		if (isCliquePrevalent(clique, prevalence))
 		{
-			auto smallerCliques = getAllCliquesSmallerByOne(clique);
-			for (auto c : smallerCliques)
+			finalMaxCliques.push_back(clique);
+			cliquesContainer.insertClique(clique);
+		}
+		else
+		{
+			if (clique.size() > 2) //it's possible, no idea why
 			{
-				if (c.size() == 2) //no need to construct tree, already checked by filterByPrevalence
+				auto smallerCliques = getAllCliquesSmallerByOne(clique);
+				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 				{
-					finalMaxCliques.insert(finalMaxCliques.end(), smallerCliques.begin(), smallerCliques.end());
-					break; //all smallerCliques are the same size, so insert them all and break the loop
+					for (auto smallClique : smallerCliques)
+					{
+						if (!cliquesContainer.checkCliqueExistence(smallClique))
+						{
+							finalMaxCliques.push_back(smallClique);
+							cliquesContainer.insertClique(smallClique);
+						}
+					}
 				}
 				else
 				{
-					auto nextCliques = getPrevalentMaxCliques(c, prevalence);
-					finalMaxCliques.insert(finalMaxCliques.end(), nextCliques.begin(), nextCliques.end());
+					cliquesToProcess[clique.size() - 2].insert(
+						cliquesToProcess[clique.size() - 2].end(),
+						smallerCliques.begin(),
+						smallerCliques.end());
 				}
 			}
 		}
-	}
+	};
 	return finalMaxCliques;
 }
 

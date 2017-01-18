@@ -54,7 +54,9 @@ namespace Prevalence
 
 		PairPrevalenceFilter::PairPrevalenceFilter(
 			std::vector<TypeCount>& typesCounts
+			, IntanceTablesMapCreator::ITMPackPtr itmPack
 		) :  typeCountMap(std::map<unsigned int, unsigned short>())
+			, itmPack(itmPack)
 		{
 			for (const TypeCount& tc : typesCounts)
 			{
@@ -76,8 +78,8 @@ namespace Prevalence
 			, PlaneSweepTableInstanceResultPtr planeSweepResult
 		)
 		{
-			const unsigned int uniquesCount = planeSweepResult->uniques.size();
-			thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> localUniques = planeSweepResult->uniques;
+			const unsigned int uniquesCount = itmPack->uniques.size();
+			thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> localUniques = itmPack->uniques;
 
 			std::vector<unsigned int> pending;
 
@@ -107,8 +109,8 @@ namespace Prevalence
 			UniqueTupleCountFunctor aPrev;
 			{
 				aPrev.data = planeSweepResult->pairsA.data();
-				aPrev.begins = planeSweepResult->indices.data();
-				aPrev.count = planeSweepResult->counts.data();
+				aPrev.begins = itmPack->begins.data();
+				aPrev.count = itmPack->counts.data();
 				aPrev.typeCount = aCounts.data();
 				aPrev.uniquesOutput = tempResultA.data();
 				aPrev.results = aResults.data();
@@ -117,8 +119,8 @@ namespace Prevalence
 			UniqueTupleCountFunctor bPrev;
 			{
 				bPrev.data = planeSweepResult->pairsB.data();
-				bPrev.begins = planeSweepResult->indices.data();
-				bPrev.count = planeSweepResult->counts.data();
+				bPrev.begins = itmPack->begins.data();
+				bPrev.count = itmPack->counts.data();
 				bPrev.typeCount = bCounts.data();
 				bPrev.uniquesOutput = tempResultB.data();
 				bPrev.results = bResults.data();
@@ -164,8 +166,8 @@ namespace Prevalence
 
 			thrust::transform(
 				thrust::device
-				, planeSweepResult->uniques.begin()
-				, planeSweepResult->uniques.end()
+				, itmPack->uniques.begin()
+				, itmPack->uniques.end()
 				, transformed.begin()
 				, f_trans
 			);

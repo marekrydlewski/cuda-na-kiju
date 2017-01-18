@@ -303,29 +303,13 @@ std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, un
 {
 	std::map< std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
 
-	int cores = concurrency::GetProcessorCount();
-	auto loadPerProcessor = getWorkloadForInsTable(cores);
 
-	//counting types incidence
-	concurrency::parallel_for(0, cores, [&](int i)
-	{
-		unsigned int startIndex = 0;
-
-		for (int j = 0; j < i; j++)
+		for (auto a = insTable.begin(); a != insTable.end(); ++a)
 		{
-			startIndex += loadPerProcessor[j];
-		}
-
-		auto beginIterator = insTable.begin();
-		std::advance(beginIterator, startIndex);
-
-		auto endIterator = beginIterator;
-		std::advance(endIterator, loadPerProcessor[i]);
-
-		for (auto a = beginIterator; (a != endIterator); ++a)
-		{
-			for (auto& b : (*a).second)
+			concurrency::parallel_for(0, (int)(*a).second.size(), [&](auto i)
 			{
+				auto b = *(std::next((*a).second.begin(), i));
+
 				auto aType = (*a).first;
 				auto bType = b.first;
 
@@ -350,9 +334,8 @@ std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, un
 				}
 
 				typeIncidenceColocations[std::make_pair(aType, bType)] = std::make_pair(aElements, bElements);
-			}
+			}, concurrency::static_partitioner());
 		}
-	});
 
 	return typeIncidenceColocations;
 }

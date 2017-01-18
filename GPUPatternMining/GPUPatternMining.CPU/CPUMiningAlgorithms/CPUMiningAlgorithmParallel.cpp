@@ -131,48 +131,32 @@ void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 {
 	auto countedInstances = countUniqueInstances();
 
-	int cores = concurrency::GetProcessorCount();
-	auto loadPerProcessor = getWorkloadForInsTable(cores);
-
-	concurrency::parallel_for(0, cores, [&](int i)
+	for (auto a = insTable.begin(); a != insTable.end(); ++a)
 	{
-		unsigned int startIndex = 0;
-
-		for (int j = 0; j < i; j++)
+		concurrency::parallel_for(0, (int)(*a).second.size(), [&](auto i)
 		{
-			startIndex += loadPerProcessor[j];
-		}
+			auto b = *(std::next((*a).second.begin(), i));
 
-		auto beginIterator = insTable.begin();
-		std::advance(beginIterator, startIndex);
+			auto aType = (*a).first;
+			auto bType = b.first;
 
-		auto endIterator = beginIterator;
-		std::advance(endIterator, loadPerProcessor[i]);
+			bool isPrevalence = countPrevalence(
+				countedInstances[std::make_pair(aType, bType)],
+				std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
 
-		for (auto a = beginIterator; (a != endIterator); ++a)
-		{
-			for (auto& b : (*a).second)
+			if (!isPrevalence)
 			{
-				auto aType = (*a).first;
-				auto bType = b.first;
-
-				bool isPrevalence = countPrevalence(
-					countedInstances[std::make_pair(aType, bType)],
-					std::make_pair(typeIncidenceCounter[aType], typeIncidenceCounter[bType]), prevalence);
-
-				if (!isPrevalence)
+				for (auto& c : b.second)
 				{
-					for (auto& c : b.second)
-					{
-						delete c.second;
-						//clear vectors' memeory firstly
-					}
-					insTable[aType][bType].clear();
-					//clear all keys
+					delete c.second;
+					//clear vectors' memeory firstly
 				}
+				insTable[aType][bType].clear();
+				//clear all keys
 			}
-		}
-	}, concurrency::static_partitioner());
+
+		}, concurrency::static_partitioner());
+	}
 }
 
 void CPUMiningAlgorithmParallel::createSize2ColocationsGraph()

@@ -60,8 +60,6 @@ private:
 	Graph size2ColocationsGraph;
 
 	void createSize2ColocationsGraph();
-	std::unordered_map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, 
-		pair_hash> countUniqueInstances();
 
 	bool filterNodeCandidate(
 		unsigned short type,
@@ -71,6 +69,11 @@ private:
 	bool isCliquePrevalent(
 		std::vector<unsigned short>& clique,
 		float prevalence);
+
+	std::unordered_map<
+		std::pair <unsigned short, unsigned short>,
+		std::pair<unsigned short, unsigned short>, 
+		pair_hash> countUniqueInstances();
 
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned short>& Cm);
 

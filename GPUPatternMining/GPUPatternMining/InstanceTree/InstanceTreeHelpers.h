@@ -93,6 +93,7 @@ namespace  InstanceTreeHelpers
 		thrust::device_ptr<unsigned int>* groupNumberLevels
 		, thrust::device_ptr<FeatureInstance>* instancesOnLevels
 		, unsigned int instancesCount
+		, unsigned int consistentCount
 		, unsigned int length
 		, thrust::device_ptr<bool> integrityMask
 		, thrust::device_ptr<unsigned int> writePositions

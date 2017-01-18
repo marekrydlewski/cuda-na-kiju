@@ -61,8 +61,6 @@ namespace InstanceTreeHelpers
 			Entities::InstanceTable localRes;
 			GPUHashMapperProcedures::getValue(bean, key, localRes);
 
-			__syncthreads();
-
 			result[tid] = localRes.count;
 		}
 	}
@@ -171,6 +169,7 @@ namespace InstanceTreeHelpers
 		thrust::device_ptr<unsigned int>* groupNumberLevels
 		, thrust::device_ptr<FeatureInstance>* instancesOnLevels
 		, unsigned int instancesCount
+		, unsigned int consistentCount
 		, unsigned int length
 		, thrust::device_ptr<bool> integrityMask
 		, thrust::device_ptr<unsigned int> writePositions
@@ -190,7 +189,7 @@ namespace InstanceTreeHelpers
 
 			for (int currentPos = length - 1; currentPos >= 0; --currentPos)
 			{
-				result[currentPos * length + writePositions[tid]] = instancesOnLevels[currentPos][instanceLevelIdx];
+				result[currentPos * consistentCount + writePositions[tid]] = instancesOnLevels[currentPos][instanceLevelIdx];
 
 				// first two positions have same position
 				if (currentPos > 1)

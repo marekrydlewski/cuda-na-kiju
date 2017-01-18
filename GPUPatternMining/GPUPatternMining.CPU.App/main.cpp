@@ -13,22 +13,8 @@
 int main()
 {
 	//input data
-	//const unsigned int types = 10;
-	//const unsigned int rangeY = 1000;
-	//const unsigned int rangeX = 1000;
-	//const unsigned int numberOfInstances = 5000;
 	const float threshold = 3;
 	const float prevalence = 0.0;
-
-	//RandomDataProvider rdp;
-	//rdp.setNumberOfTypes(types);
-	//rdp.setRange(rangeX, rangeY);
-	//auto data = rdp.getData(numberOfInstances);
-	std::string path;
-
-	std::cout << "Provide path to data file" << std::endl;
-
-	std::cin >> path;
 
 	SimulatedRealDataProvider dataProvider;
 	auto data = dataProvider.getTestData();
@@ -44,26 +30,18 @@ int main()
 	bmk::benchmark<std::chrono::nanoseconds> bmSeq, bmParallel;
 
 	bmSeq.run("load data", 1, [&]() { cpuAlgSeq.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
-	printf("SeqLoaded\n");
 	bmSeq.run("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });
-	printf("Seq1\n");
 	bmSeq.run("filter by prevalence", 1, [&]() { cpuAlgSeq.filterByPrevalence(prevalence); });
-	printf("Seq2\n");
 	bmSeq.run("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
-	printf("Seq3\n");
 	bmSeq.run("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
 
 	bmSeq.print("sequential algorithm", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
 
 	bmParallel.run("load data", 1, [&]() { cpuAlgParallel.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
-	printf("ParallelLoaded\n");
 	bmParallel.run("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
-	printf("Parallel1\n");
 	bmParallel.run("filter by prevalence", 1, [&]() { cpuAlgParallel.filterByPrevalence(prevalence); });
-	printf("Parallel2\n");
 	bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); }); 
-	printf("Parallel3\n");
 	bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
 	bmParallel.print("parallel algorithm", std::cout);

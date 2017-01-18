@@ -197,7 +197,6 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
 
-	printf("%d iterations of BK next\n", degeneracy.second.size());
 	concurrency::combinable<std::vector<std::vector<unsigned short>>> concurrentMaxCliques;
 
 	concurrency::parallel_for_each(
@@ -217,7 +216,6 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 			concurrentMaxCliques.local().end(),
 			generatedCliques.begin(),
 			generatedCliques.end());
-		printf("Iteration done\n");
 	}
 	);
 
@@ -252,7 +250,6 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
 	}
 	);
-	printf("Collocations found: %d\n", finalMaxCliques.size());
 	return finalMaxCliques;
 }
 

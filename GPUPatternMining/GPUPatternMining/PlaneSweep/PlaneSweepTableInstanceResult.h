@@ -21,11 +21,6 @@ public:
 		0x11112222  :  1111 is type of first in pair
 					   2222 is type of second in pair
 	*/
-	std::shared_ptr<GPUHashMapper<unsigned int, Entities::InstanceTable, GPUKeyProcessor<unsigned int>>> instanceTableMap;
-
-	thrust::device_vector<thrust::tuple<FeatureInstance, FeatureInstance>> uniques;
-	thrust::device_vector<unsigned int> indices;
-	thrust::device_vector<unsigned int> counts;
 };
 // --------------------------------------------------------------------------------------------------
 

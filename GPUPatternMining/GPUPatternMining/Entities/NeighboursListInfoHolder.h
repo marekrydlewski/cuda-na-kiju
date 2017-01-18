@@ -25,3 +25,17 @@ struct NeighboursListInfoHolder
 	}
 };
 // --------------------------------------------------------------------------------------------------------------------------------------
+
+__device__ __host__
+inline bool operator==(const NeighboursListInfoHolder& a, const NeighboursListInfoHolder& b)
+{
+	return a.count == b.count && a.startIdx == b.startIdx;
+}
+//------------------------------------------------------------------------------
+
+__device__ __host__
+inline bool operator!=(const NeighboursListInfoHolder& a, const NeighboursListInfoHolder& b)
+{
+	return a.count != b.count || a.startIdx != b.startIdx;
+}
+//------------------------------------------------------------------------------

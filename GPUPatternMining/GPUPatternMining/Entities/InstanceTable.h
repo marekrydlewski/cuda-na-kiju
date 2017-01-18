@@ -24,5 +24,23 @@ namespace Entities
 		{
 		}
 	};
+	// ------------------------------------------------------------
 
+	__device__ __host__
+	inline bool operator==(const InstanceTable& a, const InstanceTable& b)
+	{
+		return a.count == b.count 
+			&& a.startIdx == b.startIdx;
+	}
+	//------------------------------------------------------------------------------
+
+	__device__ __host__
+		inline bool operator!=(const InstanceTable& a, const InstanceTable& b)
+	{
+		return a.count != b.count
+			|| a.startIdx != b.startIdx;
+	}
+	//------------------------------------------------------------------------------
 }
+
+

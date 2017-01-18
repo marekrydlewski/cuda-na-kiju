@@ -5,7 +5,7 @@
 #include "../GPUPatternMining.Contract/Graph.h"
 #include "../GPUPatternMining.Contract/Timer.h"
 #include "../GPUPatternMining.Contract/Benchmark.h"
-#include "../GPUPatternMining.Contract/DataLoader.h"
+#include "../GPUPatternMining.Contract/SimulatedRealDataProvider.h"
 
 #include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmSeq.h"
 #include "../GPUPatternMining.CPU/CPUMiningAlgorithms/CPUMiningAlgorithmParallel.h"
@@ -30,8 +30,8 @@ int main()
 
 	std::cin >> path;
 
-	DataLoader loader;
-	loader.loadFromTxtFile(path);
+	SimulatedRealDataProvider dataProvider;
+	auto data = dataProvider.getTestData();
 
 	//output data
 	std::vector<std::vector<unsigned short>> solutionSeq, solutionParallel;
@@ -43,7 +43,7 @@ int main()
 	CPUMiningAlgorithmParallel cpuAlgParallel;
 	bmk::benchmark<std::chrono::nanoseconds> bmSeq, bmParallel;
 
-	bmSeq.run("load data", 1, [&]() { cpuAlgSeq.loadData(loader.getData(), loader.getDataSize(), loader.getNumberOfTypes()); });
+	bmSeq.run("load data", 1, [&]() { cpuAlgSeq.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
 	printf("SeqLoaded\n");
 	bmSeq.run("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });
 	printf("Seq1\n");
@@ -56,7 +56,7 @@ int main()
 	bmSeq.print("sequential algorithm", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
 
-	bmParallel.run("load data", 1, [&]() { cpuAlgParallel.loadData(loader.getData(), loader.getDataSize(), loader.getNumberOfTypes()); });
+	bmParallel.run("load data", 1, [&]() { cpuAlgParallel.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
 	printf("ParallelLoaded\n");
 	bmParallel.run("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
 	printf("Parallel1\n");

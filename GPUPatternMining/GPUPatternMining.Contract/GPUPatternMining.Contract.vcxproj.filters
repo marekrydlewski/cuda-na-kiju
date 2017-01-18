@@ -10,6 +10,9 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{08cd3841-380a-4991-9be8-38210210a89e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{44ea507a-71e7-488e-8768-ed92ee5a2f53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enity\DataFeed.h">
@@ -51,6 +54,9 @@
     <ClInclude Include="DataLoader.h">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="SimulatedRealDataProvider.h">
+      <Filter>Providers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -65,10 +71,18 @@
     <ClCompile Include="CinsNode.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
+    <ClCompile Include="SimulatedRealDataProvider.cpp">
+      <Filter>Providers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="benchmark_visualizer.py">
       <Filter>Utilities</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resource Files\test1.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

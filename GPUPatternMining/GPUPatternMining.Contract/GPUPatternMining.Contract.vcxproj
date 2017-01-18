@@ -30,6 +30,7 @@
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
     <ClInclude Include="RandomDataProvider.h" />
+    <ClInclude Include="SimulatedRealDataProvider.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -42,9 +43,13 @@
     <ClCompile Include="CinsTree.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="RandomDataProvider.cpp" />
+    <ClCompile Include="SimulatedRealDataProvider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="benchmark_visualizer.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resource Files\test1.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>

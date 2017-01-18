@@ -60,7 +60,8 @@ private:
 	Graph size2ColocationsGraph;
 
 	void createSize2ColocationsGraph();
-	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> countUniqueInstances();
+	std::unordered_map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, 
+		pair_hash> countUniqueInstances();
 
 	bool filterNodeCandidate(
 		unsigned short type,

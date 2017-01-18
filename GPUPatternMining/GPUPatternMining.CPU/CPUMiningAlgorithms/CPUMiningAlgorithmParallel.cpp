@@ -3,6 +3,7 @@
 #include "../../GPUPatternMining.Contract/CinsTree.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
+#include "../../GPUPatternMining.Contract/PairHash.h"
 
 #include <algorithm>
 #include <cassert>
@@ -315,9 +316,9 @@ bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 	return true;
 }
 
-std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> CPUMiningAlgorithmParallel::countUniqueInstances()
+std::unordered_map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> CPUMiningAlgorithmParallel::countUniqueInstances()
 {
-	std::map< std::pair <unsigned short, unsigned short>, std::pair <unsigned short, unsigned short>> typeIncidenceColocations;
+	std::unordered_map< std::pair <unsigned short, unsigned short>, std::pair <unsigned short, unsigned short>, pair_hash> typeIncidenceColocations;
 
 	int cores = concurrency::GetProcessorCount();
 	auto loadPerProcessor = getWorkloadForInsTable(cores);

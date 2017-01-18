@@ -39,34 +39,6 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 	float effectiveThreshold = pow(threshold, 2);
 
-	int cores = concurrency::GetProcessorCount();
-
-	std::vector<unsigned int> loadPerProcessor(cores);
-
-	unsigned int divider = std::pow(2, cores - 1);
-
-	//further iterations will have less work (for first item in data you have to go through whole data, for
-	//each next one you have to do one data item less)
-	for (int i = 0; i < cores; ++i)
-	{
-		if (i > 1)
-			divider /= 2;
-
-		//last thread gets remaining load
-		if (i == cores - 1)
-		{
-			unsigned int tmp = 0;
-			for (int j = 0; j < i; ++j)
-			{
-				tmp += loadPerProcessor[j];
-			}
-			loadPerProcessor[i] = source.size() - tmp;
-			break;
-		}
-
-		loadPerProcessor[i] = source.size() / divider;
-	}
-
 	concurrency::combinable<std::map<unsigned short,
 		std::map<unsigned short,
 		std::map<unsigned short,
@@ -74,44 +46,36 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 	concurrency::combinable<std::vector<unsigned short>> combinableTypeIncidenceCounter;
 
-	concurrency::parallel_for(0, cores, [&](int i)
+	concurrency::parallel_for(0, (int)source.size(), [&](auto i)
 	{
-		unsigned int startIndex = 0;
-		for (int j = 0; j < i; ++j)
-		{
-			startIndex += loadPerProcessor[j];
-		}
+		auto it1 = source.begin() + i;
 
 		combinableTypeIncidenceCounter.local().resize(typeIncidenceCounter.size(), 0);
+		++combinableTypeIncidenceCounter.local()[(*it1).type];
 
-		for (auto it1 = source.begin() + startIndex; (it1 != source.begin() + startIndex + loadPerProcessor[i]); ++it1)
+		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 		{
-			++combinableTypeIncidenceCounter.local()[(*it1).type];
-
-			for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
+			if (std::abs((*it1).xy.x - (*it2).xy.x) > threshold) break;
+			if ((*it1).type != (*it2).type)
 			{
-				if (std::abs((*it1).xy.x - (*it2).xy.x) > threshold) break;
-				if ((*it1).type != (*it2).type)
+				if (checkDistance(*it1, *it2, effectiveThreshold))
 				{
-					if (checkDistance(*it1, *it2, effectiveThreshold))
+					//smaller value always first
+					auto it1_h = it1;
+					auto it2_h = it2;
+
+					if ((*it1_h).type > (*it2_h).type)
+						std::swap(it1_h, it2_h);
+
+					if (combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
 					{
-						//smaller value always first
-						auto it1_h = it1;
-						auto it2_h = it2;
-
-						if ((*it1_h).type > (*it2_h).type)
-							std::swap(it1_h, it2_h);
-
-						if (combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
-						{
-							combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned short>();
-						}
-						combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
+						combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned short>();
 					}
+					combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 				}
 			}
 		}
-	}, concurrency::static_partitioner());
+	}, concurrency::auto_partitioner());
 
 	end = std::chrono::steady_clock::now();
 

@@ -238,8 +238,8 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
 	std::vector<std::unique_ptr<concurrency::concurrent_vector<std::vector<unsigned short>>>> cliquesToProcess;
-
-	auto sizeOfCliquesToProcess = 
+	
+	auto sizeOfCliquesToProcess =
 		(*std::max_element(
 			maximalCliques.begin(),
 			maximalCliques.end(),
@@ -254,7 +254,6 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 	{
 		cliquesToProcess.push_back(std::make_unique<concurrency::concurrent_vector<std::vector<unsigned short>>>());
 	}
-
 
 	for (auto& cl : maximalCliques)
 	{

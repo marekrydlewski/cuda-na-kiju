@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{20ff5e7b-5c35-4370-a00c-7fe51f7f7476}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catch.hpp">
@@ -24,8 +27,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="UniquePrevalenceTesting.cu">
-      <Filter>Source Files</Filter>
+    <CudaCompile Include="AnyLengthInstancesUniquePrevalenceProviderTests.cu">
+      <Filter>Tests</Filter>
+    </CudaCompile>
+    <CudaCompile Include="PrevalentTypedPairProviderTests.cu">
+      <Filter>Tests</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

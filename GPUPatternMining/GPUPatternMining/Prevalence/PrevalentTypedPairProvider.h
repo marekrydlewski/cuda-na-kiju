@@ -92,16 +92,16 @@ namespace Prevalence
 		// -------------------------------------------------------------------------------------------------
 
 
-		class PairPrevalenceFilter
+		class PrevalentTypedPairProvider
 		{
 		public:
 
-			PairPrevalenceFilter(
+			PrevalentTypedPairProvider(
 				std::vector<TypeCount>& typesCounts
 				, IntanceTablesMapCreator::ITMPackPtr itmPack
 			);
 
-			~PairPrevalenceFilter();
+			~PrevalentTypedPairProvider();
 
 			/*
 			@params

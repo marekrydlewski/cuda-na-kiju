@@ -5,15 +5,15 @@
 #include "..\PlaneSweep\PlaneSweepTableInstanceResult.h"
 #include "..\InstanceTree/IntanceTablesMapCreator.h"
 #include "..\InstanceTree/InstanceTypedNeighboursMapCreator.h"
+#include "..\Helpers/CliquesCandidatesHelpers.h"
 // --------------------------------------------------------------------------------------------------
 
 
+struct GpuCliques;
+
 namespace InstanceTree
 {
-	typedef std::vector<unsigned short> CliqueCandidate;
-	typedef std::vector<CliqueCandidate> CliquesCandidates;
-	// ----------------------------------------------------------------------------------------------
-	
+
 	/*
 		assuming that candidate cliques are
 			ABC
@@ -47,7 +47,7 @@ namespace InstanceTree
 			, InstanceTypedNeighboursMapCreator::ITNMPackPtr typedInstanceNeighboursPack
 		);
 
-		InstanceTreeResultPtr getInstancesResult(CliquesCandidates& cliquesCandidates);
+		InstanceTreeResultPtr getInstancesResult(Entities::GpuCliques& cliquesCandidates);
 
 	private:
 

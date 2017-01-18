@@ -183,6 +183,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
     <ClInclude Include="Entities\TypeCount.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h" />
+    <ClInclude Include="Helpers\CliquesCandidatesHelpers.h" />
     <ClInclude Include="InstanceTree\InstanceTree.h" />
     <ClInclude Include="InstanceTree\InstanceTreeHelpers.h" />
     <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
@@ -190,7 +191,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
-    <ClInclude Include="Prevalence\UniquePairPrevalence.h" />
+    <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.h" />
+    <ClInclude Include="Prevalence\PrevalentTypedPairProvider.h" />
     <CudaCompile Include="Common\CommonOperations.cu" />
     <CudaCompile Include="HashMap\gpuutils.cu">
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_30,sm_30</CodeGeneration>
@@ -201,6 +203,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="HashMap\gpuutils.h" />
     <ClInclude Include="Common\MiningCommon.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
+    <CudaCompile Include="Helpers\CliquesCandidatesHelpers.cu" />
     <CudaCompile Include="InstanceTree\InstanceTree.cu">
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_30,sm_30</CodeGeneration>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">compute_30,sm_30</CodeGeneration>
@@ -217,7 +220,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
-    <CudaCompile Include="Prevalence\UniquePairPrevalence.cu" />
+    <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.cu" />
+    <CudaCompile Include="Prevalence\PrevalentTypedPairProvider.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />

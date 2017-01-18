@@ -5,8 +5,7 @@
 
 namespace InstanceTree
 {
-	typedef thrust::device_vector<unsigned short> UShortThrustVector;
-	typedef std::shared_ptr<UShortThrustVector> UShortThrustVectorPtr;
+
 
 	typedef thrust::device_vector<unsigned int> UIntThrustVector;
 	typedef std::shared_ptr<UIntThrustVector> UIntThrustVectorPtr;
@@ -28,26 +27,12 @@ namespace InstanceTree
 		
 	}
 
-	InstanceTreeResultPtr InstanceTree::getInstancesResult(CliquesCandidates& cliquesCandidates)
+	InstanceTreeResultPtr InstanceTree::getInstancesResult(Entities::GpuCliques& cliquesCandidates)
 	{
-		if (cliquesCandidates.empty())
+		if (cliquesCandidates.cliquesData->empty())
 			return nullptr;
 
-		const unsigned int currentCliquesSize = cliquesCandidates[0].size();
-		
-		// migrate data to GPU
-		std::vector<UShortThrustVectorPtr> cliquesData;
-		thrust::device_vector<thrust::device_ptr<const unsigned short>> cliques;
-		{
-			for (CliqueCandidate cc : cliquesCandidates)
-				cliquesData.push_back(std::make_shared<UShortThrustVector>(cc));
-
-			std::vector<thrust::device_ptr<const unsigned short>> hcliques;
-			for (UShortThrustVectorPtr tdus : cliquesData)
-				hcliques.push_back(tdus->data());
-
-			cliques = hcliques;
-		}
+		const unsigned int currentCliquesSize = cliquesCandidates.currentCliquesSize;
 
 		std::vector<FeatureInstanceThrustVectorPtr> instancesElementsInLevelVectors;
 		thrust::device_vector<thrust::device_ptr<FeatureInstance>> instancesElementsInLevel;
@@ -61,17 +46,17 @@ namespace InstanceTree
 		thrust::device_vector<thrust::device_ptr<unsigned int>> itemNumbersOnLevels;
 
 		// build first tree level
-		thrust::device_vector<unsigned int> pairCounts(cliquesCandidates.size());
+		thrust::device_vector<unsigned int> pairCounts(cliquesCandidates.candidatesCount);
 		
 		dim3 insertGrid;
-		findSmallest2D(cliquesCandidates.size(), 256, insertGrid.x, insertGrid.y);
+		findSmallest2D(cliquesCandidates.candidatesCount, 256, insertGrid.x, insertGrid.y);
 
-		thrust::device_vector<unsigned int> newEntriesCounts(cliquesCandidates.size());
+		thrust::device_vector<unsigned int> newEntriesCounts(cliquesCandidates.candidatesCount);
 
 		InstanceTreeHelpers::fillFirstPairCountFromMap <<< insertGrid, 256 >>>(
 			instanceTablePack->map->getBean()
-			, thrust::raw_pointer_cast(cliques.data())
-			, cliques.size()
+			, cliquesCandidates.cliquesData->data().get()
+			, cliquesCandidates.candidatesCount
 			, newEntriesCounts.data()
 		);
 		
@@ -103,7 +88,7 @@ namespace InstanceTree
 
 		InstanceTreeHelpers::writeFirstTwoLevels <<< writeFirstTwoLevelsGrid, 256 >>> (
 			instanceTablePack->map->getBean()
-			, thrust::raw_pointer_cast(cliques.data())
+			, cliquesCandidates.cliquesData->data().get()
 			, firstTwoLevelsFg->groupNumbers.data()
 			, firstTwoLevelsFg->itemNumbers.data()
 			, planeSweepResult->pairsA.data()
@@ -126,7 +111,7 @@ namespace InstanceTree
 
 			InstanceTreeHelpers::fillWithNextLevelCountsFromTypedNeighbour <<< getLevelCounts, 256 >>> (
 				typedInstanceNeighboursPack->map->getBean()
-				, thrust::raw_pointer_cast(cliques.data())
+				, cliquesCandidates.cliquesData->data().get()
 				, thrust::raw_pointer_cast(groupNumbersOnLevels.data())
 				, instancesElementsInLevel[currentLevel - 1]
 				, previousLevelInstancesCount
@@ -157,7 +142,7 @@ namespace InstanceTree
 
 			InstanceTreeHelpers::fillLevelInstancesFromNeighboursList <<< insertLevelInstances, 256 >>> (
 				typedInstanceNeighboursPack->map->getBean()
-				, cliques.data().get()
+				, cliquesCandidates.cliquesData->data().get()
 				, groupNumbersOnLevels.data().get()
 				, forGroupsResult->itemNumbers.data()
 				, instancesElementsInLevel[currentLevel - 1]

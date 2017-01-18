@@ -9,6 +9,8 @@
 #include <iostream>
 #include <iterator>
 #include <chrono>
+#include <map>
+#include <unordered_map>
 
 void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned short types)
 {

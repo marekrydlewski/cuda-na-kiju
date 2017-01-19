@@ -1,13 +1,13 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 class CliquesContainer
 {
 private:
 	unsigned int cliquesCounter;
-	std::map<short, std::vector<unsigned short>> typesMap;
+	std::unordered_map<short, std::vector<unsigned short>> typesMap;
 public:
 	CliquesContainer();
 	void insertClique(std::vector<unsigned short>& clique);

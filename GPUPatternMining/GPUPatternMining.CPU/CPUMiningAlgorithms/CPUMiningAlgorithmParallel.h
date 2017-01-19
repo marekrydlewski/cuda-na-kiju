@@ -1,5 +1,6 @@
 #pragma once
 #include "CPUMiningBaseAlgorithm.h"
+
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
@@ -7,7 +8,6 @@
 #include "../../GPUPatternMining.Contract/PairHash.h"
 
 
-#include <map>
 #include <unordered_map>
 #include <vector>
 #include <ppl.h>

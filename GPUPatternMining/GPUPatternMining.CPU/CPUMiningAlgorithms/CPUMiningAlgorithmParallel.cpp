@@ -1,22 +1,14 @@
 #include "CPUMiningAlgorithmParallel.h"
 
 #include "../../GPUPatternMining.Contract/CinsTree.h"
-#include "../../GPUPatternMining.Contract/CinsNode.h"
-#include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
-#include "../../GPUPatternMining.Contract/PairHash.h"
 
 #include <algorithm>
-#include <cassert>
 #include <ppl.h>
 #include <concrtrm.h>
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
 #include <iostream>
 #include <chrono>
-#include <memory>
-#include <functional>
-#include <string>
-#include <utility>
 
 
 void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned short types)

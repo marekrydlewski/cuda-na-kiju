@@ -1,13 +1,14 @@
 #pragma once
 #include "CPUMiningBaseAlgorithm.h"
+
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/CliquesContainer.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
+#include "../../GPUPatternMining.Contract/PairHash.h"
 
 #include <unordered_map>
 #include <vector>
-#include <set>
 
 class CPUMiningAlgorithmSeq :
 	public CPUMiningBaseAlgorithm
@@ -56,7 +57,7 @@ private:
 
 	void createSize2ColocationsGraph();
 
-	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> countUniqueInstances();
+	std::unordered_map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> countUniqueInstances();
 
 	bool filterNodeCandidate(
 		unsigned short type,

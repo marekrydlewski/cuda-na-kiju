@@ -119,6 +119,7 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
+	int count = 0;
 	for (unsigned short const vertex : degeneracy.second)
 	{
 		std::vector<unsigned short> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
@@ -131,6 +132,7 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 			neighboursWithLowerIndices);
 
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
+		++count;
 	}
 
 	std::set<std::vector<unsigned short>> tmp(maximalCliques.begin(), maximalCliques.end());

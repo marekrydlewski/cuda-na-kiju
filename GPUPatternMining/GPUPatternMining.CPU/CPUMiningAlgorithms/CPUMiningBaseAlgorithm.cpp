@@ -66,7 +66,8 @@ bool CPUMiningBaseAlgorithm::countPrevalenceParallel(
 		particularInstances.end(),
 		generalInstances.begin(),
 		tempMins.begin(),
-		[](unsigned short a, unsigned short b) { return (a / (float)b); });
+		[](unsigned short a, unsigned short b) { return (a / (float)b); },
+		concurrency::static_partitioner());
 
 	return prevalence < *std::min_element(tempMins.begin(), tempMins.end());
 }

@@ -12,8 +12,8 @@ int main()
 	const unsigned int types = 7;
 	const unsigned int rangeY = 1000;
 	const unsigned int rangeX = 1000;
-	const unsigned int numberOfInstances = 25000;
-	const float threshold = 24;
+	const unsigned int numberOfInstances = 70000;
+	const float threshold = 60;
 	const float prevalence = 0.01;
 
 	RandomDataProvider rdp;
@@ -34,8 +34,8 @@ int main()
 	bmSeq.run("load data", 1, [&]() { cpuAlgSeq.loadData(data, numberOfInstances, types); });
 	bmSeq.run("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });
 	bmSeq.run("filter by prevalence", 1, [&]() { cpuAlgSeq.filterByPrevalence(prevalence); });
-	bmSeq.run("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
-	bmSeq.run("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
+	//bmSeq.run("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
+	//bmSeq.run("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
 
 	bmSeq.print("sequential algorithm", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
@@ -43,8 +43,8 @@ int main()
 	bmParallel.run("load data", 1, [&]() { cpuAlgParallel.loadData(data, numberOfInstances, types); });
 	bmParallel.run("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
 	bmParallel.run("filter by prevalence", 1, [&]() { cpuAlgParallel.filterByPrevalence(prevalence); });
-	bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); });
-	bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
+	//bmParallel.run("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); });
+	//bmParallel.run("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
 	bmParallel.print("parallel algorithm  ", std::cout);
 	//bmParallel.serialize("CPU parallel algorithm", "CPUparallel.txt");

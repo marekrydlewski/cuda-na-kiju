@@ -3,6 +3,7 @@
 #include "../../GPUPatternMining.Contract/CinsTree.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
+#include "../../GPUPatternMining.Contract/PairHash.h"
 
 #include <algorithm>
 #include <cassert>
@@ -12,7 +13,11 @@
 #include <concurrent_vector.h>
 #include <iostream>
 #include <chrono>
-#include<memory>
+#include <memory>
+#include <functional>
+#include <string>
+#include <utility>
+
 
 void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned short types)
 {
@@ -39,79 +44,43 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 	float effectiveThreshold = pow(threshold, 2);
 
-	int cores = concurrency::GetProcessorCount();
-
-	std::vector<unsigned int> loadPerProcessor(cores);
-
-	unsigned int divider = std::pow(2, cores - 1);
-
-	//further iterations will have less work (for first item in data you have to go through whole data, for
-	//each next one you have to do one data item less)
-	for (int i = 0; i < cores; ++i)
-	{
-		if (i > 1)
-			divider /= 2;
-
-		//last thread gets remaining load
-		if (i == cores - 1)
-		{
-			unsigned int tmp = 0;
-			for (int j = 0; j < i; ++j)
-			{
-				tmp += loadPerProcessor[j];
-			}
-			loadPerProcessor[i] = source.size() - tmp;
-			break;
-		}
-
-		loadPerProcessor[i] = source.size() / divider;
-	}
-
-	concurrency::combinable<std::map<unsigned short,
-		std::map<unsigned short,
-		std::map<unsigned short,
+	concurrency::combinable<std::unordered_map<unsigned short,
+		std::unordered_map<unsigned short,
+		std::unordered_map<unsigned short,
 		std::vector<unsigned short>*>>>> combinableInsTable;
 
 	concurrency::combinable<std::vector<unsigned short>> combinableTypeIncidenceCounter;
 
-	concurrency::parallel_for(0, cores, [&](int i)
+	concurrency::parallel_for(0, (int)source.size(), [&](auto i)
 	{
-		unsigned int startIndex = 0;
-		for (int j = 0; j < i; ++j)
-		{
-			startIndex += loadPerProcessor[j];
-		}
+		auto it1 = source.begin() + i;
 
 		combinableTypeIncidenceCounter.local().resize(typeIncidenceCounter.size(), 0);
+		++combinableTypeIncidenceCounter.local()[(*it1).type];
 
-		for (auto it1 = source.begin() + startIndex; (it1 != source.begin() + startIndex + loadPerProcessor[i]); ++it1)
+		for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
 		{
-			++combinableTypeIncidenceCounter.local()[(*it1).type];
-
-			for (auto it2 = std::next(it1); (it2 != source.end()); ++it2)
+			if (std::abs((*it1).xy.x - (*it2).xy.x) > threshold) break;
+			if ((*it1).type != (*it2).type)
 			{
-				if (std::abs((*it1).xy.x - (*it2).xy.x) > threshold) break;
-				if ((*it1).type != (*it2).type)
+				if (checkDistance(*it1, *it2, effectiveThreshold))
 				{
-					if (checkDistance(*it1, *it2, effectiveThreshold))
+					//smaller value always first
+					auto it1_h = it1;
+					auto it2_h = it2;
+
+					if ((*it1_h).type > (*it2_h).type)
+						std::swap(it1_h, it2_h);
+
+					if (combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
 					{
-						//smaller value always first
-						auto it1_h = it1;
-						auto it2_h = it2;
-
-						if ((*it1_h).type > (*it2_h).type)
-							std::swap(it1_h, it2_h);
-
-						if (combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] == nullptr)
-						{
-							combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned short>();
-						}
-						combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
+						combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId] = new std::vector<unsigned short>();
 					}
+					combinableInsTable.local()[(*it1_h).type][(*it2_h).type][(*it1_h).instanceId]->push_back((*it2_h).instanceId);
 				}
 			}
 		}
-	}, concurrency::static_partitioner());
+	}, concurrency::auto_partitioner());
 
 	end = std::chrono::steady_clock::now();
 
@@ -119,11 +88,7 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 
 	begin = std::chrono::steady_clock::now();
 
-	combinableInsTable.combine_each([&](
-		std::map<unsigned short,
-		std::map<unsigned short,
-		std::map<unsigned short,
-		std::vector<unsigned short>*>>> local)
+	combinableInsTable.combine_each([&](auto& local)
 	{
 		for (auto it1 = local.begin(); (it1 != local.end()); ++it1)
 		{
@@ -274,8 +239,8 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
 	std::vector<std::unique_ptr<concurrency::concurrent_vector<std::vector<unsigned short>>>> cliquesToProcess;
-
-	auto sizeOfCliquesToProcess = 
+	
+	auto sizeOfCliquesToProcess =
 		(*std::max_element(
 			maximalCliques.begin(),
 			maximalCliques.end(),
@@ -284,11 +249,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 			})
 		).size();
 
+	cliquesToProcess.reserve(sizeOfCliquesToProcess);
+
 	for (auto i = 0; i <= sizeOfCliquesToProcess; ++i)
 	{
 		cliquesToProcess.push_back(std::make_unique<concurrency::concurrent_vector<std::vector<unsigned short>>>());
 	}
-	cliquesToProcess.reserve(sizeOfCliquesToProcess);
 
 	for (auto& cl : maximalCliques)
 	{
@@ -350,9 +316,15 @@ bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 	return true;
 }
 
-std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> CPUMiningAlgorithmParallel::countUniqueInstances()
+std::unordered_map<
+	std::pair<unsigned short, unsigned short>,
+	std::pair<unsigned short, unsigned short>,
+	pair_hash> CPUMiningAlgorithmParallel::countUniqueInstances()
 {
-	std::map< std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
+	std::unordered_map<
+		std::pair <unsigned short, unsigned short>,
+		std::pair <unsigned short, unsigned short>,
+		pair_hash> typeIncidenceColocations;
 
 	int cores = concurrency::GetProcessorCount();
 	auto loadPerProcessor = getWorkloadForInsTable(cores);

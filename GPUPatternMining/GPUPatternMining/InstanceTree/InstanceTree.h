@@ -30,8 +30,7 @@ namespace InstanceTree
 	struct InstanceTreeResult
 	{
 		thrust::device_vector<FeatureInstance> instances;
-		thrust::device_vector<unsigned int> begins;
-		thrust::device_vector<unsigned int> counts;
+		thrust::device_vector<unsigned int> instancesCliqueId;
 	};
 	// ----------------------------------------------------------------------------------------------
 	

@@ -12,6 +12,7 @@
     <CudaCompile Include="Prevalence\PrevalentTypedPairProvider.cu" />
     <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.cu" />
     <CudaCompile Include="Helpers\CliquesCandidatesHelpers.cu" />
+    <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProviderHelpers.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
@@ -37,5 +38,6 @@
     <ClInclude Include="Prevalence\PrevalentTypedPairProvider.h" />
     <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.h" />
     <ClInclude Include="Helpers\CliquesCandidatesHelpers.h" />
+    <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProviderHelpers.h" />
   </ItemGroup>
 </Project>

@@ -197,6 +197,7 @@ namespace InstanceTree
 
 		const unsigned int resultVectorSize = consistentCount * currentCliquesSize;
 		result->instances = thrust::device_vector<FeatureInstance>(resultVectorSize);
+		result->instancesCliqueId = thrust::device_vector<unsigned int>(consistentCount);
 
 		dim3 reverseGenerateInstancesDim;
 		findSmallest2D(candidatesCount, 256, reverseGenerateInstancesDim.x, reverseGenerateInstancesDim.y);
@@ -210,6 +211,7 @@ namespace InstanceTree
 			, integrityMask.data()
 			, writePositions.data()
 			, result->instances.data()
+			, result->instancesCliqueId.data()
 		);
 
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());

@@ -2,6 +2,7 @@
 #include <vector>
 #include "../Entities/TypeCount.h"
 #include "../InstanceTree/InstanceTree.h"
+#include "AnyLengthInstancesUniquePrevalenceProviderHelpers.h"
 // -------------------------------------------------------------------------------------------------
 
 typedef std::vector<unsigned short> CliqueCandidate;
@@ -16,12 +17,13 @@ public:
 	AnyLengthInstancesUniquePrevalenceProvider(
 		TypesCountsPtr typesCounts);
 
-	std::vector<float> getPrevalenceFromCandidatesInstances(
-		CliquesCandidates& cliquesCandidates
+	thrust::host_vector<float> getPrevalenceFromCandidatesInstances(
+		Entities::GpuCliques cliquesCandidates
 		, InstanceTree::InstanceTreeResultPtr instanceTreeResult
-	);
+	) const;
 
 private:
-	TypesCountsPtr typesCounts;
+	TypesCountsMapPtr typesCountsMap;
+	GPUKeyProcessor<unsigned int> mapKeyProcessor;
 };
 // -------------------------------------------------------------------------------------------------

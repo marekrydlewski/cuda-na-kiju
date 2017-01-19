@@ -26,6 +26,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="AnyLengthInstancesUniquePrevalenceProviderHelpersTests.cu" />
     <CudaCompile Include="AnyLengthInstancesUniquePrevalenceProviderTests.cu" />
     <CudaCompile Include="PrevalentTypedPairProviderTests.cu" />
   </ItemGroup>

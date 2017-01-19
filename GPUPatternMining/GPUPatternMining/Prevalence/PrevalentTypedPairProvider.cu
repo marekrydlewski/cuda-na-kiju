@@ -71,8 +71,6 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		
-
 		thrust::device_vector<FeatureTypePair> PrevalentTypedPairProvider::getPrevalentPairConnections(
 			float minimalPrevalence
 			, PlaneSweepTableInstanceResultPtr planeSweepResult
@@ -152,7 +150,7 @@ namespace Prevalence
 				, writePos.data()
 				);
 
-			cudaDeviceSynchronize();
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			unsigned int prevalentCount;
 			{
@@ -174,6 +172,8 @@ namespace Prevalence
 			
 			thrust::device_vector<FeatureTypePair> dResult(prevalentCount);
 			
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 			writeThroughtMask <<< grid, 256 >>> (
 				uniquesCount
 				, transformed.data()
@@ -182,7 +182,7 @@ namespace Prevalence
 				, dResult.data()
 			);
 				
-			cudaDeviceSynchronize();
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			return dResult;
 		}

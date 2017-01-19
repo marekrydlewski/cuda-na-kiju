@@ -192,6 +192,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
     <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.h" />
+    <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProviderHelpers.h" />
     <ClInclude Include="Prevalence\PrevalentTypedPairProvider.h" />
     <CudaCompile Include="Common\CommonOperations.cu" />
     <CudaCompile Include="HashMap\gpuutils.cu">
@@ -221,6 +222,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
     <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.cu" />
+    <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProviderHelpers.cu" />
     <CudaCompile Include="Prevalence\PrevalentTypedPairProvider.cu" />
   </ItemGroup>
   <ItemGroup>

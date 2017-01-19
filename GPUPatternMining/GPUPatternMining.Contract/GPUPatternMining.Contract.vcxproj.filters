@@ -66,6 +66,9 @@
     <ClInclude Include="ParallelCliquesContainer.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="ApplicationHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -96,8 +99,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resource Files\test1.txt">
+    <Content Include="Resource Files\test1.txt">
       <Filter>Resource Files</Filter>
-    </Text>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resource Files\fastTestData.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
   </ItemGroup>
 </Project>

@@ -174,6 +174,7 @@ namespace InstanceTreeHelpers
 		, thrust::device_ptr<bool> integrityMask
 		, thrust::device_ptr<unsigned int> writePositions
 		, thrust::device_ptr<FeatureInstance> result
+		, thrust::device_ptr<unsigned int> instancesCliqueId
 	)
 	{
 		// TODO tune by buffered write
@@ -195,6 +196,8 @@ namespace InstanceTreeHelpers
 				if (currentPos > 1)
 					instanceLevelIdx = groupNumberLevels[currentPos][instanceLevelIdx];
 			}
+
+			instancesCliqueId[writePositions[tid]] = groupNumberLevels[1][instanceLevelIdx];
 		}
 	}
 	// ------------------------------------------------------------------------------

@@ -98,6 +98,7 @@ namespace  InstanceTreeHelpers
 		, thrust::device_ptr<bool> integrityMask
 		, thrust::device_ptr<unsigned int> writePositions
 		, thrust::device_ptr<FeatureInstance> result
+		, thrust::device_ptr<unsigned int> instancesCliqueId
 	);
 	// -----------------------------------------------------------------------------
 

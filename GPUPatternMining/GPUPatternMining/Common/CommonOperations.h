@@ -107,13 +107,29 @@ namespace MiningCommon
 
 	struct FeatureInstanceComparator
 	{
-		__host__ __device__  bool operator()(const  thrust::tuple<FeatureInstance, FeatureInstance>& o1, const thrust::tuple<FeatureInstance, FeatureInstance>& o2)
+		__host__ __device__  bool operator()(
+			const  thrust::tuple<FeatureInstance, FeatureInstance>& o1
+			, const thrust::tuple<FeatureInstance, FeatureInstance>& o2)
 		{
-			if (o1.get<0>().field < o2.get<0>().field)
+			if (o1.get<0>().fields.featureId < o2.get<0>().fields.featureId)
 				return true;
 
-			if (o1.get<0>().field == o2.get<0>().field)
-				return o1.get<1>().field < o2.get<1>().field;
+			if (o1.get<0>().fields.featureId == o2.get<0>().fields.featureId)
+			{
+				if (o1.get<1>().fields.featureId < o2.get<1>().fields.featureId)
+					return true;
+
+				if (o1.get<1>().fields.featureId == o2.get<1>().fields.featureId)
+				{
+					if (o1.get<0>().fields.instanceId < o2.get<0>().fields.instanceId)
+						return true;
+
+					if (o1.get<0>().fields.instanceId == o2.get<0>().fields.instanceId)
+					{
+						return o1.get<1>().fields.instanceId < o2.get<1>().fields.instanceId;
+					}
+				}
+			}
 
 			return false;
 		}

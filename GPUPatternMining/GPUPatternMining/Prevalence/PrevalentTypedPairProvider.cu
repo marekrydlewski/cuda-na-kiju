@@ -1,4 +1,4 @@
-#include "UniquePairPrevalence.h"
+#include "PrevalentTypedPairProvider.h"
 
 #include <thrust/execution_policy.h>
 #include <thrust/unique.h>
@@ -52,7 +52,7 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		PairPrevalenceFilter::PairPrevalenceFilter(
+		PrevalentTypedPairProvider::PrevalentTypedPairProvider(
 			std::vector<TypeCount>& typesCounts
 			, IntanceTablesMapCreator::ITMPackPtr itmPack
 		) :  typeCountMap(std::map<unsigned int, unsigned short>())
@@ -65,15 +65,13 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		PairPrevalenceFilter::~PairPrevalenceFilter()
+		PrevalentTypedPairProvider::~PrevalentTypedPairProvider()
 		{
 
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		
-
-		thrust::device_vector<FeatureTypePair> PairPrevalenceFilter::getPrevalentPairConnections(
+		thrust::device_vector<FeatureTypePair> PrevalentTypedPairProvider::getPrevalentPairConnections(
 			float minimalPrevalence
 			, PlaneSweepTableInstanceResultPtr planeSweepResult
 		)
@@ -152,7 +150,7 @@ namespace Prevalence
 				, writePos.data()
 				);
 
-			cudaDeviceSynchronize();
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			unsigned int prevalentCount;
 			{
@@ -174,15 +172,17 @@ namespace Prevalence
 			
 			thrust::device_vector<FeatureTypePair> dResult(prevalentCount);
 			
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 			writeThroughtMask <<< grid, 256 >>> (
 				uniquesCount
 				, transformed.data()
 				, flags.data()
 				, writePos.data()
 				, dResult.data()
-				);
+			);
 				
-			cudaDeviceSynchronize();
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			return dResult;
 		}

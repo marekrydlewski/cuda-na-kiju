@@ -51,17 +51,21 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | single size-2")
 		, typedPairInstancesPack
 		, instanceTypedNeighbursPack);
 
-	InstanceTree::CliquesCandidates cc = {
+	Entities::CliquesCandidates cc = {
 		{ 0x000A, 0x000B }
 	};
 
-	auto result = instanceTree.getInstancesResult(cc);
+	auto ccOnGpu = Entities::moveCliquesCandidatesToGpu(cc);
+	auto result = instanceTree.getInstancesResult(ccOnGpu);
 
 	thrust::host_vector<FeatureInstance> calculated = result->instances;
 
 	std::vector<FeatureInstance> expected = { { 0x000A0000 }, { 0x000B0000 } };
-
 	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
+
+	std::vector<unsigned int> expectedInstancesId = { 0 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = result->instancesCliqueId;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
 }
 
 
@@ -109,13 +113,14 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | multiple size-2")
 		, typedPairInstancesPack
 		, instanceTypedNeighbursPack);
 
-	InstanceTree::CliquesCandidates cc = {
+	Entities::CliquesCandidates cc = {
 		{ 0x000A, 0x000B }
 		, { 0x000A, 0x000C }
 		, { 0x000B, 0x000C }
 	};
 
-	auto result = instanceTree.getInstancesResult(cc);
+	auto ccOnGpu = Entities::moveCliquesCandidatesToGpu(cc);
+	auto result = instanceTree.getInstancesResult(ccOnGpu);
 
 	thrust::host_vector<FeatureInstance> calculated = result->instances;
 
@@ -125,6 +130,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | multiple size-2")
 	};
 
 	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
+
+	std::vector<unsigned int> expectedInstancesId = { 0, 1, 2 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = result->instancesCliqueId;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
+
 }
 
 /*
@@ -185,11 +195,12 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | single size-3")
 		, typedPairInstancesPack
 		, instanceTypedNeighbursPack);
 
-	InstanceTree::CliquesCandidates cc = {
+	Entities::CliquesCandidates cc = {
 		{ 0x000A, 0x000B, 0x000C }
 	};
 
-	auto result = instanceTree.getInstancesResult(cc);
+	auto ccOnGpu = Entities::moveCliquesCandidatesToGpu(cc);
+	auto result = instanceTree.getInstancesResult(ccOnGpu);
 
 	thrust::host_vector<FeatureInstance> calculated = result->instances;
 
@@ -198,6 +209,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | single size-3")
 	};
 
 	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
+
+	std::vector<unsigned int> expectedInstancesId = { 0 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = result->instancesCliqueId;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
+
 }
 
 /*
@@ -258,12 +274,13 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | multiple size-3")
 		, typedPairInstancesPack
 		, instanceTypedNeighbursPack);
 
-	InstanceTree::CliquesCandidates cc = {
+	Entities::CliquesCandidates cc = {
 		 { 0x000A, 0x000B, 0x000C }
 		,{ 0x000B, 0x000C, 0x000D }
 	};
 
-	auto result = instanceTree.getInstancesResult(cc);
+	auto ccOnGpu = Entities::moveCliquesCandidatesToGpu(cc);
+	auto result = instanceTree.getInstancesResult(ccOnGpu);
 
 	thrust::host_vector<FeatureInstance> calculated = result->instances;
 
@@ -274,6 +291,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | multiple size-3")
 	};
 
 	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
+
+	std::vector<unsigned int> expectedInstancesId = { 0, 1, 1 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = result->instancesCliqueId;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
+
 }
 
 /*
@@ -340,11 +362,12 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | single size-5")
 		, typedPairInstancesPack
 		, instanceTypedNeighbursPack);
 
-	InstanceTree::CliquesCandidates cc = {
+	Entities::CliquesCandidates cc = {
 		{ 0x000A, 0x000B, 0x000C, 0x000D, 0x000E }
 	};
 
-	auto result = instanceTree.getInstancesResult(cc);
+	auto ccOnGpu = Entities::moveCliquesCandidatesToGpu(cc);
+	auto result = instanceTree.getInstancesResult(ccOnGpu);
 
 	thrust::host_vector<FeatureInstance> calculated = result->instances;
 
@@ -353,6 +376,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | single size-5")
 	};
 
 	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
+
+	std::vector<unsigned int> expectedInstancesId = { 0 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = result->instancesCliqueId;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
+
 }
 
 /*
@@ -454,11 +482,12 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | complex 1")
 		, typedPairInstancesPack
 		, instanceTypedNeighbursPack);
 
-	InstanceTree::CliquesCandidates cc = {
+	Entities::CliquesCandidates cc = {
 		{ 0x000A, 0x000B, 0x000C, 0x000D}
 	};
 
-	auto result = instanceTree.getInstancesResult(cc);
+	auto ccOnGpu = Entities::moveCliquesCandidatesToGpu(cc);
+	auto result = instanceTree.getInstancesResult(ccOnGpu);
 
 	thrust::host_vector<FeatureInstance> calculated = result->instances;
 
@@ -470,6 +499,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | complex 1")
 	};
 
 	REQUIRE(std::equal(expected.begin(), expected.end(), calculated.begin()));
+
+	std::vector<unsigned int> expectedInstancesId = { 0, 0 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = result->instancesCliqueId;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
+
 }
 
 /*
@@ -571,11 +605,12 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree | complex 2 (zero candidate
 		, typedPairInstancesPack
 		, instanceTypedNeighbursPack);
 
-	InstanceTree::CliquesCandidates cc = {
+	Entities::CliquesCandidates cc = {
 		{ 0x000A, 0x000B, 0x000C, 0x000D, 0x000E }
 	};
 
-	auto result = instanceTree.getInstancesResult(cc);
+	auto ccOnGpu = Entities::moveCliquesCandidatesToGpu(cc);
+	auto result = instanceTree.getInstancesResult(ccOnGpu);
 
 	thrust::host_vector<FeatureInstance> calculated = result->instances;
 

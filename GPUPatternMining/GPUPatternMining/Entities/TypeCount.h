@@ -27,4 +27,5 @@ struct TypeCount
 
 
 typedef std::vector<TypeCount> TypesCounts;
+typedef std::shared_ptr<TypesCounts> TypesCountsPtr;
 // ------------------------------------------------------------------------------

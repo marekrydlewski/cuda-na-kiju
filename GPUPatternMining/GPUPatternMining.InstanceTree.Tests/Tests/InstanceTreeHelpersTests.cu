@@ -1054,7 +1054,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 		{
 			FeatureInstance fi;
 
-			fi.field = 0x000A0001; 
+			fi.field = 0x000A0001;
 			hFirstLevelInstances.push_back(fi);
 
 			fi.field = 0x000A0002;
@@ -1160,12 +1160,12 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 
 		forGroupGroupsDevPtrs = tempDevPtr;
 	}
-	
+
 	// write positions
 	thrust::device_vector<unsigned int> writePositions;
 	{
 		std::vector<unsigned int> hWritePositions = { 0, 1, 1, 2 };
-		writePositions = hWritePositions;			
+		writePositions = hWritePositions;
 	}
 
 	// integrity mask
@@ -1176,17 +1176,19 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 	}
 
 	// result
-	
+
 	const unsigned int endCount = 4;
 	const unsigned int consistentCount = 3;
 	const unsigned int cliqueSize = 3;
 
 	thrust::device_vector<FeatureInstance> result(consistentCount * cliqueSize);
 
+	thrust::device_vector<unsigned int> instancesCliques(consistentCount);
+
 	dim3 insertGrid;
 	findSmallest2D(endCount, 256, insertGrid.x, insertGrid.y);
 
-	reverseGenerateCliquesInstances <<< insertGrid, 256 >>> (
+	reverseGenerateCliquesInstances << < insertGrid, 256 >> > (
 		forGroupGroupsDevPtrs.data().get()
 		, instancesOnLevels.data().get()
 		, endCount
@@ -1195,7 +1197,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 		, integrityMask.data()
 		, writePositions.data()
 		, result.data()
-	);
+		, instancesCliques.data()
+		);
 
 
 	/*
@@ -1219,10 +1222,14 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	thrust::host_vector<FeatureInstance> copmuted = result;
-
 	REQUIRE(std::equal(expected.begin(), expected.end(), copmuted.begin()));
-}
 
+	std::vector<unsigned int> expectedInstancesId = { 0, 0, 1 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = instancesCliques;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
+
+
+}
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate simple 2")
 {
@@ -1365,6 +1372,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 	dim3 insertGrid;
 	findSmallest2D(endCount, 256, insertGrid.x, insertGrid.y);
 
+	thrust::device_vector<unsigned int> instancesCliques(consistentCount);
+
 	reverseGenerateCliquesInstances << < insertGrid, 256 >> > (
 		forGroupGroupsDevPtrs.data().get()
 		, instancesOnLevels.data().get()
@@ -1374,6 +1383,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 		, integrityMask.data()
 		, writePositions.data()
 		, result.data()
+		, instancesCliques.data()
 		);
 
 
@@ -1400,6 +1410,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 	thrust::host_vector<FeatureInstance> copmuted = result;
 
 	REQUIRE(std::equal(expected.begin(), expected.end(), copmuted.begin()));
+
+	std::vector<unsigned int> expectedInstancesId = { 0, 0, 1 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = instancesCliques;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate simple 2-size")
@@ -1512,6 +1526,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 	dim3 insertGrid;
 	findSmallest2D(endCount, 256, insertGrid.x, insertGrid.y);
 
+	thrust::device_vector<unsigned int> instancesCliques(consistentCount);
+
 	reverseGenerateCliquesInstances << < insertGrid, 256 >> > (
 		forGroupGroupsDevPtrs.data().get()
 		, instancesOnLevels.data().get()
@@ -1521,6 +1537,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 		, integrityMask.data()
 		, writePositions.data()
 		, result.data()
+		, instancesCliques.data()
 		);
 
 
@@ -1542,6 +1559,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | reverese generate
 	thrust::host_vector<FeatureInstance> copmuted = result;
 
 	REQUIRE(std::equal(expected.begin(), expected.end(), copmuted.begin()));
+
+	std::vector<unsigned int> expectedInstancesId = { 0, 1, 1, 1 };
+	thrust::host_vector<unsigned int> calculatedCliqueId = instancesCliques;
+	REQUIRE(std::equal(expectedInstancesId.begin(), expectedInstancesId.end(), calculatedCliqueId.begin()));
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | generate write positions")

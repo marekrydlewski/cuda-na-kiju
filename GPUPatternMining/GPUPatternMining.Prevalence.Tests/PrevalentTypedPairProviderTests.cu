@@ -12,7 +12,7 @@
 #include "BaseCudaTestHandler.h"
 
 #include "../GPUPatternMining/HashMap/gpuhashmapper.h"
-#include "../GPUPatternMining/Prevalence/UniquePairPrevalence.h"
+#include "../GPUPatternMining/Prevalence/PrevalentTypedPairProvider.h"
 #include "../GPUPatternMining/InstanceTree/IntanceTablesMapCreator.h"
 
 
@@ -26,7 +26,7 @@
 
 	A0-B0-C0-B1-A1-C1
 */
-TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple")
+TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | simple")
 {
 	std::vector<TypeCount> counts;
 	{
@@ -111,7 +111,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple")
 		itmPack->begins = indices;
 	}
 	
-	Prevalence::UniqueFilter::PairPrevalenceFilter bppc(
+	Prevalence::UniqueFilter::PrevalentTypedPairProvider bppc(
 		counts, itmPack);
 
 	thrust::host_vector<FeatureTypePair> result = bppc.getPrevalentPairConnections(
@@ -143,7 +143,7 @@ A4-B4
    |
 A6-C4
 */
-TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple 2")
+TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | simple 2")
 {
 	std::vector<TypeCount> counts;
 	{
@@ -258,7 +258,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple 2")
 		itmPack->begins = indices;
 	}
 
-	Prevalence::UniqueFilter::PairPrevalenceFilter bppc(
+	Prevalence::UniqueFilter::PrevalentTypedPairProvider bppc(
 		counts, itmPack);
 
 	thrust::host_vector<FeatureTypePair> result = bppc.getPrevalentPairConnections(
@@ -284,7 +284,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | simple 2")
 	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
 }
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | flag setter")
+TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | flag setter")
 {
 	thrust::device_vector<float> resultA;
 	{
@@ -334,7 +334,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | flag setter")
 // -----------------------------------------------------------------
 
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | unique tuple functor")
+TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | unique tuple functor")
 {
 	thrust::device_vector<FeatureInstance> pairsA;
 	{
@@ -409,7 +409,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | unique tuple fu
 	REQUIRE(std::equal(expected.begin(), expected.end(), res.begin()));
 }
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | unary transfrom")
+TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | unary transfrom")
 {
 	const unsigned int uniquesCount = 34;
 
@@ -463,7 +463,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | unary transfrom
 /*
 	uniques = { { A1-B1}, {B1-C1}, {C1-D1} ... }
 */
-TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | write throught mask")
+TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | write throught mask")
 {
 	const unsigned int uniquesCount = 34;
 
@@ -529,7 +529,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | write throught 
 }
 // -----------------------------------------------------------------
 
-TEST_CASE_METHOD(BaseCudaTestHandler, "UniqueFilter prevalence | FeaturePairType union fields order")
+TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | FeaturePairType union fields order")
 {
 	FeatureTypePair ftp;
 

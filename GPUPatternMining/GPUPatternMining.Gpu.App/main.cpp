@@ -35,13 +35,21 @@ int main()
 	{
 		alg.filterPrevalentTypedConnectionsPrepareData();
 	});
-	/*
+	
 	bmkGpu.run("filter prevalent type connections", 1, [&]()
 	{
 		alg.filterPrevalentTypedConnections(prevalence);
 	});
-	*/
+	
+	bmkGpu.run("construct candidates (prepare data)", 1, [&]()
+	{
+		alg.constructMaximalCliquesPrepareData();
+	});
 
+	bmkGpu.run("construct candidates", 1, [&]()
+	{
+		alg.constructMaximalCliques();
+	});
 
 	bmkGpu.print("gpu algorithm", std::cout);
 

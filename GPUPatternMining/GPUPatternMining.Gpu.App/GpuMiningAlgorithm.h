@@ -4,6 +4,7 @@
 #include "../GPUPatternMining/PlaneSweep/PlaneSweepTableInstanceResult.h"
 #include "../GPUPatternMining/InstanceTree/IntanceTablesMapCreator.h"
 #include "../GPUPatternMining/Entities/TypeCount.h"
+#include "../GPUPatternMining.Contract/Graph.h"
 
 // ------------------------------------------------------------------------------------------------
 
@@ -20,6 +21,10 @@ public:
 	void filterPrevalentTypedConnectionsPrepareData();
 
 	void filterPrevalentTypedConnections(float minimalPrevalence);
+
+	void constructMaximalCliquesPrepareData();
+
+	void constructMaximalCliques();
 
 private:
 
@@ -42,4 +47,6 @@ private:
 	std::shared_ptr<FilterByDistanceGpuData> filterByDistanceGpuData;
 	IntanceTablesMapCreator::ITMPackPtr itmPack;
 	thrust::host_vector<FeatureTypePair> prevalentTypesConnections;
+	Graph graphForKerbosh;
+	std::vector<std::vector<unsigned short>> candidates;
 };

@@ -90,3 +90,35 @@ void GpuMiningAlgorithm::filterPrevalentTypedConnections(float minimalPrevalence
 		, planeSweepResult
 	);
 }
+
+void GpuMiningAlgorithm::constructMaximalCliquesPrepareData()
+{
+	graphForKerbosh.setSize(typeIncidenceCounter.size());
+
+	for (FeatureTypePair& ftp : prevalentTypesConnections)
+		graphForKerbosh.addEdge(ftp.types.a, ftp.types.b);
+
+
+}
+
+void GpuMiningAlgorithm::constructMaximalCliques()
+{
+	auto degeneracy = graphForKerbosh.getDegeneracy();
+	int count = 0;
+	for (unsigned short const vertex : degeneracy.second)
+	{
+		std::vector<unsigned short> neighboursWithHigherIndices = graphForKerbosh.getVertexNeighboursOfHigherIndex(vertex);
+		std::vector<unsigned short> neighboursWithLowerIndices = graphForKerbosh.getVertexNeighboursOfLowerIndex(vertex);
+		std::vector<unsigned short> thisVertex = { vertex };
+
+		auto generatedCliques = graphForKerbosh.bkPivot(
+			neighboursWithHigherIndices,
+			thisVertex,
+			neighboursWithLowerIndices);
+
+		candidates.insert(candidates.end(), generatedCliques.begin(), generatedCliques.end());
+		++count;
+	}
+
+	std::sort(candidates.begin(), candidates.end());
+}

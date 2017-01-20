@@ -111,6 +111,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | simple")
 		itmPack->begins = indices;
 	}
 	
+	itmPack->count = itmPack->uniques.size();
+
 	Prevalence::UniqueFilter::PrevalentTypedPairProvider bppc(
 		counts, itmPack);
 
@@ -258,6 +260,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | simple 2")
 		itmPack->begins = indices;
 	}
 
+	itmPack->count = itmPack->uniques.size();
+
 	Prevalence::UniqueFilter::PrevalentTypedPairProvider bppc(
 		counts, itmPack);
 
@@ -374,7 +378,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "PrevalentTypedPairProvider | unique tuple
 		std::vector<unsigned int> hcounts = { 2, 1, 2 };
 		counts = hcounts;
 	}
-
 
 	thrust::device_vector<unsigned int> typesCounts;
 	{

@@ -76,10 +76,8 @@ namespace Prevalence
 			, PlaneSweepTableInstanceResultPtr planeSweepResult
 		)
 		{
-			const unsigned int uniquesCount = itmPack->uniques.size();
+			const unsigned int uniquesCount = itmPack->count;
 			thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> localUniques = itmPack->uniques;
-
-			std::vector<unsigned int> pending;
 
 			thrust::device_vector<unsigned int> aCounts;
 			thrust::device_vector<unsigned int> bCounts;
@@ -148,7 +146,7 @@ namespace Prevalence
 				, bResults.data()
 				, flags.data()
 				, writePos.data()
-				);
+			);
 
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
@@ -165,7 +163,7 @@ namespace Prevalence
 			thrust::transform(
 				thrust::device
 				, itmPack->uniques.begin()
-				, itmPack->uniques.end()
+				, itmPack->uniques.begin() + uniquesCount
 				, transformed.begin()
 				, f_trans
 			);

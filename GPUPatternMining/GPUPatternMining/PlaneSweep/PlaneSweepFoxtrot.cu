@@ -73,8 +73,12 @@ namespace PlaneSweep
 					for (int j = i - 32; j >= -32; j -= 32)
 					{
 						int localId = warpThreadId + j;
+
 						if (localId >= 0)
 						{
+							if (instances[i].fields.featureId == instances[localId].fields.featureId)
+								continue;
+
 							float lx = xCoords[localId];
 
 							if ((px - lx) > radius)
@@ -86,8 +90,7 @@ namespace PlaneSweep
 
 							if ((MiningCommon::distance(px, py, lx, ly) <= radiusSquared))
 							{
-								if (instances[i] != instances[localId])
-									found[blockThreadId] += 1;
+								found[blockThreadId] += 1;
 							}
 						}
 
@@ -197,6 +200,9 @@ namespace PlaneSweep
 
 						if (localId >= 0)
 						{
+							if (instances[i].fields.featureId == instances[localId].fields.featureId)
+								continue;
+
 							float lx = xCoords[localId];
 
 							if ((px - lx) > radius)
@@ -206,26 +212,24 @@ namespace PlaneSweep
 
 							float ly = yCoords[localId];
 
-							if (instances[i] != instances[localId])
+							
+							if ((MiningCommon::distance(px, py, lx, ly) <= radiusSquared))
 							{
-								if ((MiningCommon::distance(px, py, lx, ly) <= radiusSquared))
+								found[blockThreadId] = true;
+
+								if (instances[i].fields.featureId < instances[localId].fields.featureId
+									|| instances[i].fields.instanceId < instances[localId].fields.instanceId)
 								{
-									found[blockThreadId] = true;
-
-									if (instances[i].fields.featureId < instances[localId].fields.featureId
-										|| instances[i].fields.instanceId < instances[localId].fields.instanceId)
-									{
-										temp_a = instances[i];
-										temp_b = instances[localId];
-									}
-									else
-									{
-										temp_a = instances[localId];
-										temp_b = instances[i];
-									}
-
-									scanBuf[blockThreadId] = 1;
+									temp_a = instances[i];
+									temp_b = instances[localId];
 								}
+								else
+								{
+									temp_a = instances[localId];
+									temp_b = instances[i];
+								}
+
+								scanBuf[blockThreadId] = 1;
 							}
 						}
 

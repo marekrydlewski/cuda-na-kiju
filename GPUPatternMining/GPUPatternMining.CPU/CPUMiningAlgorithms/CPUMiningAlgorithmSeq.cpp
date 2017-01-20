@@ -161,6 +161,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 
 	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
 	{
+		std::sort(cliquesToProcess[i].begin(), cliquesToProcess[i].end());
 		//no need to 'while' here, getPrevalentMaxCliques edits cliquesToProcess but in other rows
 		for (auto& clique : cliquesToProcess[i])
 		{
@@ -385,10 +386,11 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 				}
 				else
 				{
-					cliquesToProcess[clique.size() - 2].insert(
-						cliquesToProcess[clique.size() - 2].end(),
-						smallerCliques.begin(),
-						smallerCliques.end());
+					std::sort(smallerCliques.begin(), smallerCliques.end());
+					std::vector<std::vector<unsigned short>> tmp(cliquesToProcess[clique.size() - 2].size() + smallerCliques.size());
+					auto it = std::set_union(cliquesToProcess[clique.size() - 2].begin(), cliquesToProcess[clique.size() - 2].end(), smallerCliques.begin(), smallerCliques.end(), tmp.begin());
+					tmp.resize(it - tmp.begin());
+					cliquesToProcess[clique.size() - 2] = tmp;
 				}
 			}
 		}

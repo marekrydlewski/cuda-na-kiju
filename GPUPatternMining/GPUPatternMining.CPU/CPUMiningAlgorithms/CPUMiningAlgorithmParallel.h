@@ -70,10 +70,9 @@ private:
 		std::vector<unsigned short>& clique,
 		float prevalence);
 
-	std::unordered_map<
+	std::map<
 		std::pair <unsigned short, unsigned short>,
-		std::pair<unsigned short, unsigned short>, 
-		pair_hash> countUniqueInstances();
+		std::pair<unsigned short, unsigned short>> countUniqueInstances();
 
 	std::vector<std::vector<ColocationElem>> constructCondensedTree(const std::vector<unsigned short>& Cm);
 

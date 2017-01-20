@@ -10,12 +10,16 @@
 class DataLoader
 {
 public:
-	DataLoader() 
+	DataLoader()
+		:data(nullptr)
+		, numberOfTypes(0)
+		, dataSize(0)
 	{
 	};
 	~DataLoader()
 	{
-		delete data;
+		if (data != nullptr)
+			delete data;
 	}
 	void loadFromTxtFile(std::string path)
 	{

@@ -1,11 +1,8 @@
 #include "CPUMiningAlgorithmSeq.h"
 
 #include "../../GPUPatternMining.Contract/CinsTree.h"
-#include "../../GPUPatternMining.Contract/CinsNode.h"
-#include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 
 #include <algorithm>
-#include <cassert>
 #include <iostream>
 #include <iterator>
 #include <chrono>
@@ -200,9 +197,9 @@ bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 }
 
 
-std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> CPUMiningAlgorithmSeq::countUniqueInstances()
+std::unordered_map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> CPUMiningAlgorithmSeq::countUniqueInstances()
 {
-	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
+	std::unordered_map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> typeIncidenceColocations;
 
 	//counting types incidence
 	for (auto& a : insTable)

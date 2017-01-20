@@ -316,15 +316,13 @@ bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 	return true;
 }
 
-std::unordered_map<
+std::map<
 	std::pair<unsigned short, unsigned short>,
-	std::pair<unsigned short, unsigned short>,
-	pair_hash> CPUMiningAlgorithmParallel::countUniqueInstances()
+	std::pair<unsigned short, unsigned short>> CPUMiningAlgorithmParallel::countUniqueInstances()
 {
-	std::unordered_map<
+	std::map<
 		std::pair <unsigned short, unsigned short>,
-		std::pair <unsigned short, unsigned short>,
-		pair_hash> typeIncidenceColocations;
+		std::pair <unsigned short, unsigned short>> typeIncidenceColocations;
 
 	int cores = concurrency::GetProcessorCount();
 	auto loadPerProcessor = getWorkloadForInsTable(cores);
@@ -492,7 +490,8 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 				{
 					for (auto smallerClique : smallerCliques)
 					{
-						cliquesToProcess[clique.size() - 2]->push_back(smallerClique);
+						if(std::find(cliquesToProcess[clique.size() - 2]->begin(), cliquesToProcess[clique.size() - 2]->end(), smallerClique) == cliquesToProcess[clique.size() - 2]->end())
+							cliquesToProcess[clique.size() - 2]->push_back(smallerClique);
 					}
 				}
 			}

@@ -5,7 +5,14 @@
     <CudaCompile Include="HashMap\gpuutils.cu" />
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
     <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
-    <CudaCompile Include="Prevalence\UniquePairPrevalence.cu" />
+    <CudaCompile Include="InstanceTree\InstanceTree.cu" />
+    <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu" />
+    <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
+    <CudaCompile Include="InstanceTree\InstanceTreeHelpers.cu" />
+    <CudaCompile Include="Prevalence\PrevalentTypedPairProvider.cu" />
+    <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.cu" />
+    <CudaCompile Include="Helpers\CliquesCandidatesHelpers.cu" />
+    <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProviderHelpers.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PairColocationsFiltering\CudaPairColocationFilter.cpp" />
@@ -24,6 +31,13 @@
     <ClInclude Include="Entities\TypeCount.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
     <ClInclude Include="Entities\FeatureTypePair.h" />
-    <ClInclude Include="Prevalence\UniquePairPrevalence.h" />
+    <ClInclude Include="InstanceTree\InstanceTree.h" />
+    <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
+    <ClInclude Include="InstanceTree\IntanceTablesMapCreator.h" />
+    <ClInclude Include="InstanceTree\InstanceTreeHelpers.h" />
+    <ClInclude Include="Prevalence\PrevalentTypedPairProvider.h" />
+    <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.h" />
+    <ClInclude Include="Helpers\CliquesCandidatesHelpers.h" />
+    <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProviderHelpers.h" />
   </ItemGroup>
 </Project>

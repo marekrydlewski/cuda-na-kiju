@@ -6,6 +6,7 @@
 \usepackage{geometry}
 \usepackage[nottoc]{tocbibind}
 \usepackage[linesnumbered]{algorithm2e}
+\usepackage{listings}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
@@ -18,6 +19,15 @@
  bottom=25mm,
  right=25mm,
  }
+\lstset{
+language=C++,
+basicstyle=\ttfamily,
+breaklines=true,
+breakatwhitespace=true,
+breakindent=2ex,
+postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookrightarrow\space}}
+}
+
 \begin{document}
 \begin{titlepage}
 	\centering
@@ -488,7 +498,140 @@ Po zakończeniu algorytmu pozostaje jeszcze wyliczenie indeksów powszechności 
 
 \newpage
 
-\section{Implementacja}
+\section{Implementacja CPU}
+
+\subsection{Ogólne założenia, opis klas i struktur pomocnicze}
+
+\subsubsection{Ogólne założenia}
+Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera implementacje metod pomocniczych oraz cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
+
+\begin{itemize}
+\item
+Filtrowanie sąsiadów na podstawie progu odległości:
+\begin{lstlisting}
+virtual void filterByDistance(float threshold) = 0;
+\end{lstlisting}
+
+\item
+Filtrowanie sąsiadów na podstawie progu minimalnej powszechności:
+\begin{lstlisting}
+virtual void filterByPrevalence(float prevalence) = 0;
+\end{lstlisting}
+
+\item
+Generowanie kandydatów na kolokacje maksymalne:
+\begin{lstlisting}
+virtual void constructMaximalCliques() = 0;
+\end{lstlisting}
+
+\item
+Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne i ich filtrowanie na podstawie progu minimalnej powszechności:
+\begin{lstlisting}
+virtual std::vector<std::vector<unsigned short>> 
+    filterMaximalCliques(float prevalence) = 0;
+\end{lstlisting}
+\end{itemize}
+
+Klasy CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel zawierają implementację owych metod odpowiednio w wersji sekwencyjnej jak i równoległej.
+
+W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz implementacji która za nimi stoi.
+
+\subsubsection{Opis struktur \& klas pomocniczych i ich implementacji}
+    
+\begin{itemize}
+\item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}. Zawiera wskaźnik do korzenia drzewa \raggedright \lstinline{std::unique_ptr<CinsNode> root}) oraz wektor \lstinline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
+
+\item CinsNode - Klasa zawierająca implementację pojedynczego węzła skondensowanego drzewa instancji \textit{CinsTree}. Obiekty tej klasy zawierają informacje o cesze \lstinline{unsigned short type} i numerze \lstinline{unsigned short instanceId} instancji przestrzennej, wektor wskaźników potomków \lstinline{std::vector<std::unique_ptr<CinsNode>> children} oraz wskaźnik pokazujący na rodzica danego węzła \lstinline{CinsNode* parent}. Klasa zawiera metody umożliwiające m.in.:
+
+\begin{itemize}
+\item dodanie potomka.
+\item zwrócenie potomka o danej cesze i numerze instancji.
+\item zwrócenie listy wszystkich przodków.
+\end{itemize}
+
+\item Graph - Klasa implementująca graf nieskierowany, bazująca na macierzy sąsiedztwa (ang. \textit{adjacency matrix}). Oprócz podstawowych metod umożliwiających działanie i budowanie grafu, klasa zawiera również metody pozwalające na:
+
+\begin{itemize}
+\item obliczenie maksymalnych klik w grafie za pomocą zmodyfikowanego algorytmu Brona-Kerboscha \cite{chinczyki}.
+\item obliczenie optymalnego \textit{pivotu} \cite{pivot} dla algorytmu Brona-Kerboscha.
+\item obliczenie stopnia degeneracji grafu (ang. \textit{degeneracy}) i uporządkowanie wierzchołków według miary degeneracji (ang.\textit{degeneracy ordering}) \cite{degenerat}.
+\end{itemize}
+
+\item CliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \lstinline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \lstinline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
+
+Weryfikację umożliwia algorytm: 
+\begin{lstlisting}
+bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
+{
+	assert(clique.size() >= 2);
+
+	std::vector<bool> types(cliquesCounter, false);
+	std::vector<bool> typesNew(cliquesCounter, false);
+
+	for (auto type : typesMap[clique[0]])
+	{
+		types[type] = true;
+	}
+
+	for (auto i = 1; i < clique.size(); ++i)
+	{
+		for (auto id : typesMap[clique[i]])
+		{
+			if (types[id]) typesNew[id] = true;
+		}
+		types = typesNew;
+		std::fill(typesNew.begin(), typesNew.end(), false);
+	}
+
+	if (std::find(types.begin(), types.end(), true) != types.end())
+		return true;
+
+	return false;
+}
+\end{lstlisting}
+	
+\item ParallelCliquesContainer
+\item RandomDataProvider
+\item SimulatedRealDataProvider
+\item Timer
+\item Benchmark
+
+\end{itemize}
+
+\subsection{Wersja sekwencyjna}
+
+\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
+Na tym etapie odbywa się generowanie dwuelementowych kandydatów na kolokacje i ich filtrowanie na podstawie progu odległości. Wykorzystano tutaj podejście tzw. \textit{wymiatania} (ang. \textit{plane sweep algorithm}) które jest paradygmatem algorytmów wykorzystywanych do rozwiązywania różnych problemów w przestrzeni euklidesowej. W zastosowanej implementacji można wyróżnić następujące kroki:
+\begin{itemize}
+\item Sortowanie wektora \lstinline{std::vector<DataFeed> source} zawierającego dane wejściowe. Wykorzystano tutaj sortowanie szybkie z biblioteki \lstinline{<algorithm>}. Kryterium sortowania jest tutaj relacja między arbitralnie wybranym wymiarem przestrzeni.
+\item Wyliczanie \textit{efektywnego progu odległości} przez podniesienie progu odległości do kwadratu - dzięki temu można uniknąć kosztownego pierwiastkowania przy obliczaniu odległości między dwoma punktami. Jest to możliwe, gdyż potrzebna jest tylko informacja o relacji między ową odległością a progiem odległości. Zbędna jest wiedza o rzeczywistej odległości między punktami.
+\item Dla każdego elementu danych iterujemy w wybranym kierunku sprawdzając odległość między tym punktem a aktualnie iterowanym, w przypadku gdy odległość jest mniejsza od progowej umieszczamy taki element na odpowiednim miejscu w \lstinline{insTable}. Główną ideą jest tutaj przerwanie wewnętrznej pętli gdy wartość bezwzględna różnicy posortowanych współrzędnych owych punktów jest większa od progu odległości tj. \textit{tutaj matematyczny wzorek}. Zajście takiej sytuacji gwarantuje, że odległość między każdym kolejnym punktem będzie większa od progu odległości, stąd możliwość przerwania pętli. 
+
+W odróżnieniu od pracy \cite{chinczyki}, w której zaproponowano dwuwymiarową hashmapę, \lstinline{insTable} zawierająca dwuelementowych kandydatów na kolokacje ma postać trójwymiarowej mapy wskaźników na wektor liczb:
+\begin{lstlisting}
+std::map<unsigned short, std::map<unsigned short,
+	std::map<unsigned short, std::vector<
+    	unsigned short>*>>> insTable;
+\end{lstlisting}
+ Pierwsze dwa wymiary określają typy elementów \textit{A} i \textit{B}, natomiast trzeci wymiar określa numer instancji przestrzennej \textit{A}. W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. Dodatkowo, dane są umieszczane w ten sposób że zawsze spełniona jest relacja \textit{tutaj matematyczny znaczek: numer cechy A \textless numer cechy B}. Taka implementacja umożliwia łatwe i efektywne odczytywanie sąsiadów o danej cesze konkretnej instancji przestrzennej.
+ 
+ \item Korzystając z faktu, że w trakcie działania metody następuje iteracja po wszystkich elementach, równocześnie tworzony jest wektor \lstinline{std::vector<unsigned short> typeIncidenceCounter}, w którym zliczane są wystąpienia kolejnych cech instancji przestrzennych.
+
+\end{itemize}
+\subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
+\subsubsection{Generowanie kandydatów na kolokacje maksymalne}
+\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
+\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
+
+\subsection{Wersja wielowątkowa}
+
+\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
+\subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
+\subsubsection{Generowanie kandydatów na kolokacje maksymalne}
+\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
+\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
+
+\section{Implementacja GPU}
 
 \section{Testy efektywnościowe}
 

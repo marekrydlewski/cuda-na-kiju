@@ -26,7 +26,9 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="UniquePrevalenceTesting.cu" />
+    <CudaCompile Include="AnyLengthInstancesUniquePrevalenceProviderHelpersTests.cu" />
+    <CudaCompile Include="AnyLengthInstancesUniquePrevalenceProviderTests.cu" />
+    <CudaCompile Include="PrevalentTypedPairProviderTests.cu" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GPUPatternMining.Contract\GPUPatternMining.Contract.vcxproj">

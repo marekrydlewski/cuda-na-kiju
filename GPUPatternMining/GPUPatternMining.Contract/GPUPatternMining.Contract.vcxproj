@@ -19,18 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ApplicationHelper.h" />
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="CinsNode.h" />
     <ClInclude Include="CinsTree.h" />
+    <ClInclude Include="DataLoader.h" />
     <ClInclude Include="CliquesContainer.h" />
     <ClInclude Include="Enity\DataFeed.h" />
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="PairHash.h" />
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h" />
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
     <ClInclude Include="ParallelCliquesContainer.h" />
     <ClInclude Include="RandomDataProvider.h" />
+    <ClInclude Include="SimulatedRealDataProvider.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -45,9 +49,20 @@
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="ParallelCliquesContainer.cpp" />
     <ClCompile Include="RandomDataProvider.cpp" />
+    <ClCompile Include="SimulatedRealDataProvider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="benchmark_visualizer.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resource Files\test1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resource Files\fastTestData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>

@@ -10,6 +10,9 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{08cd3841-380a-4991-9be8-38210210a89e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{44ea507a-71e7-488e-8768-ed92ee5a2f53}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Helpers">
       <UniqueIdentifier>{9cb4d56d-ec3f-456d-9135-d8b92bcc4264}</UniqueIdentifier>
     </Filter>
@@ -51,10 +54,22 @@
     <ClInclude Include="Benchmark.h">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="DataLoader.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulatedRealDataProvider.h">
+      <Filter>Providers</Filter>
+    </ClInclude>
     <ClInclude Include="CliquesContainer.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="ParallelCliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplicationHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="PairHash.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -71,6 +86,9 @@
     <ClCompile Include="CinsNode.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
+    <ClCompile Include="SimulatedRealDataProvider.cpp">
+      <Filter>Providers</Filter>
+    </ClCompile>
     <ClCompile Include="CliquesContainer.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -82,5 +100,15 @@
     <None Include="benchmark_visualizer.py">
       <Filter>Utilities</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resource Files\test1.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resource Files\fastTestData.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
   </ItemGroup>
 </Project>

@@ -189,7 +189,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="InstanceTree\InstanceTypedNeighboursMapCreator.h" />
     <ClInclude Include="InstanceTree\IntanceTablesMapCreator.h" />
     <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
-    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
     <ClInclude Include="PlaneSweep\PlaneSweepTableInstanceResult.h" />
     <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.h" />
     <ClInclude Include="Prevalence\AnyLengthInstancesUniquePrevalenceProviderHelpers.h" />
@@ -220,7 +219,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
     <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
-    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
     <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.cu" />
     <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProviderHelpers.cu" />
     <CudaCompile Include="Prevalence\PrevalentTypedPairProvider.cu" />

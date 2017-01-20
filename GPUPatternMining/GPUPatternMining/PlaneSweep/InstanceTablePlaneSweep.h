@@ -108,7 +108,7 @@ namespace PlaneSweep
 		tables are treated as zipped (tables values for specified id belong to one instance)
 		*/
 		__host__ void PlaneSweep(
-			thrust::device_vector<float> xCoords
+			thrust::device_vector<float>& xCoords
 			, thrust::device_vector<float>& yCoords
 			, thrust::device_vector<FeatureInstance>& instances
 			, UInt count
@@ -116,5 +116,11 @@ namespace PlaneSweep
 			, PlaneSweepTableInstanceResultPtr result
 		);
 		// --------------------------------------------------------------------------------------------------------------------------------------
+
+		void SortByXAxis(
+			thrust::device_vector<float>& xCoords
+			, thrust::device_vector<float>& yCoords
+			, thrust::device_vector<FeatureInstance>& instances
+		);
 	}
 }

@@ -50,6 +50,15 @@ void GpuMiningAlgorithm::filterByDistancePrepareData()
 	filterByDistanceGpuData->instances = hInstances;
 
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	PlaneSweep::InstanceTable::SortByXAxis(
+		filterByDistanceGpuData->x
+		, filterByDistanceGpuData->y
+		, filterByDistanceGpuData->instances
+	);
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 }
 
 void GpuMiningAlgorithm::filterByDistance(float threshold)

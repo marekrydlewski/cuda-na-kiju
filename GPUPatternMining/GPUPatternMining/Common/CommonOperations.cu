@@ -1,4 +1,5 @@
 #include "CommonOperations.h"
+#include <thrust/execution_policy.h>
 
 
 namespace MiningCommon
@@ -40,7 +41,7 @@ namespace MiningCommon
 		OutputZipIterator begin(thrust::make_tuple(aBegin, bBegin));
 		OutputZipIterator end(thrust::make_tuple(aEnd, bEnd));
 
-		thrust::sort(begin, end, FeatureInstanceComparator());
+		thrust::sort(thrust::device, begin, end, FeatureInstanceComparator());
 	}
 	//---------------------------------------------------------------------------------------------
 

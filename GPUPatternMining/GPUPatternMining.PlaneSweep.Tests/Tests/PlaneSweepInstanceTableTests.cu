@@ -18,7 +18,6 @@
 using namespace MiningCommon;
 //--------------------------------------------------------------
 
-
 /*
 	Test for graph
 
@@ -398,7 +397,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check countNeig
 		FeatureInstance fi;
 
 		fi.fields.instanceId = 0x0;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xC;
 		hostInstances[0] = fi;
 
 		fi.fields.instanceId = 0x1;
@@ -445,10 +444,6 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check countNeig
 	thrust::host_vector<UInt> hResult = result;
 
 	REQUIRE(std::equal(hResult.begin(), hResult.end(), expected.begin()));
-	
-	dx.clear();
-	dy.clear();
-	result.clear();
 }
 // ----------------------------------------------------------------------------
 
@@ -484,7 +479,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check countNeig
 		FeatureInstance fi;
 
 		fi.fields.instanceId = 0x0 + i;
-		fi.fields.featureId = 0xB;
+		fi.fields.featureId = 0xF;
 		hostInstances[i] = fi;
 	}
 
@@ -492,14 +487,14 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check countNeig
 		FeatureInstance fi;
 
 		fi.fields.instanceId = 0x0;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xC;
 		hostInstances[0] = fi;
 
-		fi.fields.instanceId = 0x2;
-		fi.fields.featureId = 0xA;
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xB;
 		hostInstances[32] = fi;
 
-		fi.fields.instanceId = 0x1;
+		fi.fields.instanceId = 0x2;
 		fi.fields.featureId = 0xA;
 		hostInstances[63] = fi;
 	}
@@ -521,9 +516,9 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check countNeig
 	float  distanceTresholdSquared = distanceTreshold * distanceTreshold;
 
 	PlaneSweep::InstanceTable::countNeighbours <<< grid, block >>> (
-		thrust::raw_pointer_cast(dx.data())
-		, thrust::raw_pointer_cast(dy.data())
-		, cInstances
+		dx.data().get()
+		, dy.data().get()
+		, instances.data().get()
 		, instancesCount
 		, distanceTreshold
 		, distanceTresholdSquared
@@ -750,19 +745,19 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 		FeatureInstance fi;
 
 		fi.fields.instanceId = 0x0 + i;
-		fi.fields.featureId = 0xB;
+		fi.fields.featureId = 0xF;
 		hostInstances[i] = fi;
 	}
 
 	{
 		FeatureInstance fi;
 
-		fi.fields.instanceId = 0x0;
-		fi.fields.featureId = 0xA;
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xC;
 		hostInstances[0] = fi;
 
-		fi.fields.instanceId = 0x1;
-		fi.fields.featureId = 0xA;
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xD;
 		hostInstances[63] = fi;
 	}
 
@@ -809,8 +804,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 	{
 		FeatureInstance fi;
 
-		fi.fields.instanceId = 0x0;
-		fi.fields.featureId = 0xA;
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xC;
 		hExpectedA[0] = fi;
 	}
 
@@ -818,8 +813,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 	{
 		FeatureInstance fi;
 
-		fi.fields.instanceId = 0x1;
-		fi.fields.featureId = 0xA;
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xD;
 		hExpectedB[0] = fi;
 	}
 
@@ -829,6 +824,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 	thrust::host_vector<FeatureInstance> resultsB = dResultB;
 
 	// Test output
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	REQUIRE(std::equal(std::begin(hExpectedA), std::end(hExpectedA), resultsA.begin()));
 	REQUIRE(std::equal(std::begin(hExpectedB), std::end(hExpectedB), resultsB.begin()));
@@ -866,7 +862,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 		FeatureInstance fi;
 
 		fi.fields.instanceId = 0x0 + i;
-		fi.fields.featureId = 0xB;
+		fi.fields.featureId = 0xF;
 		hostInstances[i] = fi;
 	}
 
@@ -878,11 +874,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 		hostInstances[0] = fi;
 
 		fi.fields.instanceId = 0x2;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xC;
 		hostInstances[32] = fi;
 
 		fi.fields.instanceId = 0x1;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xB;
 		hostInstances[63] = fi;
 	}
 
@@ -938,7 +934,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 		hExpectedA[0] = fi;
 
 		fi.fields.instanceId = 0x1;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xB;
 		hExpectedA[1] = fi;
 
 		fi.fields.instanceId = 0x0;
@@ -951,15 +947,15 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 		FeatureInstance fi;
 
 		fi.fields.instanceId = 0x2;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xC;
 		hExpectedB[0] = fi;
 
 		fi.fields.instanceId = 0x2;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xC;
 		hExpectedB[1] = fi;
 
 		fi.fields.instanceId = 0x1;
-		fi.fields.featureId = 0xA;
+		fi.fields.featureId = 0xB;
 		hExpectedB[2] = fi;
 	}
 
@@ -968,18 +964,354 @@ TEST_CASE_METHOD(BaseCudaTestHandler,"PlaneSweep_instanceTable | check findNeigh
 	thrust::host_vector<FeatureInstance> resultsA = dResultA;
 	thrust::host_vector<FeatureInstance> resultsB = dResultB;
 
-	// Test output
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 	
-	//for (int i = 0; i < 3; ++i)
-	//{
-	//	printf("exp [%#08x, %#08x] res [%#08x, %#08x] \n"
-	//		, hExpectedA[i].field, hExpectedB[i].field
-	//		, resultsA[i].field  , resultsB[i].field
-	//	);
-	//}
-	
-
 	REQUIRE(std::equal(std::begin(hExpectedA), std::end(hExpectedA), resultsA.begin()));
 	REQUIRE(std::equal(std::begin(hExpectedB), std::end(hExpectedB), resultsB.begin()));
+}
+// ----------------------------------------------------------------------------
+
+/*
+Test for graph
+
+D1-A0-A1-B2-C2-A3
+*/
+TEST_CASE_METHOD(BaseCudaTestHandler, "PlaneSweep_instanceTable | multiple count")
+{
+	unsigned int instancesCount = 6;
+	float distanceTreshold = 2;
+
+	std::vector<float> x = { 1, 2, 3, 4, 5, 6 };
+	std::vector<float> y = { 1, 1, 1, 1, 1, 1 };
+
+	thrust::device_vector<FeatureInstance> instances;
+	{
+		std::vector<FeatureInstance> hInstances;
+
+		FeatureInstance fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xD;
+		hInstances.push_back(fi);
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		hInstances.push_back(fi);
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		hInstances.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xB;
+		hInstances.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xC;
+		hInstances.push_back(fi);
+
+		fi.fields.instanceId = 0x3;
+		fi.fields.featureId = 0xA;
+		hInstances.push_back(fi);
+
+		instances = hInstances;
+	}
+
+
+	thrust::device_vector<float> dx = x;
+	thrust::device_vector<float> dy = y;
+
+	thrust::device_vector<UInt> result(instancesCount);
+
+	dim3 grid;
+	dim3 block(256, 1, 1);
+	int warpCount = instancesCount; // same as instances count
+	findSmallest2D(warpCount * 32, 256, grid.x, grid.y);
+
+	FeatureInstance* cInstances = thrust::raw_pointer_cast(instances.data());
+
+	float  distanceTresholdSquared = distanceTreshold * distanceTreshold;
+
+	PlaneSweep::InstanceTable::countNeighbours << < grid, block >> > (
+		thrust::raw_pointer_cast(dx.data())
+		, thrust::raw_pointer_cast(dy.data())
+		, cInstances
+		, instancesCount
+		, distanceTreshold
+		, distanceTresholdSquared
+		, warpCount
+		, thrust::raw_pointer_cast(result.data())
+		);
+
+	cudaThreadSynchronize();
+
+	std::vector<UInt> expected = { 0, 1, 1, 2, 2, 2};
+
+	thrust::host_vector<UInt> hResult = result;
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
+}
+// ----------------------------------------------------------------------------
+
+/*
+Test for graph
+
+D1-A0-A1-B2-C2-A3
+*/
+TEST_CASE_METHOD(BaseCudaTestHandler, "PlaneSweep_instanceTable | multiple find")
+{
+	unsigned int instancesCount = 6;
+	float distanceTreshold = 2;
+
+	std::vector<float> x = { 1, 2, 3, 4, 5, 6 };
+	std::vector<float> y = { 1, 1, 1, 1, 1, 1 };
+
+	thrust::device_vector<FeatureInstance> instances(instancesCount);
+	{
+	FeatureInstance fi;
+
+	fi.fields.instanceId = 0x1;
+	fi.fields.featureId = 0xD;
+	instances[0] = fi;
+
+	fi.fields.instanceId = 0x0;
+	fi.fields.featureId = 0xA;
+	instances[1] = fi;
+
+	fi.fields.instanceId = 0x1;
+	fi.fields.featureId = 0xA;
+	instances[2] = fi;
+
+	fi.fields.instanceId = 0x2;
+	fi.fields.featureId = 0xB;
+	instances[3] = fi;
+
+	fi.fields.instanceId = 0x2;
+	fi.fields.featureId = 0xC;
+	instances[4] = fi;
+
+	fi.fields.instanceId = 0x3;
+	fi.fields.featureId = 0xA;
+	instances[5] = fi;
+	}
+
+
+	thrust::device_vector<float> dx = x;
+	thrust::device_vector<float> dy = y;
+
+	thrust::device_vector<UInt> result(instancesCount);
+
+	dim3 grid;
+	dim3 block(256, 1, 1);
+	int warpCount = instancesCount; // same as instances count
+	findSmallest2D(warpCount * 32, 256, grid.x, grid.y);
+
+	FeatureInstance* cInstances = thrust::raw_pointer_cast(instances.data());
+
+	float  distanceTresholdSquared = distanceTreshold * distanceTreshold;
+
+	std::vector<UInt> startPositions = { 0, 0, 1, 2, 4, 6 };
+	thrust::device_vector<UInt> dStartPositions = startPositions;
+
+
+	thrust::device_vector<FeatureInstance> dResultA(8);
+	thrust::device_vector<FeatureInstance> dResultB(8);
+
+	PlaneSweep::InstanceTable::findNeighbours << < grid, block >> > (
+		thrust::raw_pointer_cast(dx.data())
+		, thrust::raw_pointer_cast(dy.data())
+		, cInstances
+		, instancesCount
+		, distanceTreshold
+		, distanceTresholdSquared
+		, warpCount
+		, thrust::raw_pointer_cast(dStartPositions.data())
+		, thrust::raw_pointer_cast(dResultA.data())
+		, thrust::raw_pointer_cast(dResultB.data())
+		);
+
+	cudaThreadSynchronize();
+
+	// Initialize expected output
+
+	std::vector<FeatureInstance> expectedA;
+	{
+		FeatureInstance fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		expectedA.push_back(fi);
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		expectedA.push_back(fi);
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		expectedA.push_back(fi);
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		expectedA.push_back(fi);
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		expectedA.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xB;
+		expectedA.push_back(fi);
+
+		fi.fields.instanceId = 0x3;
+		fi.fields.featureId = 0xA;
+		expectedA.push_back(fi);
+
+		fi.fields.instanceId = 0x3;
+		fi.fields.featureId = 0xA;
+		expectedA.push_back(fi);
+	}
+
+	std::vector<FeatureInstance> expectedB;
+	{
+		FeatureInstance fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xD;
+		expectedB.push_back(fi);
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xD;
+		expectedB.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xB;
+		expectedB.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xB;
+		expectedB.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xC;
+		expectedB.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xC;
+		expectedB.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xB;
+		expectedB.push_back(fi);
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xC;
+		expectedB.push_back(fi);
+	}
+
+	// Fetch result from cuda memory
+
+	thrust::host_vector<FeatureInstance> resultsA = dResultA;
+	thrust::host_vector<FeatureInstance> resultsB = dResultB;
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	REQUIRE(std::equal(expectedA.begin(), expectedA.end(), resultsA.begin()));
+	REQUIRE(std::equal(expectedB.begin(), expectedB.end(), resultsB.begin()));
+}
+// ----------------------------------------------------------------------------
+
+/*
+Test for graph
+
+D1-A0-A1-B2-C2-A3
+*/
+TEST_CASE_METHOD(BaseCudaTestHandler, "PlaneSweep_instanceTable | multiple ")
+{
+	unsigned int instancesCount = 6;
+	float distanceTreshold = 2;
+
+	std::vector<float> x = { 1, 2, 3, 4, 5, 6 };
+	std::vector<float> y = { 1, 1, 1, 1, 1, 1 };
+
+	thrust::device_vector<FeatureInstance> instances(instancesCount);
+	{
+		FeatureInstance fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xD;
+		instances[0] = fi;
+
+		fi.fields.instanceId = 0x0;
+		fi.fields.featureId = 0xA;
+		instances[1] = fi;
+
+		fi.fields.instanceId = 0x1;
+		fi.fields.featureId = 0xA;
+		instances[2] = fi;
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xB;
+		instances[3] = fi;
+
+		fi.fields.instanceId = 0x2;
+		fi.fields.featureId = 0xC;
+		instances[4] = fi;
+
+		fi.fields.instanceId = 0x3;
+		fi.fields.featureId = 0xA;
+		instances[5] = fi;
+	}
+
+	thrust::device_vector<float> dx = x;
+	thrust::device_vector<float> dy = y;
+
+	PlaneSweepTableInstanceResultPtr result = std::make_shared<PlaneSweepTableInstanceResult>();
+
+	PlaneSweep::InstanceTable::PlaneSweep(
+		dx
+		, dy
+		, instances
+		, instancesCount
+		, distanceTreshold
+		, result
+	);
+
+	cudaDeviceSynchronize();
+
+	std::vector<FeatureInstance> expectedA = {
+		{ 0x000A0000 }
+		,{ 0x000A0001 }
+		,{ 0x000A0003 }
+
+		,{ 0x000A0001 }
+		,{ 0x000A0003 }
+
+		,{ 0x000A0000 }
+		,{ 0x000A0001 }
+
+		,{ 0x000B0002 }
+	};
+
+	std::vector<FeatureInstance> expectedB = {
+		 { 0x000B0002 }
+		,{ 0x000B0002 }
+		,{ 0x000B0002}
+
+		,{ 0x000C0002 }
+		,{ 0x000C0002 }
+
+		,{ 0x000D0001 }
+		,{ 0x000D0001 }
+
+		,{ 0x000C0002 }
+	};
+
+	thrust::host_vector<FeatureInstance> resultsA = result->pairsA;
+	thrust::host_vector<FeatureInstance> resultsB = result->pairsB;
+
+	REQUIRE(std::equal(expectedA.begin(), expectedA.end(), resultsA.begin()));
+	REQUIRE(std::equal(expectedB.begin(), expectedB.end(), resultsB.begin()));
 }
 // ----------------------------------------------------------------------------

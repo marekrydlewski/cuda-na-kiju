@@ -593,8 +593,35 @@ bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
 \item ParallelCliquesContainer
 \item RandomDataProvider
 \item SimulatedRealDataProvider
-\item Timer
-\item Benchmark
+\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej dla pary \lstinline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \lstinline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \lstinline{hash_combine} z biblioteki \textit{boost}:
+
+\begin{lstlisting}
+struct pair_hash {
+	template <class T1, class T2>
+	std::size_t operator () (const std::pair<T1, T2> &p) const {
+		std::size_t seed1(0);
+		::hash_combine(seed1, p.first);
+		::hash_combine(seed1, p.second);
+
+		std::size_t seed2(0);
+		::hash_combine(seed2, p.second);
+		::hash_combine(seed2, p.first);
+
+		return std::min(seed1, seed2);
+	}
+};
+\end{lstlisting}
+
+Funkcja hash\_combine:
+\begin{lstlisting}
+template<typename T>
+void hash_combine(std::size_t &seed, T const &key) {
+	std::hash<T> hasher;
+	seed ^= hasher(key) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+};
+\end{lstlisting}
+\item Timer - Generyczna klasa umożliwiająca pomiar czasu dla dowolnej funkcji lub funktora z dowolną liczbą argumentów. Zapewnia ustawienie dowolnego typu zegara i dokładności pomiaru. Odpowiada za sprawdzenie czasu wykonywania poszczególnych kroków algorytmu.
+\item Benchmark - 
 
 \end{itemize}
 
@@ -609,11 +636,11 @@ Na tym etapie odbywa się generowanie dwuelementowych kandydatów na kolokacje i
 
 W odróżnieniu od pracy \cite{chinczyki}, w której zaproponowano dwuwymiarową hashmapę, \lstinline{insTable} zawierająca dwuelementowych kandydatów na kolokacje ma postać trójwymiarowej mapy wskaźników na wektor liczb:
 \begin{lstlisting}
-std::map<unsigned short, std::map<unsigned short,
-	std::map<unsigned short, std::vector<
+std::unorderd_map<unsigned short, std::unordered_map<unsigned short,
+	std::unordered_map<unsigned short, std::vector<
     	unsigned short>*>>> insTable;
 \end{lstlisting}
- Pierwsze dwa wymiary określają typy elementów \textit{A} i \textit{B}, natomiast trzeci wymiar określa numer instancji przestrzennej \textit{A}. W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. Dodatkowo, dane są umieszczane w ten sposób że zawsze spełniona jest relacja \textit{tutaj matematyczny znaczek: numer cechy A \textless numer cechy B}. Taka implementacja umożliwia łatwe i efektywne odczytywanie sąsiadów o danej cesze konkretnej instancji przestrzennej.
+ Pierwsze dwa wymiary określają typy elementów \textit{A} i \textit{B}, natomiast trzeci wymiar określa numer instancji przestrzennej \textit{A}. W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. Dodatkowo, dane są umieszczane w ten sposób że zawsze spełniona jest relacja \textit{tutaj matematyczny znaczek: numer cechy A \textless numer cechy B}. Taka implementacja umożliwia łatwe i efektywne odczytywanie sąsiadów o danej cesze konkretnej instancji przestrzennej. Wykorzystanie \lstinline{std::unordered_map} zamiast \lstinline{std::map} pomimo większego zużycia pamięci znacząco (kilkukrotnie) zwiększa wydajność przeglądania map. 
  
  \item Korzystając z faktu, że w trakcie działania metody następuje iteracja po wszystkich elementach, równocześnie tworzony jest wektor \lstinline{std::vector<unsigned short> typeIncidenceCounter}, w którym zliczane są wystąpienia kolejnych cech instancji przestrzennych.
 

@@ -1,46 +1,31 @@
 #include "CPUMiningAlgorithmParallel.h"
 
 #include "../../GPUPatternMining.Contract/CinsTree.h"
-#include "../../GPUPatternMining.Contract/CinsNode.h"
-#include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
-#include "../../GPUPatternMining.Contract/PairHash.h"
 
 #include <algorithm>
-#include <cassert>
 #include <ppl.h>
 #include <concrtrm.h>
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
 #include <iostream>
 #include <chrono>
-#include <memory>
-#include <functional>
-#include <string>
-#include <utility>
 
 
 void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned short types)
 {
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
-	this->cliquesContainer = new ParallelCliquesContainer(types);
+	this->prevalentCliquesContainer = new ParallelCliquesContainer(types);
+	this->lapsedCliquesContainer = new ParallelCliquesContainer(types);
 }
 
 //imho impossible to do effective parallelisation
 void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
-{
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	
+{	
 	concurrency::parallel_buffered_sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
 	{
 		return first.xy.x < second.xy.x;
 	});
-
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
-
-	begin = std::chrono::steady_clock::now();
 
 	float effectiveThreshold = pow(threshold, 2);
 
@@ -82,12 +67,6 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		}
 	}, concurrency::auto_partitioner());
 
-	end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
-
-	begin = std::chrono::steady_clock::now();
-
 	combinableInsTable.combine_each([&](auto& local)
 	{
 		for (auto it1 = local.begin(); (it1 != local.end()); ++it1)
@@ -120,10 +99,6 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			typeIncidenceCounter.begin(),
 			std::plus<int>());
 	});
-
-	end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 }
 
 
@@ -316,12 +291,12 @@ bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 	return true;
 }
 
-std::unordered_map<
+concurrency::concurrent_unordered_map<
 	std::pair<unsigned short, unsigned short>,
 	std::pair<unsigned short, unsigned short>,
 	pair_hash> CPUMiningAlgorithmParallel::countUniqueInstances()
 {
-	std::unordered_map<
+	concurrency::concurrent_unordered_map<
 		std::pair <unsigned short, unsigned short>,
 		std::pair <unsigned short, unsigned short>,
 		pair_hash> typeIncidenceColocations;
@@ -334,7 +309,7 @@ std::unordered_map<
 	{
 		unsigned int startIndex = 0;
 
-		for (int j = 0; j < i; j++)
+		for(int j = 0; j < i; j++)
 		{
 			startIndex += loadPerProcessor[j];
 		}
@@ -355,7 +330,7 @@ std::unordered_map<
 				unsigned short aElements = b.second.size();
 				unsigned short bElements = 0;
 
-				std::map<unsigned short, bool> inIncidenceColocations;
+				std::unordered_map<unsigned short, bool> inIncidenceColocations;
 
 				for (auto& c : b.second)
 				{
@@ -375,7 +350,7 @@ std::unordered_map<
 				typeIncidenceColocations[std::make_pair(aType, bType)] = std::make_pair(aElements, bElements);
 			}
 		}
-	});
+	}, concurrency::static_partitioner());
 
 	return typeIncidenceColocations;
 }
@@ -465,12 +440,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
-	if (!cliquesContainer->checkCliqueExistence(clique))
+	if (!prevalentCliquesContainer->checkCliqueExistence(clique))
 	{
 		if (isCliquePrevalent(clique, prevalence))
 		{
 			finalMaxCliques.push_back(clique);
-			cliquesContainer->insertClique(clique);
+			prevalentCliquesContainer->insertClique(clique);
 		}
 		else
 		{
@@ -479,20 +454,24 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);
 				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 				{
-					for (auto smallClique : smallerCliques)
+					for (auto& smallClique : smallerCliques)
 					{
-						if (!cliquesContainer->checkCliqueExistence(smallClique))
+						if (!prevalentCliquesContainer->checkCliqueExistence(smallClique))
 						{
 							finalMaxCliques.push_back(smallClique);
-							cliquesContainer->insertClique(smallClique);
+							prevalentCliquesContainer->insertClique(smallClique);
 						}
 					}
 				}
 				else
 				{
-					for (auto smallerClique : smallerCliques)
+					for (auto& smallClique : smallerCliques)
 					{
-						cliquesToProcess[clique.size() - 2]->push_back(smallerClique);
+						if (!lapsedCliquesContainer->checkCliqueExistence(smallClique))
+						{
+							cliquesToProcess[clique.size() - 2]->push_back(smallClique);
+							lapsedCliquesContainer->insertClique(smallClique);
+						}
 					}
 				}
 			}
@@ -569,7 +548,8 @@ CPUMiningAlgorithmParallel::CPUMiningAlgorithmParallel() :
 
 CPUMiningAlgorithmParallel::~CPUMiningAlgorithmParallel()
 {
-	delete cliquesContainer;
+	delete prevalentCliquesContainer;
+	delete lapsedCliquesContainer;
 
 	for (auto& a : insTable)
 	{

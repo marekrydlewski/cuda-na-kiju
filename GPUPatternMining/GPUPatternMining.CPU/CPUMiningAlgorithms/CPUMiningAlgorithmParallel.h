@@ -1,5 +1,6 @@
 #pragma once
 #include "CPUMiningBaseAlgorithm.h"
+
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
@@ -7,7 +8,6 @@
 #include "../../GPUPatternMining.Contract/PairHash.h"
 
 
-#include <map>
 #include <unordered_map>
 #include <vector>
 #include <ppl.h>
@@ -56,8 +56,9 @@ private:
 	/// Cm
 	std::vector<std::vector<unsigned short>> maximalCliques;
 
-	ParallelCliquesContainer* cliquesContainer;
 	Graph size2ColocationsGraph;
+	ParallelCliquesContainer* prevalentCliquesContainer;
+	ParallelCliquesContainer* lapsedCliquesContainer;
 
 	void createSize2ColocationsGraph();
 
@@ -70,7 +71,7 @@ private:
 		std::vector<unsigned short>& clique,
 		float prevalence);
 
-	std::unordered_map<
+	concurrency::concurrent_unordered_map<
 		std::pair <unsigned short, unsigned short>,
 		std::pair<unsigned short, unsigned short>, 
 		pair_hash> countUniqueInstances();

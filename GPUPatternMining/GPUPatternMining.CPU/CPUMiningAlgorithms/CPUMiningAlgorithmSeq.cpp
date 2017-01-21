@@ -17,18 +17,11 @@ void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned shor
 
 void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 {
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 	std::sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
 	{
 		return (first.xy.x < second.xy.x);
 	});
-
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
-
-	begin = std::chrono::steady_clock::now();
 
 	float effectiveThreshold = std::pow(threshold, 2);
 
@@ -58,9 +51,6 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 			}
 		}
 	}
-	end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 }
 
 void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)

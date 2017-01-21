@@ -21,19 +21,11 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 
 //imho impossible to do effective parallelisation
 void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
-{
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	
+{	
 	concurrency::parallel_buffered_sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
 	{
 		return first.xy.x < second.xy.x;
 	});
-
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
-
-	begin = std::chrono::steady_clock::now();
 
 	float effectiveThreshold = pow(threshold, 2);
 
@@ -75,12 +67,6 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		}
 	}, concurrency::auto_partitioner());
 
-	end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
-
-	begin = std::chrono::steady_clock::now();
-
 	combinableInsTable.combine_each([&](auto& local)
 	{
 		for (auto it1 = local.begin(); (it1 != local.end()); ++it1)
@@ -113,10 +99,6 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			typeIncidenceCounter.begin(),
 			std::plus<int>());
 	});
-
-	end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 }
 
 

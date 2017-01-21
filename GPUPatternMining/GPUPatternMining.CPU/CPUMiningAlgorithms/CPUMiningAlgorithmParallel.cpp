@@ -308,12 +308,12 @@ bool CPUMiningAlgorithmParallel::filterNodeCandidate(
 	return true;
 }
 
-std::unordered_map<
+concurrency::concurrent_unordered_map<
 	std::pair<unsigned short, unsigned short>,
 	std::pair<unsigned short, unsigned short>,
 	pair_hash> CPUMiningAlgorithmParallel::countUniqueInstances()
 {
-	std::unordered_map<
+	concurrency::concurrent_unordered_map<
 		std::pair <unsigned short, unsigned short>,
 		std::pair <unsigned short, unsigned short>,
 		pair_hash> typeIncidenceColocations;
@@ -326,7 +326,7 @@ std::unordered_map<
 	{
 		unsigned int startIndex = 0;
 
-		for (int j = 0; j < i; j++)
+		for(int j = 0; j < i; j++)
 		{
 			startIndex += loadPerProcessor[j];
 		}
@@ -347,7 +347,7 @@ std::unordered_map<
 				unsigned short aElements = b.second.size();
 				unsigned short bElements = 0;
 
-				std::map<unsigned short, bool> inIncidenceColocations;
+				std::unordered_map<unsigned short, bool> inIncidenceColocations;
 
 				for (auto& c : b.second)
 				{
@@ -367,7 +367,7 @@ std::unordered_map<
 				typeIncidenceColocations[std::make_pair(aType, bType)] = std::make_pair(aElements, bElements);
 			}
 		}
-	});
+	}, concurrency::static_partitioner());
 
 	return typeIncidenceColocations;
 }

@@ -70,7 +70,7 @@ private:
 		std::vector<unsigned short>& clique,
 		float prevalence);
 
-	std::unordered_map<
+	concurrency::concurrent_unordered_map<
 		std::pair <unsigned short, unsigned short>,
 		std::pair<unsigned short, unsigned short>, 
 		pair_hash> countUniqueInstances();

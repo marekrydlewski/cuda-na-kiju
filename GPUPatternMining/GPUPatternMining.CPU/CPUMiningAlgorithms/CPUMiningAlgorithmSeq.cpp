@@ -199,7 +199,10 @@ bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 
 std::unordered_map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> CPUMiningAlgorithmSeq::countUniqueInstances()
 {
-	std::unordered_map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> typeIncidenceColocations;
+	std::unordered_map<
+		std::pair <unsigned short, unsigned short>,
+		std::pair<unsigned short, unsigned short>,
+		pair_hash> typeIncidenceColocations;
 
 	//counting types incidence
 	for (auto& a : insTable)

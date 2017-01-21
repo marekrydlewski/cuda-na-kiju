@@ -56,8 +56,9 @@ private:
 	/// Cm
 	std::vector<std::vector<unsigned short>> maximalCliques;
 
-	ParallelCliquesContainer* cliquesContainer;
 	Graph size2ColocationsGraph;
+	ParallelCliquesContainer* prevalentCliquesContainer;
+	ParallelCliquesContainer* lapsedCliquesContainer;
 
 	void createSize2ColocationsGraph();
 

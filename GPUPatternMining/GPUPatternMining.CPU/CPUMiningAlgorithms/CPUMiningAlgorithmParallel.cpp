@@ -15,7 +15,8 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 {
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
-	this->cliquesContainer = new ParallelCliquesContainer(types);
+	this->prevalentCliquesContainer = new ParallelCliquesContainer(types);
+	this->lapsedCliquesContainer = new ParallelCliquesContainer(types);
 }
 
 //imho impossible to do effective parallelisation
@@ -457,12 +458,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
-	if (!cliquesContainer->checkCliqueExistence(clique))
+	if (!prevalentCliquesContainer->checkCliqueExistence(clique))
 	{
 		if (isCliquePrevalent(clique, prevalence))
 		{
 			finalMaxCliques.push_back(clique);
-			cliquesContainer->insertClique(clique);
+			prevalentCliquesContainer->insertClique(clique);
 		}
 		else
 		{
@@ -471,20 +472,24 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);
 				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 				{
-					for (auto smallClique : smallerCliques)
+					for (auto& smallClique : smallerCliques)
 					{
-						if (!cliquesContainer->checkCliqueExistence(smallClique))
+						if (!prevalentCliquesContainer->checkCliqueExistence(smallClique))
 						{
 							finalMaxCliques.push_back(smallClique);
-							cliquesContainer->insertClique(smallClique);
+							prevalentCliquesContainer->insertClique(smallClique);
 						}
 					}
 				}
 				else
 				{
-					for (auto smallerClique : smallerCliques)
+					for (auto& smallClique : smallerCliques)
 					{
-						cliquesToProcess[clique.size() - 2]->push_back(smallerClique);
+						if (!lapsedCliquesContainer->checkCliqueExistence(smallClique))
+						{
+							cliquesToProcess[clique.size() - 2]->push_back(smallClique);
+							lapsedCliquesContainer->insertClique(smallClique);
+						}
 					}
 				}
 			}
@@ -561,7 +566,8 @@ CPUMiningAlgorithmParallel::CPUMiningAlgorithmParallel() :
 
 CPUMiningAlgorithmParallel::~CPUMiningAlgorithmParallel()
 {
-	delete cliquesContainer;
+	delete prevalentCliquesContainer;
+	delete lapsedCliquesContainer;
 
 	for (auto& a : insTable)
 	{

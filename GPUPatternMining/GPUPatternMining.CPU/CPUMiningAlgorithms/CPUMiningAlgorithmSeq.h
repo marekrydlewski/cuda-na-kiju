@@ -51,7 +51,8 @@ private:
 				std::vector<unsigned short>*>>> insTable;
 
 	Graph size2ColocationsGraph;
-	CliquesContainer cliquesContainer;
+	CliquesContainer prevalentCliquesContainer;
+	CliquesContainer lapsedCliquesContainer;
 	/// Cm
 	std::vector<std::vector<unsigned short>> maximalCliques;
 

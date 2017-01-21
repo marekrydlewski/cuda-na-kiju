@@ -54,9 +54,6 @@
     <ClInclude Include="Benchmark.h">
       <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="DataLoader.h">
-      <Filter>Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="SimulatedRealDataProvider.h">
       <Filter>Providers</Filter>
     </ClInclude>
@@ -71,6 +68,9 @@
     </ClInclude>
     <ClInclude Include="PairHash.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader.h">
+      <Filter>Providers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

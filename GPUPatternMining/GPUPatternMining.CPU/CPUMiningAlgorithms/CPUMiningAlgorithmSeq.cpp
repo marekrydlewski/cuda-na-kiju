@@ -360,12 +360,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
-	if (!cliquesContainer.checkCliqueExistence(clique)) 
+	if (!prevalentCliquesContainer.checkCliqueExistence(clique)) 
 	{
 		if (isCliquePrevalent(clique, prevalence))
 		{
 			finalMaxCliques.push_back(clique);
-			cliquesContainer.insertClique(clique);
+			prevalentCliquesContainer.insertClique(clique);
 		}
 		else
 		{
@@ -374,21 +374,25 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);
 				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 				{
-					for (auto smallClique : smallerCliques)
+					for (auto& smallClique : smallerCliques)
 					{
-						if (!cliquesContainer.checkCliqueExistence(smallClique))
+						if (!prevalentCliquesContainer.checkCliqueExistence(smallClique))
 						{
 							finalMaxCliques.push_back(smallClique);
-							cliquesContainer.insertClique(smallClique);
+							prevalentCliquesContainer.insertClique(smallClique);
 						}
 					}
 				}
 				else
 				{
-					cliquesToProcess[clique.size() - 2].insert(
-						cliquesToProcess[clique.size() - 2].end(),
-						smallerCliques.begin(),
-						smallerCliques.end());
+					for (auto& smallClique : smallerCliques)
+					{
+						if (!lapsedCliquesContainer.checkCliqueExistence(smallClique))
+						{
+							cliquesToProcess[clique.size() - 2].push_back(smallClique);
+							lapsedCliquesContainer.insertClique(smallClique);
+						}
+					}
 				}
 			}
 		}

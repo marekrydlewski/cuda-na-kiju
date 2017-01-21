@@ -51,6 +51,16 @@ int main()
 		alg.constructMaximalCliques();
 	});
 
+	bmkGpu.run("filter candidates by prevalence (prepare data)", 1, [&]()
+	{
+		alg.filterCandidatesByPrevalencePrepareData();
+	});
+
+	bmkGpu.run("filter candidates by prevalence", 1, [&]()
+	{
+		alg.filterCandidatesByPrevalence(prevalence);
+	});
+
 	bmkGpu.print("gpu algorithm", std::cout);
 
 	return 0;

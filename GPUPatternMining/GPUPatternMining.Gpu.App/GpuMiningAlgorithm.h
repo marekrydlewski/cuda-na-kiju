@@ -3,8 +3,11 @@
 #include "..\GPUPatternMining.Contract/Enity/DataFeed.h"
 #include "../GPUPatternMining/PlaneSweep/PlaneSweepTableInstanceResult.h"
 #include "../GPUPatternMining/InstanceTree/IntanceTablesMapCreator.h"
+#include "../GPUPatternMining/InstanceTree/InstanceTypedNeighboursMapCreator.h"
 #include "../GPUPatternMining/Entities/TypeCount.h"
 #include "../GPUPatternMining.Contract/Graph.h"
+#include "../GPUPatternMining/Prevalence/AnyLengthInstancesUniquePrevalenceProvider.h"
+#include "../GPUPatternMining.Contract/CliquesContainer.h"
 
 // ------------------------------------------------------------------------------------------------
 
@@ -26,13 +29,16 @@ public:
 
 	void constructMaximalCliques();
 
+	void filterCandidatesByPrevalencePrepareData();
+
+	void filterCandidatesByPrevalence(float minimalPrevalence);
+
 private:
 
 	// data
 	std::vector<DataFeed> source;
 	/// typeIncidenceCounter - count from 1
-	std::vector<TypeCount> typeIncidenceCounter;
-
+	TypesCountsPtr typeIncidenceCounter;
 
 	// helpers stuctures
 	struct FilterByDistanceGpuData
@@ -48,5 +54,11 @@ private:
 	IntanceTablesMapCreator::ITMPackPtr itmPack;
 	thrust::host_vector<FeatureTypePair> prevalentTypesConnections;
 	Graph graphForKerbosh;
-	std::vector<std::vector<unsigned short>> candidates;
+	std::map<unsigned int, std::vector<std::vector<unsigned short>>> candidates;
+
+	InstanceTypedNeighboursMapCreator::ITNMPackPtr ITNMPack;
+	std::shared_ptr<InstanceTree::InstanceTree> instanceTree;
+	CliquesContainer prevalentCliques;
+	CliquesContainer pendingCliques;
+	std::shared_ptr<AnyLengthInstancesUniquePrevalenceProvider> anyLengthPrevalenceProvider;
 };

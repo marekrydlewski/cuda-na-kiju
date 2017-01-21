@@ -19,7 +19,6 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 	this->lapsedCliquesContainer = new ParallelCliquesContainer(types);
 }
 
-//imho impossible to do effective parallelisation
 void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 {	
 	concurrency::parallel_buffered_sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
@@ -101,8 +100,6 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 	});
 }
 
-
-//already parallelised
 void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 {
 	auto countedInstances = countUniqueInstances();
@@ -171,8 +168,6 @@ void CPUMiningAlgorithmParallel::createSize2ColocationsGraph()
 	}
 }
 
-
-//already parallelised
 void CPUMiningAlgorithmParallel::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
@@ -476,7 +471,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 				}
 			}
 		}
-	};
+	}
 	return finalMaxCliques;
 }
 

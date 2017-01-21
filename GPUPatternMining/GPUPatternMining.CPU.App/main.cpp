@@ -17,7 +17,7 @@ int main()
 	const float prevalence = 0.0;
 
 	SimulatedRealDataProvider dataProvider;
-	auto data = dataProvider.getTestData();
+	auto data = dataProvider.getTestData(DataSet::Medium);
 
 	//output data
 	std::vector<std::vector<unsigned short>> solutionSeq, solutionParallel;

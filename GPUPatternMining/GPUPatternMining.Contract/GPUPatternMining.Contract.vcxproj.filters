@@ -111,4 +111,9 @@
       <Filter>Resource Files</Filter>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resource Files\test2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

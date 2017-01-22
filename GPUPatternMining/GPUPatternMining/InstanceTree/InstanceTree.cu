@@ -53,6 +53,8 @@ namespace InstanceTree
 
 		thrust::device_vector<unsigned int> newEntriesCounts(cliquesCandidates.candidatesCount);
 
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 		InstanceTreeHelpers::fillFirstPairCountFromMap <<< insertGrid, 256 >>>(
 			instanceTablePack->map->getBean()
 			, cliquesCandidates.cliquesData->data().get()

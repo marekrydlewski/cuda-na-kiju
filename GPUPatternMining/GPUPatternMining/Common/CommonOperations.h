@@ -25,7 +25,7 @@ namespace MiningCommon
 	__device__ void intraWarpReduce(volatile T *data)
 	{
 		volatile T* a = data;
-		int threadInWarp = threadIdx.x;//&0x1f;
+		int threadInWarp = threadIdx.x &0x1f;
 
 		/*
 			binary sum performed by sequence of odd warp threads
@@ -44,7 +44,7 @@ namespace MiningCommon
 	{
 		volatile T* a = data;
 		T temp;
-		int threadInWarp = threadIdx.x;//&0x1f;
+		int threadInWarp = threadIdx.x & 0x1f;
 
 		//Phase1
 		/*

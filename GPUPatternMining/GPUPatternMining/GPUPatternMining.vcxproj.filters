@@ -4,7 +4,6 @@
     <CudaCompile Include="Common\CommonOperations.cu" />
     <CudaCompile Include="HashMap\gpuutils.cu" />
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
-    <CudaCompile Include="PlaneSweep\PlaneSweepFoxtrot.cu" />
     <CudaCompile Include="InstanceTree\InstanceTree.cu" />
     <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu" />
     <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
@@ -24,7 +23,6 @@
     <ClInclude Include="Entities\NeighboursListInfoHolder.h" />
     <ClInclude Include="HashMap\gpuhashmapper.h" />
     <ClInclude Include="PlaneSweep\InstanceTablePlaneSweep.h" />
-    <ClInclude Include="PlaneSweep\PlaneSweepFoxtrot.h" />
     <ClInclude Include="HashMap\gpuutils.h" />
     <ClInclude Include="Common\MiningCommon.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />

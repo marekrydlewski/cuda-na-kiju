@@ -26,7 +26,6 @@
     <ClInclude Include="catch.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Tests\PlaneSweepFoxtrotTests.cu" />
     <CudaCompile Include="Tests\PlaneSweepInstanceTableTests.cu" />
   </ItemGroup>
   <ItemGroup>

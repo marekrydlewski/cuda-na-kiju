@@ -3,7 +3,7 @@
 #include <thrust/execution_policy.h>
 #include <thrust/unique.h>
 #include <thrust/tuple.h>
-
+#include <algorithm>
 
 
 namespace Prevalence
@@ -76,10 +76,8 @@ namespace Prevalence
 			, PlaneSweepTableInstanceResultPtr planeSweepResult
 		)
 		{
-			const unsigned int uniquesCount = itmPack->uniques.size();
+			const unsigned int uniquesCount = itmPack->count;
 			thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> localUniques = itmPack->uniques;
-
-			std::vector<unsigned int> pending;
 
 			thrust::device_vector<unsigned int> aCounts;
 			thrust::device_vector<unsigned int> bCounts;
@@ -130,10 +128,36 @@ namespace Prevalence
 			thrust::device_vector<unsigned int> idxsb(uniquesCount);
 			thrust::sequence(idxsb.begin(), idxsb.end());
 
-			thrust::for_each(thrust::device, idxsa.begin(), idxsa.end(), aPrev);
-			thrust::for_each(thrust::device, idxsb.begin(), idxsb.end(), bPrev);
 
-			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+			unsigned int countPerIteration = 10;
+			unsigned int currentStart = 0;
+			unsigned int currentEnd = uniquesCount % countPerIteration;
+
+			while (currentEnd <= uniquesCount)
+			{
+				{
+					
+					thrust::for_each(
+						thrust::device
+						, idxsa.begin() + currentStart
+						, idxsa.begin() + currentEnd
+						, aPrev);
+					CUDA_CHECK_RETURN(cudaDeviceSynchronize());				
+				}
+					
+				{
+
+					thrust::for_each(
+						thrust::device
+						, idxsb.begin() + currentStart
+						, idxsb.begin() + currentEnd
+						, bPrev);
+					CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+				}
+
+				currentStart += countPerIteration;
+				currentEnd += countPerIteration;
+			}
 
 			thrust::device_vector<bool> flags(uniquesCount);
 			thrust::device_vector<unsigned int> writePos(uniquesCount);
@@ -148,7 +172,7 @@ namespace Prevalence
 				, bResults.data()
 				, flags.data()
 				, writePos.data()
-				);
+			);
 
 			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
@@ -165,7 +189,7 @@ namespace Prevalence
 			thrust::transform(
 				thrust::device
 				, itmPack->uniques.begin()
-				, itmPack->uniques.end()
+				, itmPack->uniques.begin() + uniquesCount
 				, transformed.begin()
 				, f_trans
 			);

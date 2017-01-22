@@ -94,14 +94,13 @@ namespace InstanceTreeHelpers
 			// only for lvl2 (counting from 0)
 			for (int level = currentLevel - 2; level != 0; --level)
 			{
-				cliqueId = groupNumberLevels[level - 1][cliqueId];
+				cliqueId = groupNumberLevels[level][cliqueId];
 			}
 
 			unsigned long long key = InstanceTypedNeighboursMapCreator::createITNMKey(
 				previousLevelInstances[tid]
 				, cliquesCandidates[cliqueId][currentLevel]
 			);
-			
 
 			if (!GPUHashMapperProcedures::containsKey(bean, key))
 			{
@@ -112,6 +111,7 @@ namespace InstanceTreeHelpers
 				NeighboursListInfoHolder nlih;
 
 				GPUHashMapperProcedures::getValue(bean, key, nlih);
+
 				result[tid] = nlih.count;
 			}
 		}
@@ -141,7 +141,7 @@ namespace InstanceTreeHelpers
 			//printf("tid[%u] lvl[%u]| clique=%u\n", tid, currentLevel, cliqueId);
 			for (signed int level = currentLevel - 1; level > 0; --level)
 			{
-				cliqueId = groupNumberLevels[0][cliqueId];
+				cliqueId = groupNumberLevels[level][cliqueId];
 				//printf("tid[%u] lvl[%i]| clique=%u\n", tid, level, cliqueId);
 			}
 
@@ -153,12 +153,6 @@ namespace InstanceTreeHelpers
 			NeighboursListInfoHolder nlih;
 			GPUHashMapperProcedures::getValue(bean, key, nlih);
 				
-			//printf("tid[%u] key[%#llx] start[%u] num[%u]\n", 
-			//	tid
-			//	, key
-			//	, nlih.startIdx
-			//	, *(thrust::raw_pointer_cast(itemNumbers) + tid));
-
 			result[tid] = pairB[nlih.startIdx + itemNumbers[tid]];
 		}
 	}

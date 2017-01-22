@@ -20,9 +20,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Tests\PlaneSweepFoxtrotTests.cu">
-      <Filter>Source FIles</Filter>
-    </CudaCompile>
     <CudaCompile Include="Tests\PlaneSweepInstanceTableTests.cu">
       <Filter>Source FIles</Filter>
     </CudaCompile>

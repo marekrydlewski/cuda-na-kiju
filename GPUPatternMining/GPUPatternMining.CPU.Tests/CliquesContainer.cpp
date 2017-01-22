@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "../GPUPatternMining.Contract/CliquesContainer.h"
+#include "../GPUPatternMining.Contract/SubcliquesContainer.h"
 
 
 TEST_CASE("CliqueAlreadyProcessed", "CliquesContainerTests")

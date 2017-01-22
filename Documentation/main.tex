@@ -500,7 +500,114 @@ Po zakończeniu algorytmu pozostaje jeszcze wyliczenie indeksów powszechności 
 
 \section{Implementacja CPU}
 
+W tym rozdziale zostaną opisane implementacje rozwiązania problemu \cite{chinczyki} wykorzystujące wyłącznie potencjał procesorów CPU (ang. \textit{Central Procession Unit}), bez udziału karty graficznej w obliczeniach. W szczególności zostaną zaprezentowane techniki optymalizacyjne dedykowane dla poszczególnych podejść do rozwiązania problemu. 
+
+Do celów porównawczych zostały zrealizowane dwa rozwiązania: sekwencyjne (bez żadnego wsparcia dla równoległości) oraz równoległe (z wykorzystaniem biblioteki \textit{Parallel Patterns Library} firmy \textit{Microsoft}). 
+
+\subsection{Wersja sekwencyjna}
+
+\subsubsection{Generowanie instancji w oparciu o próg odległości}
+
+Podobnie jak w pierwotnej wersji algorytmu, generowanie kandydatów na kolokacje o rozmiarze 2 następuje na podstawie \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}). Algorytm zamiatania (ang. \textit{plane sweep algorithm}) użyty w procesie łączenia został jednak nieznacznie zmodyfikowany.
+
+Na początku wektor będący zbiorem wejściowym jest traktowany algorytmem \textit{sortowania szybkiego} (ang. \textit{quick sort}) dostępnym w bibliotece standardowej C++. Jako kryterium sortowania zostaje wybrana relacja między arbitralnie wybranym wymiarem przestrzeni.
+
+Następnie następuje wyznaczenie progu odległości, na podstawie którego będą dobierani kandydaci na kolokacje. Warto zwrócić w tym miejscu uwagę na fakt, że algorytmowi nie jest potrzebna wiedza o rzeczywistej odległości między dwoma punktami w przestrzeni, a jedynie relacja między tą odległością a zadanym progiem odległości. Daje to możliwość uniknięcia niepotrzebnych obliczeń (pierwiastkowania) przy wyznaczaniu odlegości między punktami. Dlatego też, zamiast bezpośrednio działać w oparciu o zadany próg odległości, wyliczany jest \textit{efektywny próg odległości}, będącym progiem odległości podniesionym do potęgi drugiej. 
+
+Pozostało już jedynie filtrowanie obiektów w oparciu o wyliczony efektywny próg odległości. Dla każdego obiektu ze zbioru wejściowego następuje przeszukiwanie we wszystkich kierunkach obiektów sąsiadujących z nim, a nastepnie sprawdzana jest odległość między nimi. Gdy jest ona mniejsza niż ustalony wcześniej próg odległości obiekt umieszczany jest w specjalnej strukturze $ insTable $. Jednocześnie tworzony jest wektor $ typeIncidenceCounter$, w którym zliczane są wystąpienia kolejnych cech instancji przestrzennych (informacja o tym przyda się przy wyznaczaniu miary powszechności). Dodatkowo, pętla wewnętrzna jest przerywana, jeżeli wartość bezwzględna różnicy posortowanych współprzędnych poszczególnych obiektów będzie większa niż zadany próg odległości. Ma to na celu ograniczenie zbednych porównań w przypadku, kiedy istnieje pewność, że żadne kolejne punkty nie spełnią progu odległości - a zatem nie wejdą do zbioru $ insTable $.
+ 
+Struktura $ insTable $ pełni podobną rolę, jak w oryginalnym algorytmie \textit{SGCT}, nie jest ona jednak dwuwymiarową tablicą z haszowaniem. Zamiast tego zastosowano trójwymiarową mapę wskaźników na wektor liczb, w której wymiarami są kolejno: typ elementu $ A $, typ elementu $ B $ oraz numer instancji przestrzennej $ A $.  W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. W celu efektywnego odczytywania sąsiadów o danej cesze konkretnej instancji, dane w wektorze są umieszczane w taki sposób, że zawsze spełniają relację \textit{numer cechy A} $ > $ \textit{numer cechy B}. Dodatkowo, zamiast standardowej mapy (\textit{std::map}) została wykorzystana mapa nieuporządkowana - gwarantuje ona większą wydajność przeglądania (kosztem większego zużycia pamięci).
+
+\subsubsection{Filtrowanie sąsiadów w oparciu o próg minimalnej powszechności}
+
+Krok ten stanowi zmodyfikowaną wersję algorytmu obliczania miar powszechności znanego z algorytmu \textit{Co-location Miner} (patrz Rozdział 2).
+
+Na początku wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zliczenie wszystkich wystąpień par instancji bez duplikatów. Podobnie jak w kroku pierwszym zostały tu użyte mapy nieuporządkowane (\textit{std::unordered\_map}) w celu przyspieszenia przetwarzania. Do budowy mapy została użyta własna funkcja mieszająca powstała na bazie \textit{hash\_combine} z biblioteki \textit{boost}. Ogranicza ona występowanie kolizji w przypadku wstawiania nowych elementów do tablicy z haszowaniem.
+
+Następnie w oparciu o wektor wynikowy tej funkcji oraz utworzony wcześniej wektor $ typeIncidenceCounter$ (patrz Rozdział 4.1.1) dla każdego kandydata w tabeli $ insTable $ wyliczany jest współczynnik uczestnictwa. W przypadku, gdy obliczona miara powszechności jest mniejsza od zadanego progu minimalnej powszechności, kandydat jest usuwany z struktury $ insTable $, a użyta przez niego pamięć zostaje zwolniona na poczet dalszych obliczeń.
+
+\subsubsection{Generowanie kandydatów na kolokacje maksymalne}
+
+Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja 10). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej A jest większy od zera. 
+
+Po wygenerowaniu grafu liczona jest jego miara degeneracji (patrz Definicja 11). W tym celu został wykorzystany algorytm zaprezentowany przez Matulę i Becka w pracy \cite{matusiak}. Działa on w czasie wielomianowym, co pozwala na odciążenie CPU. Funkcja zwraca zarówno miarę degeneracji, jak uporządkowany według niej wektor wierzchołków wystepujących w grafie.
+
+Dalsze kroki algorytmu wykonywane są dla poszczególnych wierzchołków uporządkowanych według miary degeneracji. Podobnie jak w oryginalnym algorytmie z pracy \cite{pivot} tworzone są grupy wierzchołków o niższych i wyższych indeksach, a następnie uruchamiana jest funkcja $ BK\_Pivot $, w której następuje wyszukiwanie maksymalnych klik w oparciu o algorytm Brona-Kerboscha \cite{kerbosz}. 
+
+Aby ograniczyć czas wyszukiwania maksymalnych klik, zostały zastosowane tzw. \textit{wektory sortowane} zamiast zazwyczaj używanych zbiorów (\textit{std::set}) z biblioteki C++. Posiadają one większą wydajność, a do tego pozwalają na skorzystanie z funkcjonalności zarezerwowanej wyłącznie dla zbiorów.
+
+
+\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
+\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
+
+\subsection{Wersja wielowątkowa}
+
+\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
+\subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
+\subsubsection{Generowanie kandydatów na kolokacje maksymalne}
+\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
+\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
+
+\section{Implementacja GPU}
+
+\section{Testy efektywnościowe}
+
+\section{Zakończenie}
+
+\newpage
+
+\begin{thebibliography}{}
+\bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
+\bibitem{sop}Ł.~Stanisławowski. \emph{Bogactwo i nędza narodów.}
+O'reilly, 2013.
+\bibitem{trad} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery.
+Taylor \& Francis, Inc., Bristol, PA, USA, 2001
+\bibitem{huang} S. Shekhar and Y. Huang. Discovering Spatial Co-location Patterns: A Summary of Results. In SSTD 2001, pages 236–256, 2001.
+\bibitem{boinski} Przetwarzanie zbiorów przestrzennych zapytan neksploracyjnych w srodowiskachzograniczonym rozmiarem pamiecioperacyjnej
+\bibitem{chinczyki}A fast space-saving algorithm for maximal co-location pattern mining
+\bibitem{cuda_by_examples}CUDA by Example: An Introduction to General-Purpose GPU Programming, Jason Sanders, Edward Kandrot
+\bibitem{professional_cuda}Professional CUDA C Programming, John Cheng, Max Grossman, Ty McKerche
+\bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
+\bibitem{joinless}Jin Soung Yoo and Shashi Shekhar. A Joinless Approach for Mining Spatial Colocation Patterns. IEEE Transactions on Knowledge and Data Engineering, 18(10):13231337, 2006.
+\bibitem{cpi}Lizhen Wang, Yuzhen Bao, Joan Lu, and Jim Yip. A New Join-less Approach for Co-location Pattern Mining. In Qiang Wu, Xiangjian He, Quang Vinh Nguyen, Wenjing Jia, and Mao Lin Huang, editors, Proceedings of the 8th IEEE International
+Conference on Computer and Information Technology (CIT 2008), pages 197–202, Sydney, July 2008. IEEE.
+\bibitem{icpi}Lizhen Wang, Yuzhen Bao, and Joan Lu. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. The Open Information Systems Journal, 3(2):69–80,2009.
+\bibitem{fieldmodel}Christopher Jones and Mark Hall. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. In Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), 2008.
+\bibitem{9sec}Max J. Egenhofer and Robert Franzosa. Point-set topological spatial relations. International Journal of Geographic Information Systems, 5(2):161–174, 1991.
+\bibitem{9sec2} Eliseo Clementini, Paolino Di Felice, and Peter van Oosterom. A small set of formal topological relationships suitable for end-user interaction. In Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993), pages 277-295, London, UK, UK, 1993. Springer-Verlag.
+\bibitem{klasykchuj1} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery. Taylor \& Francis, Inc., Bristol, PA, USA, 2001.
+\bibitem{klasykchuj2}John F. Roddick and Myra Spiliopoulou. A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research. ACM SIGKDD Exploration Newsletter, 1(1):34–38, 1999.
+\bibitem{klasyfikacja}Martin Ester, Hans-Peter Kriegel, and Jörg Sander. Spatial Data Mining: A Database Approach. In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997), pages 47–66, London, UK, UK, 1997. Springer-Verlag.
+\bibitem{id3} John R. Quinlan. Induction of Decision Trees. Machine Learning, 1(1):81–106, March 1986.
+\bibitem{toptrendy}Martin Ester, Alexander Frommelt, Hans-Peter Kriegel, and Jörg Sander. Algorithms for characterization and trend detection in spatial databases. In Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998), pages 44–50, 1998.
+\bibitem{przypadeg}Shashi Shekhar and Sanjay Chawla. Spatial Databases: A Tour. Prentice Hall, 2003
+\bibitem{kurwa} Richard E. Bellman. Adaptive control processes - A guided tour. Princeton University Press, Princeton, New Jersey, U.S.A., 1961.
+\bibitem{asoc} Rakesh Agrawal and Ramakrishnan Srikant. Fast Algorithms for Mining Association Rules in Large Databases. In Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), pages 487–499, San Francisco, 1994. Morgan Kaufmann Publishers Inc.
+\bibitem{asoc2} Krzysztof Koperski and Jiawei Han. Discovery of Spatial Association Rules in Geographic Information Databases. In Max J. Egenhofer and John R. Herring, editors, Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995), volume 951 of Lecture Notes in Computer Science, pages 47–66. Springer Berlin Heidelberg, 1995
+\bibitem{classsets}Yasuhiko Morimoto. Mining Frequent Neighboring Class Sets in Spatial Databases. In Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), pages 353–358, New York, NY, USA, 2001. ACM.
+\bibitem{spatial}L. Arge, O. Procopiuc, S. Ramaswamy, T. Suel, and J. Vitter. Scalable Sweeping-
+Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 1998.
+\bibitem{degenerat}Eppstein, D. , Löffler, M. , i Strash, D. (2010). Listing all maximal cliques in sparsegraphs in near-optimal time. In O. Cheong, K. Y. Chwa, \& K. Park (Eds.), 21st international symposium on algorithms and computation (pp. 403–414). Berlin, Germany: Springer-Verlag.
+\bibitem{kerbosz}Bron, C., \& Kerbosch, J. (1973). Algorithm 457: Finding all cliques of an undirected graph. Communications of the ACM, 16 , 575–577.
+\bibitem{pivot}Tomita, E., Tanaka, A., \& Takahashi, H. (2006). The worst-case time complexity for
+generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
+\bibitem{framework}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
+\bibitem{matusiak}Matula, D. W.; Beck, L. L. (1983), "Smallest-last ordering and clustering and graph coloring algorithms", Journal of the ACM, 30 (3): 417–427, doi:10.1145/2402.322385, MR 0709826.
+\end{thebibliography}
+
+\newpage
+
+\appendix
+
+\section{Dodatek A - Opis klas i struktur pomocniczych}
+
 \subsection{Ogólne założenia, opis klas i struktur pomocnicze}
+
+\begin{lstlisting}
+std::unordered_map<unsigned short, std::unordered_map<unsigned short,
+	std::unordered_map<unsigned short, std::vector<
+    	unsigned short>*>>> insTable;
+\end{lstlisting}
 
 \subsubsection{Ogólne założenia}
 Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera implementacje metod pomocniczych oraz cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
@@ -624,91 +731,6 @@ void hash_combine(std::size_t &seed, T const &key) {
 \item Benchmark - 
 
 \end{itemize}
-
-\subsection{Wersja sekwencyjna}
-
-\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
-Na tym etapie odbywa się generowanie dwuelementowych kandydatów na kolokacje i ich filtrowanie na podstawie progu odległości. Wykorzystano tutaj podejście tzw. \textit{wymiatania} (ang. \textit{plane sweep algorithm}) które jest paradygmatem algorytmów wykorzystywanych do rozwiązywania różnych problemów w przestrzeni euklidesowej. W zastosowanej implementacji można wyróżnić następujące kroki:
-\begin{itemize}
-\item Sortowanie wektora \lstinline{std::vector<DataFeed> source} zawierającego dane wejściowe. Wykorzystano tutaj sortowanie szybkie z biblioteki \lstinline{<algorithm>}. Kryterium sortowania jest tutaj relacja między arbitralnie wybranym wymiarem przestrzeni.
-\item Wyliczanie \textit{efektywnego progu odległości} przez podniesienie progu odległości do kwadratu - dzięki temu można uniknąć kosztownego pierwiastkowania przy obliczaniu odległości między dwoma punktami. Jest to możliwe, gdyż potrzebna jest tylko informacja o relacji między ową odległością a progiem odległości. Zbędna jest wiedza o rzeczywistej odległości między punktami.
-\item Dla każdego elementu danych iterujemy w wybranym kierunku sprawdzając odległość między tym punktem a aktualnie iterowanym, w przypadku gdy odległość jest mniejsza od progowej umieszczamy taki element na odpowiednim miejscu w \lstinline{insTable}. Główną ideą jest tutaj przerwanie wewnętrznej pętli gdy wartość bezwzględna różnicy posortowanych współrzędnych owych punktów jest większa od progu odległości tj. \textit{tutaj matematyczny wzorek}. Zajście takiej sytuacji gwarantuje, że odległość między każdym kolejnym punktem będzie większa od progu odległości, stąd możliwość przerwania pętli. 
-
-W odróżnieniu od pracy \cite{chinczyki}, w której zaproponowano dwuwymiarową hashmapę, \lstinline{insTable} zawierająca dwuelementowych kandydatów na kolokacje ma postać trójwymiarowej mapy wskaźników na wektor liczb:
-\begin{lstlisting}
-std::unorderd_map<unsigned short, std::unordered_map<unsigned short,
-	std::unordered_map<unsigned short, std::vector<
-    	unsigned short>*>>> insTable;
-\end{lstlisting}
- Pierwsze dwa wymiary określają typy elementów \textit{A} i \textit{B}, natomiast trzeci wymiar określa numer instancji przestrzennej \textit{A}. W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. Dodatkowo, dane są umieszczane w ten sposób że zawsze spełniona jest relacja \textit{tutaj matematyczny znaczek: numer cechy A \textless numer cechy B}. Taka implementacja umożliwia łatwe i efektywne odczytywanie sąsiadów o danej cesze konkretnej instancji przestrzennej. Wykorzystanie \lstinline{std::unordered_map} zamiast \lstinline{std::map} pomimo większego zużycia pamięci znacząco (kilkukrotnie) zwiększa wydajność przeglądania map. 
- 
- \item Korzystając z faktu, że w trakcie działania metody następuje iteracja po wszystkich elementach, równocześnie tworzony jest wektor \lstinline{std::vector<unsigned short> typeIncidenceCounter}, w którym zliczane są wystąpienia kolejnych cech instancji przestrzennych.
-
-\end{itemize}
-\subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
-\subsubsection{Generowanie kandydatów na kolokacje maksymalne}
-\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
-\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
-
-\subsection{Wersja wielowątkowa}
-
-\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
-\subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
-\subsubsection{Generowanie kandydatów na kolokacje maksymalne}
-\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
-\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
-
-\section{Implementacja GPU}
-
-\section{Testy efektywnościowe}
-
-\section{Zakończenie}
-
-\newpage
-
-\begin{thebibliography}{}
-\bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
-\bibitem{sop}Ł.~Stanisławowski. \emph{Bogactwo i nędza narodów.}
-O'reilly, 2013.
-\bibitem{trad} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery.
-Taylor \& Francis, Inc., Bristol, PA, USA, 2001
-\bibitem{huang} S. Shekhar and Y. Huang. Discovering Spatial Co-location Patterns: A Summary of Results. In SSTD 2001, pages 236–256, 2001.
-\bibitem{boinski} Przetwarzanie zbiorów przestrzennych zapytan neksploracyjnych w srodowiskachzograniczonym rozmiarem pamiecioperacyjnej
-\bibitem{chinczyki}A fast space-saving algorithm for maximal co-location pattern mining
-\bibitem{cuda_by_examples}CUDA by Example: An Introduction to General-Purpose GPU Programming, Jason Sanders, Edward Kandrot
-\bibitem{professional_cuda}Professional CUDA C Programming, John Cheng, Max Grossman, Ty McKerche
-\bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
-\bibitem{joinless}Jin Soung Yoo and Shashi Shekhar. A Joinless Approach for Mining Spatial Colocation Patterns. IEEE Transactions on Knowledge and Data Engineering, 18(10):13231337, 2006.
-\bibitem{cpi}Lizhen Wang, Yuzhen Bao, Joan Lu, and Jim Yip. A New Join-less Approach for Co-location Pattern Mining. In Qiang Wu, Xiangjian He, Quang Vinh Nguyen, Wenjing Jia, and Mao Lin Huang, editors, Proceedings of the 8th IEEE International
-Conference on Computer and Information Technology (CIT 2008), pages 197–202, Sydney, July 2008. IEEE.
-\bibitem{icpi}Lizhen Wang, Yuzhen Bao, and Joan Lu. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. The Open Information Systems Journal, 3(2):69–80,2009.
-\bibitem{fieldmodel}Christopher Jones and Mark Hall. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. In Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), 2008.
-\bibitem{9sec}Max J. Egenhofer and Robert Franzosa. Point-set topological spatial relations. International Journal of Geographic Information Systems, 5(2):161–174, 1991.
-\bibitem{9sec2} Eliseo Clementini, Paolino Di Felice, and Peter van Oosterom. A small set of formal topological relationships suitable for end-user interaction. In Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993), pages 277-295, London, UK, UK, 1993. Springer-Verlag.
-\bibitem{klasykchuj1} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery. Taylor \& Francis, Inc., Bristol, PA, USA, 2001.
-\bibitem{klasykchuj2}John F. Roddick and Myra Spiliopoulou. A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research. ACM SIGKDD Exploration Newsletter, 1(1):34–38, 1999.
-\bibitem{klasyfikacja}Martin Ester, Hans-Peter Kriegel, and Jörg Sander. Spatial Data Mining: A Database Approach. In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997), pages 47–66, London, UK, UK, 1997. Springer-Verlag.
-\bibitem{id3} John R. Quinlan. Induction of Decision Trees. Machine Learning, 1(1):81–106, March 1986.
-\bibitem{toptrendy}Martin Ester, Alexander Frommelt, Hans-Peter Kriegel, and Jörg Sander. Algorithms for characterization and trend detection in spatial databases. In Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998), pages 44–50, 1998.
-\bibitem{przypadeg}Shashi Shekhar and Sanjay Chawla. Spatial Databases: A Tour. Prentice Hall, 2003
-\bibitem{kurwa} Richard E. Bellman. Adaptive control processes - A guided tour. Princeton University Press, Princeton, New Jersey, U.S.A., 1961.
-\bibitem{asoc} Rakesh Agrawal and Ramakrishnan Srikant. Fast Algorithms for Mining Association Rules in Large Databases. In Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), pages 487–499, San Francisco, 1994. Morgan Kaufmann Publishers Inc.
-\bibitem{asoc2} Krzysztof Koperski and Jiawei Han. Discovery of Spatial Association Rules in Geographic Information Databases. In Max J. Egenhofer and John R. Herring, editors, Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995), volume 951 of Lecture Notes in Computer Science, pages 47–66. Springer Berlin Heidelberg, 1995
-\bibitem{classsets}Yasuhiko Morimoto. Mining Frequent Neighboring Class Sets in Spatial Databases. In Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), pages 353–358, New York, NY, USA, 2001. ACM.
-\bibitem{spatial}L. Arge, O. Procopiuc, S. Ramaswamy, T. Suel, and J. Vitter. Scalable Sweeping-
-Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 1998.
-\bibitem{degenerat}Eppstein, D. , Löffler, M. , i Strash, D. (2010). Listing all maximal cliques in sparsegraphs in near-optimal time. In O. Cheong, K. Y. Chwa, \& K. Park (Eds.), 21st international symposium on algorithms and computation (pp. 403–414). Berlin, Germany: Springer-Verlag.
-\bibitem{kerbosz}Bron, C., \& Kerbosch, J. (1973). Algorithm 457: Finding all cliques of an undirected graph. Communications of the ACM, 16 , 575–577.
-\bibitem{pivot}Tomita, E., Tanaka, A., \& Takahashi, H. (2006). The worst-case time complexity for
-generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
-\bibitem{framework}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
-\end{thebibliography}
-
-\newpage
-
-\appendix
-
-\section{Dodatek A}
 
 \section{Dodatek B}
 

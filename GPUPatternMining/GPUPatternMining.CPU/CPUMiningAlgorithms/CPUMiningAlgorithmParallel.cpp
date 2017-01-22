@@ -232,7 +232,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 
 	concurrency::combinable<std::vector<std::vector<unsigned short>>> combinableFinalMaxCliques;
 
-	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
+	for (int i = cliquesToProcess.size() - 1; i >= 2; --i)
 	{
 		concurrency::parallel_for_each(
 			cliquesToProcess[i]->begin(),
@@ -257,6 +257,9 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 		[&finalMaxCliques](auto& vec) {
 		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
 	});
+
+	//add colocations of size 2
+	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[1]->begin(), cliquesToProcess[1]->end());
 
 	//add colocations of size 1 
 	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[0]->begin(), cliquesToProcess[0]->end()); 

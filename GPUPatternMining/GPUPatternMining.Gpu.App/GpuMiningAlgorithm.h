@@ -9,6 +9,7 @@
 #include "../GPUPatternMining/Prevalence/AnyLengthInstancesUniquePrevalenceProvider.h"
 #include "../GPUPatternMining.Contract/CliquesContainer.h"
 #include <list>
+#include "../GPUPatternMining.Contract/SubcliquesContainer.h"
 
 // ------------------------------------------------------------------------------------------------
 
@@ -59,7 +60,7 @@ private:
 
 	InstanceTypedNeighboursMapCreator::ITNMPackPtr ITNMPack;
 	std::shared_ptr<InstanceTree::InstanceTree> instanceTree;
-	CliquesContainer prevalentCliques;
+	SubcliquesContainer prevalentCliques;
 	std::shared_ptr<GPUUIntKeyProcessor> keyProc;
 	TypesCountsMapResultPtr typesCountsMap;
 	std::shared_ptr<AnyLengthInstancesUniquePrevalenceProvider> anyLengthPrevalenceProvider;

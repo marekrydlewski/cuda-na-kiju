@@ -30,32 +30,6 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-		__host__ __device__
-		void UniqueTupleCountFunctor::operator()(unsigned int idx) const
-		{
-			thrust::sort
-			(
-				thrust::device
-				, data + begins[idx]
-				, data + begins[idx] + count[idx]
-			);
-			
-			auto end = thrust::unique_copy
-			(
-				thrust::device
-				, data + begins[idx]
-				, data + begins[idx] + count[idx]
-				, uniquesOutput + begins[idx]
-			);
-
-			results[idx] = thrust::distance(
-				uniquesOutput + begins[idx]
-				, end
-			) / static_cast<float>(typeCount[idx]);
-		}
-
-		// -------------------------------------------------------------------------------------------------
-
 		__global__
 			void writeThroughtMask(
 				unsigned int count

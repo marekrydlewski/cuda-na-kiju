@@ -6,7 +6,7 @@
 int main()
 {
 	//input data
-	const float threshold = 15;
+	const float threshold = 5;
 	const float prevalence = 0.30f;
 
 	SimulatedRealDataProvider dataProvider;

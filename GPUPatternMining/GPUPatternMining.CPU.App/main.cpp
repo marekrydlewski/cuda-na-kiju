@@ -18,7 +18,7 @@ int main()
 	const float prevalence = 0.1;
 
 	SimulatedRealDataProvider dataProvider;
-	auto data = dataProvider.getTestData(DataSet::VeryFast);
+	auto data = dataProvider.getTestData(DataSet::Fast);
 
 	//output data
 	std::vector<std::vector<unsigned short>> solutionSeq, solutionSeq2, solutionParallel;
@@ -31,6 +31,14 @@ int main()
 	CPUMiningAlgorithmParallel cpuAlgParallel;
 	bmk::benchmark<std::chrono::milliseconds> bmSeq, bmSeq2, bmParallel;
 
+	bmSeq2.run_p("load data", 1, [&]() { cpuAlgSeq2.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
+	bmSeq2.run_p("filter by distance", 1, [&]() { cpuAlgSeq2.filterByDistance(threshold); });
+	bmSeq2.run_p("filter by prevalence", 1, [&]() { cpuAlgSeq2.filterByPrevalence(prevalence); });
+	bmSeq2.run_p("construct max cliques", 1, [&]() { cpuAlgSeq2.constructMaximalCliques(); });
+	bmSeq2.run_p("filter max cliques", 1, [&]() { solutionSeq2 = cpuAlgSeq2.filterMaximalCliques(prevalence); });
+
+	bmSeq2.print("sequential algorithm 2", std::cout);
+
 	bmSeq.run_p("load data", 1, [&]() { cpuAlgSeq.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
 	bmSeq.run_p("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });
 	bmSeq.run_p("filter by prevalence", 1, [&]() { cpuAlgSeq.filterByPrevalence(prevalence); });
@@ -40,13 +48,7 @@ int main()
 	bmSeq.print("sequential algorithm", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
 
-	bmSeq2.run_p("load data", 1, [&]() { cpuAlgSeq2.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
-	bmSeq2.run_p("filter by distance", 1, [&]() { cpuAlgSeq2.filterByDistance(threshold); });
-	bmSeq2.run_p("filter by prevalence", 1, [&]() { cpuAlgSeq2.filterByPrevalence(prevalence); });
-	bmSeq2.run_p("construct max cliques", 1, [&]() { cpuAlgSeq2.constructMaximalCliques(); });
-	bmSeq2.run_p("filter max cliques", 1, [&]() { solutionSeq2 = cpuAlgSeq2.filterMaximalCliques(prevalence); });
 
-	bmSeq2.print("sequential algorithm 2", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
 
 	bmParallel.run_p("load data", 1, [&]() { cpuAlgParallel.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });

@@ -108,3 +108,26 @@ TEST_CASE("Smaller cliqe - any subsclique 2", "CliquesContainerTests")
 
 	REQUIRE(cliqueAlreadyProcessed == false);
 }
+
+
+
+
+TEST_CASE("bigger cliqe - any subsclique", "CliquesContainerTests")
+{
+	CliquesContainer container;
+
+	std::vector<unsigned short> clique1{ 1, 2, 3, 4 };
+	std::vector<unsigned short> clique2{ 1, 3, 4 };
+	std::vector<unsigned short> clique3{ 1, 3, 7, 666};
+	std::vector<unsigned short> clique4{ 5, 6, 7 };
+	std::vector<unsigned short> clique5{ 1, 3};
+
+	container.insertClique(clique1);
+	container.insertClique(clique2);
+	container.insertClique(clique3);
+	container.insertClique(clique4);
+
+	bool cliqueAlreadyProcessed = container.checkSubcliqueExistence(clique5);
+
+	REQUIRE(cliqueAlreadyProcessed == false);
+}

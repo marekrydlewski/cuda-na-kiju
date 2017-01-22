@@ -17,6 +17,8 @@ public:
 		bool isSubclique;
 		for (auto& c : cliques)
 		{
+			if (clique.size() < c.size()) continue;
+
 			auto it = clique.begin();
 			isSubclique = true;
 			for (auto id : c)

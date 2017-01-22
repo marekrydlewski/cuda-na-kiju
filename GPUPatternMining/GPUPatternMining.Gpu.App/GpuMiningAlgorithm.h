@@ -59,6 +59,7 @@ private:
 	InstanceTypedNeighboursMapCreator::ITNMPackPtr ITNMPack;
 	std::shared_ptr<InstanceTree::InstanceTree> instanceTree;
 	CliquesContainer prevalentCliques;
-	CliquesContainer pendingCliques;
+	std::shared_ptr<GPUUIntKeyProcessor> keyProc;
+	TypesCountsMapResultPtr typesCountsMap;
 	std::shared_ptr<AnyLengthInstancesUniquePrevalenceProvider> anyLengthPrevalenceProvider;
 };

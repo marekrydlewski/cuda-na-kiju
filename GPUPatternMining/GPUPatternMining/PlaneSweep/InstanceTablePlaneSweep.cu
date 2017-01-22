@@ -176,14 +176,14 @@ namespace PlaneSweep
 			{
 				UInt outStart = outStarts[warpId];
 
-				for (UInt i = start; i <= stop; i++)
+				for (UInt actualRootId = start; actualRootId <= stop; ++actualRootId)
 				{
-					float px = xCoords[i];
-					float py = yCoords[i];
+					float px = xCoords[actualRootId];
+					float py = yCoords[actualRootId];
 
 					flags[blockWarpId] = false;
 
-					for (int j = i - 32; j >= -32; j -= 32)
+					for (int j = actualRootId - 32; j >= -32; j -= 32)
 					{
 						int localId = warpThreadId + j;
 						found[blockThreadId] = false;
@@ -191,7 +191,7 @@ namespace PlaneSweep
 
 						if (localId >= 0)
 						{
-							if (instances[i].fields.featureId != instances[localId].fields.featureId)
+							if (instances[actualRootId].fields.featureId != instances[localId].fields.featureId)
 							{
 
 								float lx = xCoords[localId];
@@ -207,21 +207,24 @@ namespace PlaneSweep
 								{
 									found[blockThreadId] = true;
 
-									if (instances[i].field < instances[localId].field)
+									if (instances[actualRootId].field < instances[localId].field)
 									{
-										temp_a = instances[i];
+										temp_a = instances[actualRootId];
 										temp_b = instances[localId];
 									}
 									else
 									{
 										temp_a = instances[localId];
-										temp_b = instances[i];
+										temp_b = instances[actualRootId];
 									}
 
 									scanBuf[blockThreadId] = 1;
 								}
 							}
 						}
+
+
+						int lasteL = scanBuf[blockWarpId * 32 + 31];
 
 						MiningCommon::intraWarpScan<UInt>(scanBuf + blockWarpId * 32);
 						__syncthreads();
@@ -235,7 +238,7 @@ namespace PlaneSweep
 							out_b[pos] = temp_b;
 						}
 
-						outStart += scanBuf[blockWarpId * 32 + 31];
+						outStart += scanBuf[blockWarpId * 32 + 31] + lasteL;
 
 						/*
 						scanBuf[blockThreadId] = found[blockThreadId];

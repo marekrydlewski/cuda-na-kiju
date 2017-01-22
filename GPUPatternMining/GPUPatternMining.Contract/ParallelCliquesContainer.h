@@ -1,11 +1,15 @@
 #pragma once
 
 #include <vector>
-#include <set>
 #include <algorithm>
+#include <ppl.h>
+#include <concurrent_unordered_set.h>
+
+#include "Hashers.h"
 
 class ParallelCliquesContainer
 {
+
 public:
 	bool checkCliqueExistence(std::vector<unsigned short>& clique)
 	{
@@ -16,6 +20,10 @@ public:
 	{
 		cliques.insert(clique);
 	}
+
+	ParallelCliquesContainer() {};
+	~ParallelCliquesContainer() {};
+
 private:
-	std::set<std::vector<unsigned short>> cliques;
+	concurrency::concurrent_unordered_set<std::vector<unsigned short>, vector_hash> cliques;
 };

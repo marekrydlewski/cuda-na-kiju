@@ -16,7 +16,6 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
 	this->prevalentCliquesContainer = new ParallelSubcliquesContainer(types);
-	this->lapsedCliquesContainer = new ParallelSubcliquesContainer(types);
 }
 
 void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
@@ -462,10 +461,10 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 				{
 					for (auto& smallClique : smallerCliques)
 					{
-						if (!lapsedCliquesContainer->checkCliqueExistence(smallClique))
+						if (!lapsedCliquesContainer.checkCliqueExistence(smallClique))
 						{
 							cliquesToProcess[clique.size() - 2]->push_back(smallClique);
-							lapsedCliquesContainer->insertClique(smallClique);
+							lapsedCliquesContainer.insertClique(smallClique);
 						}
 					}
 				}
@@ -544,7 +543,6 @@ CPUMiningAlgorithmParallel::CPUMiningAlgorithmParallel() :
 CPUMiningAlgorithmParallel::~CPUMiningAlgorithmParallel()
 {
 	delete prevalentCliquesContainer;
-	delete lapsedCliquesContainer;
 
 	for (auto& a : insTable)
 	{

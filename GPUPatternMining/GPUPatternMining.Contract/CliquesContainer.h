@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -6,7 +7,7 @@
 class CliquesContainer
 {
 public:
-	bool checkCliqueExistence(std::vector<unsigned short>& clique) 
+	bool checkCliqueExistence(std::vector<unsigned short>& clique)
 	{
 		return cliques.count(clique) == 1;
 	}
@@ -15,6 +16,9 @@ public:
 	{
 		cliques.insert(clique);
 	}
+
+	CliquesContainer() {};
+	~CliquesContainer() {};
 private:
 	std::set<std::vector<unsigned short>> cliques;
 };

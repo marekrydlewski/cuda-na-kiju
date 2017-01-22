@@ -6,7 +6,7 @@
 #include "../../GPUPatternMining.Contract/SubcliquesContainer.h"
 #include "../../GPUPatternMining.Contract/CliquesContainer.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
-#include "../../GPUPatternMining.Contract/PairHash.h"
+#include "../../GPUPatternMining.Contract/Hashers.h"
 
 #include <unordered_map>
 #include <vector>

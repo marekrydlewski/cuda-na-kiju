@@ -60,9 +60,6 @@
     <ClInclude Include="ApplicationHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="PairHash.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="DataLoader.h">
       <Filter>Providers</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="ParallelCliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Hashers.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -120,8 +120,5 @@
     <Content Include="Resource Files\hugeData.txt">
       <Filter>Resource Files</Filter>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Resource Files\hugeData.txt" />
   </ItemGroup>
 </Project>

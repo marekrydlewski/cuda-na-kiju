@@ -36,3 +36,15 @@ struct pair_hash_naive {
 		return h1 ^ h2;
 	}
 };
+
+
+struct vector_hash {
+	template <class T>
+		std::size_t operator()(std::vector<T> const& vec) const {
+		std::size_t seed = vec.size();
+		for (auto& i : vec) {
+			::hash_combine(seed, i);
+		}
+		return seed;
+	}
+};

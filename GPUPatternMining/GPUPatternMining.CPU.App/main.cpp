@@ -14,10 +14,10 @@ int main()
 {
 	//input data
 	const float threshold = 3;
-	const float prevalence = 0.0;
+	const float prevalence = 0.02;
 
 	SimulatedRealDataProvider dataProvider;
-	auto data = dataProvider.getTestData(DataSet::Medium);
+	auto data = dataProvider.getTestData(DataSet::VeryFast);
 
 	//output data
 	std::vector<std::vector<unsigned short>> solutionSeq, solutionParallel;

@@ -34,6 +34,7 @@
     <ClInclude Include="IDataProvider.h" />
     <ClInclude Include="ParallelCliquesContainer.h" />
     <ClInclude Include="RandomDataProvider.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SimulatedRealDataProvider.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
@@ -55,17 +56,13 @@
     <None Include="benchmark_visualizer.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resource Files\test1.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Text Include="Resource Files\fastData.txt" />
+    <Text Include="Resource Files\hugeData.txt" />
+    <Text Include="Resource Files\mediumData.txt" />
+    <Text Include="Resource Files\veryFastData.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resource Files\fastTestData.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Resource Files\test2.txt" />
+    <ResourceCompile Include="GPUPatternMining.Contract.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>

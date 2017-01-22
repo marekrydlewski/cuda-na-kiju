@@ -33,6 +33,14 @@ inline bool operator!=(const FeatureInstance& a, const FeatureInstance& b)
 }
 //------------------------------------------------------------------------------
 
+__device__ __host__
+inline bool operator<(const FeatureInstance& a, const FeatureInstance& b)
+{
+	return a.field < b.field;
+}
+//------------------------------------------------------------------------------
+
+
 struct FeatureInstanceEquality : public thrust::binary_function<FeatureInstance, FeatureInstance, bool>
 {
 	__host__ __device__ bool operator()(const FeatureInstance& lhs, const FeatureInstance& rhs) const

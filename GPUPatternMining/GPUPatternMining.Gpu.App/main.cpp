@@ -6,11 +6,11 @@
 int main()
 {
 	//input data
-	const float threshold = 5;
-	const float prevalence = 0.0f;
+	const float threshold = 15;
+	const float prevalence = 0.30f;
 
 	SimulatedRealDataProvider dataProvider;
-	auto data = dataProvider.getTestData();
+	auto data = dataProvider.getTestData(DataSet::Medium);
 
 	bmk::benchmark<std::chrono::nanoseconds> bmkGpu;
 	
@@ -56,12 +56,22 @@ int main()
 		alg.filterCandidatesByPrevalencePrepareData();
 	});
 
+	std::list<std::vector<unsigned short>> solution;
+
 	bmkGpu.run("filter candidates by prevalence", 1, [&]()
 	{
-		alg.filterCandidatesByPrevalence(prevalence);
+		solution = alg.filterCandidatesByPrevalence(prevalence);
 	});
 
 	bmkGpu.print("gpu algorithm", std::cout);
+
+	for (auto& cand : solution)
+	{
+		for (unsigned short us : cand)
+			printf("%hu ", us);
+
+		printf("\n");
+	}
 
 	return 0;
 }

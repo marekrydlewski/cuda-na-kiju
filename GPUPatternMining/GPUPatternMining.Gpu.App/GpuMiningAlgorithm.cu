@@ -6,6 +6,7 @@
 #include "../GPUPatternMining/PlaneSweep/InstanceTablePlaneSweep.h"
 #include "../GPUPatternMining/Prevalence/PrevalentTypedPairProvider.h"
 #include "../GPUPatternMining/Prevalence/AnyLengthInstancesUniquePrevalenceProvider.h"
+#include <list>
 
 // ------------------------------------------------------------------------------------------------
 
@@ -13,7 +14,7 @@
 void GpuMiningAlgorithm::loadData(DataFeed * data, size_t size, unsigned short types)
 {
 
-	typeIncidenceCounter = std::make_shared<TypesCounts>(types, 0);
+	typeIncidenceCounter = std::make_shared<TypesCounts>(types, TypeCount(0,0));
 	source.assign(data, data + size);
 }
 
@@ -87,8 +88,13 @@ void GpuMiningAlgorithm::filterPrevalentTypedConnectionsPrepareData()
 	);
 
 	// TODO write kernel
+
+	for (unsigned int i = 0; i < typeIncidenceCounter->size(); ++i)
+		typeIncidenceCounter->at(i).type = i;
+
+	
 	for (DataFeed& df : source)
-		++(*typeIncidenceCounter)[df.type].count;
+		typeIncidenceCounter->at(df.type).count += 1;
 }
 
 void GpuMiningAlgorithm::filterPrevalentTypedConnections(float minimalPrevalence)
@@ -110,9 +116,6 @@ void GpuMiningAlgorithm::constructMaximalCliquesPrepareData()
 	for (FeatureTypePair& ftp : prevalentTypesConnections)
 	{
 		graphForKerbosh.addEdge(ftp.types.a, ftp.types.b);
-
-		printf("%hu %hu\n", ftp.types.a, ftp.types.b);
-
 		++edgeCount;
 	}
 
@@ -121,6 +124,8 @@ void GpuMiningAlgorithm::constructMaximalCliquesPrepareData()
 
 void GpuMiningAlgorithm::constructMaximalCliques()
 {
+	CliquesContainer pendingCliques;
+
 	auto degeneracy = graphForKerbosh.getDegeneracy();
 	for (unsigned short const vertex : degeneracy.second)
 	{
@@ -133,19 +138,15 @@ void GpuMiningAlgorithm::constructMaximalCliques()
 			thisVertex,
 			neighboursWithLowerIndices);
 
-		for (std::vector<unsigned short > cnd : generatedCliques)
+		for (std::vector<unsigned short >& cnd : generatedCliques)
 		{
+			if (pendingCliques.checkCliqueExistence(cnd))
+				continue;
+
 			candidates[cnd.size()].push_back(cnd);
 			pendingCliques.insertClique(cnd);
 		}
-
-		//candidates.insert(candidates.end(), generatedCliques.begin(), generatedCliques.end());
 	}
-
-	//std::sort(candidates.begin(), candidates.end(), [](std::vector<unsigned short>& a, std::vector<unsigned short>& b)
-	//{
-	//	return b.size() < a.size();
-	//});
 }
 
 void GpuMiningAlgorithm::filterCandidatesByPrevalencePrepareData()
@@ -155,7 +156,11 @@ void GpuMiningAlgorithm::filterCandidatesByPrevalencePrepareData()
 		, planeSweepResult->pairsB
 	);
 
-	anyLengthPrevalenceProvider = std::make_shared<AnyLengthInstancesUniquePrevalenceProvider>(typeIncidenceCounter);
+	keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	typesCountsMap = getGpuTypesCountsMap(typeIncidenceCounter, keyProc.get());
+
+	anyLengthPrevalenceProvider = std::make_shared<AnyLengthInstancesUniquePrevalenceProvider>(typesCountsMap);
 
 	instanceTree = std::make_shared<InstanceTree::InstanceTree>(
 		planeSweepResult
@@ -180,34 +185,26 @@ std::vector<std::vector<unsigned short>> getAllCliquesSmallerByOne(std::vector<u
 	return smallCliques;
 }
 
-void GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
+std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
 {
-	/*
-	printf("candidates\n");
-	for (auto g = candidates.rbegin(); g != candidates.rend(); ++g)
-	{
-		for (auto cand : g->second)
-		{
-			for (unsigned int t : cand)
-				printf("%hu ", t);
-
-			printf(" | ");
-		};
-		printf("\n");
-	}
-	printf("candidates end\n");
-	*/
+	std::list<std::vector<unsigned short>> result;
 
 	for (auto cands = candidates.rbegin(); cands  != candidates.rend(); ++cands)
 	{
 		std::vector<std::vector<unsigned short>> toProcess;
-
-		for (auto cand : cands->second)
+		
 		{
-			if (prevalentCliques.checkCliqueExistence(cand))
-				continue;
+			// for removing candidates repeating with earlier candidates
+			CliquesContainer pendingCliques;
 
-			toProcess.push_back(cand);
+			for (auto cand : cands->second)
+			{
+				if (prevalentCliques.checkCliqueExistence(cand) || pendingCliques.checkCliqueExistence(cand))
+					continue;
+
+				pendingCliques.insertClique(cand);
+				toProcess.push_back(cand);
+			}
 		}
 
 		if (toProcess.empty())
@@ -219,55 +216,45 @@ void GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
 			continue;
 
 		auto gpuCliques = Entities::moveCliquesCandidatesToGpu(toProcess);
-/*
-		printf("=======[%u]========\n", currentCliqueSize);
-		for (auto cand : toProcess)
-		{
-			for (unsigned int t : cand)
-				printf("%hu ", t);
 
-			printf(" | ");
-		};
-		*/
-		//printf("\n=================\n");
+		auto instanceTreeResult = instanceTree->getInstancesResult(gpuCliques);
 
 		auto mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
 			gpuCliques
-			, instanceTree->getInstancesResult(gpuCliques)
+			, instanceTreeResult
 		);
 
-		for (int i = 0; i < mask.size(); ++i)
+		thrust::host_vector<float> hPrevalences = *mask;
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+		
 		{
-			printf("candidate-----|");
-			for (unsigned short us : toProcess[i])
-				printf("%hu ", us);
-			printf("|\n");
+			// for removing new repeating candidates
+			CliquesContainer pendingCliques;
 
-			if (mask[i] >= minimalPrevalence)
+			for (int i = 0; i < hPrevalences.size(); ++i)
 			{
-				prevalentCliques.insertClique(toProcess[i]);
-
-				printf("|");
-				for (unsigned short us : toProcess[i])
-					printf("%hu ", us);
-				printf("| exists\n");
-
-			}
-			else if (currentCliqueSize > 2)
-			{
-
-				auto smallerCliques = getAllCliquesSmallerByOne(toProcess[i]);
-
-				for (auto cand : smallerCliques)
+				if (hPrevalences[i] >= minimalPrevalence)
 				{
-					if (pendingCliques.checkCliqueExistence(cand))
-						continue;
+					prevalentCliques.insertClique(toProcess[i]);
 
-					candidates[currentCliqueSize - 1].push_back(cand);
-					pendingCliques.insertClique(cand);
+					result.push_back(toProcess[i]);
+				}
+				else if (currentCliqueSize > 2)
+				{
+					auto smallerCliques = getAllCliquesSmallerByOne(toProcess[i]);
+
+					for (auto cand : smallerCliques)
+					{
+						if (pendingCliques.checkCliqueExistence(cand) || prevalentCliques.checkCliqueExistence(cand))
+							continue;
+
+						candidates[currentCliqueSize - 1].push_back(cand);
+						pendingCliques.insertClique(cand);
+					}
 				}
 			}
 		}
-		//printf("=================\n");
 	}
+
+	return result;
 }

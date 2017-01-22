@@ -8,6 +8,7 @@
 #include "../GPUPatternMining.Contract/Graph.h"
 #include "../GPUPatternMining/Prevalence/AnyLengthInstancesUniquePrevalenceProvider.h"
 #include "../GPUPatternMining.Contract/CliquesContainer.h"
+#include <list>
 
 // ------------------------------------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ public:
 
 	void filterCandidatesByPrevalencePrepareData();
 
-	void filterCandidatesByPrevalence(float minimalPrevalence);
+	std::list<std::vector<unsigned short>> filterCandidatesByPrevalence(float minimalPrevalence);
 
 private:
 
@@ -58,7 +59,8 @@ private:
 
 	InstanceTypedNeighboursMapCreator::ITNMPackPtr ITNMPack;
 	std::shared_ptr<InstanceTree::InstanceTree> instanceTree;
-	SubcliquesContainer prevalentCliques;
-	SubcliquesContainer pendingCliques;
+	CliquesContainer prevalentCliques;
+	std::shared_ptr<GPUUIntKeyProcessor> keyProc;
+	TypesCountsMapResultPtr typesCountsMap;
 	std::shared_ptr<AnyLengthInstancesUniquePrevalenceProvider> anyLengthPrevalenceProvider;
 };

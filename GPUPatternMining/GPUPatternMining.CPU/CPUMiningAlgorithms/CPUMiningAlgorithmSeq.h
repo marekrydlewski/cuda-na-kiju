@@ -4,6 +4,7 @@
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
 #include "../../GPUPatternMining.Contract/CliquesContainer.h"
+#include "../../GPUPatternMining.Contract/LapsedCliquesContainer.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include "../../GPUPatternMining.Contract/PairHash.h"
 
@@ -52,7 +53,7 @@ private:
 
 	Graph size2ColocationsGraph;
 	CliquesContainer prevalentCliquesContainer;
-	CliquesContainer lapsedCliquesContainer;
+	LapsedCliquesContainer lapsedCliquesContainer;
 	/// Cm
 	std::vector<std::vector<unsigned short>> maximalCliques;
 

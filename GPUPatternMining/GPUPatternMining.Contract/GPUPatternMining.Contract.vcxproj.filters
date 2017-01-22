@@ -72,6 +72,9 @@
     <ClInclude Include="DataLoader.h">
       <Filter>Providers</Filter>
     </ClInclude>
+    <ClInclude Include="LapsedCliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -114,5 +117,8 @@
     <Content Include="Resource Files\hugeData.txt">
       <Filter>Resource Files</Filter>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resource Files\hugeData.txt" />
   </ItemGroup>
 </Project>

@@ -75,7 +75,7 @@ namespace Prevalence
 			thrust::device_ptr<float> results;
 
 			__host__ __device__
-				void operator()(unsigned int idx);
+				void operator()(unsigned int idx) const;
 		};
 		// -------------------------------------------------------------------------------------------------
 

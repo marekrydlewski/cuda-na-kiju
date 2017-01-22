@@ -31,7 +31,7 @@ namespace Prevalence
 		// -------------------------------------------------------------------------------------------------
 
 		__host__ __device__
-		void UniqueTupleCountFunctor::operator()(unsigned int idx)
+		void UniqueTupleCountFunctor::operator()(unsigned int idx) const
 		{
 			thrust::sort
 			(

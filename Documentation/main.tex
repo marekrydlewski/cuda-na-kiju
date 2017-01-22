@@ -574,8 +574,19 @@ Dla klik o długości wiekszej niż 2 tworzone jest skondensowane drzewo instanc
 
 W przypadku, kiedy miara nie jest mniejsza niż przyjęty na początku próg powszechności, kandydat jest dodawany do zbioru rozwiązań. W przeciwnym wypadku do struktury $ cliquesToProcess $ dodawane są podkliki, które również będą rozważane jako potencjalni kandydaci na kolokacje.
 
-
 \subsection{Wersja wielowątkowa}
+
+Jak już wcześniej wspomniano, rozwiązanie równoległe zostało oparte o multiplatformową, wysokopoziomową bibliotekę \textit{Parallel Patterns Library} firmy \textit{Microsoft}. Została ona pierwszy raz zaprezentowane szerzej publiczności wraz z wydaniem środowiska \textit{Visual Studio 2010} i docelowo ma być konkurencją dla popularnej biblioteki \textit{OpenMP}. 
+
+Cechą charakterystyczną tej biblioteki jest podobieństwo składni do tej z biblioteki standardowej C++ (ang. \textit{C++ Standard Library}). Wykorzystuje też wszystkie właściwości języka C++, jakie przynosi standard C++11 i późniejsze (w tym funkcje \textit{lambda}).
+
+Biblioteka \textit{PPL} wprowadza zbiór obiektów zwanych równoległymi pojemnikami (ang. \textit{concurrent containers}). Są to odpowiedniki pojemników z biblioteki standardowej C++, które cechują się równoległymi wersjami funkcji operujących na pojemnikach (np. operacji wstawiania czy usuwania). W zdecydowanej większości przypadków ich użycie nie różni się od wersji sekwencyjnych dostępnych w bibliotece STD - wymagane jest jedynie umieszczenie ich w odpowiednim bloku, np. \textit{parallel\_for}. 
+
+W przypadku, kiedy istnieje potrzeba dostarczenia kopii pojemnika dla każdego z wątków (np. żeby nie blokować dostępu innym wątkom do współdzielonego pojemnika), istnieje także klasa pojemników typu \textit{combinable}. Kiedy równoległe przetwarzanie zostanie zakończone, prywatne kopie wygenerowane dla każdego z wątków są wtedy przezroczyście łączone w całość. Oczywiście \textit{PPL} zawiera także tradycyjne metody zapewnienia równoległości w programie, takie jak zadania (ang. \textit{tasks}) oraz klasyczne mutexy.
+
+Zasadniczą różnicą między \textit{PPL} a \textit{OpenMP} jest zastosowanie dynamicznego planisty (ang. \textit{dynamic scheduler}), co pozwala na lepszą optymalizację równoległego przetwarzania w zależności od aktualnie dostępnych zasobów w systemie. Na dynamicznym planiście zyskują szczególnie problemy o charakterze rekurencyjnym (np. algorytmy sortujące czy szeroko wykorzystywane w niniejszej pracy przeszukiwanie danych) \cite{mikromiekki}. Do tego technologia \textit{OpenMP} nie zawiera żadnego mechanizmu anulowania, często wymaganego w algorytmach o charakterze równoległym \cite{stak}.
+
+Powyższe wady środowiska \textit{OpenMP} były powodem, dla których ostatecznie - pomimo ubogiej dokumentacji oraz niskiej popularności -  została wybrana biblioteka \textit{Parallel Patterns Library} jako najbardziej optymalna dla algorytmu \textit{SCGT} będącego tematem tej pracy.
 
 \subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
@@ -628,6 +639,8 @@ Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 
 generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
 \bibitem{framework}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
 \bibitem{matusiak}Matula, D. W.; Beck, L. L. (1983), "Smallest-last ordering and clustering and graph coloring algorithms", Journal of the ACM, 30 (3): 417–427, doi:10.1145/2402.322385, MR 0709826.
+\bibitem{mikromiekki}https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
+\bibitem{stak}http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
 \end{thebibliography}
 
 \newpage

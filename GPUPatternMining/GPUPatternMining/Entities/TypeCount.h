@@ -8,6 +8,12 @@
 
 struct TypeCount
 {
+	TypeCount()
+		: type(0), count(0)
+	{
+
+	}
+
 	TypeCount(unsigned int type) 
 		: type(type), count(0)
 	{

@@ -4,13 +4,13 @@
 
 
 AnyLengthInstancesUniquePrevalenceProvider::AnyLengthInstancesUniquePrevalenceProvider(
-	TypesCountsPtr typesCounts)
-	: mapKeyProcessor(GPUKeyProcessor<unsigned int>())
+	TypesCountsMapResultPtr typesCountsMap)
+	: typesCountsMap(typesCountsMap)
 {
-	typesCountsMap = getGpuTypesCountsMap(typesCounts, &mapKeyProcessor);
+
 }
 
-thrust::host_vector<float> AnyLengthInstancesUniquePrevalenceProvider::getPrevalenceFromCandidatesInstances(
+std::shared_ptr<thrust::device_vector<float>> AnyLengthInstancesUniquePrevalenceProvider::getPrevalenceFromCandidatesInstances(
 	Entities::GpuCliques cliquesCandidates
 	, InstanceTree::InstanceTreeResultPtr instanceTreeResult
 ) const
@@ -18,8 +18,10 @@ thrust::host_vector<float> AnyLengthInstancesUniquePrevalenceProvider::getPreval
 	const unsigned int candidatesCount = cliquesCandidates.candidatesCount;
 	const unsigned int instancesCount = instanceTreeResult->instancesCliqueId.size();
 
+	auto result = std::make_shared<thrust::device_vector<float>>(candidatesCount, 0.f);
+
 	if (candidatesCount == 0 || instancesCount == 0)
-		return std::vector<float>();
+		return result;
 	
 	thrust::device_vector<unsigned int> cliquesID(candidatesCount);
 	thrust::device_vector<unsigned int> instancesCounts(candidatesCount);
@@ -50,17 +52,13 @@ thrust::host_vector<float> AnyLengthInstancesUniquePrevalenceProvider::getPreval
 		, idxs.begin()
 		, idxs.end()
 	);
-
+	
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-
-	unsigned int levels = cliquesCandidates.currentCliquesSize;
 
 	thrust::device_vector<FeatureInstance> levelTempStorage(instancesCount);
 
-	thrust::device_vector<float> gpuResult(candidatesCount, 0);
-
 	auto cliquesTypesCount = getTypesCountOnGpuForCliquesCandidates(
-		cliquesCandidates, typesCountsMap
+		cliquesCandidates, typesCountsMap->map
 	);
 
 	MinimalCandidatePrevalenceCounter prevalenceCounter;
@@ -72,16 +70,15 @@ thrust::host_vector<float> AnyLengthInstancesUniquePrevalenceProvider::getPreval
 		prevalenceCounter.cliqueIds = cliquesID.data();
 		prevalenceCounter.levelUniquesTempStorage = levelTempStorage.data();
 
-		prevalenceCounter.results = gpuResult.data();
+		prevalenceCounter.results = result->data();
 		prevalenceCounter.levelsCount = cliquesCandidates.currentCliquesSize;
 		prevalenceCounter.instancesCount = instancesCount;
 		prevalenceCounter.candidatesCount = cliquesCandidates.candidatesCount;
-
 	}
 
 	thrust::for_each(thrust::device, idxs.begin(), idxs.end(), prevalenceCounter);
 
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
-	return gpuResult;
+	return result;
 }

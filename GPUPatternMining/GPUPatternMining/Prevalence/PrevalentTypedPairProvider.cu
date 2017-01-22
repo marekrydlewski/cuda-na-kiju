@@ -30,9 +30,29 @@ namespace Prevalence
 		}
 		// -------------------------------------------------------------------------------------------------
 
-//		__host__ __device__
-//		FeatureTypePair FeatureInstancesTupleToFeatureTypePair::operator()(thrust::tuple<FeatureInstance, FeatureInstance> ftt)
+		__host__ __device__
+		void UniqueTupleCountFunctor::operator()(unsigned int idx) const
+		{
+			thrust::sort
+			(
+				thrust::device
+				, data + begins[idx]
+				, data + begins[idx] + count[idx]
+			);
+			
+			auto end = thrust::unique_copy
+			(
+				thrust::device
+				, data + begins[idx]
+				, data + begins[idx] + count[idx]
+				, uniquesOutput + begins[idx]
+			);
 
+			results[idx] = thrust::distance(
+				uniquesOutput + begins[idx]
+				, end
+			) / static_cast<float>(typeCount[idx]);
+		}
 
 		// -------------------------------------------------------------------------------------------------
 
@@ -79,13 +99,14 @@ namespace Prevalence
 			const unsigned int uniquesCount = itmPack->count;
 			thrust::host_vector<thrust::tuple<FeatureInstance, FeatureInstance>> localUniques = itmPack->uniques;
 
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 			thrust::device_vector<unsigned int> aCounts;
 			thrust::device_vector<unsigned int> bCounts;
 			{
 				thrust::host_vector<unsigned int> haCounts;
 				thrust::host_vector<unsigned int> hbCounts;
 
-				for (thrust::tuple<FeatureInstance, FeatureInstance> tup : localUniques)
+				for (thrust::tuple<FeatureInstance, FeatureInstance>& tup : localUniques)
 				{
 					haCounts.push_back(typeCountMap[tup.get<0>().fields.featureId]);
 					hbCounts.push_back(typeCountMap[tup.get<1>().fields.featureId]);
@@ -133,16 +154,20 @@ namespace Prevalence
 			unsigned int currentStart = 0;
 			unsigned int currentEnd = uniquesCount % countPerIteration;
 
+			
+			currentEnd = std::min(currentEnd + countPerIteration, uniquesCount);
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 			while (currentEnd <= uniquesCount)
 			{
 				{
-					
 					thrust::for_each(
 						thrust::device
 						, idxsa.begin() + currentStart
 						, idxsa.begin() + currentEnd
 						, aPrev);
-					CUDA_CHECK_RETURN(cudaDeviceSynchronize());				
+ 					CUDA_CHECK_RETURN(cudaDeviceSynchronize());				
 				}
 					
 				{

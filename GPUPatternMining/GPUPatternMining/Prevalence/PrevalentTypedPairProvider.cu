@@ -149,7 +149,6 @@ namespace Prevalence
 			thrust::device_vector<unsigned int> idxsb(uniquesCount);
 			thrust::sequence(idxsb.begin(), idxsb.end());
 
-
 			unsigned int countPerIteration = 10;
 			unsigned int currentStart = 0;
 			unsigned int currentEnd = uniquesCount % countPerIteration;
@@ -157,7 +156,36 @@ namespace Prevalence
 			
 			currentEnd = std::min(currentEnd + countPerIteration, uniquesCount);
 
-			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+			unsigned int countPerIteration = 10;
+			unsigned int currentStart = 0;
+			unsigned int currentEnd = uniquesCount % countPerIteration;
+
+			while (currentEnd <= uniquesCount)
+			{
+				{
+					
+					thrust::for_each(
+						thrust::device
+						, idxsa.begin() + currentStart
+						, idxsa.begin() + currentEnd
+						, aPrev);
+					CUDA_CHECK_RETURN(cudaDeviceSynchronize());				
+				}
+					
+				{
+
+					thrust::for_each(
+						thrust::device
+						, idxsb.begin() + currentStart
+						, idxsb.begin() + currentEnd
+						, bPrev);
+					CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+				}
+
+				currentStart += countPerIteration;
+				currentEnd += countPerIteration;
+			}
 
 			while (currentEnd <= uniquesCount)
 			{

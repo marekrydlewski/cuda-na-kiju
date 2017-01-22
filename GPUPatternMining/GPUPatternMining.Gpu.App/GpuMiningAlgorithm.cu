@@ -161,7 +161,7 @@ void GpuMiningAlgorithm::filterCandidatesByPrevalencePrepareData()
 	typesCountsMap = getGpuTypesCountsMap(typeIncidenceCounter, keyProc.get());
 
 	anyLengthPrevalenceProvider = std::make_shared<AnyLengthInstancesUniquePrevalenceProvider>(typesCountsMap);
-	
+
 	instanceTree = std::make_shared<InstanceTree::InstanceTree>(
 		planeSweepResult
 		, itmPack

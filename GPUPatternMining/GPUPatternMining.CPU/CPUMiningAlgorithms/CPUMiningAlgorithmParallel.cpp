@@ -227,7 +227,10 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 
 	for (auto& cl : maximalCliques)
 	{
+		lapsedCliquesContainer.insertClique(cl);
 		cliquesToProcess[cl.size() - 1]->push_back(cl);
+		if (cl.size() <= 2)
+			prevalentCliquesContainer->insertClique(cl);
 	}
 
 	concurrency::combinable<std::vector<std::vector<unsigned short>>> combinableFinalMaxCliques;

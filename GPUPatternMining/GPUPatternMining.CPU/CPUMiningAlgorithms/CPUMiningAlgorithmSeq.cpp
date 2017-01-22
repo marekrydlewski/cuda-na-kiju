@@ -142,6 +142,9 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 	for (auto& cl : maximalCliques)
 	{
 		cliquesToProcess[cl.size()-1].push_back(cl);
+		lapsedCliquesContainer.insertClique(cl);
+		if (cl.size() <= 2)
+			prevalentCliquesContainer.insertClique(cl);
 	}
 
 	for (int i = cliquesToProcess.size() - 1; i >= 2; --i)
@@ -360,8 +363,6 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 		}
 		else
 		{
-			lapsedCliquesContainer.insertClique(clique);
-
 			if (clique.size() > 2)
 			{
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);

@@ -1,11 +1,8 @@
 #include "CPUMiningAlgorithmSeq.h"
 
 #include "../../GPUPatternMining.Contract/CinsTree.h"
-#include "../../GPUPatternMining.Contract/CinsNode.h"
-#include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 
 #include <algorithm>
-#include <cassert>
 #include <iostream>
 #include <iterator>
 #include <chrono>
@@ -20,18 +17,11 @@ void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned shor
 
 void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 {
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 	std::sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
 	{
 		return (first.xy.x < second.xy.x);
 	});
-
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
-
-	begin = std::chrono::steady_clock::now();
 
 	float effectiveThreshold = std::pow(threshold, 2);
 
@@ -61,9 +51,6 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 			}
 		}
 	}
-	end = std::chrono::steady_clock::now();
-
-	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 }
 
 void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)
@@ -200,9 +187,12 @@ bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 }
 
 
-std::map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> CPUMiningAlgorithmSeq::countUniqueInstances()
+std::unordered_map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> CPUMiningAlgorithmSeq::countUniqueInstances()
 {
-	std::map<std::pair <unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>> typeIncidenceColocations;
+	std::unordered_map<
+		std::pair <unsigned short, unsigned short>,
+		std::pair<unsigned short, unsigned short>,
+		pair_hash> typeIncidenceColocations;
 
 	//counting types incidence
 	for (auto& a : insTable)
@@ -360,12 +350,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
-	if (!cliquesContainer.checkCliqueExistence(clique)) 
+	if (!prevalentCliquesContainer.checkCliqueExistence(clique)) 
 	{
 		if (isCliquePrevalent(clique, prevalence))
 		{
 			finalMaxCliques.push_back(clique);
-			cliquesContainer.insertClique(clique);
+			prevalentCliquesContainer.insertClique(clique);
 		}
 		else
 		{
@@ -374,21 +364,25 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);
 				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
 				{
-					for (auto smallClique : smallerCliques)
+					for (auto& smallClique : smallerCliques)
 					{
-						if (!cliquesContainer.checkCliqueExistence(smallClique))
+						if (!prevalentCliquesContainer.checkCliqueExistence(smallClique))
 						{
 							finalMaxCliques.push_back(smallClique);
-							cliquesContainer.insertClique(smallClique);
+							prevalentCliquesContainer.insertClique(smallClique);
 						}
 					}
 				}
 				else
 				{
-					cliquesToProcess[clique.size() - 2].insert(
-						cliquesToProcess[clique.size() - 2].end(),
-						smallerCliques.begin(),
-						smallerCliques.end());
+					for (auto& smallClique : smallerCliques)
+					{
+						if (!lapsedCliquesContainer.checkCliqueExistence(smallClique))
+						{
+							cliquesToProcess[clique.size() - 2].push_back(smallClique);
+							lapsedCliquesContainer.insertClique(smallClique);
+						}
+					}
 				}
 			}
 		}

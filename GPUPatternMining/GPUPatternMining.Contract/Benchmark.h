@@ -368,6 +368,41 @@ namespace bmk
 					nSample, fw(callable), factorName, beg, fin));
 		}
 
+
+		// run experiments and print--------------------------------------
+		template <class F>
+		void run_p(string const& name, size_t nSample, F&& callable)
+		{
+			std::cout << name << std::endl;
+			_data.emplace_back(
+				name, make_unique<detail::experiment_model<TimeT, ClockT>>(
+					nSample, fw(callable)));
+		}
+
+		template <class FactorT, class F>
+		void run_p(string const& name, size_t nSample, F&& callable,
+			string const& factorName, initializer_list<FactorT>&& factors)
+		{
+			std::cout << name << std::endl;
+			_data.emplace_back(
+				name,
+				make_unique<detail::experiment_model<TimeT, ClockT, FactorT>>(
+					nSample, fw(callable), factorName,
+					forward<initializer_list<FactorT>&&>(factors)));
+		}
+
+		template <class F, class It>
+		void run_p(string const& name, size_t nSample, F&& callable,
+			string const& factorName, It beg, It fin)
+		{
+			std::cout << name << std::endl;
+			_data.emplace_back(
+				name, make_unique<detail::experiment_model<
+				TimeT, ClockT,
+				typename remove_reference<decltype(*beg)>::type>>(
+					nSample, fw(callable), factorName, beg, fin));
+		}
+
 		// utilities ----------------------------------------------------
 		void print(const char* benchmarkName, ostream& os) const
 		{

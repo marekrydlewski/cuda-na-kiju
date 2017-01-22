@@ -24,15 +24,17 @@
     <ClInclude Include="CinsNode.h" />
     <ClInclude Include="CinsTree.h" />
     <ClInclude Include="DataLoader.h" />
-    <ClInclude Include="CliquesContainer.h" />
+    <ClInclude Include="ParallelCliquesContainer.h" />
+    <ClInclude Include="SubcliquesContainer.h" />
     <ClInclude Include="Enity\DataFeed.h" />
     <ClInclude Include="Graph.h" />
-    <ClInclude Include="PairHash.h" />
+    <ClInclude Include="CliquesContainer.h" />
+    <ClInclude Include="Hashers.h" />
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h" />
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />
     <ClInclude Include="IDataProvider.h" />
-    <ClInclude Include="ParallelCliquesContainer.h" />
+    <ClInclude Include="ParallelSubcliquesContainer.h" />
     <ClInclude Include="RandomDataProvider.h" />
     <ClInclude Include="SimulatedRealDataProvider.h" />
     <ClInclude Include="Timer.h" />
@@ -45,9 +47,9 @@
   <ItemGroup>
     <ClCompile Include="CinsNode.cpp" />
     <ClCompile Include="CinsTree.cpp" />
-    <ClCompile Include="CliquesContainer.cpp" />
+    <ClCompile Include="SubcliquesContainer.cpp" />
     <ClCompile Include="Graph.cpp" />
-    <ClCompile Include="ParallelCliquesContainer.cpp" />
+    <ClCompile Include="ParallelSubcliquesContainer.cpp" />
     <ClCompile Include="RandomDataProvider.cpp" />
     <ClCompile Include="SimulatedRealDataProvider.cpp" />
   </ItemGroup>
@@ -55,17 +57,18 @@
     <None Include="benchmark_visualizer.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resource Files\test1.txt">
+    <Content Include="Resource Files\fastData.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resource Files\fastTestData.txt">
+    <Content Include="Resource Files\hugeData.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Resource Files\test2.txt" />
+    <Content Include="Resource Files\mediumData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resource Files\veryfastData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>

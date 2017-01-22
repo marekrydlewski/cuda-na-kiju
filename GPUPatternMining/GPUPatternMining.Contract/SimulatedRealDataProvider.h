@@ -4,7 +4,7 @@
 #include "DataLoader.h"
 #include "Enity\DataFeed.h"
 
-enum class DataSet { Fast, Medium, VeryLarge };
+enum class DataSet { VeryFast, Fast, Medium, Huge };
 
 class SimulatedRealDataProvider
 {

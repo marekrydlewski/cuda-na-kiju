@@ -57,20 +57,26 @@
     <ClInclude Include="SimulatedRealDataProvider.h">
       <Filter>Providers</Filter>
     </ClInclude>
+    <ClInclude Include="ApplicationHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader.h">
+      <Filter>Providers</Filter>
+    </ClInclude>
+    <ClInclude Include="SubcliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ParallelSubcliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
     <ClInclude Include="CliquesContainer.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="ParallelCliquesContainer.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="ApplicationHelper.h">
+    <ClInclude Include="Hashers.h">
       <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="PairHash.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="DataLoader.h">
-      <Filter>Providers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -89,10 +95,10 @@
     <ClCompile Include="SimulatedRealDataProvider.cpp">
       <Filter>Providers</Filter>
     </ClCompile>
-    <ClCompile Include="CliquesContainer.cpp">
+    <ClCompile Include="SubcliquesContainer.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="ParallelCliquesContainer.cpp">
+    <ClCompile Include="ParallelSubcliquesContainer.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -102,18 +108,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resource Files\test1.txt">
+    <Content Include="Resource Files\fastData.txt">
       <Filter>Resource Files</Filter>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resource Files\fastTestData.txt">
+    <Content Include="Resource Files\mediumData.txt">
       <Filter>Resource Files</Filter>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Resource Files\test2.txt">
+    <Content Include="Resource Files\veryFastData.txt">
       <Filter>Resource Files</Filter>
-    </Text>
+    </Content>
+    <Content Include="Resource Files\hugeData.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
   </ItemGroup>
 </Project>

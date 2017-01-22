@@ -13,8 +13,8 @@
 int main()
 {
 	//input data
-	const float threshold = 3;
-	const float prevalence = 0.0;
+	const float threshold = 5;
+	const float prevalence = 0.02;
 
 	SimulatedRealDataProvider dataProvider;
 	auto data = dataProvider.getTestData(DataSet::Medium);
@@ -27,7 +27,7 @@ int main()
 
 	CPUMiningAlgorithmSeq cpuAlgSeq;
 	CPUMiningAlgorithmParallel cpuAlgParallel;
-	bmk::benchmark<std::chrono::nanoseconds> bmSeq, bmParallel;
+	bmk::benchmark<std::chrono::milliseconds> bmSeq, bmParallel;
 
 	bmSeq.run_p("load data", 1, [&]() { cpuAlgSeq.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
 	bmSeq.run_p("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });

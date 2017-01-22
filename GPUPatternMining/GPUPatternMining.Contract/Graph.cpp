@@ -52,10 +52,16 @@ std::vector<unsigned short> Graph::getVertexNeighboursOfLowerIndex(unsigned shor
 
 std::vector<unsigned short> Graph::getVertexNeighbours(unsigned short v)
 {
-	auto neighbours = getVertexNeighboursOfHigherIndex(v);
-	auto neighbours2 = getVertexNeighboursOfLowerIndex(v);
+	std::vector<unsigned short> neighbours;
 
-	neighbours.insert(neighbours.begin(), neighbours2.begin(), neighbours2.end());
+	for (int v2 = 0; v2 < tab.size(); ++v2)
+	{
+		if (tab[v][v2] || tab[v2][v])
+		{
+			neighbours.push_back(v2);
+		}
+	}
+
 	return neighbours;
 }
 
@@ -143,7 +149,6 @@ std::pair<unsigned short, std::vector<unsigned short>> Graph::getDegeneracy()
 	return std::make_pair(k, L);
 }
 
-//vectors
 ///Tomita Tanaka 2006 maximal pivot algorithm
 unsigned short Graph::tomitaMaximalPivot(const std::vector<unsigned short>& SUBG, const std::vector<unsigned short>& CAND)
 {
@@ -167,7 +172,6 @@ unsigned short Graph::tomitaMaximalPivot(const std::vector<unsigned short>& SUBG
 	return u;
 }
 
-//vectors
 std::vector<std::vector<unsigned short>> Graph::bkPivot(
 	std::vector<unsigned short> M,
 	std::vector<unsigned short> K,

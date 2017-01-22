@@ -1,10 +1,10 @@
-#include "ParallelCliquesContainer.h"
+#include "ParallelSubcliquesContainer.h"
 
 #include <algorithm>
 #include <cassert>
 #include <ppl.h>
 
-ParallelCliquesContainer::ParallelCliquesContainer(unsigned short numberOfTypes)
+ParallelSubcliquesContainer::ParallelSubcliquesContainer(unsigned short numberOfTypes)
 {
 	for (auto i = 0; i < numberOfTypes; ++i)
 	{
@@ -14,7 +14,7 @@ ParallelCliquesContainer::ParallelCliquesContainer(unsigned short numberOfTypes)
 	cliquesCounter = 0;
 }
 
-void ParallelCliquesContainer::insertClique(std::vector<unsigned short>& clique)
+void ParallelSubcliquesContainer::insertClique(std::vector<unsigned short>& clique)
 {
 	concurrency::critical_section mutex;
 
@@ -29,7 +29,7 @@ void ParallelCliquesContainer::insertClique(std::vector<unsigned short>& clique)
 	
 }
 
-void ParallelCliquesContainer::insertCliques(std::vector<std::vector<unsigned short>>& cliques)
+void ParallelSubcliquesContainer::insertCliques(std::vector<std::vector<unsigned short>>& cliques)
 {
 	for (auto& clique : cliques)
 	{
@@ -37,7 +37,7 @@ void ParallelCliquesContainer::insertCliques(std::vector<std::vector<unsigned sh
 	}
 }
 
-bool ParallelCliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
+bool ParallelSubcliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
 {
 	assert(clique.size() >= 2);
 
@@ -72,6 +72,6 @@ bool ParallelCliquesContainer::checkCliqueExistence(std::vector<unsigned short>&
 }
 
 
-ParallelCliquesContainer::~ParallelCliquesContainer()
+ParallelSubcliquesContainer::~ParallelSubcliquesContainer()
 {
 }

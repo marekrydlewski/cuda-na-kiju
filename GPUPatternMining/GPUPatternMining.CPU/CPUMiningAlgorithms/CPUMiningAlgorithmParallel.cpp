@@ -15,8 +15,7 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 {
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
-	this->prevalentCliquesContainer = new ParallelCliquesContainer(types);
-	this->lapsedCliquesContainer = new ParallelCliquesContainer(types);
+	this->prevalentCliquesContainer = new ParallelSubcliquesContainer(types);
 }
 
 void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
@@ -228,12 +227,15 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 
 	for (auto& cl : maximalCliques)
 	{
+		lapsedCliquesContainer.insertClique(cl);
 		cliquesToProcess[cl.size() - 1]->push_back(cl);
+		if (cl.size() <= 2)
+			prevalentCliquesContainer->insertClique(cl);
 	}
 
 	concurrency::combinable<std::vector<std::vector<unsigned short>>> combinableFinalMaxCliques;
 
-	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
+	for (int i = cliquesToProcess.size() - 1; i >= 2; --i)
 	{
 		concurrency::parallel_for_each(
 			cliquesToProcess[i]->begin(),
@@ -258,6 +260,9 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaxim
 		[&finalMaxCliques](auto& vec) {
 		finalMaxCliques.insert(finalMaxCliques.end(), vec.begin(), vec.end());
 	});
+
+	//add colocations of size 2
+	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[1]->begin(), cliquesToProcess[1]->end());
 
 	//add colocations of size 1 
 	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[0]->begin(), cliquesToProcess[0]->end()); 
@@ -462,10 +467,10 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::getPrevalen
 				{
 					for (auto& smallClique : smallerCliques)
 					{
-						if (!lapsedCliquesContainer->checkCliqueExistence(smallClique))
+						if (!lapsedCliquesContainer.checkCliqueExistence(smallClique))
 						{
 							cliquesToProcess[clique.size() - 2]->push_back(smallClique);
-							lapsedCliquesContainer->insertClique(smallClique);
+							lapsedCliquesContainer.insertClique(smallClique);
 						}
 					}
 				}
@@ -544,7 +549,6 @@ CPUMiningAlgorithmParallel::CPUMiningAlgorithmParallel() :
 CPUMiningAlgorithmParallel::~CPUMiningAlgorithmParallel()
 {
 	delete prevalentCliquesContainer;
-	delete lapsedCliquesContainer;
 
 	for (auto& a : insTable)
 	{

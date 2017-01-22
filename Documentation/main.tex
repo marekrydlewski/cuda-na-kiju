@@ -528,7 +528,33 @@ Następnie w oparciu o wektor wynikowy tej funkcji oraz utworzony wcześniej wek
 
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
 
-Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja 10). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej A jest większy od zera. 
+Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja 10). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
+
+\begin{algorithm}
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\Input{$G=(E,V)$}
+\Output{$k$ (miara degeneracji), $L$ (lista wierzchołków uporządkowanych według miary degeneracji)}
+$L \leftarrow \emptyset$\; 
+$D \leftarrow \emptyset$\;
+\ForEach{$v_{i} \in G $}{
+$D(d_{v}) \leftarrow $ liczba sąsiadów $ v \notin L $ (początkowo równa stopniowi wierzchołka)\;
+}
+$k \leftarrow 0$\;
+\ForEach{$v_{i} \in G $}{
+znajdź takie $ i $, dla którego $ D(i) \neq \emptyset $\;
+$ k \leftarrow max(k, i)$\;
+$ v \leftarrow $ wierzchołek z $ D(i)$\;
+$ L \leftarrow \{v\} \cup L $\;
+$ D(i) \leftarrow D(i) \backslash \{v\}$\;
+\ForEach{$ w \leftarrow $ sąsiedzi $ v \notin L $}{
+$ d^{'}_{w} \leftarrow d_{w} - 1$\;
+$ D(d_{w}) \leftarrow D(d_{w}) \backslash \{w\}$\;
+$ D(d^{'}_{w}) \leftarrow D(d^{'}_{w}) \cup w $\;
+}
+}
+\caption{Obliczanie miary degeneracji metodą Matuli i Becka (1983)}
+\end{algorithm}
 
 Po wygenerowaniu grafu liczona jest jego miara degeneracji (patrz Definicja 11). W tym celu został wykorzystany algorytm zaprezentowany przez Matulę i Becka w pracy \cite{matusiak}. Działa on w czasie wielomianowym, co pozwala na odciążenie CPU. Funkcja zwraca zarówno miarę degeneracji, jak uporządkowany według niej wektor wierzchołków wystepujących w grafie.
 
@@ -536,9 +562,18 @@ Dalsze kroki algorytmu wykonywane są dla poszczególnych wierzchołków uporzą
 
 Aby ograniczyć czas wyszukiwania maksymalnych klik, zostały zastosowane tzw. \textit{wektory sortowane} zamiast zazwyczaj używanych zbiorów (\textit{std::set}) z biblioteki C++. Posiadają one większą wydajność, a do tego pozwalają na skorzystanie z funkcjonalności zarezerwowanej wyłącznie dla zbiorów.
 
+Wyliczone kliki są umieszczane w obiektach \textit{CliqueContainer} i \textit{LapsedCliqueContainer}. Pełnią one rolę pamięci podręcznej dla powyższych algorytmów. Dzięki temu nie ma potrzeby ponownego przeliczania tych samych klik instancji, co prowadzi do kilkunastokrotnego wzrostu wydajności obliczeń.
 
-\subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
-\subsubsection{Filtrowanie kandydatów na podstawie progu minimalnej powszechności}
+\subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
+
+Na początku wszystkie rozważane maksymalne kliki z poprzedniego kroku są umieszczane w specjalnej strukturze $ cliquesToProcess $ będącej trójwymiarowym wektorem, którego indeks stanowi rozmiar kolokacji. 
+
+Następnie iteracyjnie przetwarzana jest każda klika, począwszy od największej. Zrezygnowano w tym miejscu z podejścia rekurencyjnego, gdyż prowadziłoby to do niepotrzebnego utrzymywania ogromnego stosu wywołań (ang. \textit{call stack}). W każdej iteracji sprawdzana jest miara powszechności dla kliki instancji - odpowiedzialna jest za to funkcja $ isCliquePrevalent $. 
+
+Dla klik o długości wiekszej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja 14). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}, zastosowano w nim jednak pewne metody optymalizacyjne - wskaźniki do rodziców w celu ograniczenia przeszukiwań drzewa w dół, użycie wektora zawierającego wskaźniki do liści znajdujących się na ostatnim poziomie drzewa, wskaźniki typu \textit{unique\_ptr} (więcej szczegółów w Dodatku A). Następnie zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności.
+
+W przypadku, kiedy miara nie jest mniejsza niż przyjęty na początku próg powszechności, kandydat jest dodawany do zbioru rozwiązań. W przeciwnym wypadku do struktury $ cliquesToProcess $ dodawane są podkliki, które również będą rozważane jako potencjalni kandydaci na kolokacje.
+
 
 \subsection{Wersja wielowątkowa}
 

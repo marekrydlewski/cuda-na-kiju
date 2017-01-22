@@ -246,6 +246,12 @@ void GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
 			if (mask[i] >= minimalPrevalence)
 			{
 				prevalentCliques.insertClique(toProcess[i]);
+
+				printf("|");
+				for (unsigned short us : toProcess[i])
+					printf("%hu ", us);
+				printf("| exists\n");
+
 			}
 			else if (currentCliqueSize > 2)
 			{

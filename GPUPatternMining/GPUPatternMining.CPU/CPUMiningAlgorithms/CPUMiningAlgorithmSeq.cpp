@@ -106,7 +106,6 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
-	int count = 0;
 	for (unsigned short const vertex : degeneracy.second)
 	{
 		std::vector<unsigned short> neighboursWithHigherIndices = size2ColocationsGraph.getVertexNeighboursOfHigherIndex(vertex);
@@ -119,7 +118,6 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 			neighboursWithLowerIndices);
 
 		maximalCliques.insert(maximalCliques.end(), generatedCliques.begin(), generatedCliques.end());
-		++count;
 	}
 
 	std::set<std::vector<unsigned short>> tmp(maximalCliques.begin(), maximalCliques.end());
@@ -144,9 +142,12 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 	for (auto& cl : maximalCliques)
 	{
 		cliquesToProcess[cl.size()-1].push_back(cl);
+		lapsedCliquesContainer.insertClique(cl);
+		if (cl.size() <= 2)
+			prevalentCliquesContainer.insertClique(cl);
 	}
 
-	for (int i = cliquesToProcess.size() - 1; i >= 1; --i)
+	for (int i = cliquesToProcess.size() - 1; i >= 2; --i)
 	{
 		//no need to 'while' here, getPrevalentMaxCliques edits cliquesToProcess but in other rows
 		for (auto& clique : cliquesToProcess[i])
@@ -158,6 +159,9 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 		}
 		cliquesToProcess[i].clear();
 	}
+
+	//add colocations of size 2
+	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[1].begin(), cliquesToProcess[1].end());
 
 	//add colocations of size 1
 	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[0].begin(), cliquesToProcess[0].end());
@@ -359,7 +363,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 		}
 		else
 		{
-			if (clique.size() > 2) //it's possible, no idea why
+			if (clique.size() > 2)
 			{
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);
 				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence
@@ -386,7 +390,8 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 				}
 			}
 		}
-	};
+	}
+
 	return finalMaxCliques;
 }
 

@@ -1,14 +1,14 @@
-#include "CliquesContainer.h"
+#include "SubcliquesContainer.h"
 
 #include <algorithm>
 #include <cassert>
 
-CliquesContainer::CliquesContainer()
+SubcliquesContainer::SubcliquesContainer()
 {
 	cliquesCounter = 0;
 }
 
-void CliquesContainer::insertClique(std::vector<unsigned short>& clique)
+void SubcliquesContainer::insertClique(std::vector<unsigned short>& clique)
 {
 	for (auto type	: clique)
 	{
@@ -17,7 +17,7 @@ void CliquesContainer::insertClique(std::vector<unsigned short>& clique)
 	++cliquesCounter;
 }
 
-void CliquesContainer::insertCliques(std::vector<std::vector<unsigned short>>& cliques)
+void SubcliquesContainer::insertCliques(std::vector<std::vector<unsigned short>>& cliques)
 {
 	for (auto& clique : cliques)
 	{
@@ -25,7 +25,7 @@ void CliquesContainer::insertCliques(std::vector<std::vector<unsigned short>>& c
 	}
 }
 
-bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
+bool SubcliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
 {
 	assert(clique.size() >= 2);
 
@@ -54,6 +54,6 @@ bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
 }
 
 
-CliquesContainer::~CliquesContainer()
+SubcliquesContainer::~SubcliquesContainer()
 {
 }

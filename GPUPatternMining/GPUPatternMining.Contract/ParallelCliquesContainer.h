@@ -1,23 +1,29 @@
 #pragma once
 
-#include <map>
 #include <vector>
-#include <atomic>
-#include <concurrent_unordered_map.h>
-#include <concurrent_vector.h>
+#include <algorithm>
 #include <ppl.h>
+#include <concurrent_unordered_set.h>
+
+#include "Hashers.h"
 
 class ParallelCliquesContainer
 {
-private:
-	unsigned short cliquesCounter;
-	std::map<short, concurrency::concurrent_vector<unsigned short>> typesMap;
+
 public:
-	ParallelCliquesContainer(unsigned short numberOfTypes);
-	void insertClique(std::vector<unsigned short>& clique);
-	void insertCliques(std::vector<std::vector<unsigned short>>& cliques);
-	bool checkCliqueExistence(std::vector<unsigned short>& clique);
+	bool checkCliqueExistence(std::vector<unsigned short>& clique)
+	{
+		return cliques.count(clique) == 1;
+	}
 
-	virtual ~ParallelCliquesContainer();
+	void insertClique(std::vector<unsigned short>& clique)
+	{
+		cliques.insert(clique);
+	}
+
+	ParallelCliquesContainer() {};
+	~ParallelCliquesContainer() {};
+
+private:
+	concurrency::concurrent_unordered_set<std::vector<unsigned short>, vector_hash> cliques;
 };
-

@@ -6,6 +6,7 @@
 #include "../GPUPatternMining/PlaneSweep/InstanceTablePlaneSweep.h"
 #include "../GPUPatternMining/Prevalence/PrevalentTypedPairProvider.h"
 #include "../GPUPatternMining/Prevalence/AnyLengthInstancesUniquePrevalenceProvider.h"
+#include <list>
 
 // ------------------------------------------------------------------------------------------------
 

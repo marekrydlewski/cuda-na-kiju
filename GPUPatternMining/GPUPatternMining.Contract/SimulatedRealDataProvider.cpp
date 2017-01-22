@@ -2,9 +2,10 @@
 #include "ApplicationHelper.h"
 
 const std::map<DataSet, std::string> SimulatedRealDataProvider::datasetNames = {
-	{ DataSet::Fast, "\\Resource Files\\fastTestData.txt" },
-	{ DataSet::Medium, "\\Resource Files\\test1.txt" },
-	{ DataSet::VeryLarge, "\\Resource Files\\test2.txt" }
+	{ DataSet::VeryFast, "\\Resource Files\\veryFastData.txt" },
+	{ DataSet::Fast, "\\Resource Files\\fastData.txt" },
+	{ DataSet::Medium, "\\Resource Files\\mediumData.txt" },
+	{ DataSet::Huge, "\\Resource Files\\hugeData.txt" }
 };
 
 std::tuple<DataFeed*, int, int> SimulatedRealDataProvider::getTestData(DataSet dataset)

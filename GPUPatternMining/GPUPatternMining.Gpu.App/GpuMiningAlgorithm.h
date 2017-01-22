@@ -8,6 +8,7 @@
 #include "../GPUPatternMining.Contract/Graph.h"
 #include "../GPUPatternMining/Prevalence/AnyLengthInstancesUniquePrevalenceProvider.h"
 #include "../GPUPatternMining.Contract/CliquesContainer.h"
+#include <list>
 
 // ------------------------------------------------------------------------------------------------
 

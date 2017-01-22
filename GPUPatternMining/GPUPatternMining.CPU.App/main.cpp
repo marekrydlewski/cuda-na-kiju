@@ -13,8 +13,8 @@
 int main()
 {
 	//input data
-	const float threshold = 3;
-	const float prevalence = 0.0;
+	const float threshold = 5;
+	const float prevalence = 0.02;
 
 	SimulatedRealDataProvider dataProvider;
 	auto data = dataProvider.getTestData(DataSet::Medium);
@@ -27,7 +27,7 @@ int main()
 
 	CPUMiningAlgorithmSeq cpuAlgSeq;
 	CPUMiningAlgorithmParallel cpuAlgParallel;
-	bmk::benchmark<std::chrono::nanoseconds> bmSeq, bmParallel;
+	bmk::benchmark<std::chrono::milliseconds> bmSeq, bmParallel;
 
 	bmSeq.run_p("load data", 1, [&]() { cpuAlgSeq.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
 	bmSeq.run_p("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(threshold); });
@@ -41,38 +41,11 @@ int main()
 	bmParallel.run_p("load data", 1, [&]() { cpuAlgParallel.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
 	bmParallel.run_p("filter by distance", 1, [&]() { cpuAlgParallel.filterByDistance(threshold); });
 	bmParallel.run_p("filter by prevalence", 1, [&]() { cpuAlgParallel.filterByPrevalence(prevalence); });
-	std::cout << "a" << std::endl;
 	bmParallel.run_p("construct max cliques", 1, [&]() { cpuAlgParallel.constructMaximalCliques(); });
-	std::cout << "b" << std::endl;
 	bmParallel.run_p("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
 	bmParallel.print("parallel algorithm  ", std::cout);
 	//bmParallel.serialize("CPU parallel algorithm", "CPUparallel.txt");
-
-	//////////////////////////////////////////////////
-	//benchmark whole algorithm
-
-	//std::cout << tim::detailed_measure<std::chrono::nanoseconds>::execution([&]()
-	//{
-	//	CPUMiningAlgorithmSeq cpuAlgSeq;
-	//	cpuAlgSeq.loadData(data, numberOfInstances, types);
-	//	cpuAlgSeq.filterByDistance(threshold);
-	//	cpuAlgSeq.filterByPrevalence(prevalence);
-	//	cpuAlgSeq.constructMaximalCliques();
-	//	solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence);
-	//	std::cout << "CPU Seq: ";
-	//}) << std::endl;
-
-	//std::cout << tim::detailed_measure<std::chrono::nanoseconds>::execution([&]()
-	//{
-	//	CPUMiningAlgorithmParallel cpuAlgParallel;
-	//	cpuAlgParallel.loadData(data, numberOfInstances, types);
-	//	cpuAlgParallel.filterByDistance(threshold);
-	//	cpuAlgParallel.filterByPrevalence(prevalence);
-	//	cpuAlgParallel.constructMaximalCliques();
-	//	solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence);
-	//	std::cout << "CPU Parallel: ";
-	//}) << std::endl;
 
 	return 0;
 }

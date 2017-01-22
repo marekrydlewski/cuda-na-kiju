@@ -75,19 +75,7 @@ namespace Prevalence
 			thrust::device_ptr<float> results;
 
 			__host__ __device__
-				void operator()(unsigned int idx)
-			{
-				results[idx] = thrust::distance(
-					uniquesOutput + begins[idx]
-					, thrust::unique_copy
-					(
-						thrust::device
-						, data + begins[idx]
-						, data + begins[idx] + count[idx]
-						, uniquesOutput + begins[idx]
-					)
-				) / static_cast<float>(typeCount[idx]);
-			}
+				void operator()(unsigned int idx);
 		};
 		// -------------------------------------------------------------------------------------------------
 

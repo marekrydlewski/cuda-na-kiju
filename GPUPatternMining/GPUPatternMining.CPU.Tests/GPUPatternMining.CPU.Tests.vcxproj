@@ -142,6 +142,7 @@
     <ClCompile Include="ParallelPrevalenceFilterTests.cpp" />
     <ClCompile Include="ParallelTreeConstructionTests.cpp" />
     <ClCompile Include="PrevalenceFilterTests.cpp" />
+    <ClCompile Include="SubcliquesContainer.cpp" />
     <ClCompile Include="testDataGenerator.cpp" />
     <ClCompile Include="TreeConstructionTests.cpp" />
   </ItemGroup>

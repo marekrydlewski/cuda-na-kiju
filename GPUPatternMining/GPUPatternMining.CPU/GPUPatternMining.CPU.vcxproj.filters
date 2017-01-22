@@ -15,7 +15,7 @@
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.cpp">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
-    <ClCompile Include="PUMiningAlgorithmSeqV2.cpp">
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeqV2.cpp">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
-    <ClInclude Include="PUMiningAlgorithmSeqV2.h">
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeqV2.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
   </ItemGroup>

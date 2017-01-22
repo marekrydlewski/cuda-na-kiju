@@ -1,4 +1,4 @@
-#include "CPUMiningAlgorithmSeq.h"
+#include "CPUMiningAlgorithmSeqV2.h"
 
 #include "../../GPUPatternMining.Contract/CinsTree.h"
 
@@ -9,13 +9,13 @@
 #include <map>
 #include <unordered_map>
 
-void CPUMiningAlgorithmSeq::loadData(DataFeed * data, size_t size, unsigned short types)
+void CPUMiningAlgorithmSeqV2::loadData(DataFeed * data, size_t size, unsigned short types)
 {
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
 }
 
-void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
+void CPUMiningAlgorithmSeqV2::filterByDistance(float threshold)
 {
 
 	std::sort(source.begin(), source.end(), [](DataFeed& first, DataFeed& second)
@@ -53,7 +53,7 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 	}
 }
 
-void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)
+void CPUMiningAlgorithmSeqV2::filterByPrevalence(float prevalence)
 {
 	auto countedInstances = countUniqueInstances();
 	//filtering
@@ -82,7 +82,7 @@ void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)
 	}
 }
 
-void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
+void CPUMiningAlgorithmSeqV2::createSize2ColocationsGraph()
 {
 	size2ColocationsGraph.setSize(typeIncidenceCounter.size());
 
@@ -102,7 +102,7 @@ void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
 	}
 }
 
-void CPUMiningAlgorithmSeq::constructMaximalCliques()
+void CPUMiningAlgorithmSeqV2::constructMaximalCliques()
 {
 	createSize2ColocationsGraph();
 	auto degeneracy = size2ColocationsGraph.getDegeneracy();
@@ -125,7 +125,7 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 	maximalCliques.swap(tmpVec);
 }
 
-std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)
+std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::filterMaximalCliques(float prevalence)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
@@ -166,7 +166,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 	return finalMaxCliques;
 }
 
-bool CPUMiningAlgorithmSeq::filterNodeCandidate(
+bool CPUMiningAlgorithmSeqV2::filterNodeCandidate(
 	unsigned short type,
 	unsigned short instanceId,
 	std::vector<CinsNode*> const & ancestors)
@@ -188,7 +188,7 @@ bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 }
 
 
-std::unordered_map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> CPUMiningAlgorithmSeq::countUniqueInstances()
+std::unordered_map<std::pair<unsigned short, unsigned short>, std::pair<unsigned short, unsigned short>, pair_hash> CPUMiningAlgorithmSeqV2::countUniqueInstances()
 {
 	std::unordered_map<
 		std::pair <unsigned short, unsigned short>,
@@ -231,7 +231,7 @@ std::unordered_map<std::pair<unsigned short, unsigned short>, std::pair<unsigned
 }
 
 //Cm's size must be greater or equal 2
-std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondensedTree(
+std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeqV2::constructCondensedTree(
 	const std::vector<unsigned short>& Cm)
 {
 	CinsTree tree;
@@ -308,7 +308,7 @@ std::vector<std::vector<ColocationElem>> CPUMiningAlgorithmSeq::constructCondens
 	return finalInstances;
 }
 
-bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& clique, float prevalence)
+bool CPUMiningAlgorithmSeqV2::isCliquePrevalent(std::vector<unsigned short>& clique, float prevalence)
 {
 	if (clique.size() == 1 || clique.size() == 2) return true;
 
@@ -344,7 +344,7 @@ bool CPUMiningAlgorithmSeq::isCliquePrevalent(std::vector<unsigned short>& cliqu
 	return false; //empty
 }
 
-std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxCliques(
+std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::getPrevalentMaxCliques(
 	std::vector<unsigned short>& clique,
 	float prevalence,
 	std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess)
@@ -394,13 +394,13 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 	return finalMaxCliques;
 }
 
-CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq() :
+CPUMiningAlgorithmSeqV2::CPUMiningAlgorithmSeqV2() :
 	CPUMiningBaseAlgorithm()
 {
 }
 
 
-CPUMiningAlgorithmSeq::~CPUMiningAlgorithmSeq()
+CPUMiningAlgorithmSeqV2::~CPUMiningAlgorithmSeqV2()
 {
 	for (auto& a : insTable)
 	{

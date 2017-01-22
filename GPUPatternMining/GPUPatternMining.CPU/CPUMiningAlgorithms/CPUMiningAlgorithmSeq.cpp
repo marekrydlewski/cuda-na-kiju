@@ -357,7 +357,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 		}
 		else
 		{
-			if (clique.size() > 2) //it's possible, no idea why
+			if (clique.size() > 2)
 			{
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);
 				if (smallerCliques[0].size() == 2) //no need to construct tree, already checked by filterByPrevalence

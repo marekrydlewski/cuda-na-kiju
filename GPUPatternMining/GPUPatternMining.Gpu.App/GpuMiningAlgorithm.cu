@@ -184,18 +184,26 @@ std::vector<std::vector<unsigned short>> getAllCliquesSmallerByOne(std::vector<u
 	return smallCliques;
 }
 
-void GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
+std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
 {
+	std::list<std::vector<unsigned short>> result;
+
 	for (auto cands = candidates.rbegin(); cands  != candidates.rend(); ++cands)
 	{
 		std::vector<std::vector<unsigned short>> toProcess;
-
-		for (auto cand : cands->second)
+		
 		{
-			if (prevalentCliques.checkCliqueExistence(cand))
-				continue;
+			// for removing candidates repeating with earlier candidates
+			CliquesContainer pendingCliques;
 
-			toProcess.push_back(cand);
+			for (auto cand : cands->second)
+			{
+				if (prevalentCliques.checkCliqueExistence(cand) || pendingCliques.checkCliqueExistence(cand))
+					continue;
+
+				pendingCliques.insertClique(cand);
+				toProcess.push_back(cand);
+			}
 		}
 
 		if (toProcess.empty())
@@ -217,34 +225,35 @@ void GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
 
 		thrust::host_vector<float> hPrevalences = *mask;
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-
-		for (int i = 0; i < hPrevalences.size(); ++i)
+		
 		{
-			if (hPrevalences[i] >= minimalPrevalence)
+			// for removing new repeating candidates
+			CliquesContainer pendingCliques;
+
+			for (int i = 0; i < hPrevalences.size(); ++i)
 			{
-				prevalentCliques.insertClique(toProcess[i]);
-
-				printf("|");
-				for (unsigned short us : toProcess[i])
-					printf("%hu ", us);
-				printf("|\n");
-
-			}
-			else if (currentCliqueSize > 2)
-			{
-				CliquesContainer pendingCliques;
-
-				auto smallerCliques = getAllCliquesSmallerByOne(toProcess[i]);
-
-				for (auto cand : smallerCliques)
+				if (hPrevalences[i] >= minimalPrevalence)
 				{
-					if (pendingCliques.checkCliqueExistence(cand) || prevalentCliques.checkCliqueExistence(cand))
-						continue;
+					prevalentCliques.insertClique(toProcess[i]);
 
-					candidates[currentCliqueSize - 1].push_back(cand);
-					pendingCliques.insertClique(cand);
+					result.push_back(toProcess[i]);
+				}
+				else if (currentCliqueSize > 2)
+				{
+					auto smallerCliques = getAllCliquesSmallerByOne(toProcess[i]);
+
+					for (auto cand : smallerCliques)
+					{
+						if (pendingCliques.checkCliqueExistence(cand) || prevalentCliques.checkCliqueExistence(cand))
+							continue;
+
+						candidates[currentCliqueSize - 1].push_back(cand);
+						pendingCliques.insertClique(cand);
+					}
 				}
 			}
 		}
 	}
+
+	return result;
 }

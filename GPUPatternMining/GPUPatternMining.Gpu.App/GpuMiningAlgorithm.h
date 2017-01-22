@@ -31,7 +31,7 @@ public:
 
 	void filterCandidatesByPrevalencePrepareData();
 
-	void filterCandidatesByPrevalence(float minimalPrevalence);
+	std::list<std::vector<unsigned short>> filterCandidatesByPrevalence(float minimalPrevalence);
 
 private:
 

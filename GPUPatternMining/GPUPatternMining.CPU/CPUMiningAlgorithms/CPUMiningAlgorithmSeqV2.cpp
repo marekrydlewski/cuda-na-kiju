@@ -129,39 +129,29 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::filterMaximalC
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
-	std::vector<std::vector<std::vector<unsigned short>>> cliquesToProcess(
-		(*std::max_element(
-			maximalCliques.begin(),
-			maximalCliques.end(),
-			[](std::vector<unsigned short>& left, std::vector<unsigned short>& right)
-	{
-		return left.size() < right.size();
-	})
-			).size());
+	std::vector<std::vector<unsigned short>> cliquesToProcess;
 
 	for (auto& cl : maximalCliques)
 	{
-		cliquesToProcess[cl.size() - 1].push_back(cl);
+		cliquesToProcess.push_back(cl);
 	}
 
-	for (int i = cliquesToProcess.size() - 1; i >= 2; --i)
+	std::sort(cliquesToProcess.begin(), cliquesToProcess.end());
+	
+	while (cliquesToProcess.size() != 0)
 	{
-		//no need to 'while' here, getPrevalentMaxCliques edits cliquesToProcess but in other rows
-		for (auto& clique : cliquesToProcess[i])
-		{
-			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
+		auto clique = cliquesToProcess.back();
+		clique.pop_back();
 
+		if (clique.size() <= 2)
+			finalMaxCliques.push_back(clique);
+		else {
+			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
 			if (maxCliques.size() != 0)
 				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
 		}
-		cliquesToProcess[i].clear();
+
 	}
-
-	//add colocations of size 2
-	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[1].begin(), cliquesToProcess[1].end());
-
-	//add colocations of size 1
-	finalMaxCliques.insert(finalMaxCliques.end(), cliquesToProcess[0].begin(), cliquesToProcess[0].end());
 
 	return finalMaxCliques;
 }
@@ -347,11 +337,11 @@ bool CPUMiningAlgorithmSeqV2::isCliquePrevalent(std::vector<unsigned short>& cli
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::getPrevalentMaxCliques(
 	std::vector<unsigned short>& clique,
 	float prevalence,
-	std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess)
+	std::vector<std::vector<unsigned short>> & cliquesToProcess)
 {
 	std::vector<std::vector<unsigned short>> finalMaxCliques;
 
-	if (!prevalentCliquesContainer.checkCliqueExistence(clique))
+	if (!prevalentCliquesContainer.checkCliqueExistence(clique) && !lapsedCliquesContainer.checkSubcliqueExistence(clique) )
 	{
 		if (isCliquePrevalent(clique, prevalence))
 		{
@@ -380,9 +370,9 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::getPrevalentMa
 				{
 					for (auto& smallClique : smallerCliques)
 					{
-						if (!lapsedCliquesContainer.checkCliqueExistence(smallClique))
+						if (!lapsedCliquesContainer.checkSubcliqueExistence(smallClique))
 						{
-							cliquesToProcess[clique.size() - 2].push_back(smallClique);
+							cliquesToProcess.push_back(smallClique);
 							lapsedCliquesContainer.insertClique(smallClique);
 						}
 					}

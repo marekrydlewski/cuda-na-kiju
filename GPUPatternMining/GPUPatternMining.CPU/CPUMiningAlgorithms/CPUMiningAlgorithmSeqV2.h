@@ -75,7 +75,7 @@ private:
 	std::vector<std::vector<unsigned short>> getPrevalentMaxCliques(
 		std::vector<unsigned short>& clique,
 		float prevalence,
-		std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess);
+		std::vector<std::vector<unsigned short>>& cliquesToProcess);
 
 };
 

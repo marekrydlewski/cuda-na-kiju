@@ -72,7 +72,6 @@
     <ClInclude Include="DataLoader.h">
       <Filter>Providers</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp">
@@ -103,20 +102,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resource Files\fastData.txt">
+    <Content Include="Resource Files\fastData.txt">
       <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="Resource Files\hugeData.txt">
+    </Content>
+    <Content Include="Resource Files\mediumData.txt">
       <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="Resource Files\mediumData.txt">
+    </Content>
+    <Content Include="Resource Files\veryFastData.txt">
       <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="Resource Files\veryFastData.txt">
+    </Content>
+    <Content Include="Resource Files\hugeData.txt">
       <Filter>Resource Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="GPUPatternMining.Contract.rc" />
+    </Content>
   </ItemGroup>
 </Project>

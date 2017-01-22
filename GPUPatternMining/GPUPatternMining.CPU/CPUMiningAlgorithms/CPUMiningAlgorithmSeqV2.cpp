@@ -136,12 +136,14 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::filterMaximalC
 		cliquesToProcess.push_back(cl);
 	}
 
-	std::sort(cliquesToProcess.begin(), cliquesToProcess.end());
+	std::sort(cliquesToProcess.begin(), cliquesToProcess.end(), [](auto& left, auto& right) {
+		return left.size() < right.size();
+	});
 	
 	while (cliquesToProcess.size() != 0)
 	{
 		auto clique = cliquesToProcess.back();
-		clique.pop_back();
+		cliquesToProcess.pop_back();
 
 		if (clique.size() <= 2)
 			finalMaxCliques.push_back(clique);

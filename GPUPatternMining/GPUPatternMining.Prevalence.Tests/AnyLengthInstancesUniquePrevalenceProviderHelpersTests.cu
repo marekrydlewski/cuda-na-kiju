@@ -32,7 +32,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	thrust::device_vector<unsigned int> values(3);
 
-	result->getValues(
+	result->map->getValues(
 		keys.data().get()
 		, values.data().get()
 		, 3
@@ -106,7 +106,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	// perform
 
 	auto cliquesTypesCount = getTypesCountOnGpuForCliquesCandidates(
-		gpuCandidates, typesCountsMap
+		gpuCandidates, typesCountsMap->map
 	);
 
 	// check

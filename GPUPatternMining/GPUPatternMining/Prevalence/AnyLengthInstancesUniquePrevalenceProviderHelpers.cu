@@ -2,12 +2,15 @@
 #include <thrust/execution_policy.h>
 
 
-TypesCountsMapPtr getGpuTypesCountsMap(
+TypesCountsMapResultPtr getGpuTypesCountsMap(
 	TypesCountsPtr typesCounts
 	, GPUKeyProcessor<unsigned int>* mapKeyProcessor
 )
 {
-	auto map = std::make_shared<TypesCountsMap>(typesCounts->size() * 1.5f, mapKeyProcessor);
+
+	auto result = std::make_shared<TypesCountsMapResult>();
+
+	result->map = std::make_shared<TypesCountsMap>(typesCounts->size() * 1.5f, mapKeyProcessor);
 
 	std::vector<unsigned int> values;
 	std::vector<unsigned int> keys;
@@ -19,15 +22,20 @@ TypesCountsMapPtr getGpuTypesCountsMap(
 	}
 
 	thrust::device_vector<unsigned int> gKeys = keys;
-	thrust::device_vector<unsigned int> gValues = values;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	
+	result->counts = values;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
-	map->insertKeyValuePairs(
+	result->map->insertKeyValuePairs(
 		gKeys.data().get()
-		, gValues.data().get()
+		, result->counts.data().get()
 		, typesCounts->size()
 	);
 
-	return map;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+	return result;
 }
 // --------------------------------------------------------------------------------------------------
 
@@ -37,26 +45,23 @@ void fillTypesCountsForCliqueCandidatesInstances(
 	, thrust::device_ptr<const unsigned short>* cliquesTypes
 	, unsigned int count
 	, unsigned int candidatesCount
-	, thrust::device_ptr<unsigned int> typesCount
+	, unsigned int* typesCount
 )
 {
 	unsigned int tid = computeLinearAddressFrom2D();
 	
 	if (tid < count)
 	{
-		unsigned int level = tid % candidatesCount;
+		unsigned int cliqueId = tid % candidatesCount;
 		unsigned int pos = tid / candidatesCount;
 
-		unsigned int key = cliquesTypes[level][pos];
-		unsigned int val;
+		unsigned int key = cliquesTypes[cliqueId][pos];
 
 		GPUHashMapperProcedures::getValue(
 			bean
 			, key
-			, val
+			, typesCount[tid]
 		);
-
-		typesCount[tid] = val;
 	}
 }
 // --------------------------------------------------------------------------------------------------
@@ -78,7 +83,7 @@ UIntDeviceVectorPtr getTypesCountOnGpuForCliquesCandidates(
 		, cliquesCandidates.cliquesData->data().get()
 		, threadCount
 		, cliquesCandidates.candidatesCount
-		, result->data()
+		, result->data().get()
 		);
 
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
@@ -90,12 +95,18 @@ UIntDeviceVectorPtr getTypesCountOnGpuForCliquesCandidates(
 __host__ __device__
 void MinimalCandidatePrevalenceCounter::operator()(unsigned int idx) const
 {
-	float currentMinimalPrevalence = 1;
+	float currentMinimalPrevalence = 1.f;
 
 	const unsigned int cliqueId = cliqueIds[idx];
 
 	for (unsigned int currentLevel = 0; currentLevel < levelsCount; ++currentLevel)
 	{
+		thrust::sort(
+			thrust::device
+			, (data + (instancesCount * currentLevel) + begins[idx])
+			, (data + (instancesCount * currentLevel) + begins[idx] + counts[idx])
+		);
+
 		float currentResult = thrust::distance
 		(
 			levelUniquesTempStorage + begins[idx]
@@ -106,8 +117,8 @@ void MinimalCandidatePrevalenceCounter::operator()(unsigned int idx) const
 				, data + (instancesCount * currentLevel) + begins[idx] + counts[idx]
 				, levelUniquesTempStorage + begins[idx]
 			)
-		) / static_cast<float>(typeCount[candidatesCount * currentLevel + cliqueId]);
-
+		) / static_cast<float>((typeCount[candidatesCount * currentLevel + cliqueId]));
+		
 		if (currentResult < currentMinimalPrevalence)
 			currentMinimalPrevalence = currentResult;
 	}

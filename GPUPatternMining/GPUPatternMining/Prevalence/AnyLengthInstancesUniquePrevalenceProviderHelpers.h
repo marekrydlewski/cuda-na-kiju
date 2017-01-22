@@ -16,7 +16,15 @@ typedef HashMapperBean<unsigned int, unsigned int, GPUKeyProcessor<unsigned int>
 typedef std::shared_ptr<TypesCountsMap> TypesCountsMapPtr;
 // --------------------------------------------------------------------------------------------------
 
-TypesCountsMapPtr getGpuTypesCountsMap(
+struct TypesCountsMapResult
+{
+	thrust::device_vector<unsigned int> counts;
+	TypesCountsMapPtr map;
+};
+
+typedef std::shared_ptr<TypesCountsMapResult> TypesCountsMapResultPtr;
+
+TypesCountsMapResultPtr getGpuTypesCountsMap(
 	TypesCountsPtr typesCounts
 	, GPUKeyProcessor<unsigned int>* mapKeyProcessor
 );

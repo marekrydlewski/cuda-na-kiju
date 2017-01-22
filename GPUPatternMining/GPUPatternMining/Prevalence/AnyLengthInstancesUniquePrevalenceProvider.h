@@ -15,15 +15,15 @@ class AnyLengthInstancesUniquePrevalenceProvider
 public:
 
 	AnyLengthInstancesUniquePrevalenceProvider(
-		TypesCountsPtr typesCounts);
+		TypesCountsMapResultPtr typesCountsMap);
 
-	thrust::host_vector<float> getPrevalenceFromCandidatesInstances(
+	std::shared_ptr<thrust::device_vector<float>> getPrevalenceFromCandidatesInstances(
 		Entities::GpuCliques cliquesCandidates
 		, InstanceTree::InstanceTreeResultPtr instanceTreeResult
 	) const;
 
 private:
-	TypesCountsMapPtr typesCountsMap;
-	GPUKeyProcessor<unsigned int> mapKeyProcessor;
+	
+	TypesCountsMapResultPtr typesCountsMap;
 };
 // -------------------------------------------------------------------------------------------------

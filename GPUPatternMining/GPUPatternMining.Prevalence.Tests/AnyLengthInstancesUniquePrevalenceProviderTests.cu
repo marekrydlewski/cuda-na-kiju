@@ -20,7 +20,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xB, 2));
 	counts->push_back(TypeCount(0xC, 2));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvider | simple 0")
@@ -30,7 +34,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xB, 2));
 	counts->push_back(TypeCount(0xC, 2));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 
 	CliquesCandidates candidates = {
 		{0xA, 0xB}
@@ -53,7 +61,9 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	std::vector<float> expected = { 0.5f };
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+	thrust::host_vector<float> hResult = *result;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }
 
 
@@ -64,7 +74,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xB, 2));
 	counts->push_back(TypeCount(0xC, 2));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 
 	CliquesCandidates candidates = {
 		{ 0xA, 0xB }
@@ -90,7 +104,9 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	std::vector<float> expected = { 0.5f };
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+	thrust::host_vector<float> hResult = *result;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvider | simple 2")
@@ -100,7 +116,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xB, 4));
 	counts->push_back(TypeCount(0xC, 2));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 
 	CliquesCandidates candidates = {
 		{ 0xA, 0xB }
@@ -126,7 +146,9 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	std::vector<float> expected = { 0.5f };
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+	thrust::host_vector<float> hResult = *result;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }
 
 
@@ -137,7 +159,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xB, 4));
 	counts->push_back(TypeCount(0xC, 2));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 
 	CliquesCandidates candidates = {
 		{ 0xA, 0xB }
@@ -165,7 +191,9 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	std::vector<float> expected = { 0.5f, 0.5f, 0.25f };
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+	thrust::host_vector<float> hResult = *result;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvider | multiple types 1")
@@ -175,7 +203,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xB, 4));
 	counts->push_back(TypeCount(0xC, 2));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 
 	CliquesCandidates candidates = {
 		{ 0xA, 0xB }
@@ -196,6 +228,8 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	instanceTreeResult->instances = itInstances;
 	instanceTreeResult->instancesCliqueId = itCliqueId;
 
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 	auto result = counter.getPrevalenceFromCandidatesInstances(
 		gpuCandidates
 		, instanceTreeResult
@@ -203,7 +237,10 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	std::vector<float> expected = { 0.5f, 0.f, 0.25f };
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+	thrust::host_vector<float> hResult = *result;
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvider | multiple types 2")
@@ -214,7 +251,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xC, 4));
 	counts->push_back(TypeCount(0xD, 5));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 
 	CliquesCandidates candidates = {
 		{ 0xA, 0xB, 0xC }
@@ -243,7 +284,9 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	std::vector<float> expected = { 0.25f, 0.2f, 0.2f };
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+	thrust::host_vector<float> hResult = *result;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }
 
 
@@ -255,7 +298,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xC, 4));
 	counts->push_back(TypeCount(0xD, 5));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 
 	CliquesCandidates candidates = {
 		{ 0xA, 0xB, 0xC }
@@ -284,7 +331,9 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	std::vector<float> expected = { 0.0f, 0.2f, 0.2f };
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+	thrust::host_vector<float> hResult = *result;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }
 
 TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvider | multiple types 4")
@@ -298,7 +347,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 	counts->push_back(TypeCount(0xF, 5));
 	counts->push_back(TypeCount(0x10, 10));
 
-	auto counter = AnyLengthInstancesUniquePrevalenceProvider(counts);
+	auto keyProc = std::make_shared<GPUUIntKeyProcessor>();
+
+	auto typesCountsMap = getGpuTypesCountsMap(counts, keyProc.get());
+
+	auto counter = AnyLengthInstancesUniquePrevalenceProvider(typesCountsMap);
 
 	CliquesCandidates candidates = {
 		{ 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10 }
@@ -329,5 +382,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "AnyLengthInstancesUniquePrevalenceProvide
 
 	std::vector<float> expected = { 0.1f };
 
-	REQUIRE(std::equal(expected.begin(), expected.end(), result.begin()));
+	thrust::host_vector<float> hResult = *result;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	REQUIRE(std::equal(expected.begin(), expected.end(), hResult.begin()));
 }

@@ -15,8 +15,8 @@ void CPUMiningAlgorithmParallel::loadData(DataFeed * data, size_t size, unsigned
 {
 	this->typeIncidenceCounter.resize(types, 0);
 	this->source.assign(data, data + size);
-	this->prevalentCliquesContainer = new ParallelCliquesContainer(types);
-	this->lapsedCliquesContainer = new ParallelCliquesContainer(types);
+	this->prevalentCliquesContainer = new ParallelSubcliquesContainer(types);
+	this->lapsedCliquesContainer = new ParallelSubcliquesContainer(types);
 }
 
 void CPUMiningAlgorithmParallel::filterByDistance(float threshold)

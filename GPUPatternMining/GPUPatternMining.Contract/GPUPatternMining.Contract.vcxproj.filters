@@ -57,12 +57,6 @@
     <ClInclude Include="SimulatedRealDataProvider.h">
       <Filter>Providers</Filter>
     </ClInclude>
-    <ClInclude Include="CliquesContainer.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="ParallelCliquesContainer.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="ApplicationHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -72,7 +66,16 @@
     <ClInclude Include="DataLoader.h">
       <Filter>Providers</Filter>
     </ClInclude>
-    <ClInclude Include="LapsedCliquesContainer.h">
+    <ClInclude Include="SubcliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ParallelSubcliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="CliquesContainer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ParallelCliquesContainer.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,10 +95,10 @@
     <ClCompile Include="SimulatedRealDataProvider.cpp">
       <Filter>Providers</Filter>
     </ClCompile>
-    <ClCompile Include="CliquesContainer.cpp">
+    <ClCompile Include="SubcliquesContainer.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="ParallelCliquesContainer.cpp">
+    <ClCompile Include="ParallelSubcliquesContainer.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>

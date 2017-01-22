@@ -4,7 +4,7 @@
 
 TEST_CASE("CliqueAlreadyProcessed", "CliquesContainerTests")
 {
-	CliquesContainer container;
+	SubcliquesContainer container;
 
 	std::vector<unsigned short> clique1 { 1, 2, 3, 4 };
 	std::vector<unsigned short> clique2 { 0, 1, 3, 4 };
@@ -24,7 +24,7 @@ TEST_CASE("CliqueAlreadyProcessed", "CliquesContainerTests")
 
 TEST_CASE("CliqueNotProcessed", "CliquesContainerFindingTests")
 {
-	CliquesContainer container;
+	SubcliquesContainer container;
 
 	std::vector<unsigned short> clique1{ 1, 2, 3, 4 };
 	std::vector<unsigned short> clique2{ 0, 1, 3, 4 };

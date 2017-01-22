@@ -1,19 +1,20 @@
 #pragma once
-
-#include <unordered_map>
 #include <vector>
+#include <set>
+#include <algorithm>
 
 class CliquesContainer
 {
-private:
-	unsigned int cliquesCounter;
-	std::unordered_map<short, std::vector<unsigned short>> typesMap;
 public:
-	CliquesContainer();
-	void insertClique(std::vector<unsigned short>& clique);
-	void insertCliques(std::vector<std::vector<unsigned short>>& cliques);
-	bool checkCliqueExistence(std::vector<unsigned short>& clique);
+	bool checkCliqueExistence(std::vector<unsigned short>& clique) 
+	{
+		return cliques.count(clique) == 1;
+	}
 
-	virtual ~CliquesContainer();
+	void insertClique(std::vector<unsigned short>& clique)
+	{
+		cliques.insert(clique);
+	}
+private:
+	std::set<std::vector<unsigned short>> cliques;
 };
-

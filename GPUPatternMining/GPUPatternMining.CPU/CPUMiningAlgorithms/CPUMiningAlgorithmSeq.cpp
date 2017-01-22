@@ -357,6 +357,8 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 		}
 		else
 		{
+			lapsedCliquesContainer.insertClique(clique);
+
 			if (clique.size() > 2)
 			{
 				auto smallerCliques = getAllCliquesSmallerByOne(clique);
@@ -384,7 +386,8 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 				}
 			}
 		}
-	};
+	}
+
 	return finalMaxCliques;
 }
 

@@ -1,10 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <set>
-#include <algorithm>
+#include <concurrent_unordered_set.h>
 
-class ParallelCliquesContainer
+class ParallelLapsedCliqueContainer
 {
 public:
 	bool checkCliqueExistence(std::vector<unsigned short>& clique)
@@ -17,5 +16,6 @@ public:
 		cliques.insert(clique);
 	}
 private:
-	std::set<std::vector<unsigned short>> cliques;
+	concurrency::concurrent_unordered_set<std::vector<unsigned short>> cliques;
 };
+

@@ -3,8 +3,8 @@
 
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
+#include "../../GPUPatternMining.Contract/SubcliquesContainer.h"
 #include "../../GPUPatternMining.Contract/CliquesContainer.h"
-#include "../../GPUPatternMining.Contract/LapsedCliquesContainer.h"
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include "../../GPUPatternMining.Contract/PairHash.h"
 
@@ -52,8 +52,8 @@ private:
 				std::vector<unsigned short>*>>> insTable;
 
 	Graph size2ColocationsGraph;
-	CliquesContainer prevalentCliquesContainer;
-	LapsedCliquesContainer lapsedCliquesContainer;
+	SubcliquesContainer prevalentCliquesContainer;
+	CliquesContainer lapsedCliquesContainer;
 	/// Cm
 	std::vector<std::vector<unsigned short>> maximalCliques;
 

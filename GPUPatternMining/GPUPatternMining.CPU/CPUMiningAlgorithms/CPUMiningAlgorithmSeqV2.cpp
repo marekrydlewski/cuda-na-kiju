@@ -34,7 +34,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::filterMaximalC
 		else {
 			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);
 			if (maxCliques.size() != 0)
-				finalMaxCliques.insert(finalMaxCliques.end(), maxCliques.begin(), maxCliques.end());
+				insertToFinalWithSubcliquesRemoval(finalMaxCliques, maxCliques);
 		}
 
 	}
@@ -78,11 +78,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::getPrevalentMa
 				{
 					for (auto& smallClique : smallerCliques)
 					{
-						if (!lapsedCliquesContainer.checkSubcliqueExistence(smallClique))
-						{
-							cliquesToProcess.push_back(smallClique);
-							lapsedCliquesContainer.insertClique(smallClique);
-						}
+						cliquesToProcess.push_back(smallClique);
 					}
 				}
 			}
@@ -90,6 +86,35 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeqV2::getPrevalentMa
 	}
 
 	return finalMaxCliques;
+}
+
+void CPUMiningAlgorithmSeqV2::insertToFinalWithSubcliquesRemoval(std::vector<std::vector<unsigned short>>& setToInsertTo, std::vector<std::vector<unsigned short>> cliquesToBeInserted)
+{
+	for (auto clique : cliquesToBeInserted)
+	{
+		CliquesContainer clq;
+		clq.insertCliques(setToInsertTo);
+		if (clq.checkSubcliqueExistence(clique))
+		{
+			auto smallerCliques = getAllCliquesSmallerByOne(clique);
+			while (smallerCliques.size() != 0)
+			{
+				auto currCl = smallerCliques.back();
+				smallerCliques.pop_back();
+				std::vector<std::vector<unsigned short>>::iterator it;
+				if ((it = std::find(setToInsertTo.begin(), setToInsertTo.end(), currCl)) != setToInsertTo.end())
+				{
+					setToInsertTo.erase(it);
+				}
+				else
+				{
+					auto evenSmallerCliques = getAllCliquesSmallerByOne(currCl);
+					smallerCliques.insert(smallerCliques.end(), evenSmallerCliques.begin(), evenSmallerCliques.end());
+				}
+			}
+		}
+		setToInsertTo.push_back(clique);
+	}
 }
 
 CPUMiningAlgorithmSeqV2::CPUMiningAlgorithmSeqV2() :

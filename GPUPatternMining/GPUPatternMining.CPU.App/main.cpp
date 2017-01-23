@@ -45,6 +45,32 @@ int main()
 	bmSeq.run_p("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
 	bmSeq.run_p("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
 
+	std::sort(solutionSeq.begin(), solutionSeq.end());
+	std::sort(solutionSeq2.begin(), solutionSeq2.end());
+
+	for (auto oneItem : solutionSeq)
+	{
+		if (std::find(solutionSeq2.begin(), solutionSeq2.end(), oneItem) == solutionSeq2.end())
+		{
+			for (auto x : oneItem)
+			{
+				std::cout << x << ", ";
+			}
+			std::cout << std::endl;
+		}
+	}
+	std::cout << "----------------------" << std::endl;
+	for (auto oneItem : solutionSeq2)
+	{
+		if (std::find(solutionSeq.begin(), solutionSeq.end(), oneItem) == solutionSeq.end())
+		{
+			for (auto x : oneItem)
+			{
+				std::cout << x << ", ";
+			}
+			std::cout << std::endl;
+		}
+	}
 	bmSeq.print("sequential algorithm", std::cout);
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
 
@@ -63,3 +89,4 @@ int main()
 
 	return 0;
 }
+

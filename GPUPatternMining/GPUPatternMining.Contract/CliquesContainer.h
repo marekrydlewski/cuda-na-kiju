@@ -39,6 +39,11 @@ public:
 		cliques.insert(clique);
 	}
 
+	void insertCliques(std::vector<std::vector<unsigned short>>& cliques)
+	{
+		this->cliques.insert(cliques.begin(), cliques.end());
+	}
+
 	CliquesContainer() {};
 	~CliquesContainer() {};
 private:

@@ -28,5 +28,7 @@ private:
 		float prevalence,
 		std::vector<std::vector<unsigned short>>& cliquesToProcess);
 
+	void insertToFinalWithSubcliquesRemoval(std::vector<std::vector<unsigned short>>& setToInsertTo, std::vector<std::vector<unsigned short>> cliquesToBeInserted);
+
 };
 

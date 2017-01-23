@@ -423,14 +423,19 @@ $ T \leftarrow T \cup \{v_{i}\}$\;
 \caption{Generowanie maksymalnych kandydatów na kolokacje}
 \end{algorithm}
 
-Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Wybiera on wierzchołek będący osią podziału zbioru (tzw. \textit{pivot} w oparciu o rozmiar unii sąsiadów tego wierzchołka i wierzchołków kandydatów. Każda maksymalna klika musi zawierać albo wierzchołek $ u $, albo niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, tylko wierzchołek $ u $ i jego nie-sąsiedzi muszą być przetestowani (linia 10).
+Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Jak wykazano w pracy \cite{pivot2} wybranie wierzchołka zmniejszającego liczbę rekurencyjnych wywołań algortytmu znacząco zmniejsza ogólny czas wykonania. Wybiera on wierzchołek będący osią podziału zbioru (tzw. \textit{pivot} w oparciu o rozmiar unii sąsiadów tego wierzchołka i wierzchołków kandydatów. Każda maksymalna klika musi zawierać albo wierzchołek $ u $, albo niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, tylko wierzchołek $ u $ i jego nie-sąsiedzi muszą być przetestowani (linia 10).
+\newline
 
-Druga modyfikacja opiera się o pojęcie rozproszenia grafu. Opisuje się je miarą \textit{degeneracji grafu} \cite{degenerat}:
+Druga modyfikacja opiera się o pojęcie rozproszenia grafu. Opisuje się je miarą \textit{degeneracji grafu} \cite{matusiak}:
 \begin{defin}[Degeneracja grafu]
 Degeneracja grafu G jest najmniejszą wartością k, taką, że każdy niepusty podgraf G zawiera wierzchołki o stopniu co najwyżej k. Oznacza to, że wielkość maksymalnej kliki nie może przekroczyć $k + 1$.
 \end{defin}
 
-Wierzchołki w zewnętrznej rekurencji są uporządkowane według stopnia degeneracji (linia 2). W ciele rekurencji (linie 3-5) liczba wierzchołków czekających na weryfikację nie przekroczy $ k $. Tym sposobem ograniczono liczbę zewnętrznych rekurencji.
+\begin{defin}[Uporządkowanie według miary degeneracji]
+Uporządkowanie według miary degeneracji wierzchołków grafu G to takie uporządkowanie, które minimalizuje stopień degeneracji grafu. Taka uporządkowanie gwarantuje m.in. optymalną kolejność kolorowania w problemie kolorowania wierzchołków.
+\end{defin}
+
+Wierzchołki w zewnętrznej rekurencji są uporządkowane według stopnia degeneracji (linia 2). W ciele rekurencji (linie 3-5) liczba wierzchołków czekających na weryfikację nie przekroczy $ k $. Tym sposobem ograniczono liczbę zewnętrznych rekurencji. Dla grafów o małym stopniu degeneracji obserwuje się duży wzrost wydajności \cite{degenerat}.
 
 \subsection{Proces odcinania}
 
@@ -637,6 +642,7 @@ Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 
 \bibitem{kerbosz}Bron, C., \& Kerbosch, J. (1973). Algorithm 457: Finding all cliques of an undirected graph. Communications of the ACM, 16 , 575–577.
 \bibitem{pivot}Tomita, E., Tanaka, A., \& Takahashi, H. (2006). The worst-case time complexity for
 generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
+\bibitem{pivot2}Cazals, F.; Karande, C. (2008), "A note on the problem of reporting maximal cliques" , Theoretical Computer Science, 407 (1): 564–568.
 \bibitem{framework}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
 \bibitem{matusiak}Matula, D. W.; Beck, L. L. (1983), "Smallest-last ordering and clustering and graph coloring algorithms", Journal of the ACM, 30 (3): 417–427, doi:10.1145/2402.322385, MR 0709826.
 \bibitem{mikromiekki}https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp

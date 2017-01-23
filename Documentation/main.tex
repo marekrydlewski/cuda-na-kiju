@@ -413,7 +413,7 @@ $BK\_Pivot(P,  \{v^{*}_{i}\} ,X)$\;
 
 \myproc{\proc{M,K,T}}{
 \lIf{$ M \cup T = \emptyset$}{$ \{ CP_{m} \leftarrow CP_{m} \cup K\}$}
-wybór pivota $ u \in M \cup T ; \% $ do maksymalizacji $ | M \cap N(u) | $\;
+wybór punktu pivot $ u \in M \cup T ; \% $ do maksymalizacji $ | M \cap N(u) | $\;
 \ForEach{$v_{i} \in M \backslash N(u) $}{
 $BK\_Pivot(M \cap N(V_{i}), K \cup \{v_{i}\}, T \cap N(V_{i}))$\;
 $ M \leftarrow M \backslash \{v_{i}\} $\;
@@ -700,7 +700,7 @@ W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz impleme
 \subsubsection{Opis struktur \& klas pomocniczych i ich implementacji}
     
 \begin{itemize}
-\item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}. Zawiera wskaźnik do korzenia drzewa \raggedright \lstinline{std::unique_ptr<CinsNode> root}) oraz wektor \lstinline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
+\item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}). Zawiera wskaźnik do korzenia drzewa \raggedright \lstinline{std::unique_ptr<CinsNode> root}) oraz wektor \lstinline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
 
 \item CinsNode - Klasa zawierająca implementację pojedynczego węzła skondensowanego drzewa instancji \textit{CinsTree}. Obiekty tej klasy zawierają informacje o cesze \lstinline{unsigned short type} i numerze \lstinline{unsigned short instanceId} instancji przestrzennej, wektor wskaźników potomków \lstinline{std::vector<std::unique_ptr<CinsNode>> children} oraz wskaźnik pokazujący na rodzica danego węzła \lstinline{CinsNode* parent}. Klasa zawiera metody umożliwiające m.in.:
 
@@ -718,7 +718,7 @@ W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz impleme
 \item obliczenie stopnia degeneracji grafu (ang. \textit{degeneracy}) i uporządkowanie wierzchołków według miary degeneracji (ang.\textit{degeneracy ordering}) \cite{degenerat}.
 \end{itemize}
 
-\item CliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \lstinline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \lstinline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
+\item SubcliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \lstinline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \lstinline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
 
 Weryfikację umożliwia algorytm: 
 \begin{lstlisting}
@@ -751,10 +751,43 @@ bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
 }
 \end{lstlisting}
 	
-\item ParallelCliquesContainer
-\item RandomDataProvider
-\item SimulatedRealDataProvider
-\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej dla pary \lstinline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \lstinline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \lstinline{hash_combine} z biblioteki \textit{boost}:
+\item ParallelSubcliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{SubcliquesContainer} jednakże zapewniająca bezpieczeństwo przetwarzania wielowątkowego. Cel ten osiągnięto za pomocą skorzystania z sekcji krytycznych w przypadku inkrementowania licznika jak i posłużenia się współbieżnymi wektorami \lstinline{concurrency::concurrent_vector<unsigned short>} z biblioteki PPL, co przełożyło się również na zwiększenie efektywności przetwarzania.
+
+\item CliquesContainer - Klasa zapewniająca dwie funkcjonalności:
+\begin{itemize}
+\item Sprawdzenia czy dokładnie taka klika jest już przechowywana, za co odpowiada funkcja \raggedleft \lstinline{bool checkCliqueExistence(std::vector<unsigned short>& clique)}
+\item Sprawdzenie czy taka klika lub jej dowolna podklika jest już przechowywana, odpowiada za to funkcja:
+\begin{lstlisting}
+bool checkSubcliqueExistence(std::vector<unsigned short>& clique)
+{
+  bool isSubclique;
+  for (auto& c : cliques)
+  {
+  	if (clique.size() < c.size()) continue;
+    auto it = clique.begin();
+    isSubclique = true;
+  for (auto id : c)
+  {
+    it = std::find(it, clique.end(), id);
+    if (it == clique.end()) {
+      isSubclique = false;
+      break;
+    }
+  }
+    if (isSubclique) return true;
+  }
+}
+\end{lstlisting}
+\end{itemize}
+
+\item ParallelCliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{CliquesContainer} zapewniająca w tym samym czasie bezpieczeństwo przetwarzania wielowątkowego.
+
+\item RandomDataProvider - Klasa zapewniająca losowy generator danych z parametryzowaną liczbą cech, liczbą instancji a także granicami danych przestrzennych.
+
+\item SimulatedRealDataProvider - Klasa wykorzystująca gotowe, przygotowane wcześniej dane wczytywane z plików mające symulować dane rzeczywiste.
+
+\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang, 
+textit{hash function} dla pary \lstinline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \lstinline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \lstinline{hash_combine} z biblioteki \textit{boost}:
 
 \begin{lstlisting}
 struct pair_hash {
@@ -781,8 +814,12 @@ void hash_combine(std::size_t &seed, T const &key) {
 	seed ^= hasher(key) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 };
 \end{lstlisting}
+
+\item vector\_hash - Struktura umożliwiająca kodowanie mieszające (ang. \textit{hashing}) dla wektorów dowolnych typów dla których istnieje implementacja funkcji hashującej. Również w tym przypadku skorzystano z funkcji \lstinline{hash_combine}.
+
 \item Timer - Generyczna klasa umożliwiająca pomiar czasu dla dowolnej funkcji lub funktora z dowolną liczbą argumentów. Zapewnia ustawienie dowolnego typu zegara i dokładności pomiaru. Odpowiada za sprawdzenie czasu wykonywania poszczególnych kroków algorytmu.
-\item Benchmark - 
+
+\item Benchmark - Klasa umożliwiająca przeprowadzenie parametryzowanych testów wydajnościowych całego algorytmu, zapewniając m.in. serializację do pliku. Wyeksportowane dane mogą zostać zwizualizowane za pomocą wykresów do których tworzenia wykorzystano odpowiedni skrypt w języku Python.
 
 \end{itemize}
 

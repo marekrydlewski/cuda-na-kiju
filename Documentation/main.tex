@@ -361,12 +361,26 @@ Jak już wspomiano, procesory graficzne, mające w pierwotnym założeniu wyłą
 
 Oddzielną kwestią jest przydział tranzystorów tworzących poszczególne układy do pełnienia poszczególnych funkcji. W przypadku CPU większość tranzystorów stanowi pamięć podręczną oraz układy sterowania - za wykonywanie obliczeń jest odpowiedzialna ok. 1/4 tranzystorów wbudowanych w procesor. Natomiast w przypadku GPU gros tranzystorów wykorzystanych jest do budowy jednostek arytmetyczno-logicznych oraz zmiennoprzecinkowych. Z tego powodu duża część zadań związana z przepływem danych, uruchamianiem wątków czy podziałem zadań na GPU spoczywa na programiście, co dosyć mocno komplikuje kod.
 
-\subsection{Zastosowanie obliczeń na kartach graficznych}
-
-
 \subsection{Wprowadzenie do technologii CUDA}
 
+Spośród wszystkich technologii umożliwiających przeprowadzanie obliczeń na kartach graficznych zdecydowanie największą popularność osiągnęła pierwsza z nich, czyli CUDA (ang. \textit{Compute Unified Device Architecture}). Została ona zaprezentowana po raz pierwszy w 2007 roku przez firmę NVIDIA i jest dedykowana wyłącznie produktom tej firmy (w porównaniu do konkurencyjnej technologii OpenCL). Do jej największych zalet z pewnością należy bardzo dobra dokumentacja oraz dostępność na wszystkie najważniejsze platformy systemowe (Windows, Linux, Mac OS X).
+
 \subsubsection{Architektura}
+
+Procesor graficzny kompatybilny z CUDA zbudowany jest z wielu multiprocesorów strumieniowych (ang. \textit{streaming multiprocessors}, w skrócie SM). Na każdy z nich składa się określona ilość rdzeni CUDA, które mogą przetwarzać dane w sposób równoległy - w każdym z nim jest umieszczona dodatkowo jednostka arytmetyczno-logiczna (ALU, umożliwia obliczenia na liczbach całkowitych) oraz jednostka zmiennoprzecinkowa (FPU). Do tego w każdym \textit{SM} znajdują się jednostki funkcji specjalnych - w nich wyznaczane są wartości funkcji matematycznych typu pierwiastkowanie czy funkcje trygonometryczne. Liczba powyższych elementów nie jest stała - zależa one od miary \textit{potencjału obliczeniowego CUDA} (ang. \textit{CUDA Compute Capability}), który obsługuje dany sprzęt.
+
+Zgodnie z modelem przetwarzania SIMD, na jednym multiprocesorze uruchomione wątki są grupowane w tzw. \textit{warpy} (ang. \textit{warps}). W danym momencie muszą one wykonywać dokładnie taką samą instrukcję.
+
+Każdy \textit{SM} zawiera 16 jednostek wejścia i wyjścia, mających na celu pośredniczenie w przekazywaniu danych między różnymi typami pamięci. Przez nie odbywa się transfer danych do pamięci RAM karty graficznej (zlokalizowanej poza procesorem graficznym). W multiprocesorze są dostępne następujące typy pamięci podręcznej:
+
+\begin{itemize}
+\item pamięć rejestrów - najszybsza pamięć, w której wątek może przechowywać swoje zmienne,
+\item pamięć wspólna (ang. \textit{shared memory}) - pamięć, poprzez którą może odbywać się wymiana danych między wątkami;
+\item pamięć podręczna pierwszego poziomu (ang. \textit{L1 cache}).
+\end{itemize}
+
+Oprócz tego multiprocesor wyposażony jest w układy sterujące wywowłaniem instrukcji (ang. \textit{Instruction Dispatch Unit}) odpowiadające za wykonywanie obliczeń na zgrupowanych rdzeniach.
+
 
 \subsubsection{Programowanie wielowątkowe}
 

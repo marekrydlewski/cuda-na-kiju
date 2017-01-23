@@ -360,18 +360,54 @@ Jak już wspomiano, procesory graficzne, mające w pierwotnym założeniu wyłą
 
 Oddzielną kwestią jest przydział tranzystorów tworzących poszczególne układy do pełnienia poszczególnych funkcji. W przypadku CPU większość tranzystorów stanowi pamięć podręczną oraz układy sterowania - za wykonywanie obliczeń jest odpowiedzialna ok. 1/4 tranzystorów wbudowanych w procesor. Natomiast w przypadku GPU gros tranzystorów wykorzystanych jest do budowy jednostek arytmetyczno-logicznych oraz zmiennoprzecinkowych. Z tego powodu duża część zadań związana z przepływem danych, uruchamianiem wątków czy podziałem zadań na GPU spoczywa na programiście, co dosyć mocno komplikuje kod.
 
-\subsection{Zastosowanie obliczeń na kartach graficznych}
-
-
 \subsection{Wprowadzenie do technologii CUDA}
+
+Spośród wszystkich technologii umożliwiających przeprowadzanie obliczeń na kartach graficznych zdecydowanie największą popularność osiągnęła pierwsza z nich, czyli CUDA (ang. \textit{Compute Unified Device Architecture}). Została ona zaprezentowana po raz pierwszy w 2007 roku przez firmę NVIDIA i jest dedykowana wyłącznie produktom tej firmy (w porównaniu do konkurencyjnej technologii OpenCL). Do jej największych zalet z pewnością należy bardzo dobra dokumentacja oraz dostępność na wszystkie najważniejsze platformy systemowe (Windows, Linux, Mac OS X).
 
 \subsubsection{Architektura}
 
-\subsubsection{Programowanie wielowątkowe}
+Procesor graficzny kompatybilny z CUDA zbudowany jest z wielu multiprocesorów strumieniowych (ang. \textit{streaming multiprocessors}, w skrócie SM). Na każdy z nich składa się określona ilość rdzeni CUDA, które mogą przetwarzać dane w sposób równoległy - w każdym z nim jest umieszczona dodatkowo jednostka arytmetyczno-logiczna (ALU, umożliwia obliczenia na liczbach całkowitych) oraz jednostka zmiennoprzecinkowa (FPU). Do tego w każdym \textit{SM} znajdują się jednostki funkcji specjalnych - w nich wyznaczane są wartości funkcji matematycznych typu pierwiastkowanie czy funkcje trygonometryczne. Liczba powyższych elementów nie jest stała - zależą one od miary \textit{potencjału obliczeniowego CUDA} (ang. \textit{CUDA Compute Capability}), który obsługuje dany sprzęt.
+
+Każdy \textit{SM} zawiera 16 jednostek wejścia i wyjścia, mających na celu pośredniczenie w przekazywaniu danych między różnymi typami pamięci. Przez nie odbywa się transfer danych do pamięci RAM karty graficznej (zlokalizowanej poza procesorem graficznym). W multiprocesorze są dostępne następujące typy pamięci podręcznej:
+
+\begin{itemize}
+\item pamięć rejestrów - najszybsza pamięć, w której wątek może przechowywać swoje zmienne,
+\item pamięć wspólna (ang. \textit{shared memory}) - pamięć, poprzez którą może odbywać się wymiana danych między wątkami;
+\item pamięć podręczna pierwszego poziomu (ang. \textit{L1 cache}).
+\end{itemize}
+
+Oprócz tego multiprocesor wyposażony jest w układy sterujące wywołaniem instrukcji (ang. \textit{Instruction Dispatch Unit}) odpowiadające za wykonywanie obliczeń na zgrupowanych rdzeniach.
+
+\subsubsection{Programowanie wielowątkowe w języku CUDA C}
+
+Środowisko NVIDIA CUDA umożliwia programowanie w języku CUDA C - stanowi on podzbiór języka C++ i jest z nim w dużym stopniu kompatybilny. Kod w języku CUDA C da się łączyć z standardowym kodem C++ kompilowanym pod procesory CPU - w tym przypadku fragmenty kodu wywoływane po stronie karty graficznej są kompilowane przez specjalny kompilator NVCC dołączany do środowiska CUDA. 
+
+Funkcje wywoływane przez hosta, a wykonywane przez procesor graficzny w sposób równoległy przez wiele wątków są nazywane funkcjami jądra (ang. kernel). Wszystkie wątki uruchomione poprzez wywołanie jądra wykonują identyczny kod. Oczywiście da się je odróżnić poprzez unikalny identyfikator dostępny w specjalnej zmiennej. Zgodnie z modelem przetwarzania SIMD, na jednym multiprocesorze uruchomione wątki są grupowane w tzw. \textit{warpy} (ang. \textit{warps}) - zbiory 32 wątków wykonujących tą samą instrukcję. 
+
+Wątki można organizować w większe grupy. Podstawową grupą wątków jest \textit{blok}, w ramach którego można uformować wątki w jednym, dwóch, a nawet trzech wymiarach. Bloki grupowane są z kolei w siatkę obliczeniową (ang. \textit{computation grid}), która również może składać się z trzech wymiarów. Przy wywołaniu kernela programista określa liczbę równoległych bloków oraz ilość wątków na blok, za pomocą których urządzenie będzie przetwarzać równolegle kernel. Odpowiednie ustawienie tych wartości jest kluczowe dla wydajności przetwarzania - zbyt mała/wielka ilość przyznanych bloków może spowodować odwrotny skutek do zamierzonego. Maksymalne ilości wątków na blok i bloków na siatkę określa miara \textit{potencjału obliczeniowego CUDA}. 
 
 \subsubsection{Model pamięci}
 
-\subsubsection{Biblioteka \textit{Thurst}}
+Karty graficzne obsługujące technologię CUDA posiadają następujące typy pamięci, dostępne dla programisty:
+
+\begin{itemize}
+\item \textit{rejestry} - zdecydowanie najszybsza i najwygodniejsza pamięć, umieszczona w procesorze graficznym, mała, ograniczona żywotność do czasu życia wątku;
+\item \textit{pamięć lokalna} - umiejscowiona w pamięci karty graficznej, wolna, będąca alternatywą do rejestrów;
+\item \textit{pamięć wspólna} - dostęp do niej możliwy jest ze wszystkich wątków pracujących w ramach jednego bloku, mała (umiejscowiona w chipie GPU), lecz o szybkim czasie dostępu;
+\item \textit{pamięć globalna} - duża (rzędu paru gigabajtów), wolna, o dużym czasie dostępu, dostęp z poziomu każdego wątku oraz hosta;
+\item \textit{pamięć stała} - dostępna dla wszystkich wątków w trybie tylko do odczytu, buforowana, posiada unikalną możliwość rozgłaszania danych (ang. \textit{broadcast});
+\item \textit{pamięć tekstur} - również tylko do odczytu, przeznaczona z myślą o przechowywaniu danych w postaci macierzy.
+\end{itemize}
+
+\subsubsection{\textit{Thrust}}
+
+Biblioteka \textit{Thrust} stanowi odpowiednik popularnej \textit{Standard Template Library} dla języka CUDA C. Od wersji 1.4.0 jego wersja produkcyjna jest dołączana wraz z środowiskiem \textit{CUDA Toolkit 4.0}.
+
+Podobnie jak jego odpowiednik dla języka C++, Thrust zawiera bogatą kolekcję wbudowanych algorytmów i operacji dostosowanych do równoległego środowiska CUDA. W szczególności dostarcza równoległe operacje skanowania, sortowania czy redukcji, zwalniając programistę od implementowania własnych, potencjalnie niewydajnych rozwiązań.
+
+Thrust zawiera struktury znane z biblioteki STL, takie jak wektory (w wersji dla hosta oraz karty graficznej), iteratory oraz wiele innych typów generycznych ułatwiających korzystanie z możliwości dostarczanych przez środowisko CUDA C. Użycie ich jest analogiczne jak w "tradycyjnym" STL-u.
+
+Projekt będący wynikiem tej pracy wykorzystuje CUDA Toolkit 8.0 wraz z biblioteką Thrust 1.8.
 
 \newpage
 

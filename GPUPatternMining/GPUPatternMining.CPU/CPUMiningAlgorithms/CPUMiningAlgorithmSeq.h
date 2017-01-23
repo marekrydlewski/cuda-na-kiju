@@ -39,7 +39,7 @@ public:
 		return maximalCliques;
 	}
 
-private:
+protected:
 
 	std::vector<DataFeed> source;
 	/// typeIncidenceCounter - count from 1

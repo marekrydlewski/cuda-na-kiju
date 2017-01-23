@@ -130,11 +130,6 @@ namespace Prevalence
 			
 			currentEnd = std::min(currentEnd + countPerIteration, uniquesCount);
 
-
-			unsigned int countPerIteration = 10;
-			unsigned int currentStart = 0;
-			unsigned int currentEnd = uniquesCount % countPerIteration;
-
 			while (currentEnd <= uniquesCount)
 			{
 				{

@@ -343,6 +343,37 @@ Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie wedłu
 
 \newpage
 
+\section{Przetwarzanie równoległe na kartach graficznych}
+
+Dziedzina informatyki, jaką są obliczenia ogólnego przeznaczenia na układach GPU (ang. \textit{general-purpose computing on graphics processing units}, w skrócie \textit{GPGPU}) należy do stosunkowo świeżych technik programowania - jej właściwy początek można datować na okolice 2009 roku. Jeszcze do niedawna wśród programistów panowało przekonanie, że karty graficzne powinny być odpowiedzialne tylko za rysowanie obrazu, a cała odpowiedzialność za niezbędne obliczenia powinna padać na CPU, jako "serce" komputera. Były to czasy, kiedy pojęcie równoległego wykonywania zadań nie było szeroko rozpowszechnione - rdzenie procesora były jedynie nowinką, a cały rozwój procesorów CPU szedł w zwiększanie częstotliwości taktowania.
+
+Szybko się okazało, że nie da się tego robić w nieskończoność. Podnoszenie częstotliwości spowodowało, że procesory zaczęły pobierać spore ilości energii, a także wydzielać ogromne ilości ciepła, którego nie dało się okiełznać bez korzystania z specjalnego chłodzenia. Rozwiązaniem okazało się skorzystanie z wielordzeniowości - wielu procesorów połączonych ze sobą specjalnymi magistralami, zamkniętymi w jednej obudowie. Wymagało to także zmiany podejścia do programowania. Równoległość daje olbrzymie możliwości, o ile potrafi się z nich skorzystać w odpowiedni sposób - bez tego programista nie uzyska zauważalnego wzrostu szybkości obliczeń, jakie dają współczesne układy wielordzeniowe. 
+
+Wielu osobom w trakcie tej "rewolucji" umknął jeden drobny fakt - kiedy swoje triumfy świecił słynny procesor \textit{Pentium 4} firmy \textit{Intel} o kosmicznej wtedy częstotliwości taktowania rzędu 3 GHz, na rynku istniały już rozwiązania równoległe, na których można było uzyskać znacznie lepsze wyniki. Były to oczywiście karty graficzne, które od dawna działały w sposób równoległy. 
+
+Dopóki nie powstały pierwsze specyfikacje bibliotek wspierających obliczenia na kartach graficznych (pierwsza była \textit{CUDA} firmy \textit{NVIDIA}), programiści próbowali wykorzystywać potencjał brzmiący w procesorach graficznych w oparciu o rendering 3D. Było to dosyć karkołomne zadanie i nie każdy algorytm można było rozwiązać w ten sposób. Karty graficzne musiały odczekać jeszcze parę lat, aby dało się wykorzystać w pełni ich możliwości obliczeniowe.
+
+\subsection{CPU a GPU}
+
+Jak już wspomiano, procesory graficzne, mające w pierwotnym założeniu wyłącznie wspomagać generowanie obrazu, od początku były projektowane jako układy przetwarzajace dane w sposób równoległy. Karty graficzne posiadają znacznie więcej rdzeni niż procesory GPU, mają one jednak mniejsze taktowanie, a także są gorzej wyposażone (w szczególności brakuje im rozszerzeń typowych dla CPU typu SSE2 czy MMX). W związku z tym, nie wszystkie algorytmy nadają się dobrze do implementacji w środowisku GPU. Jeżeli jednak istnieje możliwość zrównoleglenia jakiegoś problemu, to wyniki osiągnięte na GPU będą lepsze niż te uzyskane na procesorze CPU (niezależnie od tego, czy jest napisany sekwencyjnie czy równolegle). Obecne procesory CPU z kolei potrafią działać sekwencyjnie, jak i równolegle, za pośrednictwem wielu mechanizmów wspierających równoległość (np. wątki, mutexy, wsparcie dla specjalnych struktur).
+
+Oddzielną kwestią jest przydział tranzystorów tworzących poszczególne układy do pełnienia poszczególnych funkcji. W przypadku CPU większość tranzystorów stanowi pamięć podręczną oraz układy sterowania - za wykonywanie obliczeń jest odpowiedzialna ok. 1/4 tranzystorów wbudowanych w procesor. Natomiast w przypadku GPU gros tranzystorów wykorzystanych jest do budowy jednostek arytmetyczno-logicznych oraz zmiennoprzecinkowych. Z tego powodu duża część zadań związana z przepływem danych, uruchamianiem wątków czy podziałem zadań na GPU spoczywa na programiście, co dosyć mocno komplikuje kod.
+
+\subsection{Zastosowanie obliczeń na kartach graficznych}
+
+
+\subsection{Wprowadzenie do technologii CUDA}
+
+\subsubsection{Architektura}
+
+\subsubsection{Programowanie wielowątkowe}
+
+\subsubsection{Model pamięci}
+
+\subsubsection{Biblioteka \textit{Thurst}}
+
+\newpage
+
 \section{Algorytm}
 
 Niniejszy rozdział ma za zadanie przybliżenie algorytmu będącego tematem tej pracy - metody odkrywania maksymalnych kolokacji przestrzennych w oparciu o graf rzadki i skondensowane drzewo instancji (ang. \textit{sparse-graph and condensed tree-based maximal co-location algorithm}) przedstawionej w pracy \cite{chinczyki}. 

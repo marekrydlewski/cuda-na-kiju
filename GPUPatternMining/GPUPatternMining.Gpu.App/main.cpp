@@ -6,8 +6,8 @@
 int main()
 {
 	//input data
-	const float threshold = 5;
-	const float prevalence = 0.30f;
+	const float threshold = 3;
+	const float prevalence = 0.30f;;
 
 	SimulatedRealDataProvider dataProvider;
 	auto data = dataProvider.getTestData(DataSet::Medium);

@@ -77,19 +77,47 @@ namespace Prevalence
 			__host__ __device__
 				void operator()(unsigned int idx)
 			{
-				thrust::sort
-				(
-					thrust::device
-					, data + begins[idx]
-					, data + begins[idx] + count[idx]
-				);
-
 				auto end = thrust::unique_copy
 				(
 					thrust::device
 					, data + begins[idx]
 					, data + begins[idx] + count[idx]
 					, uniquesOutput + begins[idx]
+				);
+
+				results[idx] = thrust::distance(
+					uniquesOutput + begins[idx]
+					, end
+				) / static_cast<float>(typeCount[idx]);
+			}
+		};
+		// -------------------------------------------------------------------------------------------------
+
+		struct UniqueTupleCountFunctorUnsorted
+		{
+			thrust::device_ptr<unsigned int> begins;
+			thrust::device_ptr<unsigned int> typeCount;
+			thrust::device_ptr<unsigned int> count;
+
+			thrust::device_ptr<FeatureInstance> uniquesOutput;
+
+			thrust::device_ptr<float> results;
+
+			__host__ __device__
+				void operator()(unsigned int idx)
+			{
+				thrust::sort
+				(
+					thrust::device
+					, uniquesOutput + begins[idx]
+					, uniquesOutput + begins[idx] + count[idx]
+				);
+
+				auto end = thrust::unique
+				(
+					thrust::device
+					, uniquesOutput + begins[idx]
+					, uniquesOutput + begins[idx] + count[idx]
 				);
 
 				results[idx] = thrust::distance(

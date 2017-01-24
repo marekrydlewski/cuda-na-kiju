@@ -1,6 +1,7 @@
 #include "AnyLengthInstancesUniquePrevalenceProvider.h"
 #include <thrust/execution_policy.h>
 #include <thrust/unique.h>
+#include <algorithm>
 
 
 AnyLengthInstancesUniquePrevalenceProvider::AnyLengthInstancesUniquePrevalenceProvider(
@@ -46,16 +47,17 @@ std::shared_ptr<thrust::device_vector<float>> AnyLengthInstancesUniquePrevalence
 	);
 
 	thrust::device_vector<unsigned int> idxs(existingCandidatesCount);
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	thrust::sequence(
 		thrust::device
 		, idxs.begin()
 		, idxs.end()
 	);
-	
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	thrust::device_vector<FeatureInstance> levelTempStorage(instancesCount);
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	auto cliquesTypesCount = getTypesCountOnGpuForCliquesCandidates(
 		cliquesCandidates, typesCountsMap->map
@@ -76,9 +78,24 @@ std::shared_ptr<thrust::device_vector<float>> AnyLengthInstancesUniquePrevalence
 		prevalenceCounter.candidatesCount = cliquesCandidates.candidatesCount;
 	}
 
-	thrust::for_each(thrust::device, idxs.begin(), idxs.end(), prevalenceCounter);
+	unsigned int countPerIteration = 10;
+	unsigned int currentStart = 0;
+	unsigned int currentEnd = existingCandidatesCount % countPerIteration;
 
-	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	currentEnd = std::min(currentEnd + countPerIteration, existingCandidatesCount);
 
+	while (currentEnd <= existingCandidatesCount)
+	{
+		thrust::for_each(
+			thrust::device
+			, idxs.begin() + currentStart
+			, idxs.begin() + currentEnd
+			, prevalenceCounter);
+		currentStart += countPerIteration;
+		currentEnd += countPerIteration;
+
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	}
+	
 	return result;
 }

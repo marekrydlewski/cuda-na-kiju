@@ -97,8 +97,6 @@ void MinimalCandidatePrevalenceCounter::operator()(unsigned int idx) const
 {
 	float currentMinimalPrevalence = 1.f;
 
-	const unsigned int cliqueId = cliqueIds[idx];
-
 	for (unsigned int currentLevel = 0; currentLevel < levelsCount; ++currentLevel)
 	{
 		thrust::sort(
@@ -117,12 +115,12 @@ void MinimalCandidatePrevalenceCounter::operator()(unsigned int idx) const
 				, data + (instancesCount * currentLevel) + begins[idx] + counts[idx]
 				, levelUniquesTempStorage + begins[idx]
 			)
-		) / static_cast<float>((typeCount[candidatesCount * currentLevel + cliqueId]));
+		) / static_cast<float>((typeCount[candidatesCount * currentLevel + cliqueIds[idx]]));
 		
 		if (currentResult < currentMinimalPrevalence)
 			currentMinimalPrevalence = currentResult;
 	}
 
-	results[cliqueId] = currentMinimalPrevalence;
+	results[cliqueIds[idx]] = currentMinimalPrevalence;
 }
 // --------------------------------------------------------------------------------------------------

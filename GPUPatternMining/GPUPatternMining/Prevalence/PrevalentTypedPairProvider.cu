@@ -107,9 +107,17 @@ namespace Prevalence
 				aPrev.results = aResults.data();
 			}
 
-			UniqueTupleCountFunctor bPrev;
+			thrust::copy(
+				thrust::device
+				, planeSweepResult->pairsB.begin()
+				, planeSweepResult->pairsB.end()
+				, tempResultB.begin()
+			);
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+			UniqueTupleCountFunctorUnsorted bPrev;
 			{
-				bPrev.data = planeSweepResult->pairsB.data();
 				bPrev.begins = itmPack->begins.data();
 				bPrev.count = itmPack->counts.data();
 				bPrev.typeCount = bCounts.data();
@@ -127,13 +135,7 @@ namespace Prevalence
 			unsigned int currentStart = 0;
 			unsigned int currentEnd = uniquesCount % countPerIteration;
 
-			
 			currentEnd = std::min(currentEnd + countPerIteration, uniquesCount);
-
-
-			unsigned int countPerIteration = 10;
-			unsigned int currentStart = 0;
-			unsigned int currentEnd = uniquesCount % countPerIteration;
 
 			while (currentEnd <= uniquesCount)
 			{
@@ -145,31 +147,6 @@ namespace Prevalence
 						, idxsa.begin() + currentEnd
 						, aPrev);
 					CUDA_CHECK_RETURN(cudaDeviceSynchronize());				
-				}
-					
-				{
-
-					thrust::for_each(
-						thrust::device
-						, idxsb.begin() + currentStart
-						, idxsb.begin() + currentEnd
-						, bPrev);
-					CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-				}
-
-				currentStart += countPerIteration;
-				currentEnd += countPerIteration;
-			}
-
-			while (currentEnd <= uniquesCount)
-			{
-				{
-					thrust::for_each(
-						thrust::device
-						, idxsa.begin() + currentStart
-						, idxsa.begin() + currentEnd
-						, aPrev);
- 					CUDA_CHECK_RETURN(cudaDeviceSynchronize());				
 				}
 					
 				{

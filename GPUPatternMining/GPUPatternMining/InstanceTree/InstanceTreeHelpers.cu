@@ -1,7 +1,6 @@
 #include "InstanceTreeHelpers.h"
 #include <thrust/execution_policy.h>
 
-#define TEST_PRINTF()
 
 namespace InstanceTreeHelpers
 {
@@ -50,14 +49,14 @@ namespace InstanceTreeHelpers
 		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
 		, thrust::device_ptr<const unsigned short>* cliquesCandidates
 		, unsigned int count
-		, thrust::device_ptr<unsigned int> result
+		, unsigned int* result
 	)
 	{
 		unsigned int tid = computeLinearAddressFrom2D();
 
 		if (tid < count)
 		{
-			unsigned int key = static_cast<unsigned int>(cliquesCandidates[tid][0]) << 16 | cliquesCandidates[tid][1];
+			unsigned int key = (static_cast<unsigned int>(cliquesCandidates[tid][0]) << 16) | cliquesCandidates[tid][1];
 			Entities::InstanceTable localRes;
 			GPUHashMapperProcedures::getValue(bean, key, localRes);
 
@@ -90,8 +89,6 @@ namespace InstanceTreeHelpers
 
 			unsigned int cliqueId = groupNumberLevels[currentLevel - 1][tid];
 
-			// this for in real case is never used beacuse this method shold be invoked
-			// only for lvl2 (counting from 0)
 			for (int level = currentLevel - 2; level != 0; --level)
 			{
 				cliqueId = groupNumberLevels[level][cliqueId];
@@ -111,7 +108,7 @@ namespace InstanceTreeHelpers
 				NeighboursListInfoHolder nlih;
 
 				GPUHashMapperProcedures::getValue(bean, key, nlih);
-
+				
 				result[tid] = nlih.count;
 			}
 		}
@@ -220,10 +217,7 @@ namespace InstanceTreeHelpers
 
 			for (signed int level = currentLevel - 1; level >= 0; --level)
 			{
-				//printf("tid[%u] lvl [%i]| gId [%u]\n", tid, level, currentGroupId);
-
 				FeatureInstance currentFi = instancesOnLevels[level][currentGroupId];
-
 				unsigned long long key = InstanceTypedNeighboursMapCreator::createITNMKey(
 					currentFi
 					, newFeatureType
@@ -260,7 +254,6 @@ namespace InstanceTreeHelpers
 					//	, tid, level, currentFi.field, newFeatureInstance.field);
 					break;
 				}
-
 
 				__syncthreads();
 				// first two levels have same positions
@@ -348,6 +341,8 @@ namespace InstanceTreeHelpers
 			thrust::fill(res->groupNumbers.begin(), res->groupNumbers.end(), 0);
 			thrust::fill(res->itemNumbers.begin(), res->itemNumbers.end(), 0);
 
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 			scatterOnesAndPositions <<< computeGrid(nGroups, bs), bs >>>(
 				nGroups,
 				nThreads,
@@ -379,18 +374,18 @@ namespace InstanceTreeHelpers
 		, thrust::device_ptr<const unsigned short>* cliquesCandidates
 		, thrust::device_ptr<unsigned int> groupNumber
 		, thrust::device_ptr<unsigned int> itemNumber
-		, thrust::device_ptr<FeatureInstance> pairsA
-		, thrust::device_ptr<FeatureInstance> pairsB
+		, FeatureInstance* pairsA
+		, FeatureInstance* pairsB
 		, unsigned int count
-		, thrust::device_ptr<FeatureInstance> firstLevel
-		, thrust::device_ptr<FeatureInstance> secondLevel
+		, FeatureInstance* firstLevel
+		, FeatureInstance* secondLevel
 	)
 	{
 		unsigned int tid = computeLinearAddressFrom2D();
 
 		if (tid < count)
 		{
-			auto clique = cliquesCandidates[groupNumber[tid]];
+			const unsigned short* clique = cliquesCandidates[groupNumber[tid]].get();
 
 			unsigned int key = (static_cast<unsigned int>(clique[0]) << 16) | clique[1];
 

@@ -66,9 +66,9 @@
   keywordstyle = [2]{\color{Violet}},
   keywordstyle = [3]{\color{WildStrawberry}},
   keywordstyle = [4]{\color{Mulberry}},
-  otherkeywords = {::,<<,>>,>,<,++,--},
+  otherkeywords = {::,<<,>>,>,<,=,++,--},
   morekeywords = [2]{::},
-  morekeywords = [3]{<<, >>, >, <},
+  morekeywords = [3]{<<, >>, >, <, =},
   morekeywords = [4]{++,--},
 }
 \def\inline{\lstinline[basicstyle=\ttfamily,keywordstyle={}]}
@@ -822,6 +822,39 @@ W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz impleme
 \item obliczenie optymalnego \textit{pivotu} \cite{pivot} dla algorytmu Brona-Kerboscha.
 \item obliczenie stopnia degeneracji grafu (ang. \textit{degeneracy}) i uporządkowanie wierzchołków według miary degeneracji (ang.\textit{degeneracy ordering}) \cite{degenerat}.
 \end{itemize}
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod metody tomitaMaximalPivot umożliwiającej wyliczenie optymalnego punktu \textit{pivot}}]
+unsigned short Graph::tomitaMaximalPivot(
+	const std::vector<unsigned short>& SUBG,
+    const std::vector<unsigned short>& CAND)
+{
+	unsigned short u, maxCardinality = 0;
+	for (auto s : SUBG)
+	{
+		auto neighbors = getVertexNeighbours(s);
+		std::sort(neighbors.begin(), neighbors.end());
+		
+		std::vector<unsigned short> nCANDunion(neighbors.size() + CAND.size());
+        
+		auto itUnion = std::set_union(
+        	CAND.begin(),
+            CAND.end(),
+            neighbors.begin(),
+            neighbors.end(),
+            nCANDunion.begin());
+            
+		nCANDunion.resize(itUnion - nCANDunion.begin());
+		if (nCANDunion.size() >= maxCardinality)
+		{
+			u = s;
+			maxCardinality = nCANDunion.size();
+		}
+	}
+	return u;
+}
+\end{lstlisting}
+\end{minipage}
 
 \item SubcliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \inline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \inline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
 

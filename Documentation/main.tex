@@ -769,7 +769,7 @@ generating all maximal cliques and computational experiments. Theoretical Comput
 
 \subsection{Opis architektury wersji CPU}
 
-Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera implementacje metod pomocniczych oraz cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
+Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
 
 \begin{itemize}
 \item
@@ -800,11 +800,49 @@ virtual std::vector<std::vector<unsigned short>>
 
 Klasy CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel zawierają implementację owych metod odpowiednio w wersji sekwencyjnej jak i równoległej.
 
-W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz implementacji która za nimi stoi.
+Oprócz wyżej wspomnianych metod klasa CPUMiningAlgorithmBase zawiera implementację metod pomocniczych odpowiadających za:
+
+\begin{itemize}
+\item Obliczenie odległości między instancjami i porównanie ich z obowiązującym progiem odległości.
+\item Obliczenie wartości funkcji powszechności dla dwóch elementów.
+\item Obliczenie wartości funkcji powszechności dla dowolnej liczby elementów, za równo w wersji sekwencyjnej i równoległej.
+\item Wygenerowanie wszystkich podklik kliki K o rozmiarze \textit{n} takich, że rozmiar każdej podkliki wynosi \textit{n - 1}.
+\end{itemize}
 
 \subsection{Opis struktur \& klas pomocniczych i ich implementacji}
     
 \begin{itemize}
+\item DataFeed - Instancje struktury DataFeed mają za zadanie przechowywać dane wejściowe.
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod struktury DataFeed}]
+struct DataFeed
+{
+    struct Coords
+    {
+        float x;
+        float y;
+        Coords(float x, float y) : x(x), y(y) {}
+    };
+    
+	unsigned short type;
+	unsigned short instanceId;
+	Coords xy;
+    
+	DataFeed(unsigned short type,
+        unsigned short id,
+        float x,
+        float y)
+    		: type(type), instanceId(id), Coords(x,y) {}
+
+	bool operator < (const DataFeed& str) const
+	{
+		return (type == str.type)?(instanceId < str.instanceId):(type < str.type);
+	}
+};
+\end{lstlisting}
+\end{minipage}
+
 \item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}). Zawiera wskaźnik do korzenia drzewa \raggedright \inline{std::unique_ptr<CinsNode> root}) oraz wektor \inline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
 
 \item CinsNode - Klasa zawierająca implementację pojedynczego węzła skondensowanego drzewa instancji \textit{CinsTree}. Obiekty tej klasy zawierają informacje o cesze \inline{unsigned short type} i numerze \inline{unsigned short instanceId} instancji przestrzennej, wektor wskaźników potomków \inline{std::vector<std::unique_ptr<CinsNode>> children} oraz wskaźnik pokazujący na rodzica danego węzła \inline{CinsNode* parent}. Klasa zawiera metody umożliwiające m.in.:

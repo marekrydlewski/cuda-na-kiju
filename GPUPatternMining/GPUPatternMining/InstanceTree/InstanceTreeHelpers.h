@@ -16,7 +16,7 @@ namespace  InstanceTreeHelpers
 		HashMapperBean<unsigned int, Entities::InstanceTable, GPUUIntKeyProcessor> bean
 		, thrust::device_ptr<const unsigned short>* cliquesCandidates
 		, unsigned int count
-		, thrust::device_ptr<unsigned int> result
+		,unsigned int* result
 	);
 	// -----------------------------------------------------------------------------
 	
@@ -53,11 +53,11 @@ namespace  InstanceTreeHelpers
 		, thrust::device_ptr<const unsigned short>* cliquesCandidates
 		, thrust::device_ptr<unsigned int> groupNumber
 		, thrust::device_ptr<unsigned int> itemNumber
-		, thrust::device_ptr<FeatureInstance> pairsA
-		, thrust::device_ptr<FeatureInstance> pairsB
+		, FeatureInstance* pairsA
+		, FeatureInstance* pairsB
 		, unsigned int count
-		, thrust::device_ptr<FeatureInstance> firstLevel
-		, thrust::device_ptr<FeatureInstance> secondLevel
+		, FeatureInstance* firstLevel
+		, FeatureInstance* secondLevel
 	);
 	// -----------------------------------------------------------------------------
 

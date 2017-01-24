@@ -77,6 +77,8 @@ void GpuMiningAlgorithm::filterByDistance(float threshold)
 		, planeSweepResult
 	);
 
+	printf("distance connections count %u\n", planeSweepResult->pairsA.size());
+
 	filterByDistanceGpuData.reset();
 }
 
@@ -106,6 +108,8 @@ void GpuMiningAlgorithm::filterPrevalentTypedConnections(float minimalPrevalence
 		minimalPrevalence
 		, planeSweepResult
 	);
+
+	printf("prevalent connections count %u\n", prevalentTypesConnections.size());
 }
 
 void GpuMiningAlgorithm::constructMaximalCliquesPrepareData()
@@ -126,6 +130,8 @@ void GpuMiningAlgorithm::constructMaximalCliques()
 {
 	CliquesContainer pendingCliques;
 
+	unsigned int count = 0;
+
 	auto degeneracy = graphForKerbosh.getDegeneracy();
 	for (unsigned short const vertex : degeneracy.second)
 	{
@@ -143,10 +149,14 @@ void GpuMiningAlgorithm::constructMaximalCliques()
 			if (pendingCliques.checkCliqueExistence(cnd))
 				continue;
 
+			++count;
+
 			candidates[cnd.size()].push_back(cnd);
 			pendingCliques.insertClique(cnd);
 		}
 	}
+
+	printf("Maximal cliques count %u\n", count);
 }
 
 void GpuMiningAlgorithm::filterCandidatesByPrevalencePrepareData()
@@ -233,6 +243,10 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 
 			for (int i = 0; i < hPrevalences.size(); ++i)
 			{
+				//for (unsigned short us : toProcess[i])
+				//	printf("%hu ", us);
+				//printf(" prev%f\n", hPrevalences[i]);
+
 				if (hPrevalences[i] >= minimalPrevalence)
 				{
 					prevalentCliques.insertClique(toProcess[i]);

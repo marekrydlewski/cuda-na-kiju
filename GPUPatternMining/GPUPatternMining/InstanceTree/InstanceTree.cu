@@ -59,7 +59,7 @@ namespace InstanceTree
 			instanceTablePack->map->getBean()
 			, cliquesCandidates.cliquesData->data().get()
 			, cliquesCandidates.candidatesCount
-			, newEntriesCounts.data()
+			, newEntriesCounts.data().get()
 		);
 		
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
@@ -93,13 +93,15 @@ namespace InstanceTree
 			, cliquesCandidates.cliquesData->data().get()
 			, firstTwoLevelsFg->groupNumbers.data()
 			, firstTwoLevelsFg->itemNumbers.data()
-			, planeSweepResult->pairsA.data()
-			, planeSweepResult->pairsB.data()
+			, planeSweepResult->pairsA.data().get()
+			, planeSweepResult->pairsB.data().get()
 			, firstTwoLevelsFg->threadCount
-			, instancesElementsInLevel[0]
-			, instancesElementsInLevel[1]
+			, instancesElementsInLevelVectors[0]->data().get()
+			, instancesElementsInLevelVectors[1]->data().get()
 		);
 		
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 		thrust::device_vector<bool> integrityMask(firstTwoLevelsFg->threadCount, true);
 
 		for (unsigned int currentLevel = 2; currentLevel < currentCliquesSize; ++currentLevel)
@@ -161,7 +163,11 @@ namespace InstanceTree
 			unsigned int currentLevelElementsCount = instancesElementsInLevelVectors.back()->size();
 
 			if (integrityMask.size() < currentLevelElementsCount)
-				integrityMask = thrust::device_vector<bool>(currentLevelElementsCount);
+			{
+				integrityMask.resize(currentLevelElementsCount);
+			}
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			InstanceTreeHelpers::markAsPartOfCurrentCliqueInstance <<< checkCliqueIntegrity, 256 >>> (
 				typedInstanceNeighboursPack->map->getBean()

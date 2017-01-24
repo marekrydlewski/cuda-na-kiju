@@ -827,8 +827,8 @@ W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz impleme
 
 Weryfikację umożliwia algorytm:
 \begin{minipage}{\linewidth}
-\begin{lstlisting}
-bool CliquesContainer::checkCliqueExistence(
+\begin{lstlisting}[caption={Kod metody checkCliqueExistence klasy SubcliquesContainer}]
+bool SubcliquesContainer::checkCliqueExistence(
 	std::vector<unsigned short>& clique)
 {
 	assert(clique.size() >= 2);
@@ -866,8 +866,8 @@ bool CliquesContainer::checkCliqueExistence(
 \item Sprawdzenia czy dokładnie taka klika jest już przechowywana, za co odpowiada funkcja \raggedright \inline{bool checkCliqueExistence(std::vector<unsigned short>& clique)}
 \item Sprawdzenie czy taka klika lub jej dowolna podklika jest już przechowywana, odpowiada za to funkcja:
 \begin{minipage}{\linewidth}
-\begin{lstlisting}
-bool checkSubcliqueExistence(
+\begin{lstlisting}[caption={Kod metody checkSublicqueExistence klasy CliquesContainer }]
+bool CliquesContainer::checkSubcliqueExistence(
 	std::vector<unsigned short>& clique)
 {
 	bool isSubclique;
@@ -901,7 +901,7 @@ bool checkSubcliqueExistence(
 \item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang, 
 textit{hash function} dla pary \inline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \inline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \inline{hash_combine} z biblioteki \textit{boost}:
 \begin{minipage}{\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[caption={Kod struktury pair\_hash}]
 struct pair_hash {
 	template <class T1, class T2>
 	std::size_t operator () (const std::pair<T1, T2> &p) const {
@@ -921,7 +921,7 @@ struct pair_hash {
 
 Funkcja hash\_combine:
 \begin{minipage}{\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[caption={Kod funkcji hash\_combine}]
 template<typename T>
 void hash_combine(std::size_t &seed, T const &key) {
 	std::hash<T> hasher;
@@ -934,7 +934,7 @@ void hash_combine(std::size_t &seed, T const &key) {
 \item vector\_hash - Struktura umożliwiająca kodowanie mieszające (ang. \textit{hashing}) dla wektorów dowolnych typów dla których istnieje implementacja funkcji hashującej. Również w tym przypadku skorzystano z funkcji \inline{hash_combine}.
 
 \begin{minipage}{\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[caption={Kod struktury vector\_hash}]
 struct vector_hash {
 	template <class T>
 		std::size_t operator()(std::vector<T> const& vec) const 

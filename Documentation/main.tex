@@ -4,9 +4,11 @@
 \usepackage{indentfirst} 
 \usepackage{hyperref}
 \usepackage{geometry}
+\usepackage[dvipsnames]{xcolor}
 \usepackage[nottoc]{tocbibind}
 \usepackage[linesnumbered]{algorithm2e}
-\usepackage{listings}
+\usepackage{textcomp}
+\usepackage{listings,chngcntr}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
@@ -18,17 +20,61 @@
  top=25mm,
  bottom=25mm,
  right=25mm,
- }
-\lstset{
-language=C++,
-basicstyle=\ttfamily,
-breaklines=true,
-breakatwhitespace=true,
-breakindent=2ex,
-postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookrightarrow\space}}
 }
 
+\definecolor{lbcolor}{gray}{0.96}
+\lstset{
+  backgroundcolor=\color{lbcolor},
+  tabsize=4,    
+  %   rulecolor=,
+  language=[GNU]C++,
+  basicstyle=\scriptsize,
+  upquote=true,
+  aboveskip={1.5\baselineskip},
+  columns=fixed,
+  showstringspaces=false,
+  extendedchars=false,
+  breaklines=true,
+  prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+  frame=single,
+  numbers=left,
+  showtabs=false,
+  showspaces=false,
+  showstringspaces=false,
+  identifierstyle=\ttfamily,
+  keywordstyle=\color[rgb]{0,0,1},
+  commentstyle=\color[rgb]{0.026,0.112,0.095},
+  stringstyle=\color[rgb]{0.627,0.126,0.941},
+  numberstyle=\color[rgb]{0.205, 0.142, 0.73}
+}
+\lstset{
+  backgroundcolor=\color{lbcolor},
+  tabsize=4,
+  language=C++,
+  captionpos=b,
+  frame=lines,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=5pt,
+  breaklines=true,
+  showstringspaces=false,
+  basicstyle=\footnotesize,
+  % identifierstyle=\color{magenta},
+  keywordstyle=\color[rgb]{0,0,1},
+  commentstyle=\color{Darkgreen},
+  stringstyle=\color{red}
+  keywordstyle = [2]{\color{Violet}},
+  keywordstyle = [3]{\color{WildStrawberry}},
+  keywordstyle = [4]{\color{Mulberry}},
+  otherkeywords = {::,<<,>>,>,<,=,++,--},
+  morekeywords = [2]{::},
+  morekeywords = [3]{<<, >>, >, <, =},
+  morekeywords = [4]{++,--},
+}
+\def\inline{\lstinline[basicstyle=\ttfamily,keywordstyle={}]}
+
 \begin{document}
+\counterwithin{lstlisting}{section}
 \begin{titlepage}
 	\centering
 	{\scshape\LARGE Politechnika Poznańska \par}
@@ -721,16 +767,9 @@ generating all maximal cliques and computational experiments. Theoretical Comput
 
 \section{Dodatek A - Opis klas i struktur pomocniczych}
 
-\subsection{Ogólne założenia, opis klas i struktur pomocnicze}
+\subsection{Opis architektury wersji CPU}
 
-\begin{lstlisting}
-std::unordered_map<unsigned short, std::unordered_map<unsigned short,
-	std::unordered_map<unsigned short, std::vector<
-    	unsigned short>*>>> insTable;
-\end{lstlisting}
-
-\subsubsection{Ogólne założenia}
-Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera implementacje metod pomocniczych oraz cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
+Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
 
 \begin{itemize}
 \item
@@ -761,14 +800,52 @@ virtual std::vector<std::vector<unsigned short>>
 
 Klasy CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel zawierają implementację owych metod odpowiednio w wersji sekwencyjnej jak i równoległej.
 
-W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz implementacji która za nimi stoi.
+Oprócz wyżej wspomnianych metod klasa CPUMiningAlgorithmBase zawiera implementację metod pomocniczych odpowiadających za:
 
-\subsubsection{Opis struktur \& klas pomocniczych i ich implementacji}
+\begin{itemize}
+\item Obliczenie odległości między instancjami i porównanie ich z obowiązującym progiem odległości.
+\item Obliczenie wartości funkcji powszechności dla dwóch elementów.
+\item Obliczenie wartości funkcji powszechności dla dowolnej liczby elementów, za równo w wersji sekwencyjnej i równoległej.
+\item Wygenerowanie wszystkich podklik kliki K o rozmiarze \textit{n} takich, że rozmiar każdej podkliki wynosi \textit{n - 1}.
+\end{itemize}
+
+\subsection{Opis struktur \& klas pomocniczych i ich implementacji}
     
 \begin{itemize}
-\item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}). Zawiera wskaźnik do korzenia drzewa \raggedright \lstinline{std::unique_ptr<CinsNode> root}) oraz wektor \lstinline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
+\item DataFeed - Instancje struktury DataFeed mają za zadanie przechowywać dane wejściowe.
 
-\item CinsNode - Klasa zawierająca implementację pojedynczego węzła skondensowanego drzewa instancji \textit{CinsTree}. Obiekty tej klasy zawierają informacje o cesze \lstinline{unsigned short type} i numerze \lstinline{unsigned short instanceId} instancji przestrzennej, wektor wskaźników potomków \lstinline{std::vector<std::unique_ptr<CinsNode>> children} oraz wskaźnik pokazujący na rodzica danego węzła \lstinline{CinsNode* parent}. Klasa zawiera metody umożliwiające m.in.:
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod struktury DataFeed}]
+struct DataFeed
+{
+    struct Coords
+    {
+        float x;
+        float y;
+        Coords(float x, float y) : x(x), y(y) {}
+    };
+    
+	unsigned short type;
+	unsigned short instanceId;
+	Coords xy;
+    
+	DataFeed(unsigned short type,
+        unsigned short id,
+        float x,
+        float y)
+    		: type(type), instanceId(id), Coords(x,y) {}
+
+	bool operator < (const DataFeed& str) const
+	{
+		return (type == str.type)?(instanceId < str.instanceId):(type < str.type);
+	}
+};
+\end{lstlisting}
+\end{minipage}
+
+\item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}). Zawiera wskaźnik do korzenia drzewa \raggedright \inline{std::unique_ptr<CinsNode> root}) oraz wektor \inline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
+
+\item CinsNode - Klasa zawierająca implementację pojedynczego węzła skondensowanego drzewa instancji \textit{CinsTree}. Obiekty tej klasy zawierają informacje o cesze \inline{unsigned short type} i numerze \inline{unsigned short instanceId} instancji przestrzennej, wektor wskaźników potomków \inline{std::vector<std::unique_ptr<CinsNode>> children} oraz wskaźnik pokazujący na rodzica danego węzła \inline{CinsNode* parent}. Klasa zawiera metody umożliwiające m.in.:
 
 \begin{itemize}
 \item dodanie potomka.
@@ -784,11 +861,46 @@ W kolejnych podrozdziałach znajduje się dokładny opis tych metod oraz impleme
 \item obliczenie stopnia degeneracji grafu (ang. \textit{degeneracy}) i uporządkowanie wierzchołków według miary degeneracji (ang.\textit{degeneracy ordering}) \cite{degenerat}.
 \end{itemize}
 
-\item SubcliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \lstinline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \lstinline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod metody tomitaMaximalPivot umożliwiającej wyliczenie optymalnego punktu \textit{pivot}}]
+unsigned short Graph::tomitaMaximalPivot(
+	const std::vector<unsigned short>& SUBG,
+    const std::vector<unsigned short>& CAND)
+{
+	unsigned short u, maxCardinality = 0;
+	for (auto s : SUBG)
+	{
+		auto neighbors = getVertexNeighbours(s);
+		std::sort(neighbors.begin(), neighbors.end());
+		
+		std::vector<unsigned short> nCANDunion(neighbors.size() + CAND.size());
+        
+		auto itUnion = std::set_union(
+        	CAND.begin(),
+            CAND.end(),
+            neighbors.begin(),
+            neighbors.end(),
+            nCANDunion.begin());
+            
+		nCANDunion.resize(itUnion - nCANDunion.begin());
+		if (nCANDunion.size() >= maxCardinality)
+		{
+			u = s;
+			maxCardinality = nCANDunion.size();
+		}
+	}
+	return u;
+}
+\end{lstlisting}
+\end{minipage}
 
-Weryfikację umożliwia algorytm: 
-\begin{lstlisting}
-bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
+\item SubcliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \inline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \inline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
+
+Weryfikację umożliwia algorytm:
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod metody checkCliqueExistence klasy SubcliquesContainer}]
+bool SubcliquesContainer::checkCliqueExistence(
+	std::vector<unsigned short>& clique)
 {
 	assert(clique.size() >= 2);
 
@@ -816,34 +928,39 @@ bool CliquesContainer::checkCliqueExistence(std::vector<unsigned short>& clique)
 	return false;
 }
 \end{lstlisting}
+\end{minipage}
 	
-\item ParallelSubcliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{SubcliquesContainer} jednakże zapewniająca bezpieczeństwo przetwarzania wielowątkowego. Cel ten osiągnięto za pomocą skorzystania z sekcji krytycznych w przypadku inkrementowania licznika jak i posłużenia się współbieżnymi wektorami \lstinline{concurrency::concurrent_vector<unsigned short>} z biblioteki PPL, co przełożyło się również na zwiększenie efektywności przetwarzania.
+\item ParallelSubcliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{SubcliquesContainer} jednakże zapewniająca bezpieczeństwo przetwarzania wielowątkowego. Cel ten osiągnięto za pomocą skorzystania z sekcji krytycznych w przypadku inkrementowania licznika jak i posłużenia się współbieżnymi wektorami \inline{concurrency::concurrent_vector<unsigned short>} z biblioteki PPL, co przełożyło się również na zwiększenie efektywności przetwarzania.
 
 \item CliquesContainer - Klasa zapewniająca dwie funkcjonalności:
 \begin{itemize}
-\item Sprawdzenia czy dokładnie taka klika jest już przechowywana, za co odpowiada funkcja \raggedleft \lstinline{bool checkCliqueExistence(std::vector<unsigned short>& clique)}
+\item Sprawdzenia czy dokładnie taka klika jest już przechowywana, za co odpowiada funkcja \raggedright \inline{bool checkCliqueExistence(std::vector<unsigned short>& clique)}
 \item Sprawdzenie czy taka klika lub jej dowolna podklika jest już przechowywana, odpowiada za to funkcja:
-\begin{lstlisting}
-bool checkSubcliqueExistence(std::vector<unsigned short>& clique)
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod metody checkSublicqueExistence klasy CliquesContainer }]
+bool CliquesContainer::checkSubcliqueExistence(
+	std::vector<unsigned short>& clique)
 {
-  bool isSubclique;
-  for (auto& c : cliques)
-  {
-  	if (clique.size() < c.size()) continue;
-    auto it = clique.begin();
-    isSubclique = true;
-  for (auto id : c)
-  {
-    it = std::find(it, clique.end(), id);
-    if (it == clique.end()) {
-      isSubclique = false;
-      break;
-    }
-  }
-    if (isSubclique) return true;
-  }
+	bool isSubclique;
+  	for (auto& c : cliques)
+  	{
+		if (clique.size() < c.size()) continue;
+    	auto it = clique.begin();
+    	isSubclique = true;
+        for (auto id : c)
+        {
+        	it = std::find(it, clique.end(), id);
+        	if (it == clique.end()) {
+        		isSubclique = false;
+        		break;
+        	}
+        }
+   		if (isSubclique) return true;
+  	}
+  	return false;
 }
 \end{lstlisting}
+\end{minipage}
 \end{itemize}
 
 \item ParallelCliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{CliquesContainer} zapewniająca w tym samym czasie bezpieczeństwo przetwarzania wielowątkowego.
@@ -853,9 +970,9 @@ bool checkSubcliqueExistence(std::vector<unsigned short>& clique)
 \item SimulatedRealDataProvider - Klasa wykorzystująca gotowe, przygotowane wcześniej dane wczytywane z plików mające symulować dane rzeczywiste.
 
 \item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang, 
-textit{hash function} dla pary \lstinline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \lstinline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \lstinline{hash_combine} z biblioteki \textit{boost}:
-
-\begin{lstlisting}
+textit{hash function} dla pary \inline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \inline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \inline{hash_combine} z biblioteki \textit{boost}:
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod struktury pair\_hash}]
 struct pair_hash {
 	template <class T1, class T2>
 	std::size_t operator () (const std::pair<T1, T2> &p) const {
@@ -871,17 +988,38 @@ struct pair_hash {
 	}
 };
 \end{lstlisting}
+\end{minipage}
 
 Funkcja hash\_combine:
-\begin{lstlisting}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod funkcji hash\_combine}]
 template<typename T>
 void hash_combine(std::size_t &seed, T const &key) {
 	std::hash<T> hasher;
-	seed ^= hasher(key) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	seed ^= hasher(key) + 0x9e3779b9 + (seed << 6) + 
+    	(seed >> 2);
 };
 \end{lstlisting}
+\end{minipage}
 
-\item vector\_hash - Struktura umożliwiająca kodowanie mieszające (ang. \textit{hashing}) dla wektorów dowolnych typów dla których istnieje implementacja funkcji hashującej. Również w tym przypadku skorzystano z funkcji \lstinline{hash_combine}.
+\item vector\_hash - Struktura umożliwiająca kodowanie mieszające (ang. \textit{hashing}) dla wektorów dowolnych typów dla których istnieje implementacja funkcji hashującej. Również w tym przypadku skorzystano z funkcji \inline{hash_combine}.
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod struktury vector\_hash}]
+struct vector_hash {
+	template <class T>
+		std::size_t operator()(std::vector<T> const& vec) const 
+        {
+            std::size_t seed = vec.size();
+            for (auto& i : vec) {
+                ::hash_combine(seed, i);
+            }
+			return seed;
+		}
+};
+\end{lstlisting}
+\end{minipage}
+
 
 \item Timer - Generyczna klasa umożliwiająca pomiar czasu dla dowolnej funkcji lub funktora z dowolną liczbą argumentów. Zapewnia ustawienie dowolnego typu zegara i dokładności pomiaru. Odpowiada za sprawdzenie czasu wykonywania poszczególnych kroków algorytmu.
 

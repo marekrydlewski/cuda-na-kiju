@@ -12,6 +12,7 @@
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
+\renewcommand*{\algorithmcfname}{Algorytm}
  
 \newcommand{\sectionbreak}{\clearpage}
  \geometry{
@@ -147,19 +148,36 @@ Jak już wspomniano, niniejsza praca w dużej mierze opiera się o algorytm zapr
 
 Głównym źródłem wiedzy na temat kolokacji przestrzennych była rozprawda doktorska dr inż. Pawła Boińskiego \cite{boinski}, która w dużym przekroju omawia ideę kolokacji zaprezentowaną przez Shekhara i Huanga w pracy \cite{huang}, a także prezentuje najpopularniejsze techniki ich odkrywania (metody \textit{Co-location Miner}, \textit{iCPI-tree}). Część rozwiązań wykorzystanych w tych technikach została wykorzystana w trakcie realizacji algorytmu.
 
-Oddzielną kwestią jest literatura książkowa, wykorzystana do zapoznania się z technologią CUDA oraz przyjęcia dobrych praktyk optymalizacyjnych i programistycznych. Tutaj szczególnie należy wymienić popularną pozycję \textit{CUDA w przykładach} autorstwa Shane'a Cooke'a \cite{cuda_by_examples}, a także \textit{Professional CUDA C Programming} \cite{professional_cuda} będącą również podstawą do wstępu teoretycznego w rozdziale drugim.
+Oddzielną kwestią jest literatura książkowa, wykorzystana do zapoznania się z technologią CUDA oraz przyjęcia dobrych praktyk optymalizacyjnych i programistycznych. Tutaj szczególnie należy wymienić popularną pozycję \textit{CUDA w przykładach} autorstwa Shane'a Cooke'a \cite{cuda_by_examples}, a także \textit{Professional CUDA C Programming} \cite{professional_cuda} będącą również podstawą do wstępu teoretycznego w Rozdziale 3.
 
 \subsection{Struktura pracy}
 
-W pracy przedstawiono główne pojęcia związane z wyszukiwaniem kolokacji przestrzennych oraz programowaniem równoległym na procesory graficzne i zawarto je w rozdziale 2. Rozdział 3 poświęcony jest algorytmowi będącemu głównym tematem pracy. Rozdział 4 opisuje implementację tego algorytmu w technologii CUDA, natomiast rozdział 5 prezentuje wyniki przeprowadzonych testów.
+\textbf{Rozdział 2} stanowi wstęp teoretyczny do niniejszej pracy - prezentuje podstawowe pojęcia związane z odkrywaniem kolokacji przestrzennych, a także prezentuje najprostsze algorytmy wyszukujące wzorce kolokacji przestrzennych.
 
-\textit{W tym miejscu zasadniczo będzie można napisać więcej, jeżeli już te rozdziały zostaną ustalone bądź wstępnie uzupełnione. Poza tym należy ustalić, czy w ogóle potrzebujemy takiego działu dla tak małej pracy. Z drugiej strony, zawsze to jednak te pół strony więcej spamu - borewicz. Dawaj ten spam - rydel}
+\textbf{Rozdział 3} zawiera wprowadzenie do technologii CUDA. Przedstawia także podstawowe różnice w programowaniu na CPU i GPU oraz wyjaśnia podstawowe pojęcia związane z programowaniem na procesory graficzne.
+
+\textbf{Rozdział 4} poświęcony jest algorytmowi \textit{SCGT} będącym głównym tematem pracy. Zawiera wyjaśnienia poszczególnych kroków algorytmu oraz niezbędne definicje.
+
+Implementacja CPU (w wersji sekwencyjnej, jak i równoległej) jest głównym tematem \textbf{Rozdziału 5}. Koncentruje się on w szczególności na przedstawienie zastosowanych technik optymalizacyjnych poprawiających wydajność algorytmu w środowisku CPU. Rozdział zawiera także krótki wstęp do biblioteki \textit{PPL} użytej w równoległej implementacji algorytmu.
+
+\textbf{Rozdział 6} zawiera omówienie implementacji algorytmu dla procesorów graficznych (GPU).
+
+Porównanie wydajności zaimplementowanych rozwiązań zostało zawarte w \textbf{Rozdziale 6}. 
+
+Ostatni \textbf{Rozdział 7} stanowi podsumowanie całego projektu, uwagi zespołu oraz możliwe dalsze kierunki rozwoju.
+
+W \textbf{Dodatku A} zawarty jest krótki opis klas zaimplementowanych w implementacji dla CPU i GPU.
 
 \subsection{Podział pracy}
 
-\textbf{Marcin Jabłoński} w ramach niniejszej pracy wykonał projekt tego i tego, opracował ......
+Podział zadań w ramach niniejszego projektu wyglądał następująco:
 
-\textbf{Łukasz Kosiak} wykonał ......, itd.
+\begin{itemize}
+\item \textbf{Marcin Jabłoński} - równoległa implementacja CPU, testy;
+\item \textbf{Łukasz Kosiak} - implementacja GPU, testy;
+\item \textbf{Piotr Kurzawa} - tekst pracy inżynierskiej,
+\item \textbf{Marek Rydlewski} - sekwencyjna implementacja CPU, testy.
+\end{itemize}
 
 \newpage
 
@@ -390,7 +408,7 @@ Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie wedłu
 
 \newpage
 
-\section{Przetwarzanie równoległe na kartach graficznych}
+\section{Wprowadzenie do technologii CUDA}
 
 Dziedzina informatyki, jaką są obliczenia ogólnego przeznaczenia na układach GPU (ang. \textit{general-purpose computing on graphics processing units}, w skrócie \textit{GPGPU}) należy do stosunkowo świeżych technik programowania - jej właściwy początek można datować na okolice 2009 roku. Jeszcze do niedawna wśród programistów panowało przekonanie, że karty graficzne powinny być odpowiedzialne tylko za rysowanie obrazu, a cała odpowiedzialność za niezbędne obliczenia powinna padać na CPU, jako "serce" komputera. Były to czasy, kiedy pojęcie równoległego wykonywania zadań nie było szeroko rozpowszechnione - rdzenie procesora były jedynie nowinką, a cały rozwój procesorów CPU szedł w zwiększanie częstotliwości taktowania.
 
@@ -398,7 +416,9 @@ Szybko się okazało, że nie da się tego robić w nieskończoność. Podnoszen
 
 Wielu osobom w trakcie tej "rewolucji" umknął jeden drobny fakt - kiedy swoje triumfy świecił słynny procesor \textit{Pentium 4} firmy \textit{Intel} o kosmicznej wtedy częstotliwości taktowania rzędu 3 GHz, na rynku istniały już rozwiązania równoległe, na których można było uzyskać znacznie lepsze wyniki. Były to oczywiście karty graficzne, które od dawna działały w sposób równoległy. 
 
-Dopóki nie powstały pierwsze specyfikacje bibliotek wspierających obliczenia na kartach graficznych (pierwsza była \textit{CUDA} firmy \textit{NVIDIA}), programiści próbowali wykorzystywać potencjał brzmiący w procesorach graficznych w oparciu o rendering 3D. Było to dosyć karkołomne zadanie i nie każdy algorytm można było rozwiązać w ten sposób. Karty graficzne musiały odczekać jeszcze parę lat, aby dało się wykorzystać w pełni ich możliwości obliczeniowe.
+Dopóki nie powstały pierwsze specyfikacje bibliotek wspierających obliczenia na kartach graficznych, programiści próbowali wykorzystywać potencjał brzmiący w procesorach graficznych w oparciu o rendering 3D. Było to dosyć karkołomne zadanie i nie każdy algorytm można było rozwiązać w ten sposób. Karty graficzne musiały odczekać jeszcze parę lat, aby dało się wykorzystać w pełni ich możliwości obliczeniowe.
+
+Spośród wszystkich technologii umożliwiających przeprowadzanie obliczeń na kartach graficznych zdecydowanie największą popularność osiągnęła pierwsza z nich, czyli CUDA (ang. \textit{Compute Unified Device Architecture}). Została ona zaprezentowana po raz pierwszy w 2007 roku przez firmę NVIDIA i jest dedykowana wyłącznie produktom tej firmy (w porównaniu do konkurencyjnej technologii OpenCL).
 
 \subsection{CPU a GPU}
 
@@ -406,11 +426,7 @@ Jak już wspomiano, procesory graficzne, mające w pierwotnym założeniu wyłą
 
 Oddzielną kwestią jest przydział tranzystorów tworzących poszczególne układy do pełnienia poszczególnych funkcji. W przypadku CPU większość tranzystorów stanowi pamięć podręczną oraz układy sterowania - za wykonywanie obliczeń jest odpowiedzialna ok. 1/4 tranzystorów wbudowanych w procesor. Natomiast w przypadku GPU gros tranzystorów wykorzystanych jest do budowy jednostek arytmetyczno-logicznych oraz zmiennoprzecinkowych. Z tego powodu duża część zadań związana z przepływem danych, uruchamianiem wątków czy podziałem zadań na GPU spoczywa na programiście, co dosyć mocno komplikuje kod.
 
-\subsection{Wprowadzenie do technologii CUDA}
-
-Spośród wszystkich technologii umożliwiających przeprowadzanie obliczeń na kartach graficznych zdecydowanie największą popularność osiągnęła pierwsza z nich, czyli CUDA (ang. \textit{Compute Unified Device Architecture}). Została ona zaprezentowana po raz pierwszy w 2007 roku przez firmę NVIDIA i jest dedykowana wyłącznie produktom tej firmy (w porównaniu do konkurencyjnej technologii OpenCL). Do jej największych zalet z pewnością należy bardzo dobra dokumentacja oraz dostępność na wszystkie najważniejsze platformy systemowe (Windows, Linux, Mac OS X).
-
-\subsubsection{Architektura}
+\subsection{Architektura CUDA}
 
 Procesor graficzny kompatybilny z CUDA zbudowany jest z wielu multiprocesorów strumieniowych (ang. \textit{streaming multiprocessors}, w skrócie SM). Na każdy z nich składa się określona ilość rdzeni CUDA, które mogą przetwarzać dane w sposób równoległy - w każdym z nim jest umieszczona dodatkowo jednostka arytmetyczno-logiczna (ALU, umożliwia obliczenia na liczbach całkowitych) oraz jednostka zmiennoprzecinkowa (FPU). Do tego w każdym \textit{SM} znajdują się jednostki funkcji specjalnych - w nich wyznaczane są wartości funkcji matematycznych typu pierwiastkowanie czy funkcje trygonometryczne. Liczba powyższych elementów nie jest stała - zależą one od miary \textit{potencjału obliczeniowego CUDA} (ang. \textit{CUDA Compute Capability}), który obsługuje dany sprzęt.
 
@@ -424,7 +440,7 @@ Każdy \textit{SM} zawiera 16 jednostek wejścia i wyjścia, mających na celu p
 
 Oprócz tego multiprocesor wyposażony jest w układy sterujące wywołaniem instrukcji (ang. \textit{Instruction Dispatch Unit}) odpowiadające za wykonywanie obliczeń na zgrupowanych rdzeniach.
 
-\subsubsection{Programowanie wielowątkowe w języku CUDA C}
+\subsection{Programowanie wielowątkowe w języku CUDA C}
 
 Środowisko NVIDIA CUDA umożliwia programowanie w języku CUDA C - stanowi on podzbiór języka C++ i jest z nim w dużym stopniu kompatybilny. Kod w języku CUDA C da się łączyć z standardowym kodem C++ kompilowanym pod procesory CPU - w tym przypadku fragmenty kodu wywoływane po stronie karty graficznej są kompilowane przez specjalny kompilator NVCC dołączany do środowiska CUDA. 
 
@@ -432,7 +448,7 @@ Funkcje wywoływane przez hosta, a wykonywane przez procesor graficzny w sposób
 
 Wątki można organizować w większe grupy. Podstawową grupą wątków jest \textit{blok}, w ramach którego można uformować wątki w jednym, dwóch, a nawet trzech wymiarach. Bloki grupowane są z kolei w siatkę obliczeniową (ang. \textit{computation grid}), która również może składać się z trzech wymiarów. Przy wywołaniu kernela programista określa liczbę równoległych bloków oraz ilość wątków na blok, za pomocą których urządzenie będzie przetwarzać równolegle kernel. Odpowiednie ustawienie tych wartości jest kluczowe dla wydajności przetwarzania - zbyt mała/wielka ilość przyznanych bloków może spowodować odwrotny skutek do zamierzonego. Maksymalne ilości wątków na blok i bloków na siatkę określa miara \textit{potencjału obliczeniowego CUDA}. 
 
-\subsubsection{Model pamięci}
+\subsection{Model pamięci}
 
 Karty graficzne obsługujące technologię CUDA posiadają następujące typy pamięci, dostępne dla programisty:
 
@@ -445,7 +461,7 @@ Karty graficzne obsługujące technologię CUDA posiadają następujące typy pa
 \item \textit{pamięć tekstur} - również tylko do odczytu, przeznaczona z myślą o przechowywaniu danych w postaci macierzy.
 \end{itemize}
 
-\subsubsection{\textit{Thrust}}
+\subsection{\textit{Thrust}}
 
 Biblioteka \textit{Thrust} stanowi odpowiednik popularnej \textit{Standard Template Library} dla języka CUDA C. Od wersji 1.4.0 jego wersja produkcyjna jest dołączana wraz z środowiskiem \textit{CUDA Toolkit 4.0}.
 
@@ -453,8 +469,15 @@ Podobnie jak jego odpowiednik dla języka C++, Thrust zawiera bogatą kolekcję 
 
 Thrust zawiera struktury znane z biblioteki STL, takie jak wektory (w wersji dla hosta oraz karty graficznej), iteratory oraz wiele innych typów generycznych ułatwiających korzystanie z możliwości dostarczanych przez środowisko CUDA C. Użycie ich jest analogiczne jak w "tradycyjnym" STL-u.
 
-Projekt będący wynikiem tej pracy wykorzystuje CUDA Toolkit 8.0 wraz z biblioteką Thrust 1.8.
+Oprócz tego, biblioteka \textit{Thrust} oferuje następujące operacje:
 
+\begin{itemize}
+\item \textit{Inclusive scan} – wyznaczenie tablicy w oparciu o tablicę o rozmiarze k, takiej, że $ B[i] = \sum\limits_{j=0}^{i} A[j], i \in (0, k-1) $;
+\item \textit{Exclusive scan} – wyznaczenie tablicy w oparciu o tablicę o rozmiarze k, takiej, że $ B[0] = 0 \cap B[i] = \sum\limits_{j=0}^{i-1} A[j], i \in (1,k-1) $;
+\item \textit{Compact} – usuwanie pozycji z tablicy wejściowej spełniającej podany warunek, często na podstawie innej tablicy;
+\item \textit{Unique} – wyznaczenie unikalnych wartości z (posortowanej) tablicy wejściowej,
+\item \textit{Sort} – sortowanie tablicy podanej na wejściu, również na podstawie klucza sortowania będącego oddzielną tablicą.
+\end{itemize}
 \newpage
 
 \section{Algorytm}
@@ -624,6 +647,7 @@ Do celów porównawczych zostały zrealizowane dwa rozwiązania: sekwencyjne (be
 \subsection{Wersja sekwencyjna}
 
 \subsubsection{Generowanie instancji w oparciu o próg odległości}
+\label{cpu-1-seq}
 
 Podobnie jak w pierwotnej wersji algorytmu, generowanie kandydatów na kolokacje o rozmiarze 2 następuje na podstawie \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}). Algorytm zamiatania (ang. \textit{plane sweep algorithm}) użyty w procesie łączenia został jednak nieznacznie zmodyfikowany.
 
@@ -705,7 +729,19 @@ Zasadniczą różnicą między \textit{PPL} a \textit{OpenMP} jest zastosowanie 
 
 Powyższe wady środowiska \textit{OpenMP} były powodem, dla których ostatecznie - pomimo ubogiej dokumentacji oraz niskiej popularności -  została wybrana biblioteka \textit{Parallel Patterns Library} jako najbardziej optymalna dla algorytmu \textit{SCGT} będącego tematem tej pracy.
 
-\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
+\subsubsection{Generowanie sąsiadów na podstawie progu odległości}
+Generowanie kandydatów na kolokacje o rozmiarze 2 podobnie jak w wersji sekwencyjnej następuje na podstawie \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}). Również w tym przypadku do owego algorytmu wprowadzono niezbędne modyfikacje.
+
+W pierwszym kroku algorytmu wektor będący zbiorem wejściowym, korzystając z dobrodziejstw biblioteki PPL jest sortowany algorytmem \textit{sortowania buforowanego} (ang. \textit{buffered sort}). Tak jak w wersji sekwencyjnej jako kryterium sortowania zostaje zastosowana relacja między arbitralnie wybranym wymiarem przestrzeni. Sortowanie buforowane z biblioteki PPL to połączenie równoległych wersji sortowania szybkiego i sortowania przez scalanie (ang. \textit{merge sort}), nie jest to jednak sortowanie w miejscu (ang. \textit{in-place}) i wymaga dodatkowej alokacji pamięci o rozmiarze O(n). Ogólna złożoność algorytmu wynosi O((n/p)*log(n)), gdzie przez \textit{p} oznacza się liczbę procesorów.
+
+Analogicznie jak w wersji sekwencyjnej \ref{cpu-1-seq}, algorytm nie potrzebuje wiedzy o rzeczywistej odległości między dwoma punktami w przestrzeni, a jedynie informację o relacji między tą odległością a zadanym progiem odległości. Dlatego tak samo, wyliczany jest \textit{efektywny próg odległości}, będącym progiem odległości podniesionym do potęgi drugiej.
+
+Kolejnym krokiem jest filtrowanie obiektów w oparciu o wyliczony efektywny próg odległości. Tak samo jak w wersji sekwencyjnej tworzona jest tablica asocjacyjna $ insTable $. Aby skorzystać z przyśpieszenia oferowanego przez przetwarzanie równoległe, przy wykorzystaniu biblioteki PPL tworzony jest obiekt typu \textit{combinable}. Każdy wątek posiada prywatną lokalną kopię tablicy $ insTable $ w której umieszcza lub nie kolejne pary instancji.  Analogicznie, pętla wewnętrzna jest przerywana, jeżeli wartość bezwzględna różnicy posortowanych współrzędnych poszczególnych obiektów będzie większa niż zadany próg odległości. W związku tym niezbędne okazało się skorzystanie z dynamicznego planisty \textit{auto partitioner}, który na bieżąco przydziela dane wejściowe poszczególnym wątkom niezbędne do dalszego przetwarzania. Po wyjściu z pętli wątki są synchronizowane i następuję scalenie tablicy $ instTable $.
+
+Podobna sytuacja występuje przy tworzeniu wektora $ typeIncidenceCounter $, również i tutaj każdy wątek posiada swoją własną kopię wektora. Na końcu przetwarzania oryginalne wektory są redukowanego do jednego wynikowego wektora poprzez zastosowanie prostej operacji redukcji i sumowania wektorów parami, a dokładniej ich wartości indeksów.
+
+Tablica $ insTable $ ma taką samą strukturę jak w wersji sekwencyjnej.
+
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
 \subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}
@@ -720,16 +756,15 @@ Powyższe wady środowiska \textit{OpenMP} były powodem, dla których ostateczn
 \newpage
 
 \begin{thebibliography}{}
+% Autorzy, Tytuł, Gdzie ?, Rok wydania, Strony
 \bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
-\bibitem{sop}Ł.~Stanisławowski. \emph{Bogactwo i nędza narodów.}
-O'reilly, 2013.
 \bibitem{trad} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery.
 Taylor \& Francis, Inc., Bristol, PA, USA, 2001
 \bibitem{huang} S. Shekhar and Y. Huang. Discovering Spatial Co-location Patterns: A Summary of Results. In SSTD 2001, pages 236–256, 2001.
-\bibitem{boinski} Przetwarzanie zbiorów przestrzennych zapytan neksploracyjnych w srodowiskachzograniczonym rozmiarem pamiecioperacyjnej
-\bibitem{chinczyki}A fast space-saving algorithm for maximal co-location pattern mining
-\bibitem{cuda_by_examples}CUDA by Example: An Introduction to General-Purpose GPU Programming, Jason Sanders, Edward Kandrot
-\bibitem{professional_cuda}Professional CUDA C Programming, John Cheng, Max Grossman, Ty McKerche
+\bibitem{boinski} Boiński P., Przetwarzanie zbiorów przestrzennych zapytań eksploracyjnych w środowiskach z ograniczonym rozmiarem pamięci operacyjnej, Poznań, 2015.
+\bibitem{chinczyki}Yao X., Peng L., Yang L., Chi T. A fast space-saving algorithm for maximal co-location pattern mining. W: Expert Systems with Applications Volume 63, 30 November 2016, strony 310–323.
+\bibitem{cuda_by_examples}Sanders J., Kandrot E., CUDA by Example: An Introduction to General-Purpose GPU Programming, Addison-Wesley, 2011.
+\bibitem{professional_cuda}Cheng J., Grossman M., McKerche T. Professional CUDA C Programming, Wrox, 2014.
 \bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
 \bibitem{joinless}Jin Soung Yoo and Shashi Shekhar. A Joinless Approach for Mining Spatial Colocation Patterns. IEEE Transactions on Knowledge and Data Engineering, 18(10):13231337, 2006.
 \bibitem{cpi}Lizhen Wang, Yuzhen Bao, Joan Lu, and Jim Yip. A New Join-less Approach for Co-location Pattern Mining. In Qiang Wu, Xiangjian He, Quang Vinh Nguyen, Wenjing Jia, and Mao Lin Huang, editors, Proceedings of the 8th IEEE International
@@ -757,8 +792,8 @@ generating all maximal cliques and computational experiments. Theoretical Comput
 \bibitem{pivot2}Cazals, F.; Karande, C. (2008), "A note on the problem of reporting maximal cliques" , Theoretical Computer Science, 407 (1): 564–568.
 \bibitem{framework}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
 \bibitem{matusiak}Matula, D. W.; Beck, L. L. (1983), "Smallest-last ordering and clustering and graph coloring algorithms", Journal of the ACM, 30 (3): 417–427, doi:10.1145/2402.322385, MR 0709826.
-\bibitem{mikromiekki}https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
-\bibitem{stak}http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
+\bibitem{mikromiekki}Comparing the Concurrency Runtime to Other Concurrency Models, Microsoft, 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
+\bibitem{stak}Microsoft Parallel Patterns Library (PPL) vs. OpenMP, Stack Overflow, 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
 \end{thebibliography}
 
 \newpage

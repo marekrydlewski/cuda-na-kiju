@@ -624,6 +624,7 @@ Do celów porównawczych zostały zrealizowane dwa rozwiązania: sekwencyjne (be
 \subsection{Wersja sekwencyjna}
 
 \subsubsection{Generowanie instancji w oparciu o próg odległości}
+\label{cpu-1-seq}
 
 Podobnie jak w pierwotnej wersji algorytmu, generowanie kandydatów na kolokacje o rozmiarze 2 następuje na podstawie \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}). Algorytm zamiatania (ang. \textit{plane sweep algorithm}) użyty w procesie łączenia został jednak nieznacznie zmodyfikowany.
 
@@ -705,7 +706,19 @@ Zasadniczą różnicą między \textit{PPL} a \textit{OpenMP} jest zastosowanie 
 
 Powyższe wady środowiska \textit{OpenMP} były powodem, dla których ostatecznie - pomimo ubogiej dokumentacji oraz niskiej popularności -  została wybrana biblioteka \textit{Parallel Patterns Library} jako najbardziej optymalna dla algorytmu \textit{SCGT} będącego tematem tej pracy.
 
-\subsubsection{Filtrowanie sąsiadów na podstawie progu odległości}
+\subsubsection{Generowanie sąsiadów na podstawie progu odległości}
+Generowanie kandydatów na kolokacje o rozmiarze 2 podobnie jak w wersji sekwencyjnej następuje na podstawie \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}). Również w tym przypadku do owego algorytmu wprowadzono niezbędne modyfikacje.
+
+W pierwszym kroku algorytmu wektor będący zbiorem wejściowym, korzystając z dobrodziejstw biblioteki PPL jest sortowany algorytmem \textit{sortowania buforowanego} (ang. \textit{buffered sort}). Tak jak w wersji sekwencyjnej jako kryterium sortowania zostaje zastosowana relacja między arbitralnie wybranym wymiarem przestrzeni. Sortowanie buforowane z biblioteki PPL to połączenie równoległych wersji sortowania szybkiego i sortowania przez scalanie (ang. \textit{merge sort}), nie jest to jednak sortowanie w miejscu (ang. \textit{in-place}) i wymaga dodatkowej alokacji pamięci o rozmiarze O(n). Ogólna złożoność algorytmu wynosi O((n/p)*log(n)), gdzie przez \textit{p} oznacza się liczbę procesorów.
+
+Analogicznie jak w wersji sekwencyjnej \ref{cpu-1-seq}, algorytm nie potrzebuje wiedzy o rzeczywistej odległości między dwoma punktami w przestrzeni, a jedynie informację o relacji między tą odległością a zadanym progiem odległości. Dlatego tak samo, wyliczany jest \textit{efektywny próg odległości}, będącym progiem odległości podniesionym do potęgi drugiej.
+
+Kolejnym krokiem jest filtrowanie obiektów w oparciu o wyliczony efektywny próg odległości. Tak samo jak w wersji sekwencyjnej tworzona jest tablica asocjacyjna $ insTable $. Aby skorzystać z przyśpieszenia oferowanego przez przetwarzanie równoległe, przy wykorzystaniu biblioteki PPL tworzony jest obiekt typu \textit{combinable}. Każdy wątek posiada prywatną lokalną kopię tablicy $ insTable $ w której umieszcza lub nie kolejne pary instancji.  Analogicznie, pętla wewnętrzna jest przerywana, jeżeli wartość bezwzględna różnicy posortowanych współrzędnych poszczególnych obiektów będzie większa niż zadany próg odległości. W związku tym niezbędne okazało się skorzystanie z dynamicznego planisty \textit{auto partitioner}, który na bieżąco przydziela dane wejściowe poszczególnym wątkom niezbędne do dalszego przetwarzania. Po wyjściu z pętli wątki są synchronizowane i następuję scalenie tablicy $ instTable $.
+
+Podobna sytuacja występuje przy tworzeniu wektora $ typeIncidenceCounter $, również i tutaj każdy wątek posiada swoją własną kopię wektora. Na końcu przetwarzania oryginalne wektory są redukowanego do jednego wynikowego wektora poprzez zastosowanie prostej operacji redukcji i sumowania wektorów parami, a dokładniej ich wartości indeksów.
+
+Tablica $ insTable $ ma taką samą strukturę jak w wersji sekwencyjnej.
+
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
 \subsubsection{Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne}

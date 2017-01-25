@@ -120,5 +120,29 @@
     <Content Include="Resource Files\hugeData.txt">
       <Filter>Resource Files</Filter>
     </Content>
+    <Content Include="Resource Files\instanceSizeTest1.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+    <Content Include="Resource Files\instanceSizeTest2.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+    <Content Include="Resource Files\instanceSizeTest3.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+    <Content Include="Resource Files\instanceSizeTest4.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+    <Content Include="Resource Files\instanceSizeTest5.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+    <Content Include="Resource Files\instanceSizeTest6.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+    <Content Include="Resource Files\instanceSizeTest7.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+    <Content Include="Resource Files\instanceSizeTest8.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
   </ItemGroup>
 </Project>

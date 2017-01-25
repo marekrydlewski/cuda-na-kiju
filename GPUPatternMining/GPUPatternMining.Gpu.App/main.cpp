@@ -3,16 +3,22 @@
 #include "../GPUPatternMining.Contract/SimulatedRealDataProvider.h"
 #include "GpuMiningAlgorithm.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-	//input data
-	const float threshold = 3;
-	const float prevalence = 0.30f;;
+	if (argc != 4)
+	{
+		printf("Run with params [data_path] [distance] [prevalence]\n");
+		return 0;
+	}
+
+	std::string dataPath = argv[1];
+	float distance = std::stof(argv[2]);
+	float prevalence = std::stof(argv[3]);
 
 	SimulatedRealDataProvider dataProvider;
-	auto data = dataProvider.getTestData(DataSet::Medium);
+	auto data = dataProvider.getTestData(dataPath);
 
-	bmk::benchmark<std::chrono::nanoseconds> bmkGpu;
+	bmk::benchmark<std::chrono::milliseconds> bmkGpu;
 	
 	GpuMiningAlgorithm alg;
 
@@ -28,7 +34,7 @@ int main()
 
 	bmkGpu.run("filter by distance", 1, [&]()
 	{
-		alg.filterByDistance(threshold);
+		alg.filterByDistance(distance);
 	});
 
 	bmkGpu.run("filter prevalent type connections (prepare data)", 1, [&]()

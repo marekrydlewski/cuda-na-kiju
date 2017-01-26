@@ -7,6 +7,8 @@
 #include "../GPUPatternMining/Prevalence/PrevalentTypedPairProvider.h"
 #include "../GPUPatternMining/Prevalence/AnyLengthInstancesUniquePrevalenceProvider.h"
 #include <list>
+#include <chrono>
+#include "../GPUPatternMining.Contract/Benchmark.h"
 
 // ------------------------------------------------------------------------------------------------
 
@@ -195,7 +197,7 @@ std::vector<std::vector<unsigned short>> getAllCliquesSmallerByOne(std::vector<u
 	return smallCliques;
 }
 
-std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
+std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence, bmk::benchmark<std::chrono::milliseconds>& ben)
 {
 	std::list<std::vector<unsigned short>> result;
 
@@ -225,9 +227,21 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 		if (currentCliqueSize < 2)
 			continue;
 
-		auto gpuCliques = Entities::moveCliquesCandidatesToGpu(toProcess);
+		Entities::GpuCliques gpuCliques;// = Entities::moveCliquesCandidatesToGpu(toProcess);
 
-		auto instanceTreeResult = instanceTree->getInstancesResult(gpuCliques);
+		ben.run_cumulative("contruct instances", 1, [&]()
+		{
+			gpuCliques = Entities::moveCliquesCandidatesToGpu(toProcess);
+		});
+
+		InstanceTree::InstanceTreeResultPtr instanceTreeResult;// = instanceTree->getInstancesResult(gpuCliques);
+
+		ben.run_cumulative("calculate prevalence for instances", 1, [&]()
+		{
+			instanceTreeResult = instanceTree->getInstancesResult(gpuCliques);
+		});
+
+		ben.print("gpu algorithm", std::cout);
 
 		auto mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
 			gpuCliques

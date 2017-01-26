@@ -98,7 +98,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert first pair
 		map.getBean()
 		, thrust::raw_pointer_cast(cliques.data())
 		, 3
-		, result.data()
+		, result.data().get()
 	);
 
 	cudaDeviceSynchronize();
@@ -135,6 +135,7 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | for groups simple
 
 	std::vector<unsigned int> expectedItemNumbers = {
 		0, 1, 0, 1, 2, 0, 1, 0
+
 	};
 
 	thrust::host_vector<unsigned int> resultGroupNumbers = result->groupNumbers;
@@ -340,11 +341,11 @@ TEST_CASE_METHOD(BaseCudaTestHandler, "Instance tree helpers | insert first two 
 		, thrust::raw_pointer_cast(cliques.data())
 		, groupNumber.data()
 		, itemNumber.data()
-		, pairsA.data()
-		, pairsB.data()
+		, pairsA.data().get()
+		, pairsB.data().get()
 		, 5
-		, firstLevel.data()
-		, secondLevel.data()
+		, firstLevel.data().get()
+		, secondLevel.data().get()
 		);
 
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());

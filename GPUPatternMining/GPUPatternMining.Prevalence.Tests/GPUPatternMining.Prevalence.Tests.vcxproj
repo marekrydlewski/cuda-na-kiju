@@ -113,7 +113,7 @@
     </ClCompile>
     <CudaCompile>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
-      <CodeGeneration>compute_30,sm_30</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35</CodeGeneration>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\Prevalence\BitmapPairPrevalence.h;%(AdditionalDeps)</AdditionalDeps>
     </CudaCompile>
     <Link>
@@ -128,7 +128,7 @@
     </ClCompile>
     <CudaCompile>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
-      <CodeGeneration>compute_30,sm_30</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35</CodeGeneration>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\Prevalence\BitmapPairPrevalence.h;%(AdditionalDeps)</AdditionalDeps>
     </CudaCompile>
     <Link>
@@ -150,7 +150,7 @@
     </Link>
     <CudaCompile>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
-      <CodeGeneration>compute_30,sm_30</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35</CodeGeneration>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\Prevalence\BitmapPairPrevalence.h;%(AdditionalDeps)</AdditionalDeps>
     </CudaCompile>
   </ItemDefinitionGroup>
@@ -170,7 +170,7 @@
     </Link>
     <CudaCompile>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
-      <CodeGeneration>compute_30,sm_30</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35</CodeGeneration>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\Prevalence\BitmapPairPrevalence.h;%(AdditionalDeps)</AdditionalDeps>
     </CudaCompile>
   </ItemDefinitionGroup>

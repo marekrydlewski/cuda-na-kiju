@@ -12,18 +12,19 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc != 4)
+	if (argc != 5)
 	{
-		printf("Run with params [data_path] [distance] [prevalence]\n");
+		printf("Run with params [file_name] [distance] [prevalence] [ordNumber]\n");
 		return 0;
 	}
 
-	std::string dataPath = argv[1];
+	std::string fileName = argv[1];
 	float distance = std::stof(argv[2]);
 	float prevalence = std::stof(argv[3]);
+	std::string ordNumber = argv[4];
 
 	SimulatedRealDataProvider dataProvider;
-	auto data = dataProvider.getTestData(dataPath);
+	auto data = dataProvider.getTestData(fileName);
 
 	//output data
 	std::vector<std::vector<unsigned short>> solutionSeq, solutionParallel;
@@ -42,7 +43,7 @@ int main(int argc, char* argv[])
 	bmSeq.run_p("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
 
 	bmSeq.print("sequential algorithm", std::cout);
-	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
+	bmSeq.serializeCsv((fileName + "Seq" + ordNumber + ".csv").c_str());
 
 
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
@@ -54,6 +55,7 @@ int main(int argc, char* argv[])
 	bmParallel.run_p("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
 	bmParallel.print("parallel algorithm  ", std::cout);
+	bmSeq.serializeCsv((fileName + "Parallel" + ordNumber + ".csv").c_str());
 	//bmParallel.serialize("CPU parallel algorithm", "CPUparallel.txt
 
 

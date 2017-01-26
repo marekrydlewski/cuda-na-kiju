@@ -16,7 +16,7 @@ private:
 public:
 	std::tuple<DataFeed*, int, int> getTestData(DataSet dataset = DataSet::Fast);
 	std::tuple<DataFeed*, int, int> getInstanceSizeTestData(InstanceSizeTestDataSet dataset = InstanceSizeTestDataSet::Level1);
-	std::tuple<DataFeed*, int, int> getTestData(std::string path);
+	std::tuple<DataFeed*, int, int> getTestData(std::string fileName);
 };
 
 

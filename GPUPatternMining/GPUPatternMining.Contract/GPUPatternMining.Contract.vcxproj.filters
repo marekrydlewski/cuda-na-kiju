@@ -156,5 +156,11 @@
     <Content Include="Resource Files\maxDistTest4.txt">
       <Filter>Resource Files</Filter>
     </Content>
+    <Content Include="Resource Files\minPrevTest1.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
+    <Content Include="Resource Files\minPrevTest2.txt">
+      <Filter>Resource Files</Filter>
+    </Content>
   </ItemGroup>
 </Project>

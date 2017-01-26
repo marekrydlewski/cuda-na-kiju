@@ -93,7 +93,18 @@
     <Content Include="Resource Files\instanceSizeTest8.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-
+    <Content Include="Resource Files\maxDistTest1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resource Files\maxDistTest2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resource Files\maxDistTest3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resource Files\maxDistTest4.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9875BACF-2709-46A9-ABD3-2CFA01256025}</ProjectGuid>

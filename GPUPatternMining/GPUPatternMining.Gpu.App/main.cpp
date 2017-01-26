@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 
 	bmkGpu.run("filter candidates by prevalence", 1, [&]()
 	{
-		solution = alg.filterCandidatesByPrevalence(prevalence);
+		solution = alg.filterCandidatesByPrevalence(prevalence, bmkGpu);
 	});
 
 	bmkGpu.print("gpu algorithm", std::cout);

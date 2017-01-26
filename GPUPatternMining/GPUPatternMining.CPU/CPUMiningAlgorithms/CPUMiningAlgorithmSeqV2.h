@@ -1,5 +1,5 @@
 #pragma once
-#include "CPUMiningBaseAlgorithm.h"
+#include "CPUMiningAlgorithmBase.h"
 
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"

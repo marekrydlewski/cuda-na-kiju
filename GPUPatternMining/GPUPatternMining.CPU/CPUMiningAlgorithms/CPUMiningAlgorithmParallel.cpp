@@ -541,7 +541,7 @@ std::vector<unsigned short> inline CPUMiningAlgorithmParallel::getWorkloadForIns
 }
 
 CPUMiningAlgorithmParallel::CPUMiningAlgorithmParallel() :
-	CPUMiningBaseAlgorithm()
+	CPUMiningAlgorithmBase()
 {
 }
 

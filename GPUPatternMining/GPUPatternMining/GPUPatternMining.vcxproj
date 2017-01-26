@@ -204,19 +204,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="Common\MiningCommon.h" />
     <ClInclude Include="PairColocationsFiltering\CudaPairColocationFilter.h" />
     <CudaCompile Include="Helpers\CliquesCandidatesHelpers.cu" />
-    <CudaCompile Include="InstanceTree\InstanceTree.cu">
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_30,sm_30</CodeGeneration>
-    </CudaCompile>
+    <CudaCompile Include="InstanceTree\InstanceTree.cu" />
     <CudaCompile Include="InstanceTree\InstanceTreeHelpers.cu" />
-    <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu">
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_30,sm_30</CodeGeneration>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_30,sm_30</CodeGeneration>
-    </CudaCompile>
+    <CudaCompile Include="InstanceTree\InstanceTypedNeighboursMapCreator.cu" />
     <CudaCompile Include="InstanceTree\IntanceTablesMapCreator.cu" />
     <CudaCompile Include="PlaneSweep\InstanceTablePlaneSweep.cu" />
     <CudaCompile Include="Prevalence\AnyLengthInstancesUniquePrevalenceProvider.cu" />

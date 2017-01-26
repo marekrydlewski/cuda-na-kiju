@@ -314,6 +314,15 @@ namespace bmk
 				}
 			}
 
+			template <class F, class It>
+			void extendByExperimentTime(experiment_model<F, It> ex)
+			{
+				if (experiment_impl<TimeT, FactorT>::_timings.empty())
+					experiment_impl<TimeT, FactorT>::_timings.push_back(ex._timings[0]);
+				else
+					experiment_impl<TimeT, FactorT>::_timings[0] += ex._timings[0];
+			}
+
 			// forwarded functions --------------------------------------
 			void print(ostream& os) const override
 			{
@@ -330,7 +339,7 @@ namespace bmk
 		class ClockT = std::chrono::steady_clock>
 		class benchmark
 	{
-		vector<pair<string, unique_ptr<detail::experiment>>> _data;
+		vector<pair<string, unique_ptr<detail::experiment_model<TimeT, ClockT >>>> _data;
 
 	public:
 		// construction - destruction -----------------------------------
@@ -338,6 +347,24 @@ namespace bmk
 		benchmark(benchmark const&) = delete;
 
 		// run experiments ----------------------------------------------
+		template <class F>
+		void run_cumulative(string const& name, size_t nSample, F&& callable)
+		{
+			for (auto curEx = _data.begin(); curEx != _data.end(); ++curEx)
+			{
+				if (curEx->first == name)
+				{
+					curEx->second->extendByExperimentTime(detail::experiment_model<TimeT, ClockT >(nSample, fw(callable)));
+
+					return;
+				}
+			}
+
+			_data.emplace_back(
+				name, make_unique<detail::experiment_model<TimeT, ClockT>>(
+					nSample, fw(callable)));
+		}
+		
 		template <class F>
 		void run(string const& name, size_t nSample, F&& callable)
 		{

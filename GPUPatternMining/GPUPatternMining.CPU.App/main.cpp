@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	bmSeq.run_p("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
 
 	bmSeq.print("sequential algorithm", std::cout);
-	bmSeq.serializeCsv((fileName + "Seq" + ordNumber + ".csv").c_str());
+	bmSeq.serializeCsv((fileName + "Seq-" + "prev" + std::to_string(prevalence) + "dist" + std::to_string(distance) + ordNumber + ".csv").c_str());
 
 
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 	bmParallel.run_p("filter max cliques", 1, [&]() { solutionParallel = cpuAlgParallel.filterMaximalCliques(prevalence); });
 
 	bmParallel.print("parallel algorithm  ", std::cout);
-	bmSeq.serializeCsv((fileName + "Parallel" + ordNumber + ".csv").c_str());
+	bmSeq.serializeCsv((fileName + "Parallel-" + "prev" + std::to_string(prevalence) + "dist" + std::to_string(distance) + ordNumber + ".csv").c_str());
 	//bmParallel.serialize("CPU parallel algorithm", "CPUparallel.txt
 
 

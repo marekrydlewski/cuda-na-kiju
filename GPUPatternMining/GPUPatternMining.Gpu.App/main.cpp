@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 
 	bmkGpu.print("gpu algorithm", std::cout);
 
-	bmkGpu.serializeCsv((fileName + "Gpu" + ordNumber + ".csv").c_str());
+	bmkGpu.serializeCsv((fileName + "Gpu-" + "prev" + std::to_string(prevalence) + "dist" + std::to_string(distance) + "-" + ordNumber + ".csv").c_str());
 
 	for (auto& cand : solution)
 	{

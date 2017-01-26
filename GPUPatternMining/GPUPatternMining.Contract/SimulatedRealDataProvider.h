@@ -13,6 +13,7 @@ private:
 	static const std::map<DataSet, std::string> datasetNames;
 public:
 	std::tuple<DataFeed*, int, int> getTestData(DataSet dataset = DataSet::Fast);
+	std::tuple<DataFeed*, int, int> getTestData(std::string path);
 };
 
 

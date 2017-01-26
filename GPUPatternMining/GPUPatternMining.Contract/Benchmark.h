@@ -160,6 +160,11 @@ namespace bmk
 				os << " ]";
 			}
 
+			void printCsv(ostream& os) const
+			{
+
+			}
+
 		protected:
 			~experiment_impl() = default;
 		};
@@ -186,6 +191,17 @@ namespace bmk
 				os << " ]";
 			}
 
+			void printCsv(ostream& os) const
+			{
+				string token{ "" };
+				for (auto&& elem : _timings)
+				{
+					os << token;
+					os << elem.count();
+					token = "; ";
+				}
+			}
+
 		protected:
 			~experiment_impl() = default;
 		};
@@ -200,6 +216,7 @@ namespace bmk
 
 			// forwarded functions --------------------------------------
 			virtual void print(ostream& os) const = 0;
+			virtual void printCsv(ostream& os) const = 0;
 		};
 
 		template <class TimeT, class ClockT>
@@ -319,6 +336,11 @@ namespace bmk
 			{
 				experiment_impl<TimeT, FactorT>::print(os);
 			}
+
+			void printCsv(ostream& os) const override
+			{
+				experiment_impl<TimeT, FactorT>::printCsv(os);
+			}
 		};
 	} // ~ namespace detail
 
@@ -430,6 +452,19 @@ namespace bmk
 				os << " } \n";
 			}
 			os.close();
+		}
+
+		void serializeCsv(const char* filename,
+			std::ios_base::openmode mode = ofstream::out) const
+		{
+			ofstream os;
+			os.open(filename, mode);
+			for (auto&& Pair : _data)
+			{
+				os << Pair.first << ";";
+				Pair.second->printCsv(os);
+				os << "\n";
+			}
 		}
 	};
 

@@ -1,23 +1,32 @@
-#include "CPUMiningBaseAlgorithm.h"
+#include "CPUMiningAlgorithmBase.h"
 
 #include <algorithm>
 #include <ppl.h>
 
-CPUMiningBaseAlgorithm::CPUMiningBaseAlgorithm()
+CPUMiningAlgorithmBase::CPUMiningAlgorithmBase()
 {
 }
 
-CPUMiningBaseAlgorithm::~CPUMiningBaseAlgorithm()
+CPUMiningAlgorithmBase::~CPUMiningAlgorithmBase()
 {
 }
 
-inline float CPUMiningBaseAlgorithm::calculateDistance(const DataFeed & first, const DataFeed & second) const
+std::vector<std::vector<unsigned short>> CPUMiningAlgorithmBase::mineCliques(float threshold, float prevalence)
+{
+	filterByDistance(threshold);
+	filterByPrevalence(prevalence);
+	constructMaximalCliques();
+	return filterMaximalCliques(prevalence);
+}
+
+
+inline float CPUMiningAlgorithmBase::calculateDistance(const DataFeed & first, const DataFeed & second) const
 {
 	// no sqrt coz it is expensive function, there's no need to compute euclides distance, we need only compare values
 	return std::pow(second.xy.x - first.xy.x, 2) + std::pow(second.xy.y - first.xy.y, 2);
 }
 
-inline bool CPUMiningBaseAlgorithm::checkDistance(
+inline bool CPUMiningAlgorithmBase::checkDistance(
 	const DataFeed & first,
 	const DataFeed & second,
 	float effectiveThreshold) const
@@ -25,7 +34,7 @@ inline bool CPUMiningBaseAlgorithm::checkDistance(
 	return (calculateDistance(first, second) <= effectiveThreshold);
 }
 
-inline bool CPUMiningBaseAlgorithm::countPrevalence(
+inline bool CPUMiningAlgorithmBase::countPrevalence(
 	std::pair<unsigned short, unsigned short> particularInstance,
 	std::pair<unsigned short, unsigned short> generalInstance,
 	float prevalence) const
@@ -35,7 +44,7 @@ inline bool CPUMiningBaseAlgorithm::countPrevalence(
 	return prevalence < std::min(aPrev, bPrev);
 }
 
-bool CPUMiningBaseAlgorithm::countPrevalence(
+bool CPUMiningAlgorithmBase::countPrevalence(
 	const std::vector<unsigned short>& particularInstances,
 	const std::vector<unsigned short>& generalInstances,
 	float prevalence) const
@@ -53,7 +62,7 @@ bool CPUMiningBaseAlgorithm::countPrevalence(
 	return prevalence < *std::min_element(tempMins.begin(), tempMins.end());
 }
 
-bool CPUMiningBaseAlgorithm::countPrevalenceParallel(
+bool CPUMiningAlgorithmBase::countPrevalenceParallel(
 	const std::vector<unsigned short>& particularInstances,
 	const std::vector<unsigned short>& generalInstances,
 	float prevalence) const
@@ -72,7 +81,7 @@ bool CPUMiningBaseAlgorithm::countPrevalenceParallel(
 	return prevalence < *std::min_element(tempMins.begin(), tempMins.end());
 }
 
-std::vector<std::vector<unsigned short>> CPUMiningBaseAlgorithm::getAllCliquesSmallerByOne(std::vector<unsigned short>& clique) const
+std::vector<std::vector<unsigned short>> CPUMiningAlgorithmBase::getAllCliquesSmallerByOne(std::vector<unsigned short>& clique) const
 {
 	std::vector<std::vector<unsigned short>> smallCliques;
 	for (auto i = 0; i < clique.size(); ++i)

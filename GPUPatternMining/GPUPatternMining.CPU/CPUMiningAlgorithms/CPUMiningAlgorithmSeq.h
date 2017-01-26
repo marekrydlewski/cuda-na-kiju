@@ -1,5 +1,5 @@
 #pragma once
-#include "CPUMiningBaseAlgorithm.h"
+#include "CPUMiningAlgorithmBase.h"
 
 #include "../../GPUPatternMining.Contract/Graph.h"
 #include "../../GPUPatternMining.Contract/CinsNode.h"
@@ -12,7 +12,7 @@
 #include <vector>
 
 class CPUMiningAlgorithmSeq :
-	public CPUMiningBaseAlgorithm
+	public CPUMiningAlgorithmBase
 {
 public:
 
@@ -27,8 +27,8 @@ public:
 	void filterByDistance(float threshold) override;
 	void filterByPrevalence(float prevalence) override;
 	void constructMaximalCliques() override;
+	std::vector<std::vector<unsigned short>> filterMaximalCliques(float prevalence) override;
 
-	std::vector<std::vector<unsigned short>> filterMaximalCliques(float prevalence);
 	std::unordered_map<unsigned short, std::unordered_map<unsigned short, std::unordered_map<unsigned short, std::vector<unsigned short>*>>> getInsTable()
 	{
 		return insTable;

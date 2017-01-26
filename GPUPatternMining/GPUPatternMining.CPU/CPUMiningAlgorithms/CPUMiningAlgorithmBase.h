@@ -3,18 +3,20 @@
 #include "../../GPUPatternMining.Contract/Enity/DataFeed.h"
 #include "../../GPUPatternMining.Contract/IPairColocationsFilter.h"
 
-class CPUMiningBaseAlgorithm
+class CPUMiningAlgorithmBase
 {	
 public:
 
-	CPUMiningBaseAlgorithm();
-	virtual ~CPUMiningBaseAlgorithm();
+	CPUMiningAlgorithmBase();
+	virtual ~CPUMiningAlgorithmBase();
 
 	virtual void filterByDistance(float threshold) = 0;
 	virtual void filterByPrevalence(float prevalence) = 0;
 	virtual void constructMaximalCliques() = 0;
 	virtual void loadData(DataFeed* data, size_t size, unsigned short types) = 0;
 	virtual std::vector<std::vector<unsigned short>> filterMaximalCliques(float prevalence) = 0;
+
+	virtual std::vector<std::vector<unsigned short>> mineCliques(float threshold, float prevalence);
 
 protected:
 

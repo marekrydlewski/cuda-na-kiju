@@ -9,13 +9,13 @@
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.cpp">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
-    <ClCompile Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.cpp">
-      <Filter>CPUMiningAlgorithms</Filter>
-    </ClCompile>
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.cpp">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeqV2.cpp">
+      <Filter>CPUMiningAlgorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmBase.cpp">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClCompile>
   </ItemGroup>
@@ -23,13 +23,13 @@
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
-    <ClInclude Include="CPUMiningAlgorithms\CPUMiningBaseAlgorithm.h">
-      <Filter>CPUMiningAlgorithms</Filter>
-    </ClInclude>
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeqV2.h">
+      <Filter>CPUMiningAlgorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmBase.h">
       <Filter>CPUMiningAlgorithms</Filter>
     </ClInclude>
   </ItemGroup>

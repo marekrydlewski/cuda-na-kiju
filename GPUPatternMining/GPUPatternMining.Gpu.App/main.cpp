@@ -5,21 +5,22 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc != 4)
+	if (argc != 5)
 	{
-		printf("Run with params [data_path] [distance] [prevalence]\n");
+		printf("Run with params [file_name] [distance] [prevalence] [ordNumber]\n");
 		return 0;
 	}
 
-	std::string dataPath = argv[1];
+	std::string fileName = argv[1];
 	float distance = std::stof(argv[2]);
 	float prevalence = std::stof(argv[3]);
+	std::string ordNumber = argv[4];
 
 	SimulatedRealDataProvider dataProvider;
-	auto data = dataProvider.getTestData(dataPath);
+	auto data = dataProvider.getTestData(fileName);
 
 	bmk::benchmark<std::chrono::milliseconds> bmkGpu;
-	
+
 	GpuMiningAlgorithm alg;
 
 	bmkGpu.run("load data", 1, [&]()
@@ -41,12 +42,12 @@ int main(int argc, char* argv[])
 	{
 		alg.filterPrevalentTypedConnectionsPrepareData();
 	});
-	
+
 	bmkGpu.run("filter prevalent type connections", 1, [&]()
 	{
 		alg.filterPrevalentTypedConnections(prevalence);
 	});
-	
+
 	bmkGpu.run("construct candidates (prepare data)", 1, [&]()
 	{
 		alg.constructMaximalCliquesPrepareData();
@@ -70,6 +71,8 @@ int main(int argc, char* argv[])
 	});
 
 	bmkGpu.print("gpu algorithm", std::cout);
+
+	bmkGpu.serializeCsv((fileName + "Gpu-" + "prev" + std::to_string(prevalence) + "dist" + std::to_string(distance) + "-" + ordNumber + ".csv").c_str());
 
 	for (auto& cand : solution)
 	{

@@ -14,8 +14,9 @@ std::tuple<DataFeed*, int, int> SimulatedRealDataProvider::getTestData(DataSet d
 	return std::make_tuple(loader.getData(), loader.getDataSize(), loader.getNumberOfTypes());
 }
 
-std::tuple<DataFeed*, int, int> SimulatedRealDataProvider::getTestData(std::string path)
+std::tuple<DataFeed*, int, int> SimulatedRealDataProvider::getTestData(std::string fileName)
 {
-	loader.loadFromTxtFile(ApplicationHelper::getCurrentWorkingDirectory() + path);
+	loader.loadFromTxtFile(ApplicationHelper::getCurrentWorkingDirectory() + "\\Resource Files\\" + fileName + ".txt");
 	return std::make_tuple(loader.getData(), loader.getDataSize(), loader.getNumberOfTypes());
 }
+

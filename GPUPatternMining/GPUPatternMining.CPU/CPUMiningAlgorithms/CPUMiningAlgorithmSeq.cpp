@@ -169,6 +169,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 	return finalMaxCliques;
 }
 
+
 bool CPUMiningAlgorithmSeq::filterNodeCandidate(
 	unsigned short type,
 	unsigned short instanceId,
@@ -396,7 +397,7 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::getPrevalentMaxC
 }
 
 CPUMiningAlgorithmSeq::CPUMiningAlgorithmSeq():
-	CPUMiningBaseAlgorithm()
+	CPUMiningAlgorithmBase()
 {
 }
 

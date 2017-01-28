@@ -156,7 +156,7 @@ Wspominane wyżej techniki w dużej mierze zależą od rodzaju bazy, a ściślej
 
 W pracy \cite{huang} zaproponowano odkrywanie \textit{wzorców kolokacji przestrzennych} (lub krócej: \textit{kolokacji}), czyli zbioru cech przestrzennych występujących w niewielkiej odległości od siebie.  Łatwo to można sobie wyobrazić na przykładzie przyrody, gdzie osobniki (gatunki) o podobnych cechach zazwyczaj trzymają się razem. Rozumowanie to działa również dla bliższych współczesnemu człowiekowi cech przestrzennych, np. punktach o podobnej funkcji - stacje, kina, piekarnie, itd. Wraz z rosnącą popularnością obliczeń na kartach graficznych (w dużej mierze spowodowana wprowadzeniem technologii \textit{CUDA} autorstwa firmy NVIDIA) pojawiło się wiele gotowych rozwiązań, pozwalających na efektywne wyszukiwanie kolokacji nawet w bardzo rozbudowanych bazach danych. Przegląd niektórych z nich można znaleźć w pracy \cite{boinski}.
 
-Ostatni rok przyniósł kolejną metodę efektywnego przeszukiwania baz danych w celu odnalezienia kolokacji \cite{chinczyki}. Wykorzystuje ona autorski algorytm wyszukiwania maksymalnych klik w grafie rzadkim oraz skondensowane drzewa instancji przechowywaczce kliki instancji dla każdego kandydata do kolokacji (patrz Rozdział 2) w celu zmniejszenia czasu obliczeń oraz ograniczenia wymagań co do pamięci operacyjnej. Algorytm ten jest przedmiotem badań niniejszej pracy zbiorowej.
+Ostatni rok przyniósł kolejną metodę efektywnego przeszukiwania baz danych w celu odnalezienia kolokacji \cite{chinczyki}. Wykorzystuje ona autorski algorytm wyszukiwania maksymalnych klik w grafie rzadkim oraz skondensowane drzewa instancji przechowywaczce kliki instancji dla każdego kandydata do kolokacji (patrz Rozdział~\ref{sec:china}) w celu zmniejszenia czasu obliczeń oraz ograniczenia wymagań co do pamięci operacyjnej. Algorytm ten jest przedmiotem badań niniejszej pracy zbiorowej.
 
 \subsection{Cel i zakres pracy}
 
@@ -177,25 +177,25 @@ Jak już wspomniano, niniejsza praca w dużej mierze opiera się o algorytm zapr
 
 Głównym źródłem wiedzy na temat kolokacji przestrzennych była rozprawda doktorska dr inż. Pawła Boińskiego \cite{boinski}, która w dużym przekroju omawia ideę kolokacji zaprezentowaną przez Shekhara i Huanga w pracy \cite{huang}, a także prezentuje najpopularniejsze techniki ich odkrywania (metody \textit{Co-location Miner}, \textit{iCPI-tree}). Część rozwiązań wykorzystanych w tych technikach została wykorzystana w trakcie realizacji algorytmu.
 
-Oddzielną kwestią jest literatura książkowa, wykorzystana do zapoznania się z technologią CUDA oraz przyjęcia dobrych praktyk optymalizacyjnych i programistycznych. Tutaj szczególnie należy wymienić popularną pozycję \textit{CUDA w przykładach} autorstwa Shane'a Cooke'a \cite{cuda_by_examples}, a także \textit{Professional CUDA C Programming} \cite{professional_cuda} będącą również podstawą do wstępu teoretycznego w Rozdziale 3.
+Oddzielną kwestią jest literatura książkowa, wykorzystana do zapoznania się z technologią CUDA oraz przyjęcia dobrych praktyk optymalizacyjnych i programistycznych. Tutaj szczególnie należy wymienić popularną pozycję \textit{CUDA w przykładach} autorstwa Shane'a Cooke'a \cite{cuda_by_examples}, a także \textit{Professional CUDA C Programming} \cite{professional_cuda} będącą również podstawą do wstępu teoretycznego w Rozdziale~\ref{sec:cuda}.
 
 \subsection{Struktura pracy}
 
-\textbf{Rozdział 2} stanowi wstęp teoretyczny do niniejszej pracy - prezentuje podstawowe pojęcia związane z odkrywaniem kolokacji przestrzennych, a także prezentuje najprostsze algorytmy wyszukujące wzorce kolokacji przestrzennych.
+\textbf{Rozdział~\ref{sec:theory}} stanowi wstęp teoretyczny do niniejszej pracy - prezentuje podstawowe pojęcia związane z odkrywaniem kolokacji przestrzennych, a także prezentuje najprostsze algorytmy wyszukujące wzorce kolokacji przestrzennych.
 
-\textbf{Rozdział 3} zawiera wprowadzenie do technologii CUDA. Przedstawia także podstawowe różnice w programowaniu na CPU i GPU oraz wyjaśnia podstawowe pojęcia związane z programowaniem na procesory graficzne.
+\textbf{Rozdział~\ref{sec:cuda}} zawiera wprowadzenie do technologii CUDA. Przedstawia także podstawowe różnice w programowaniu na CPU i GPU oraz wyjaśnia podstawowe pojęcia związane z programowaniem na procesory graficzne.
 
-\textbf{Rozdział 4} poświęcony jest algorytmowi \textit{SCGT} będącym głównym tematem pracy. Zawiera wyjaśnienia poszczególnych kroków algorytmu oraz niezbędne definicje.
+\textbf{Rozdział~\ref{sec:china}} poświęcony jest algorytmowi \textit{SGCT} będącym głównym tematem pracy. Zawiera wyjaśnienia poszczególnych kroków algorytmu oraz niezbędne definicje.
 
-Implementacja CPU (w wersji sekwencyjnej, jak i równoległej) jest głównym tematem \textbf{Rozdziału 5}. Koncentruje się on w szczególności na przedstawienie zastosowanych technik optymalizacyjnych poprawiających wydajność algorytmu w środowisku CPU. Rozdział zawiera także krótki wstęp do biblioteki \textit{PPL} użytej w równoległej implementacji algorytmu.
+Implementacja CPU (w wersji sekwencyjnej, jak i równoległej) jest głównym tematem \textbf{Rozdziału~\ref{sec:cpu}}. Koncentruje się on w szczególności na przedstawienie zastosowanych technik optymalizacyjnych poprawiających wydajność algorytmu w środowisku CPU. Rozdział zawiera także krótki wstęp do biblioteki \textit{PPL} użytej w równoległej implementacji algorytmu.
 
-\textbf{Rozdział 6} zawiera omówienie implementacji algorytmu dla procesorów graficznych (GPU).
+\textbf{Rozdział~\ref{sec:gpu}} zawiera omówienie implementacji algorytmu dla procesorów graficznych (GPU).
 
-Porównanie wydajności zaimplementowanych rozwiązań zostało zawarte w \textbf{Rozdziale 6}. 
+Porównanie wydajności zaimplementowanych rozwiązań zostało zawarte w \textbf{Rozdziale~\ref{sec:tests}}. 
 
-Ostatni \textbf{Rozdział 7} stanowi podsumowanie całego projektu, uwagi zespołu oraz możliwe dalsze kierunki rozwoju.
+Ostatni \textbf{Rozdział~\ref{sec:fin}} stanowi podsumowanie całego projektu, uwagi zespołu oraz możliwe dalsze kierunki rozwoju.
 
-W \textbf{Dodatku A} zawarty jest krótki opis klas zaimplementowanych w implementacji dla CPU i GPU.
+W \textbf{Dodatku~\ref{sec:wypociny}} zawarty jest krótki opis klas zaimplementowanych w implementacji dla CPU i GPU.
 
 \subsection{Podział pracy}
 
@@ -204,13 +204,14 @@ Podział zadań w ramach niniejszego projektu wyglądał następująco:
 \begin{itemize}
 \item \textbf{Marcin Jabłoński} - równoległa implementacja CPU, testy;
 \item \textbf{Łukasz Kosiak} - implementacja GPU, testy;
-\item \textbf{Piotr Kurzawa} - tekst pracy inżynierskiej, testy
+\item \textbf{Piotr Kurzawa} - tekst pracy inżynierskiej, testy;
 \item \textbf{Marek Rydlewski} - sekwencyjna i równoległa implementacja CPU, testy.
 \end{itemize}
 
 \newpage
 
 \section{Podstawy teoretyczne}
+\label{sec:theory}
 
 \subsection{Charakterystyka danych przestrzennych}
 
@@ -231,13 +232,13 @@ Najogólniej źródła danych przestrzennych można podzielić ze względu na ic
 
 \textit{Pierwotne źródła danych} są opracowane w jednym ze standardowych formatów źródeł (najczęściej dla konkretnego systemu) i nie wymagają jakichkolwiek transformacji. Mają one zazwyczaj postać cyfrową i pochodzą z automatycznych pomiarów dokonanych przez specjalizowane systemy wyposażone w odbiorniki GPS czy tachimetry.
 
-\textit{Wtórne dane źródłowe} nie zostały zebrane z myślą o wykorzystaniu w systemach typu GIS i dlatego wymagają one odpowiedniej transformacji oraz cyfryzacji (jeżeli są one analogowe). Procedury te są one obarczone pewnym ryzykiem, ponieważ istnieje możliwość wystąpienia błędów w trakcie konwersji i w konsekwencji przekłamaniami w danych wynikowych, które należy ręcznie poprawić.
+\textit{Wtórne dane źródłowe} nie zostały zebrane z myślą o wykorzystaniu w \textit{systemach informacji geograficznej} (ang. \textit{Geographic Information System}, GIS) i dlatego wymagają one odpowiedniej transformacji oraz cyfryzacji (jeżeli są one analogowe). Procedury te są one obarczone pewnym ryzykiem, ponieważ istnieje możliwość wystąpienia błędów w trakcie konwersji i w konsekwencji przekłamaniami w danych wynikowych, które należy ręcznie poprawić.
 
 \subsubsection{Relacje}
 
 Określenie zachodzących relacji między obiektami w źródłach danych przestrzennych jest ważnym elementem przetwarzania danych przestrzennych. Sposób ich określenia zależy od zastosowanego modelu danych.
 
-W modelu pól relacje determinowane są przez operacje pól (ang. \textit{field operations}, \cite{fieldmodel}), mogące przybierać różne formy w zależności od zastosowań, natomiast w modelu obiektowym rodzaje relacji przestrzennych zależą od definicji przestrzeni. Według standardu OGC istnieją trzy najpopularniejsze rodzaje związków przestrzennych między obiektami:
+W modelu pól relacje determinowane są przez operacje pól (ang. \textit{field operations}, \cite{fieldmodel}), mogące przybierać różne formy w zależności od zastosowań, natomiast w modelu obiektowym rodzaje relacji przestrzennych zależą od definicji przestrzeni. Według standardu organizacji OGC (\textit{Open Geospatial Consortium}) istnieją trzy najpopularniejsze rodzaje związków przestrzennych między obiektami:
 
 \begin{itemize}
 \item \textit{Relacje metryczne} - wyrażane w postaci predykatów typu "w odległości nie większej niż 10 metrów", oparte na odległości;
@@ -257,7 +258,7 @@ Specyfika danych przestrzennych, a w szczególności fakt, że własności obiek
 
 \subsubsection{Grupowanie przestrzenne}
 
-Metoda grupowania przestrzennego (ang. \textit{spatial clustering}) zakłada istnienie przestrzeni $m$-wymiarowej, w której znajdują się punkty odpowiadające obiektom. Przestrzeń ta ma rozkład niejednorodny, a każdy z obiektów jest opisany przez $m$ atrybutów. Celem grupowania jest poszukiwanie gęstych obszarów punktów używając miary Euklidesowej jako funkcji podobieństwa. 
+Metoda grupowania przestrzennego (ang. \textit{spatial clustering}) zakłada istnienie przestrzeni $m$-wymiarowej, w której znajdują się punkty odpowiadające obiektom. Przestrzeń ta ma rozkład niejednorodny, a każdy z obiektów jest opisany przez $m$ atrybutów. Celem grupowania jest poszukiwanie gęstych obszarów punktów używając w tym celu metryki Euklidesowej jako funkcji podobieństwa (bliskości). 
 
 Grupowanie przestrzenne w największym stopniu spośród wszystkich metod eksploracji danych przestrzennych jest podobna do swojego klasycznego odpowiednika - wiele algorytmów grupowania opracowanych dla klasycznych zbiorów danych zadziała również dla danych przestrzennych. 
 
@@ -320,6 +321,10 @@ Jako typowy przykład cechy przestrzennej można podać etykietę przypisaną do
 
 \subsubsection{Podstawowe definicje}
 
+\begin{defin}[Relacja sąsiedztwa]
+Dany jest graf $ G \in (E, V) $. Relacja sąsiedztwa R to relacja istniejąca pomiędzy wierzchołkami w grafie, taka, że jeżeli para (u, v) stanowi krawędź grafu G, to wierzchołek v jest sąsiedni do wierzchołka u. 
+\end{defin}
+
 \begin{defin}[Instancja cechy przestrzennej]
 Niech f będzie cechą przestrzenną. Mówimy, że obiekt x jest instancją cechy przestrzennej f, wtedy i tylko wtedy, gdy obiekt x jest typu f oraz jest opisany przez lokalizację i identyfikator.
 \end{defin}
@@ -338,7 +343,7 @@ Przykład TODO (oprzeć na przykładzie chińczyków?) nk te przykłady
 \subsubsection{Miary kolokacji}
 
 \begin{defin}[Współczynnik uczestnictwa]
-Współczynnik uczestnictwa (ang. participation ratio) cechy f i w kolokacji c jest równy procentowemu udziałowi wszystkich instancji cechy f i w instancjach kolokacji c:
+Współczynnik uczestnictwa (ang. participation ratio) cechy $ f_{i} $ w kolokacji c jest równy procentowemu udziałowi wszystkich instancji cechy $ f_{i} $ w instancjach kolokacji c:
 
 \begin{equation}
 pr(f_{i}, c) = \frac{|\pi^{f_{i}}(CI^{c})|}{FI^{f_{i}}}
@@ -351,6 +356,7 @@ gdzie $ \pi^{f_{i}}(CI^{c})$ oznacza projekcję relacyjną zbioru instancji $ CI
 pi(c) = min_{f_{i} \in c} pr(f_{i} ,c)
 \end{equation}
 Indeks uczestnictwa najczęściej określany jest w literaturze mianem miary powszechności lub krótko powszechnością kolokacji.
+\label{def:prevalence}
 \end{defin}
 
 \begin{defin}[Maksymalny wzorzec kolokacji przestrzennej]Niech będzie dana wartość min\_prev oznaczająca pewien minimalny próg powszechności. Jeżeli $ c = \{f_{1},...,f_{m} \} $ jest kolokacją powszechną (tzn. $ pi(c) \ge min\_prev $) i nie istnieje żaden nadzbiór c taki, że powszechność dla tego nadzbioru jest równa co najmniej min\_prev, kolokacja c nazywana jest kolokacją maksymalną.  
@@ -358,8 +364,8 @@ Indeks uczestnictwa najczęściej określany jest w literaturze mianem miary pow
 
 \subsubsection{Problem}
 
-\begin{defin}[Reguła kolokacyjna]Reguła kolokacyjna to reguła postaci $ c_{1} \rightarrow c_{2}(p, cp)$, gdzie $ c_{1} \subseteq F $, $c_{2} \subseteq F $ i $c _{1} \cup c_{2} = \emptyset $. Potencjalna użyteczność reguły może być mierzona przy pomocy jej powszechności p oraz prawdopodobieństwa warunkowego cp.
-\end{defin}
+%\begin{defin}[Reguła kolokacyjna]Reguła kolokacyjna to reguła postaci $ c_{1} \rightarrow c_{2}(p, cp)$, gdzie $ c_{1} \subseteq F $, $c_{2} \subseteq F $ i $c _{1} \cup c_{2} = \emptyset $. Potencjalna użyteczność reguły może być mierzona przy pomocy jej powszechności p oraz prawdopodobieństwa warunkowego cp.
+%\end{defin}
 
 \begin{defin}[Prawdopodobieństwo warunkowe]Prawdopodobieństwem warunkowym
 $ cp(c_{1}, c_{2})$ reguły kolokacyjnej $ c_{1} \rightarrow c_{2} $ nazywamy stosunek liczby instancji wzorca c 1 w sąsiedztwie instancji wzorca $ c_{2}$ do liczby wszystkich instancji wzorca $ c_{1} $:
@@ -386,6 +392,7 @@ znajdź wszystkie poprawne reguły kolokacyjne z powszechnością nie mniejszą 
 W tym podrozdziale zostaną zaprezentowane skrótowo najważniejsze algorytmy odkrywania kolokacji przestrzennych. 
 
 \subsubsection{Co-location Miner}
+\label{subsec:clm}
 
 Wraz z wprowadzeniem pojęcia kolokacji autorzy pracy \cite{huang} zaprezentowali także podstawowy obecnie algorytm rozwiązujący problem odkrywania wzorców kolokacji przestrzennych, zwany \textit{Co-location Miner}. W algorytmie tym wyróżnia się następujące fazy:
 
@@ -438,12 +445,13 @@ Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie wedłu
 \newpage
 
 \section{Wprowadzenie do technologii CUDA}
+\label{sec:cuda}
 
-Dziedzina informatyki, jaką są obliczenia ogólnego przeznaczenia na układach GPU (ang. \textit{general-purpose computing on graphics processing units}, w skrócie \textit{GPGPU}) należy do stosunkowo świeżych technik programowania - jej właściwy początek można datować na okolice 2009 roku. Jeszcze do niedawna wśród programistów panowało przekonanie, że karty graficzne powinny być odpowiedzialne tylko za rysowanie obrazu, a cała odpowiedzialność za niezbędne obliczenia powinna padać na CPU, jako "serce" komputera. Były to czasy, kiedy pojęcie równoległego wykonywania zadań nie było szeroko rozpowszechnione - rdzenie procesora były jedynie nowinką, a cały rozwój procesorów CPU szedł w zwiększanie częstotliwości taktowania.
+Dziedzina informatyki, jaką są obliczenia ogólnego przeznaczenia na układach GPU (ang. \textit{general-purpose computing on graphics processing units}, w skrócie \textit{GPGPU}) należy do stosunkowo świeżych technik programowania - jej właściwy początek można datować na okolice 2007 roku. Jeszcze do niedawna wśród programistów panowało przekonanie, że karty graficzne powinny być odpowiedzialne tylko za rysowanie obrazu, a cała odpowiedzialność za niezbędne obliczenia powinna padać na CPU, jako "serce" komputera. Były to czasy, kiedy pojęcie równoległego wykonywania zadań nie było szeroko rozpowszechnione - rdzenie procesora były jedynie nowinką, a cały rozwój procesorów CPU szedł w zwiększanie częstotliwości taktowania.
 
 Szybko się okazało, że nie da się tego robić w nieskończoność. Podnoszenie częstotliwości spowodowało, że procesory zaczęły pobierać spore ilości energii, a także wydzielać ogromne ilości ciepła, którego nie dało się okiełznać bez korzystania z specjalnego chłodzenia. Rozwiązaniem okazało się skorzystanie z wielordzeniowości - wielu procesorów połączonych ze sobą specjalnymi magistralami, zamkniętymi w jednej obudowie. Wymagało to także zmiany podejścia do programowania. Równoległość daje olbrzymie możliwości, o ile potrafi się z nich skorzystać w odpowiedni sposób - bez tego programista nie uzyska zauważalnego wzrostu szybkości obliczeń, jakie dają współczesne układy wielordzeniowe. 
 
-Wielu osobom w trakcie tej "rewolucji" umknął jeden drobny fakt - kiedy swoje triumfy świecił słynny procesor \textit{Pentium 4} firmy \textit{Intel} o kosmicznej wtedy częstotliwości taktowania rzędu 3 GHz, na rynku istniały już rozwiązania równoległe, na których można było uzyskać znacznie lepsze wyniki. Były to oczywiście karty graficzne, które od dawna działały w sposób równoległy. 
+Wielu osobom w trakcie tej "równoległej rewolucji" umknął pewien fakt - kiedy swoje triumfy świecił procesor \textit{Pentium 4} firmy \textit{Intel} o częstotliwości taktowania rzędu 3 GHz, na rynku istniały już rozwiązania równoległe, na których można było uzyskać znacznie lepsze wyniki. Były to oczywiście karty graficzne, które od dawna działały w sposób równoległy. 
 
 Dopóki nie powstały pierwsze specyfikacje bibliotek wspierających obliczenia na kartach graficznych, programiści próbowali wykorzystywać potencjał brzmiący w procesorach graficznych w oparciu o rendering 3D. Było to dosyć karkołomne zadanie i nie każdy algorytm można było rozwiązać w ten sposób. Karty graficzne musiały odczekać jeszcze parę lat, aby dało się wykorzystać w pełni ich możliwości obliczeniowe.
 
@@ -451,7 +459,7 @@ Spośród wszystkich technologii umożliwiających przeprowadzanie obliczeń na 
 
 \subsection{CPU a GPU}
 
-Jak już wspomiano, procesory graficzne, mające w pierwotnym założeniu wyłącznie wspomagać generowanie obrazu, od początku były projektowane jako układy przetwarzajace dane w sposób równoległy. Karty graficzne posiadają znacznie więcej rdzeni niż procesory GPU, mają one jednak mniejsze taktowanie, a także są gorzej wyposażone (w szczególności brakuje im rozszerzeń typowych dla CPU typu SSE2 czy MMX). W związku z tym, nie wszystkie algorytmy nadają się dobrze do implementacji w środowisku GPU. Jeżeli jednak istnieje możliwość zrównoleglenia jakiegoś problemu, to wyniki osiągnięte na GPU będą lepsze niż te uzyskane na procesorze CPU (niezależnie od tego, czy jest napisany sekwencyjnie czy równolegle). Obecne procesory CPU z kolei potrafią działać sekwencyjnie, jak i równolegle, za pośrednictwem wielu mechanizmów wspierających równoległość (np. wątki, mutexy, wsparcie dla specjalnych struktur).
+Jak już wspomiano, procesory graficzne, mające w pierwotnym założeniu wyłącznie wspomagać generowanie obrazu, od początku były projektowane jako układy przetwarzajace dane w sposób równoległy. Procesory zawarte w kartach graficznych posiadają znacznie więcej rdzeni niż CPU - mają one jednak mniejsze taktowanie, a także są gorzej wyposażone (w szczególności brakuje im rozszerzeń typowych dla CPU, typu \textit{SSE2} czy \textit{MMX}). W związku z tym, nie wszystkie algorytmy nadają się dobrze do implementacji w środowisku GPU. Jeżeli jednak istnieje możliwość zrównoleglenia jakiegoś problemu zgodnie z paradygmatem SIMD, to wyniki osiągnięte na GPU będą w większości wypadków lepsze niż uzyskane na procesorze CPU. Obecne procesory CPU z kolei potrafią działać sekwencyjnie, jak i równolegle, za pośrednictwem wielu mechanizmów wspierających równoległość (np. wątki, mutexy, wsparcie dla specjalnych struktur).
 
 Oddzielną kwestią jest przydział tranzystorów tworzących poszczególne układy do pełnienia poszczególnych funkcji. W przypadku CPU większość tranzystorów stanowi pamięć podręczną oraz układy sterowania - za wykonywanie obliczeń jest odpowiedzialna ok. 1/4 tranzystorów wbudowanych w procesor. Natomiast w przypadku GPU gros tranzystorów wykorzystanych jest do budowy jednostek arytmetyczno-logicznych oraz zmiennoprzecinkowych. Z tego powodu duża część zadań związana z przepływem danych, uruchamianiem wątków czy podziałem zadań na GPU spoczywa na programiście, co dosyć mocno komplikuje kod.
 
@@ -471,7 +479,7 @@ Oprócz tego multiprocesor wyposażony jest w układy sterujące wywołaniem ins
 
 \subsection{Programowanie wielowątkowe w języku CUDA C}
 
-Środowisko NVIDIA CUDA umożliwia programowanie w języku CUDA C - stanowi on podzbiór języka C++ i jest z nim w dużym stopniu kompatybilny. Kod w języku CUDA C da się łączyć z standardowym kodem C++ kompilowanym pod procesory CPU - w tym przypadku fragmenty kodu wywoływane po stronie karty graficznej są kompilowane przez specjalny kompilator NVCC dołączany do środowiska CUDA. 
+Środowisko programistyczne \textit{CUDA Toolkit} umożliwia programowanie w języku \textit{CUDA C} - stanowi on podzbiór języka C++ i jest z nim w dużym stopniu kompatybilny. Kod w języku \textit{CUDA C} da się łączyć z standardowym kodem C++ kompilowanym pod procesory CPU - w tym przypadku fragmenty kodu wywoływane po stronie karty graficznej są kompilowane przez specjalny kompilator \textit{NVCC} dołączany do środowiska CUDA. 
 
 Funkcje wywoływane przez hosta, a wykonywane przez procesor graficzny w sposób równoległy przez wiele wątków są nazywane funkcjami jądra (ang. kernel). Wszystkie wątki uruchomione poprzez wywołanie jądra wykonują identyczny kod. Oczywiście da się je odróżnić poprzez unikalny identyfikator dostępny w specjalnej zmiennej. Zgodnie z modelem przetwarzania SIMD, na jednym multiprocesorze uruchomione wątki są grupowane w tzw. \textit{warpy} (ang. \textit{warps}) - zbiory 32 wątków wykonujących tą samą instrukcję. 
 
@@ -509,7 +517,8 @@ Oprócz tego, biblioteka \textit{Thrust} oferuje następujące operacje:
 \end{itemize}
 \newpage
 
-\section{Algorytm}
+\section{Algorytm \textit{SGCT}}
+\label{sec:china}
 
 Niniejszy rozdział ma za zadanie przybliżenie algorytmu będącego tematem tej pracy - metody odkrywania maksymalnych kolokacji przestrzennych w oparciu o graf rzadki i skondensowane drzewo instancji (ang. \textit{sparse-graph and condensed tree-based maximal co-location algorithm}) przedstawionej w pracy \cite{chinczyki}. 
 
@@ -530,11 +539,11 @@ Kolokacje o rozmiarze 2 tworzone są na podstawie wygenerowanych w oparciu o cec
 \textbf{where}  $ p' $.feature $ \neq $ $ p'' $.feature, $ p' \lq p'' $, $(p', p'') \in R$
 \end{sample}
 
-Na podstawie wygenerowanych kolokacji oraz tzw. \textit{progu odległości} (ang. \textit{distance threshold}) tworzona jest dwuwymiarowa tablica z haszowaniem (ang. \textit{hash table}). Jest ona indeksowana cechami przestrzennymi. Każdy element tablicy zawiera wskaźnik do listy zawierającej instancje kandydatów o odpowiadających indeksom cechach przestrzennych. Instancja zostanie dodana do tej listy tylko wtedy, gdy odległość między instancjami nie przekracza dopuszczalny próg odległości między nimi.
+Na podstawie wygenerowanych kolokacji oraz tzw. \textit{progu odległości} (ang. \textit{distance threshold}) tworzona jest dwuwymiarowa tablica z haszowaniem (ang. \textit{hash table}). Jest ona indeksowana cechami przestrzennymi. Każdy element tablicy zawiera wskaźnik do listy zawierającej instancje kandydatów o odpowiadających indeksom cechach przestrzennych. Instancja zostanie dodana do tej listy tylko wtedy, gdy odległość między instancjami nie przekracza dopuszczalnego progu odległości między nimi.
 
-\begin{sample}
-Zapytanie $InsTable_{2}(A,B)$ zwróci listę kandydatów $(A_{2}, B_{2})$, $(A_{3}, B_{1})$, itd. Nie znajdziemy na tej liście pary $(A_{2}, B_{100000})$, gdyż odległość między tymi instancjami przekracza dopuszczalny próg odległości.
-\end{sample}
+%\begin{sample}
+%Zapytanie $InsTable_{2}(A,B)$ zwróci listę kandydatów $(A_{2}, B_{2})$, $(A_{3}, B_{1})$, itd. Nie znajdziemy na tej liście pary $(A_{2}, B_{100000})$, gdyż odległość między tymi instancjami przekracza dopuszczalny próg odległości.
+%\end{sample}
 
 \subsection{Obliczanie miary powszechności}
 
@@ -551,6 +560,7 @@ Jeżeli przyjąć relacje sąsiedztwa między kolokacjami o rozmiarze 2 jako kra
 \begin{equation}
 N(v_{i}) = \{W|{v_{i},w} \in E\}
 \end{equation}
+\label{def:size2-col-graph}
 \end{defin}
 
 Zadaniem tego kroku jest wyszukanie w takim grafie maksymalnych klik, określanych jako \textit{kandydaci na maksymalne kolokacje} (ang. \textit{candidate maximal co-location}).
@@ -559,9 +569,10 @@ Zadaniem tego kroku jest wyszukanie w takim grafie maksymalnych klik, określany
 Kandydat na maksymalną kolokację $ C_{m} $ składa się z uporządkowanych cech przestrzennych o następujących właściwościach: każda para cech w  $ C_{m} $  jest ze sobą połączona krawędzią, a żadne dodatkowe cechy nie mogą być dodane do $ C_{m} $ bez zachowania ich kompletnego połączenia.
 \end{defin}
 
-Autorzy pracy \cite{chinczyki} udowodnili, że graf kolokacji o rozmiarze 2 można traktować jako graf rzadki. Umożliwia to efektywne korzystanie z algorytmu Brona-Kerboscha \cite{kerbosz} do wyszukiwania maksymalnych klik w grafie nieskierowanym. Wprowadzone zostały do niego pewne modyfikacje uwzględniające rozproszenie grafu oraz wybieranie \textit{pivotu} w celu usprawienia wyszukiwania kandydatów na kolokacje. 
+Autorzy pracy \cite{chinczyki} udowodnili, że graf kolokacji o rozmiarze 2 można traktować jako graf rzadki. Umożliwia to efektywne korzystanie z algorytmu Brona-Kerboscha \cite{kerbosz} do wyszukiwania maksymalnych klik w grafie nieskierowanym. Wprowadzone zostały do niego pewne modyfikacje uwzględniające rozproszenie grafu oraz wybieranie \textit{pivotu} w celu usprawienia wyszukiwania kandydatów na kolokacje (patrz Algorytm~\ref{alg:chinczyki_step3}).
 
 \begin{algorytm}
+
 \SetKwInOut{Input}{Wejście}
 \SetKwInOut{Output}{Wyjście}
 \SetKwProg{myproc}{Procedure}{}{}
@@ -569,7 +580,7 @@ Autorzy pracy \cite{chinczyki} udowodnili, że graf kolokacji o rozmiarze 2 moż
 \Input{$G=(E,V)$}
 \Output{$CP_{m}$}
 $CP_{m} \leftarrow \emptyset; X \leftarrow \emptyset; P \leftarrow \emptyset$\;
-\ForEach{$v^{*}_{i}$ in degeneracy ordering $v^{*}_{1}, v^{*}_{2},..., v^{*}_{\lambda}$}{
+\ForEach{$v^{*}_{i}$ in lista $v^{*}_{1}, v^{*}_{2},..., v^{*}_{\lambda}$  uporządkowanych wg. degeneracji}{
 $ P \leftarrow N(V^{*}_{i}) \cup \{ v^{*}_{i+1}, ..., v^{*}_{\lambda}\}$\;
 $ X \leftarrow N(V^{*}_{i}) \cup \{ v^{*}_{1}, ..., v^{*}_{i-1}\}$\;
 $BK\_Pivot(P,  \{v^{*}_{i}\} ,X)$\;
@@ -577,7 +588,7 @@ $BK\_Pivot(P,  \{v^{*}_{i}\} ,X)$\;
 
 \myproc{\proc{M,K,T}}{
 \lIf{$ M \cup T = \emptyset$}{$ \{ CP_{m} \leftarrow CP_{m} \cup K\}$}
-wybór punktu pivot $ u \in M \cup T ; \% $ do maksymalizacji $ | M \cap N(u) | $\;
+wybór $ pivotu $ $ u \in M \cup T ; \% $ do maksymalizacji $ | M \cap N(u) | $\;
 \ForEach{$v_{i} \in M \backslash N(u) $}{
 $BK\_Pivot(M \cap N(V_{i}), K \cup \{v_{i}\}, T \cap N(V_{i}))$\;
 $ M \leftarrow M \backslash \{v_{i}\} $\;
@@ -585,17 +596,18 @@ $ T \leftarrow T \cup \{v_{i}\}$\;
 }
 }
 \caption{Generowanie maksymalnych kandydatów na kolokacje}
+\label{alg:chinczyki_step3}
 \end{algorytm}
 
-Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Jak wykazano w pracy \cite{pivot2} wybranie wierzchołka zmniejszającego liczbę rekurencyjnych wywołań algortytmu znacząco zmniejsza ogólny czas wykonania. Wybiera on wierzchołek będący osią podziału zbioru (tzw. \textit{pivot} w oparciu o rozmiar unii sąsiadów tego wierzchołka i wierzchołków kandydatów. Każda maksymalna klika musi zawierać albo wierzchołek $ u $, albo niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, tylko wierzchołek $ u $ i jego nie-sąsiedzi muszą być przetestowani (linia 10).
-\newline
+Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Jak wykazano w pracy \cite{pivot2} wybranie wierzchołka zmniejszającego liczbę rekurencyjnych wywołań algortytmu znacząco zmniejsza ogólny czas wykonania. Wybiera on wierzchołek będący osią podziału zbioru (tzw. \textit{pivot}) w oparciu o rozmiar unii sąsiadów tego wierzchołka i wierzchołków kandydatów. Każda maksymalna klika musi zawierać albo wierzchołek $ u $, albo niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, tylko wierzchołek $ u $ i jego nie-sąsiedzi muszą być przetestowani (linia 10).
 
 Druga modyfikacja opiera się o pojęcie rozproszenia grafu. Opisuje się je miarą \textit{degeneracji grafu} \cite{matusiak}:
 \begin{defin}[Degeneracja grafu]
 Degeneracja grafu G jest najmniejszą wartością k, taką, że każdy niepusty podgraf G zawiera wierzchołki o stopniu co najwyżej k. Oznacza to, że wielkość maksymalnej kliki nie może przekroczyć $k + 1$.
+\label{def:degeneracy}
 \end{defin}
 
-\begin{defin}[Uporządkowanie według miary degeneracji]
+\begin{defin}[Uporządkowanie wg. miary degeneracji]
 Uporządkowanie według miary degeneracji wierzchołków grafu G to takie uporządkowanie, które minimalizuje stopień degeneracji grafu. Taka uporządkowanie gwarantuje m.in. optymalną kolejność kolorowania w problemie kolorowania wierzchołków.
 \end{defin}
 
@@ -606,17 +618,18 @@ Wierzchołki w zewnętrznej rekurencji są uporządkowane według stopnia degene
 W ostatnim kroku w oparciu o tzw. \textit{prunning framework} \cite{framework} nastepuje otrzymywanie końcowych maksymalnych kolokacji spośród kandydatów wyznaczonym w poprzednim procesie. Na początku dla każdego z nich uruchamiany jest algorytm wyszukiwania klik instancji. Do jego zrozumienia niezbędne jest wprowadzenie poniższych definicji.
 
 \begin{defin}[Uporządkowana klika instancji]
-Dany jest kandydat na maksymalną kolokację $ C_{m} $. Jego uporządkowana klika instancji $ InsC_{m} $ jest grupą instancji przestrzennych spełniających następujące warunki:
+Dana jest tabela instancji kolokacji o rozmiarze 2 ($ InsTable_{2}) $ oraz kandydat na maksymalną kolokację $ C_{m} $. Jego uporządkowana klika instancji $ InsC_{m} $ jest grupą instancji przestrzennych spełniających następujące warunki:
 \begin{itemize}
 \item rozmiar $ InsC_{m} $ jest równy rozmiarowi $ C_{m} $, a cechy w odpowiadających sobie instancjach w $ InsC_{m} $ i $ C_{m} $ są takie same; %a każdej instancji w $ InsC_{m} $ odpowiada cesze w odpowiadającej jej instancji w $ C_{m} $; %
-\item instancje każdej pary instancji w $ InsC_{m} $ sąsiadują ze sobą w przestrzeni i można je znaleźć w tabeli instancji 2-elementowych $ InsTable_{2} $.
+\item instancje każdej pary instancji w $ InsC_{m} $ sąsiadują ze sobą w przestrzeni i można je znaleźć w tabeli  $ InsTable_{2} $.
 \end{itemize}
 \end{defin}
 
 \begin{defin}[Skondensowane drzewo instancji]Dany jest kandydat na maksymalną kolokację $ C_{m} $. Skondensowane drzewo instancji $ CInsTree$ jest konstrukcją kompresującą wszystkie uporządkowane kliki instancji $ C_{m} $.
+\label{def:condensed}
 \end{defin}
 
-Algorytm ma charakter iteracyjny. Zmienna $ i $ jest zmienną sterującą pętli. Na początku zostaje zainicjalizowane drzewo $ CInsTree $ i tworzony jest jego korzeń. Następnie uruchamiany jest proces konstrukcji drzewa, podzielony na dwa etapy. Pierwszy etap wykonywany jest tylko w pierwszej iteracji algorytmu - kolejne iteracje będą wykonywać krok drugi. 
+Algorytm~\ref{alg:chinczyki_step41} ma charakter iteracyjny, w którym zmienna $ i $ jest zmienną sterującą pętli. Na początku zostaje zainicjalizowane drzewo $ CInsTree $ i tworzony jest jego korzeń. Następnie uruchamiany jest proces konstrukcji drzewa, podzielony na dwa etapy. Pierwszy etap wykonywany jest tylko w pierwszej iteracji algorytmu - kolejne iteracje będą wykonywać krok drugi. 
 
 \begin{algorytm}
 \SetKwInOut{Input}{Wejście}
@@ -655,6 +668,7 @@ $ i \leftarrow 1; CInsTree \leftarrow \emptyset$; utwórz korzeń drzewa $ CInsT
 	}			
 }
 \caption{Konstrukcja skondensowanego drzewa instancji $ C_{m} $}
+\label{alg:chinczyki_step41}
 \end{algorytm}
 
 W pierwszym kroku (linie 3-11) dla każdej pary instancji pierwszych dwóch cech przestrzennych $ C_{m} $ nastepuje sprawdzenie, czy pierwszy element aktualnie przetwarzanej pary instancji istnieje na danym poziomie drzewa $ CInsTree $ (oznaczonego jako $CInsTree_{1}$). Jeżeli tak, następuje dodanie drugiego elementu jako węzeł podrzędny odpowiadającego mu węzła na poziomie pierwszym. W przeciwnym wypadku, na podstawie obecnej pary instancji tworzone jest poddrzewo, które następnie jest dołączane do korzenia $ CInsTree $. 
@@ -668,6 +682,7 @@ Po zakończeniu algorytmu pozostaje jeszcze wyliczenie indeksów powszechności 
 \newpage
 
 \section{Implementacja CPU}
+\label{sec:cpu}
 
 W tym rozdziale zostaną opisane implementacje rozwiązania problemu \cite{chinczyki} wykorzystujące wyłącznie potencjał procesorów CPU (ang. \textit{Central Procession Unit}), bez udziału karty graficznej w obliczeniach. W szczególności zostaną zaprezentowane techniki optymalizacyjne dedykowane dla poszczególnych podejść do rozwiązania problemu. 
 
@@ -676,7 +691,7 @@ Do celów porównawczych zostały zrealizowane dwa rozwiązania: sekwencyjne (be
 \subsection{Wersja sekwencyjna}
 
 \subsubsection{Generowanie instancji w oparciu o próg odległości}
-\label{cpu-1-seq}
+\label{subsec:cpu-step-1}
 
 Podobnie jak w pierwotnej wersji algorytmu, generowanie kandydatów na kolokacje o rozmiarze 2 następuje na podstawie \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}). Algorytm zamiatania (ang. \textit{plane sweep algorithm}) użyty w procesie łączenia został jednak nieznacznie zmodyfikowany.
 
@@ -690,15 +705,15 @@ Struktura $ insTable $ pełni podobną rolę, jak w oryginalnym algorytmie \text
 
 \subsubsection{Filtrowanie sąsiadów w oparciu o próg minimalnej powszechności}
 
-Krok ten stanowi zmodyfikowaną wersję algorytmu obliczania miar powszechności znanego z algorytmu \textit{Co-location Miner} (patrz Rozdział 2).
+Krok ten stanowi zmodyfikowaną wersję algorytmu obliczania miar powszechności znanego z algorytmu \textit{Co-location Miner} (patrz Rozdział~\ref{subsec:clm}).
 
 Na początku wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zliczenie wszystkich wystąpień par instancji bez duplikatów. Podobnie jak w kroku pierwszym zostały tu użyte mapy nieuporządkowane (\textit{std::unordered\_map}) w celu przyspieszenia przetwarzania. Do budowy mapy została użyta własna funkcja mieszająca powstała na bazie \textit{hash\_combine} z biblioteki \textit{boost}. Ogranicza ona występowanie kolizji w przypadku wstawiania nowych elementów do tablicy z haszowaniem.
 
-Następnie w oparciu o wektor wynikowy tej funkcji oraz utworzony wcześniej wektor $ typeIncidenceCounter$ (patrz Rozdział 4.1.1) dla każdego kandydata w tabeli $ insTable $ wyliczany jest współczynnik uczestnictwa. W przypadku, gdy obliczona miara powszechności jest mniejsza od zadanego progu minimalnej powszechności, kandydat jest usuwany z struktury $ insTable $, a użyta przez niego pamięć zostaje zwolniona na poczet dalszych obliczeń.
+Następnie w oparciu o wektor wynikowy tej funkcji oraz utworzony wcześniej wektor $ typeIncidenceCounter$ (patrz Rozdział~\ref{subsec:cpu-step-1}) dla każdego kandydata w tabeli $ insTable $ wyliczany jest współczynnik uczestnictwa. W przypadku, gdy obliczona miara powszechności jest mniejsza od zadanego progu minimalnej powszechności, kandydat jest usuwany z struktury $ insTable $, a użyta przez niego pamięć zostaje zwolniona na poczet dalszych obliczeń.
 
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
 
-Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja 10). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
+Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
 
 \begin{algorytm}
 \SetKwInOut{Input}{Wejście}
@@ -724,9 +739,10 @@ $ D(d^{'}_{w}) \leftarrow D(d^{'}_{w}) \cup w $\;
 }
 }
 \caption{Obliczanie miary degeneracji metodą Matuli i Becka (1983)}
+\label{alg:matusiak}
 \end{algorytm}
 
-Po wygenerowaniu grafu liczona jest jego miara degeneracji (patrz Definicja 11). W tym celu został wykorzystany algorytm zaprezentowany przez Matulę i Becka w pracy \cite{matusiak}. Działa on w czasie wielomianowym, co pozwala na odciążenie CPU. Funkcja zwraca zarówno miarę degeneracji, jak uporządkowany według niej wektor wierzchołków występujących w grafie.
+Po wygenerowaniu grafu liczona jest jego miara degeneracji (patrz Definicja~\ref{def:degeneracy}). W tym celu został wykorzystany Algorytm~\ref{alg:matusiak} zaprezentowany przez Matulę i Becka w pracy \cite{matusiak}. Działa on w czasie wielomianowym, co pozwala na odciążenie CPU. Funkcja zwraca zarówno miarę degeneracji, jak uporządkowany według niej wektor wierzchołków występujących w grafie.
 
 Dalsze kroki algorytmu wykonywane są dla poszczególnych wierzchołków uporządkowanych według miary degeneracji. Podobnie jak w oryginalnym algorytmie z pracy \cite{pivot} tworzone są grupy wierzchołków o niższych i wyższych indeksach, a następnie uruchamiana jest funkcja $ BK\_Pivot $, w której następuje wyszukiwanie maksymalnych klik w oparciu o algorytm Brona-Kerboscha \cite{kerbosz}. 
 
@@ -740,7 +756,7 @@ Następnie iteracyjnie przetwarzana jest każda klika, począwszy od największe
 
 Wyliczone kliki są umieszczane w obiektach \textit{CliqueContainer} i \textit{LapsedCliqueContainer}. Pełnią one rolę pamięci podręcznej dla powyższych algorytmów. Dzięki temu nie ma potrzeby ponownego przeliczania tych samych klik instancji, co prowadzi do kilkunastokrotnego wzrostu wydajności obliczeń.
 
-Dla klik o długości większej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja 14). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}, zastosowano w nim jednak pewne metody optymalizacyjne - wskaźniki do rodziców w celu ograniczenia przeszukiwań drzewa w dół, użycie wektora zawierającego wskaźniki do liści znajdujących się na ostatnim poziomie drzewa, wskaźniki typu \textit{unique\_ptr} (więcej szczegółów w Dodatku A). Następnie zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności.
+Dla klik o długości większej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja~\ref{def:condensed}). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}, zastosowano w nim jednak pewne metody optymalizacyjne - wskaźniki do rodziców w celu ograniczenia przeszukiwań drzewa w dół, użycie wektora zawierającego wskaźniki do liści znajdujących się na ostatnim poziomie drzewa, wskaźniki typu \textit{unique\_ptr} (więcej szczegółów w Dodatku~\ref{sec:wypociny}). Następnie zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności.
 
 W przypadku, kiedy miara nie jest mniejsza niż przyjęty na początku próg powszechności, kandydat jest dodawany do zbioru rozwiązań. W przeciwnym wypadku do struktury $ cliquesToProcess $ dodawane są podkliki, które również będą rozważane jako potencjalni kandydaci na kolokacje.
 
@@ -756,9 +772,10 @@ W przypadku, kiedy istnieje potrzeba dostarczenia kopii kontenera dla każdego z
 
 Zasadniczą różnicą między \textit{PPL} a \textit{OpenMP} jest zastosowanie dynamicznego planisty (ang. \textit{dynamic scheduler}), co pozwala na lepszą optymalizację równoległego przetwarzania w zależności od aktualnie dostępnych zasobów w systemie. Na dynamicznym planiście zyskują szczególnie problemy o charakterze rekurencyjnym (np. algorytmy sortujące czy szeroko wykorzystywane w niniejszej pracy przeszukiwanie danych) \cite{mikromiekki}. Do tego technologia \textit{OpenMP} nie zawiera żadnego mechanizmu anulowania, często wymaganego w algorytmach o charakterze równoległym \cite{stak}.
 
-Powyższe wady środowiska \textit{OpenMP} były powodem, dla których ostatecznie - pomimo ubogiej dokumentacji oraz niskiej popularności -  została wybrana biblioteka \textit{Parallel Patterns Library} jako najbardziej optymalna dla algorytmu \textit{SCGT} będącego tematem tej pracy.
+Powyższe wady środowiska \textit{OpenMP} były powodem, dla których ostatecznie - pomimo ubogiej dokumentacji oraz niskiej popularności -  została wybrana biblioteka \textit{Parallel Patterns Library} jako najbardziej optymalna dla algorytmu \textit{SGCT} będącego tematem tej pracy.
 
 \subsubsection{Generowanie sąsiadów na podstawie progu odległości}
+
 Generowanie kandydatów na kolokacje o rozmiarze 2 podobnie jak w wersji sekwencyjnej następuje na podstawie \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}). Również w tym przypadku do owego algorytmu wprowadzono niezbędne modyfikacje.
 
 W pierwszym kroku algorytmu wektor będący zbiorem wejściowym, korzystając z dobrodziejstw biblioteki PPL jest sortowany algorytmem \textit{sortowania buforowanego} (ang. \textit{buffered sort}). Tak jak w wersji sekwencyjnej jako kryterium sortowania zostaje zastosowana relacja między arbitralnie wybranym wymiarem przestrzeni. Sortowanie buforowane z biblioteki PPL to połączenie równoległych wersji sortowania szybkiego i sortowania przez scalanie (ang. \textit{merge sort}), nie jest to jednak sortowanie w miejscu (ang. \textit{in-place}) i wymaga dodatkowej alokacji pamięci o rozmiarze O(n). Ogólna złożoność algorytmu wynosi O((n/p)*log(n)), gdzie przez \textit{p} oznacza się liczbę procesorów.
@@ -773,12 +790,13 @@ Tablica $ insTable $ ma taką samą strukturę jak w wersji sekwencyjnej.
 
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
 
-Krok ten, tak samo jak w wersji sekwencyjnej stanowi zmodyfikowany algorytm obliczania miar powszechności znanego z algorytmu \textit{Co-location Miner} (patrz Rozdział 2).
+Krok ten, tak samo jak w wersji sekwencyjnej stanowi zmodyfikowany algorytm obliczania miar powszechności znanego z algorytmu \textit{Co-location Miner} (patrz Rozdział~\ref{subsec:clm}).
 
 W początkowym stadium algorytmu, analogicznie do wersji sekwencyjnej wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zliczenie wszystkich wystąpień par instancji unikając liczenia duplikatów w sytuacji gdy ta sam instancja przestrzenna należy do wielu par tego samego typu. Korzystając z informacji o rozmiarze tablicy $ insTable $ przed rozpoczęciem przetwarzania obliczany jest zakres pracy który musi wykonać każdy z wątków. W związku z tym konieczne było skorzystanie z statycznego planisty (ang. \textit{static-partitioner}) z biblioteki PPL, który naśladuje zachowanie klasycznej funkcji \textit{\#pragma omp parallel for} znanej z biblioteki OpenMP. W ten sposób oszczędza się czas gdyż wątki nie muszą dynamicznie przydzielać sobie pracy do wykonania.
 
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
-Identycznie jak w wersji sekwencyjnej, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja 10). Obliczanie miary degeneracji \cite{matusiak} i algorytm Brona-Kerboscha \cite{kerbosz} w kontekście wersji sekwencyjnej pozostaje bez zmian. 
+
+Identycznie jak w wersji sekwencyjnej, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Obliczanie miary degeneracji \cite{matusiak} i algorytm Brona-Kerboscha \cite{kerbosz} w kontekście wersji sekwencyjnej pozostaje bez zmian. 
 
 \subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
 
@@ -791,6 +809,7 @@ Wyliczone kliki są umieszczane w obiektach \textit{ParallelCliqueContainer} i \
 Tablica $ insTable $ ma strukturę zwykłego wektora wskaźników, z biblioteki STD, na równoległe wektory (ang. \textit{concurrent vector}) z biblioteki PPL, które zawierają z kolei znów zwykłe wektory. Taka postać zapewnia bezkonfliktowe przetwarzanie równoległe, a jednocześnie dzięki minimalnej fragmentacji zaalokowanej pamięci, maksymalizuje szybkość wykonania algorytmu. Jednocześnie tablica wynikowa jest reprezentowana przez wektor typu połączeniowego (ang. \textit{combinable}) - na końcu przetwarzania lokalne kopie tej tablicy są scalane do jednej finalnej tablicy, będącej ostatecznym wynikiem pracy algorytmu. 
 
 \section{Implementacja GPU}
+\label{sec:gpu}
 W tym rozdziale zostaną opisane poszczególne kroki implementacji algorytmu wyszukiwania maksymalnych prewalentnych kolokacji przy wykorzystaniu procesorów CUDA. 
 
 Przedstawiona tu implementacja jest silnie zależna od założonej wersji \textit{compute capability} równej 3.0. W wersji tej nie jest dostępna pamięć współdzielona (\textit{Unified Memory}\cite{cuda_um}) oraz \textit{Dynamic Parallelism}\cite{cuda_dp}.
@@ -908,8 +927,10 @@ Na wejściu wymagane jest podanie wyniku poprzedniego kroku, na wyjściu natomia
 
 \newpage
 \section{Testy efektywnościowe}
+\label{sec:tests}
 
 \section{Zakończenie}
+\label{sec:fin}
 
 \newpage
 
@@ -960,7 +981,8 @@ generating all maximal cliques and computational experiments. Theoretical Comput
 
 \appendix
 
-\section{Dodatek A - Opis klas i struktur pomocniczych}
+\section{Opis klas i struktur pomocniczych}
+\label{sec:wypociny}
 
 \subsection{Opis architektury wersji CPU}
 
@@ -1208,8 +1230,8 @@ bool CliquesContainer::checkSubcliqueExistence(
 
 \item SimulatedRealDataProvider - Klasa wykorzystująca gotowe, przygotowane wcześniej dane wczytywane z plików mające symulować dane rzeczywiste.
 
-\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang, 
-textit{hash function} dla pary \inline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \inline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \inline{hash_combine} z biblioteki \textit{boost}:
+\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang. 
+\textit{hash function}) dla pary \inline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \inline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \inline{hash_combine} z biblioteki \textit{boost}:
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Kod struktury pair\_hash}]
 struct pair_hash {
@@ -1265,7 +1287,5 @@ struct vector_hash {
 \item Benchmark - Klasa umożliwiająca przeprowadzenie parametryzowanych testów wydajnościowych całego algorytmu, zapewniając m.in. serializację do pliku. Wyeksportowane dane mogą zostać zwizualizowane za pomocą wykresów do których tworzenia wykorzystano odpowiedni skrypt w języku Python.
 
 \end{itemize}
-
-\section{Dodatek B}
 
 \end{document}

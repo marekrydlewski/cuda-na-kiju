@@ -9,6 +9,9 @@
 \usepackage[linesnumbered]{algorithm2e}
 \usepackage{textcomp}
 \usepackage{listings,chngcntr}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+\usepackage{float}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
@@ -772,29 +775,36 @@ Z powodu rozdzielnego modelu pamięci (co zmienia się wraz z wprowadzeniem \tex
 
 \subsubsection{Generowanie tabeli instancji o rozmiarze 2}
 
-Na wejściu tego kroku oczekujemy wczytanej instancji danych oraz parametru \textit{distanceTreshold} zawierającego wartość maksymalnej odległości pomiędzy instancjami. Na wyjściu otrzymujemy dwie tablice przechowujące pary instancji dla których przy założonym zachodzi rela
+Na wejściu tego kroku oczekujemy wczytanej tablicy danych o rozmiarze \textit{n}\textsubscript{dt} zawierającej instancje \{ a\textsubscript{0}, a\textsubscript{1},...,a\textsubscript{\textit{n}\textsubscript{dt} - 1} \} oraz parametru \textit{distanceTreshold} zawierającego wartość maksymalnej odległości pomiędzy instancjami dla których ma zostać stwierdzona relacja sąsiedztwa. Na wyjściu otrzymujemy dwie tablice przechowujące znalezione pary instancji \textit{Pairs}\textsubscript{A} oraz \textit{Pairs}\textsubscript{B}
 
-Algorytm wybrany do rozwiązania tego zadania to algorytm \textit{Planesweep} przystosowany do uruchamiania w architekturze masowo równoległej. Sam algorytm podzielić możemy na dwie części, wyznaczanie ilości sąsiadów dla każdej instancji, a następnie alokacja i wpisanie wartości do dwóch tabel \textit{InstanceFirst} oraz \textit{InstanceSecond} które służą do przechowywania par instancji będących w relacji sąsiedztwa, gdzie pierwsza tabela zawiera elementy będące pierwsze w parze, a druga pozostałe. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami. Kolejność wyznaczana jest przez następujący operator
 
-\begin{algorithm}[H]
+Algorytm wybrany do rozwiązania tego zadania to algorytm \textit{Planesweep} przystosowany do uruchamiania w architekturze masowo równoległej. Sam algorytm podzielić możemy na dwie części, wyznaczanie ilości sąsiadów dla każdej instancji (kernel \textit{countNeighbours}), a następnie alokacja i wpisanie znalezionych sąsiadów (kernel \textit{findNeighbours}) do tabel \textit{InstanceFirst} oraz \textit{InstanceSecond} które służą do przechowywania par instancji będących w relacji sąsiedztwa, gdzie pierwsza tabela zawiera elementy będące pierwsze w parze, a druga drugie. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami. Kolejność w obrębie pary wyznaczana jest przez następujący operator.
+
+\begin{algorithm}
 \SetKwInOut{Input}{Wejście}
 \SetKwInOut{Output}{Wyjście}
 \SetKwProg{myproc}{Procedure}{}{}
 \SetKwFunction{proc}{operator\<}
-\Input{$a,b - instancje typu FeatureInstance $}
+\Input{$a,b - instancje\ typu\ FeatureInstance $}
 \Output{$ bool $}
  \Return $ a.field < b.field $ \; 
 \caption{Operator mniejszości dla instancji typu FeatureInstance}
 \end{algorithm}
  
-Pierwszą czynnością jest posortowanie zbioru danych wejściowych względem osi odciętych. Dzięki temu ograniczymy obszar przeszukiwań sąsiadów instancji. 
+Przed wykonaniem samego algorytmu sortujemy zbiór danych wejściowych względem osi odciętych w kolejności rosnącej. Dzięki temu ograniczymy obszar przeszukiwań sąsiadów instancji. Użyta została do tego funkcja sortująca zaimplementowana w bibliotece \textit{Thrust}.
 
-TODO planesweep count
+Po zakończeniu sortowania przechodzimy do pierwszego kroku algorytmu \textit{Planesweep}. Tworzymy konfiguracje uruchomieniową dla kernel'a \textit{countNeighbours} z ilością wątków równą \textit{n\textsubscript{dt}} * 32, co daje nam jeden \textit{warp} na instancje. Dodatkowo musimy zaalokować także tablicę \textit{T\textsubscript{counts}} wielkości \textit{n\textsubscript{dt}} w którą na pozycji \textit{i} zostanie wpisana ilość sąsiadów instancji a\textsubscript{i}. Po przygotowaniu danych uruchamiany jest kernel. Każdy warp wykonuje maksymalnie $\lceil i / 32\rceil - 1$ iteracji, w każdej \textit{j-tej} iteracji sprawdzana jest grupa 32 instancji z zakresu K=\{i - j * 32; i - (j + 1) * 32\}. Sprawdzenie polega na obliczeniu odległości euklidesowej pomiędzy instancjami a\textsubscript{i} oraz a\textsubscript{k} i jeśli jest ona nie większa od założonej maksymalnej odległości pomiędzy instancjami \textit{distanceTreshold} stwierdzenie pomiędzy nimi relacji sąsiedztwa . Każdy wątek \textit{warp}'u sumuje w tablicy pamięci współdzielonej ilość znalezionych we wszystkich iteracjach sąsiadów, suma ta jest przechowywana przez każdy wątek w osobnej komórce (pozwala to uniknąć stosowania kosztownego mechanizmu synchronizacji zapisu pomiędzy wątkami \textit{warp}'a). Po każdej iteracji sprawdzane jest czy którykolwiek z wątków \textit{warp}'a napotkał instancje która odległa jest na samej osi odciętych o więcej niż odległość \textit{distanceTreshold}, jeśli tak to można przerwać iterowanie po instancjach, ponieważ korzystając z faktu iż zbiór danych został posortowany po tej osi, nie znajdziemy dalej już żadnych instancji leżących nie dalej niż założony \textit{distanceTreshold}. Po zakończeniu iterowania każdy \textit{warp} wykonuje szybką redukcje części tablicy współdzielonej należącej do jego wątków, a wynik wpisuje do tablicy \textit{T\textsubscript{counts}} na pozycji i.
 
-TODO planesweep fill
+\begin{figure}[H]
+\centering
+\includegraphics{planesweep}
+\caption{Poglądowy rysunek przedstawiający iterowanie warpa po instancjach}
+\end{figure}
 
-Ostatnią czynnością jest posortowanie par instancji przy użyciu następującego operatora. Przyczyna takiego uporządkowania zostanie wyjaśniona w kolejnych punktach opisu algorytmu.
+Po wykonaniu kernel'a \textit{countNeighbours} redukujemy tablicę \textit{T\textsubscript{counts}} otrzymując całkowitą ilość znalezionych relacji sąsiedztwa wśród wszystkich instancji, oznaczmy tę wartość jako \textit{nC}. Alokujemy tablice \textit{Pairs}\textsubscript{A}, \textit{Pairs}\textsubscript{B} każda wielkości \textit{nC}. Dodatkowo alokujemy tablice \textit{Begins} wielkości textit{n\textsubscript{dt}} w której zapisujemy wynik operacji sumy ekskluzywnej tablicy \textit{T\textsubscript{counts}}, która posłuży do wyznaczania pozycji zapisu relacji w tablicach wynikowych.
+Konfiguracja uruchomieniowa kernel'a \textit{findNeighbours} jest identyczna z konfiguracją użytą dla \textit{countNeighbours}. Sama funkcja różni się zresztą od poprzedniczki tylko i wyłącznie w miejscu stwierdzenia relacji sąsiedztwa. Mianowicie kernel \textit{findNeighbours} zamiast zliczać relacje sąsiedztwa wpisuje do tablic \textit{Pairs}\textsubscript{A}, \textit{Pairs}\textsubscript{B} instancje pomiędzy którymi ją stwierdzono. Przy pomocy wyżej opisanego operatora mniejszości dla obiektów typu \textit{FeatureInstance} (nie zapisujemy nigdzie informacji o współrzędnych instancji, ponieważ nie będą na dalej nigdzie potrzebne), pozycja zapisu w tablicach wynikowych wyznaczana jest na podstawie wartości w tablicy \textit{Begins} na pozycji \textit{i}, ilości znalezionych przez warp w poprzednich iteracjach relacji sąsiedztwa oraz ilości relacji sąsiedztwa znalezionych w obecnej iteracji przez wątki warpa o mniejszym \textit{id}. Warunki przerwania iterowania są takie same jak w kernel'u \textit{countNeighbours}.
 
+Ostatnią czynnością jest posortowanie par instancji przy użyciu następującego operatora\\
 
 \begin{algorithm}[H]
 \SetKwInOut{Input}{Wejście}
@@ -803,16 +813,16 @@ Ostatnią czynnością jest posortowanie par instancji przy użyciu następując
 \SetKwFunction{proc}{operator\<}
 \Input{$a,b - pary instancji typu FeatureInstance $}
 \Output{$ bool $}
-  \uIf{$ a<0>.fields.featureId < b<0>.fields.featureId $}{
+  \uIf{$ a[0].fields.featureId < b[0].fields.featureId $}{
    \Return $ True $ \;
-  }\uElseIf { $ a<0>.fields.featureId == b<0>.fields.featureId  $ } {
-      \uIf{$ a<1>.fields.featureId < b<1>.fields.featureId $}{
+  }\uElseIf { $ a[0].fields.featureId == b[0].fields.featureId  $ } {
+      \uIf{$ a[1].fields.featureId < b[1].fields.featureId $}{
    		\Return $ True $ \;
-	  }\uElseIf {$ a<1>.fields.featureId == b<1>.fields.featureId $} {
-	  	\uIf{$ a<0>.fields.instanceId < b<0>.fields.instanceId $}{
+	  }\uElseIf {$ a[1].fields.featureId == b[1].fields.featureId $} {
+	  	\uIf{$ a[0].fields.instanceId < b[0].fields.instanceId $}{
    			\Return $ True $ \;
-	  	}\uElseIf {$ a<0>.fields.instanceId == b<0>.fields.instanceId $} {
-	  		\Return $ a<1>.fields.instanceId == b<1>.fields.instanceId $ \;
+	  	}\uElseIf {$ a[0].fields.instanceId == b[0].fields.instanceId $} {
+	  		\Return $ a[1].fields.instanceId == b[1].fields.instanceId $ \;
 	  	}	
 	  }
   }
@@ -822,6 +832,9 @@ Ostatnią czynnością jest posortowanie par instancji przy użyciu następując
 \caption{Operator mniejszości dla par instancji typu FeatureInstance}
 \end{algorithm}
 
+Przyczyna takiego uporządkowania zostanie wyjaśniona w kolejnych punktach opisu algorytmu
+
+\newpage
 \section{Testy efektywnościowe}
 
 \section{Zakończenie}
@@ -867,10 +880,10 @@ generating all maximal cliques and computational experiments. Theoretical Comput
 \bibitem{matusiak}Matula, D. W.; Beck, L. L. (1983), "Smallest-last ordering and clustering and graph coloring algorithms", Journal of the ACM, 30 (3): 417–427, doi:10.1145/2402.322385, MR 0709826.
 \bibitem{mikromiekki}Comparing the Concurrency Runtime to Other Concurrency Models, Microsoft, 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
 \bibitem{stak}Microsoft Parallel Patterns Library (PPL) vs. OpenMP, Stack Overflow, 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
-\end{thebibliography}
 \bibitem{cuda_um}https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
 \bibitem{cuda_dp}https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
 
+\end{thebibliography}
 \newpage
 
 \appendix

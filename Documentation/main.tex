@@ -705,13 +705,13 @@ Aby ograniczyć czas wyszukiwania maksymalnych klik, zostały zastosowane tzw. \
 
 \subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
 
-Na początku wszystkie rozważane maksymalne kliki z poprzedniego kroku są umieszczane w specjalnej strukturze $ cliquesToProcess $ będącej trójwymiarowym wektorem, którego indeks stanowi rozmiar kolokacji. 
+Na początku wszystkie rozważane maksymalne kliki z poprzedniego kroku są umieszczane w specjalnej strukturze $ cliquesToProcess $ będącej trójwymiarowym wektorem, gdzie pierwsza współrzędna stanowi rozmiar kolokacji, a druga o pozycji kliki w kolejce w poszczególnych wierszach. Trzecią współrzędną są oczywiście kolejne elementy danej kliki.
 
 Następnie iteracyjnie przetwarzana jest każda klika, począwszy od największej. Zrezygnowano w tym miejscu z podejścia rekurencyjnego, gdyż prowadziłoby to do niepotrzebnego utrzymywania ogromnego stosu wywołań (ang. \textit{call stack}). W każdej iteracji sprawdzana jest miara powszechności dla kliki instancji - odpowiedzialna jest za to funkcja $ isCliquePrevalent $. 
 
 Wyliczone kliki są umieszczane w obiektach \textit{CliqueContainer} i \textit{LapsedCliqueContainer}. Pełnią one rolę pamięci podręcznej dla powyższych algorytmów. Dzięki temu nie ma potrzeby ponownego przeliczania tych samych klik instancji, co prowadzi do kilkunastokrotnego wzrostu wydajności obliczeń.
 
-Dla klik o długości wiekszej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja 14). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}, zastosowano w nim jednak pewne metody optymalizacyjne - wskaźniki do rodziców w celu ograniczenia przeszukiwań drzewa w dół, użycie wektora zawierającego wskaźniki do liści znajdujących się na ostatnim poziomie drzewa, wskaźniki typu \textit{unique\_ptr} (więcej szczegółów w Dodatku A). Następnie zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności.
+Dla klik o długości większej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja 14). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}, zastosowano w nim jednak pewne metody optymalizacyjne - wskaźniki do rodziców w celu ograniczenia przeszukiwań drzewa w dół, użycie wektora zawierającego wskaźniki do liści znajdujących się na ostatnim poziomie drzewa, wskaźniki typu \textit{unique\_ptr} (więcej szczegółów w Dodatku A). Następnie zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności.
 
 W przypadku, kiedy miara nie jest mniejsza niż przyjęty na początku próg powszechności, kandydat jest dodawany do zbioru rozwiązań. W przeciwnym wypadku do struktury $ cliquesToProcess $ dodawane są podkliki, które również będą rozważane jako potencjalni kandydaci na kolokacje.
 
@@ -751,7 +751,15 @@ W początkowym stadium algorytmu, analogicznie do wersji sekwencyjnej wykonywana
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
 Identycznie jak w wersji sekwencyjnej, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja 10). Obliczanie miary degeneracji \cite{matusiak} i algorytm Brona-Kerboscha \cite{kerbosz} w kontekście wersji sekwencyjnej pozostaje bez zmian. 
 
-\subsubsection{Generowanie skondensowanych drzew instancji i filtrowanie kandydatów na kolokacje maksymalne}
+\subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
+
+Podobnie jak w wersji sekwencyjnej, po uprzednim posortowaniu względem długości, maksymalne kliki wygenerowane z algorytmu Brona Kerbosha \cite{kerbosz} są umieszczane w specjalnej strukturze $ cliquesToProcess $ będącej trójwymiarowym wektorem, którego indeks stanowi rozmiar kolokacji. 
+
+Jednakowo, następuje iteracyjne przetwarzanie każdej z klik. W kolejnych iteracjach budowane jest skondensowane drzewo instancji, a następnie następuje sprawdzenie powszechności dla otrzymanych instancji. Tak jak w wersji sekwencyjnej w przypadku niepowodzenia następuje rozbicie klik na podkliki o rozmiarze o 1 mniejszym i przekazanie ich do struktury $ cliquesToProcess $. 
+
+Wyliczone kliki są umieszczane w obiektach \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer}. W odróżnieniu od swoich odpowiedników sekwencyjnych zapewniają bezpieczeństwo przetwarzania wielowątkowego. Konstruowanie skondensowanych drzew instancji jak i liczenie miary powszechności następuje w sposób równoległy co przekłada się na skrócenie czasu obliczeń. Z uwagi iż nie można przewidzieć dokładnego czasu konstruowania skondensowanego drzewa instancji, zdecydowano na zastosowanie dynamicznego planisty (ang. \textit{auto scheduler}), który w czasie wykonywania programu przydziela kolejne kliki odpowiednim wątkom. 
+
+Tablica $ insTable $ ma strukturę zwykłego wektora wskaźników, z biblioteki STD, na równoległe wektory (ang. \textit{concurrent vector}) z biblioteki PPL, które zawierają z kolei znów zwykłe wektory. Taka postać zapewnia bezkonfliktowe przetwarzanie równoległe, a jednocześnie dzięki minimalnej fragmentacji zaalokowanej pamięci, maksymalizuje szybkość wykonania algorytmu. Jednocześnie tablica wynikowa jest reprezentowana przez wektor typu połączeniowego (ang. \textit{combinable}) - na końcu przetwarzania lokalne kopie tej tablicy są scalane do jednej finalnej tablicy, będącej ostatecznym wynikiem pracy algorytmu. 
 
 \section{Implementacja GPU}
 

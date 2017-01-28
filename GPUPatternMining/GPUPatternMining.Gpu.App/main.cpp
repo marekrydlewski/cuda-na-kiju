@@ -3,17 +3,24 @@
 #include "../GPUPatternMining.Contract/SimulatedRealDataProvider.h"
 #include "GpuMiningAlgorithm.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-	//input data
-	const float threshold = 3;
-	const float prevalence = 0.30f;;
+	if (argc != 5)
+	{
+		printf("Run with params [file_name] [distance] [prevalence] [ordNumber]\n");
+		return 0;
+	}
+
+	std::string fileName = argv[1];
+	float distance = std::stof(argv[2]);
+	float prevalence = std::stof(argv[3]);
+	std::string ordNumber = argv[4];
 
 	SimulatedRealDataProvider dataProvider;
-	auto data = dataProvider.getTestData(DataSet::Medium);
+	auto data = dataProvider.getTestData(fileName);
 
-	bmk::benchmark<std::chrono::nanoseconds> bmkGpu;
-	
+	bmk::benchmark<std::chrono::milliseconds> bmkGpu;
+
 	GpuMiningAlgorithm alg;
 
 	bmkGpu.run("load data", 1, [&]()
@@ -28,19 +35,19 @@ int main()
 
 	bmkGpu.run("filter by distance", 1, [&]()
 	{
-		alg.filterByDistance(threshold);
+		alg.filterByDistance(distance);
 	});
 
 	bmkGpu.run("filter prevalent type connections (prepare data)", 1, [&]()
 	{
 		alg.filterPrevalentTypedConnectionsPrepareData();
 	});
-	
+
 	bmkGpu.run("filter prevalent type connections", 1, [&]()
 	{
 		alg.filterPrevalentTypedConnections(prevalence);
 	});
-	
+
 	bmkGpu.run("construct candidates (prepare data)", 1, [&]()
 	{
 		alg.constructMaximalCliquesPrepareData();
@@ -60,10 +67,12 @@ int main()
 
 	bmkGpu.run("filter candidates by prevalence", 1, [&]()
 	{
-		solution = alg.filterCandidatesByPrevalence(prevalence);
+		solution = alg.filterCandidatesByPrevalence(prevalence, bmkGpu);
 	});
 
 	bmkGpu.print("gpu algorithm", std::cout);
+
+	bmkGpu.serializeCsv((fileName + "Gpu-" + "prev" + std::to_string(prevalence) + "dist" + std::to_string(distance) + "-" + ordNumber + ".csv").c_str());
 
 	for (auto& cand : solution)
 	{

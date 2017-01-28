@@ -160,6 +160,11 @@ namespace bmk
 				os << " ]";
 			}
 
+			void printCsv(ostream& os) const
+			{
+
+			}
+
 		protected:
 			~experiment_impl() = default;
 		};
@@ -186,6 +191,17 @@ namespace bmk
 				os << " ]";
 			}
 
+			void printCsv(ostream& os) const
+			{
+				string token{ "" };
+				for (auto&& elem : _timings)
+				{
+					os << token;
+					os << elem.count();
+					token = "; ";
+				}
+			}
+
 		protected:
 			~experiment_impl() = default;
 		};
@@ -200,6 +216,7 @@ namespace bmk
 
 			// forwarded functions --------------------------------------
 			virtual void print(ostream& os) const = 0;
+			virtual void printCsv(ostream& os) const = 0;
 		};
 
 		template <class TimeT, class ClockT>
@@ -314,10 +331,24 @@ namespace bmk
 				}
 			}
 
+			template <class F, class It>
+			void extendByExperimentTime(experiment_model<F, It> ex)
+			{
+				if (experiment_impl<TimeT, FactorT>::_timings.empty())
+					experiment_impl<TimeT, FactorT>::_timings.push_back(ex._timings[0]);
+				else
+					experiment_impl<TimeT, FactorT>::_timings[0] += ex._timings[0];
+			}
+
 			// forwarded functions --------------------------------------
 			void print(ostream& os) const override
 			{
 				experiment_impl<TimeT, FactorT>::print(os);
+			}
+
+			void printCsv(ostream& os) const override
+			{
+				experiment_impl<TimeT, FactorT>::printCsv(os);
 			}
 		};
 	} // ~ namespace detail
@@ -330,7 +361,7 @@ namespace bmk
 		class ClockT = std::chrono::steady_clock>
 		class benchmark
 	{
-		vector<pair<string, unique_ptr<detail::experiment>>> _data;
+		vector<pair<string, unique_ptr<detail::experiment_model<TimeT, ClockT >>>> _data;
 
 	public:
 		// construction - destruction -----------------------------------
@@ -338,6 +369,24 @@ namespace bmk
 		benchmark(benchmark const&) = delete;
 
 		// run experiments ----------------------------------------------
+		template <class F>
+		void run_cumulative(string const& name, size_t nSample, F&& callable)
+		{
+			for (auto curEx = _data.begin(); curEx != _data.end(); ++curEx)
+			{
+				if (curEx->first == name)
+				{
+					curEx->second->extendByExperimentTime(detail::experiment_model<TimeT, ClockT >(nSample, fw(callable)));
+
+					return;
+				}
+			}
+
+			_data.emplace_back(
+				name, make_unique<detail::experiment_model<TimeT, ClockT>>(
+					nSample, fw(callable)));
+		}
+		
 		template <class F>
 		void run(string const& name, size_t nSample, F&& callable)
 		{
@@ -430,6 +479,19 @@ namespace bmk
 				os << " } \n";
 			}
 			os.close();
+		}
+
+		void serializeCsv(const char* filename,
+			std::ios_base::openmode mode = ofstream::out) const
+		{
+			ofstream os;
+			os.open(filename, mode);
+			for (auto&& Pair : _data)
+			{
+				os << Pair.first << ";";
+				Pair.second->printCsv(os);
+				os << "\n";
+			}
 		}
 	};
 

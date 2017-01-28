@@ -10,6 +10,8 @@
 #include "../GPUPatternMining.Contract/CliquesContainer.h"
 #include <list>
 #include "../GPUPatternMining.Contract/SubcliquesContainer.h"
+#include <chrono>
+#include "../GPUPatternMining.Contract/Benchmark.h"
 
 // ------------------------------------------------------------------------------------------------
 
@@ -33,7 +35,9 @@ public:
 
 	void filterCandidatesByPrevalencePrepareData();
 
-	std::list<std::vector<unsigned short>> filterCandidatesByPrevalence(float minimalPrevalence);
+	std::list<std::vector<unsigned short>> filterCandidatesByPrevalence(
+		float minimalPrevalence
+		, bmk::benchmark<std::chrono::milliseconds>& ben);
 
 private:
 

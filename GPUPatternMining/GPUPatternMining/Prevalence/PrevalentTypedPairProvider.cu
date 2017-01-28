@@ -131,7 +131,7 @@ namespace Prevalence
 			thrust::device_vector<unsigned int> idxsb(uniquesCount);
 			thrust::sequence(idxsb.begin(), idxsb.end());
 
-			unsigned int countPerIteration = 10;
+			unsigned int countPerIteration = 100;
 			unsigned int currentStart = 0;
 			unsigned int currentEnd = uniquesCount % countPerIteration;
 

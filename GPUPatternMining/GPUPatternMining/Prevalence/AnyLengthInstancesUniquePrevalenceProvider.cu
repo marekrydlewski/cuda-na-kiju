@@ -78,7 +78,7 @@ std::shared_ptr<thrust::device_vector<float>> AnyLengthInstancesUniquePrevalence
 		prevalenceCounter.candidatesCount = cliquesCandidates.candidatesCount;
 	}
 
-	unsigned int countPerIteration = 10;
+	unsigned int countPerIteration = 100;
 	unsigned int currentStart = 0;
 	unsigned int currentEnd = existingCandidatesCount % countPerIteration;
 

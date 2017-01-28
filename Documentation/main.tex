@@ -12,11 +12,37 @@
 \usepackage{graphicx}
 \graphicspath{ {images/} }
 \usepackage{float}
+\usepackage{caption}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
-\renewcommand*{\algorithmcfname}{Algorytm}
+
  
+\SetAlgoCaptionLayout{centerline}
+
+\makeatletter
+\newcounter{operator}
+\newenvironment{operator}[1][htb]
+  {
+  \renewcommand*{\algorithmcfname}{Operator}%
+  \let\c@algocf\c@operator
+   \begin{algorithm}[#1]
+  }
+  {\end{algorithm}}
+\makeatother
+ 
+ 
+\makeatletter
+\newcounter{algorytm}
+\newenvironment{algorytm}[1][htb]
+  {
+  \renewcommand*{\algorithmcfname}{Algorytm}%
+  \let\c@algocf\c@algorytm
+   \begin{algorithm}[#1]
+  }
+  {\end{algorithm}}
+\makeatother
+
 \newcommand{\sectionbreak}{\clearpage}
  \geometry{
  a4paper,
@@ -535,7 +561,7 @@ Kandydat na maksymalną kolokację $ C_{m} $ składa się z uporządkowanych cec
 
 Autorzy pracy \cite{chinczyki} udowodnili, że graf kolokacji o rozmiarze 2 można traktować jako graf rzadki. Umożliwia to efektywne korzystanie z algorytmu Brona-Kerboscha \cite{kerbosz} do wyszukiwania maksymalnych klik w grafie nieskierowanym. Wprowadzone zostały do niego pewne modyfikacje uwzględniające rozproszenie grafu oraz wybieranie \textit{pivotu} w celu usprawienia wyszukiwania kandydatów na kolokacje. 
 
-\begin{algorithm}
+\begin{algorytm}
 \SetKwInOut{Input}{Wejście}
 \SetKwInOut{Output}{Wyjście}
 \SetKwProg{myproc}{Procedure}{}{}
@@ -559,7 +585,7 @@ $ T \leftarrow T \cup \{v_{i}\}$\;
 }
 }
 \caption{Generowanie maksymalnych kandydatów na kolokacje}
-\end{algorithm}
+\end{algorytm}
 
 Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Jak wykazano w pracy \cite{pivot2} wybranie wierzchołka zmniejszającego liczbę rekurencyjnych wywołań algortytmu znacząco zmniejsza ogólny czas wykonania. Wybiera on wierzchołek będący osią podziału zbioru (tzw. \textit{pivot} w oparciu o rozmiar unii sąsiadów tego wierzchołka i wierzchołków kandydatów. Każda maksymalna klika musi zawierać albo wierzchołek $ u $, albo niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, tylko wierzchołek $ u $ i jego nie-sąsiedzi muszą być przetestowani (linia 10).
 \newline
@@ -592,7 +618,7 @@ Dany jest kandydat na maksymalną kolokację $ C_{m} $. Jego uporządkowana klik
 
 Algorytm ma charakter iteracyjny. Zmienna $ i $ jest zmienną sterującą pętli. Na początku zostaje zainicjalizowane drzewo $ CInsTree $ i tworzony jest jego korzeń. Następnie uruchamiany jest proces konstrukcji drzewa, podzielony na dwa etapy. Pierwszy etap wykonywany jest tylko w pierwszej iteracji algorytmu - kolejne iteracje będą wykonywać krok drugi. 
 
-\begin{algorithm}
+\begin{algorytm}
 \SetKwInOut{Input}{Wejście}
 \SetKwInOut{Output}{Wyjście}
 \SetKwProg{myproc}{Procedure}{}{}
@@ -629,7 +655,7 @@ $ i \leftarrow 1; CInsTree \leftarrow \emptyset$; utwórz korzeń drzewa $ CInsT
 	}			
 }
 \caption{Konstrukcja skondensowanego drzewa instancji $ C_{m} $}
-\end{algorithm}
+\end{algorytm}
 
 W pierwszym kroku (linie 3-11) dla każdej pary instancji pierwszych dwóch cech przestrzennych $ C_{m} $ nastepuje sprawdzenie, czy pierwszy element aktualnie przetwarzanej pary instancji istnieje na danym poziomie drzewa $ CInsTree $ (oznaczonego jako $CInsTree_{1}$). Jeżeli tak, następuje dodanie drugiego elementu jako węzeł podrzędny odpowiadającego mu węzła na poziomie pierwszym. W przeciwnym wypadku, na podstawie obecnej pary instancji tworzone jest poddrzewo, które następnie jest dołączane do korzenia $ CInsTree $. 
 
@@ -674,7 +700,7 @@ Następnie w oparciu o wektor wynikowy tej funkcji oraz utworzony wcześniej wek
 
 Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja 10). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
 
-\begin{algorithm}
+\begin{algorytm}
 \SetKwInOut{Input}{Wejście}
 \SetKwInOut{Output}{Wyjście}
 \Input{$G=(E,V)$}
@@ -698,7 +724,7 @@ $ D(d^{'}_{w}) \leftarrow D(d^{'}_{w}) \cup w $\;
 }
 }
 \caption{Obliczanie miary degeneracji metodą Matuli i Becka (1983)}
-\end{algorithm}
+\end{algorytm}
 
 Po wygenerowaniu grafu liczona jest jego miara degeneracji (patrz Definicja 11). W tym celu został wykorzystany algorytm zaprezentowany przez Matulę i Becka w pracy \cite{matusiak}. Działa on w czasie wielomianowym, co pozwala na odciążenie CPU. Funkcja zwraca zarówno miarę degeneracji, jak uporządkowany według niej wektor wierzchołków występujących w grafie.
 
@@ -780,7 +806,7 @@ Na wejściu tego kroku oczekujemy wczytanej tablicy danych o rozmiarze \textit{n
 
 Algorytm wybrany do rozwiązania tego zadania to algorytm \textit{Planesweep} przystosowany do uruchamiania w architekturze masowo równoległej. Sam algorytm podzielić możemy na dwie części, wyznaczanie ilości sąsiadów dla każdej instancji (kernel \textit{countNeighbours}), a następnie alokacja i wpisanie znalezionych sąsiadów (kernel \textit{findNeighbours}) do tabel \textit{InstanceFirst} oraz \textit{InstanceSecond} które służą do przechowywania par instancji będących w relacji sąsiedztwa, gdzie pierwsza tabela zawiera elementy będące pierwsze w parze, a druga drugie. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami. Kolejność w obrębie pary wyznaczana jest przez następujący operator.
 
-\begin{algorithm}
+\begin{algorytm}
 \SetKwInOut{Input}{Wejście}
 \SetKwInOut{Output}{Wyjście}
 \SetKwProg{myproc}{Procedure}{}{}
@@ -789,7 +815,7 @@ Algorytm wybrany do rozwiązania tego zadania to algorytm \textit{Planesweep} pr
 \Output{$ bool $}
  \Return $ a.field < b.field $ \; 
 \caption{Operator mniejszości dla instancji typu FeatureInstance}
-\end{algorithm}
+\end{algorytm}
  
 Przed wykonaniem samego algorytmu sortujemy zbiór danych wejściowych względem osi odciętych w kolejności rosnącej. Dzięki temu ograniczymy obszar przeszukiwań sąsiadów instancji. Użyta została do tego funkcja sortująca zaimplementowana w bibliotece \textit{Thrust}.
 
@@ -804,39 +830,80 @@ Po zakończeniu sortowania przechodzimy do pierwszego kroku algorytmu \textit{Pl
 Po wykonaniu kernel'a \textit{countNeighbours} redukujemy tablicę \textit{T\textsubscript{counts}} otrzymując całkowitą ilość znalezionych relacji sąsiedztwa wśród wszystkich instancji, oznaczmy tę wartość jako \textit{nC}. Alokujemy tablice \textit{Pairs}\textsubscript{A}, \textit{Pairs}\textsubscript{B} każda wielkości \textit{nC}. Dodatkowo alokujemy tablice \textit{Begins} wielkości textit{n\textsubscript{dt}} w której zapisujemy wynik operacji sumy ekskluzywnej tablicy \textit{T\textsubscript{counts}}, która posłuży do wyznaczania pozycji zapisu relacji w tablicach wynikowych.
 Konfiguracja uruchomieniowa kernel'a \textit{findNeighbours} jest identyczna z konfiguracją użytą dla \textit{countNeighbours}. Sama funkcja różni się zresztą od poprzedniczki tylko i wyłącznie w miejscu stwierdzenia relacji sąsiedztwa. Mianowicie kernel \textit{findNeighbours} zamiast zliczać relacje sąsiedztwa wpisuje do tablic \textit{Pairs}\textsubscript{A}, \textit{Pairs}\textsubscript{B} instancje pomiędzy którymi ją stwierdzono. Przy pomocy wyżej opisanego operatora mniejszości dla obiektów typu \textit{FeatureInstance} (nie zapisujemy nigdzie informacji o współrzędnych instancji, ponieważ nie będą na dalej nigdzie potrzebne), pozycja zapisu w tablicach wynikowych wyznaczana jest na podstawie wartości w tablicy \textit{Begins} na pozycji \textit{i}, ilości znalezionych przez warp w poprzednich iteracjach relacji sąsiedztwa oraz ilości relacji sąsiedztwa znalezionych w obecnej iteracji przez wątki warpa o mniejszym \textit{id}. Warunki przerwania iterowania są takie same jak w kernel'u \textit{countNeighbours}.
 
-Ostatnią czynnością jest posortowanie par instancji przy użyciu następującego operatora\\
+Ostatnią czynnością jest posortowanie par instancji przy użyciu następującego operatora mniejszości
 
-\begin{algorithm}[H]
-\SetKwInOut{Input}{Wejście}
-\SetKwInOut{Output}{Wyjście}
-\SetKwProg{myproc}{Procedure}{}{}
-\SetKwFunction{proc}{operator\<}
-\Input{$a,b - pary instancji typu FeatureInstance $}
-\Output{$ bool $}
-  \uIf{$ a[0].fields.featureId < b[0].fields.featureId $}{
+\begin{figure}[H]
+
+\begin{operator}[H]
+$operator<(FeatureInstance\ lhs,FeatureInstance\ rhs) $\\
+\{\\
+  \uIf{$ a[0].fields.featureId\ <\ b[0].fields.featureId $}{
    \Return $ True $ \;
-  }\uElseIf { $ a[0].fields.featureId == b[0].fields.featureId  $ } {
-      \uIf{$ a[1].fields.featureId < b[1].fields.featureId $}{
+  }\uElseIf { $ a[0].fields.featureId\ ==\ b[0].fields.featureId  $ } {
+      \uIf{$ a[1].fields.featureId\ <\ b[1].fields.featureId $}{
    		\Return $ True $ \;
-	  }\uElseIf {$ a[1].fields.featureId == b[1].fields.featureId $} {
-	  	\uIf{$ a[0].fields.instanceId < b[0].fields.instanceId $}{
+	  }\uElseIf {$ a[1].fields.featureId\ ==\ b[1].fields.featureId $} {
+	  	\uIf{$ a[0].fields.instanceId\ <\ b[0].fields.instanceId $}{
    			\Return $ True $ \;
-	  	}\uElseIf {$ a[0].fields.instanceId == b[0].fields.instanceId $} {
-	  		\Return $ a[1].fields.instanceId == b[1].fields.instanceId $ \;
+	  	}\uElseIf {$ a[0].fields.instanceId\ ==\ b[0].fields.instanceId $} {
+	  		\Return $ a[1].fields.instanceId\ ==\ b[1].fields.instanceId $ \;
 	  	}	
 	  }
   }
   
   \Return $ False $ \;
+\}
   
 \caption{Operator mniejszości dla par instancji typu FeatureInstance}
-\end{algorithm}
+\end{operator}
+\end{figure}
 
-Przyczyna takiego uporządkowania zostanie wyjaśniona w kolejnych punktach opisu algorytmu
+
+Przyczyna takiego uporządkowania zostanie wyjaśniona w kolejnych punktach opisu algorytmu.
+
+\subsubsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach }
+
+W tym kroku utworzona zostanie struktura \textit{ITMPack} (opisana w dodatku A), która potrzebna nam będzie w kolejnym kroku. Na wejściu przyjmujemy tablice \textit{Pairs}\textsubscript{A} oraz \textit{Pairs}\textsubscript{B}, wynikiem działania jest struktura ITMPack.
+
+Krok ten korzysta z wprowadzonego w pierwszym kroku uporządkowania zbioru mającego tę właściwość, iż wszystkie relacje o tych samych typach zajmują w wejściowych tablicach ciągły obszar. Przykładowe wartości zaprezentowane zostały na poniższym rysunku
+
+\begin{figure}[H]
+\centering
+\includegraphics{sortAttr_insTable}
+\caption{Przykładowa zawartość tablic \textit{Pairs}\textsubscript{A} oraz \textit{Pairs}\textsubscript{A}}
+\end{figure}
+
+Dzięki tej właściwości możemy użyć szybkiego wyznaczenia liczności unikalnych, następujących po sobie elementów. Funkcja ta została zaimplementowana w bibliotece \textit{Thrust} pod nazwą \textit{reduce\_by\_key}. Jako że w tym przypadku instancje są nierozróżnialne względem wartości ich identyfikatorów instancji, a tylko względem identyfikatorów typów użyty został następujący operator relacji równości
+
+\begin{figure}[H]
+
+\begin{operator}[H]
+$operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
+\{\\
+\Return $lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
+$\ \&\&\ lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
+\}
+\caption{Operator równości dla par instancji typu FeatureInstanceTuple }
+\end{operator}
+\end{figure}
+
+Gdzie \textit{FeatureInstanceTuple} to obiekt typu para dwóch obiektów \textit{FeatureInstance}, czyli obiekt łączący elementy z tablicy \textit{Pairs}\textsubscript{A} z odpowiadającymi im pozycją elementami tablicy \textit{Pairs}\textsubscript{B}.
+Wynikiem działania funkcji \textit{reduce\_by\_key} są trzy tablice o jednakowym rozmiarze \textit{c\textsubscript{r}}
+\begin{itemize}
+\item \textit{Uniques} zawierająca pary typów dla których istnieje przynajmniej jedna para instancji
+\item \textit{Counts} zawierającą liczności instancji relacji dla par typów instancji
+\item \textit{Begins} zawierająca indeksy tabeli instancji relacji oznaczające początki obszarów ciągłych odpowiadającym danym parom typów instancji
+\end{itemize}
+
+Tablice te są częścią struktury \textit{ITMPack}. Na podstawie tych danych uzupełniana jest mapa struktury \textit{ITMPack}, służy do tego kernel uruchamiany z ilością wątków równym \textit{c\textsubscript{r}}, który dla każdego \textit{i}-tego elementu tablic tworzy strukturę \textit{InstanceTable} uzupełniając ją \textit{i}-tymi wartościami z \textit{Counts} oraz \textit{Begins}, a następnie wstawia go do tablicy pod kluczem utworzonym z \textit{i}-tego elementu tablicy \textit{Uniques} (klucz ten ma postać połączonej pary typów).
+
+Tak uzupełniona struktura \textit{ITMPack} jest wynikiem tego kroku.
 
 
-\subsubsection{Wygenerowanie prewalentnych relacji sąsiedztwa pomiędzy typami połączeń}
+\subsubsection{Generowanie prewalentnych relacji sąsiedztwa pomiędzy typami połączeń}
 
+W tym kroku na podstawie wygenerowanych instancji relacji sąsiedztwa wyznaczane są prewalentne pary typów czyli takie których współczynnik powszechności jest nie mniejszy niż zadany próg powszechności.
+Na wejściu wymagane jest podanie wyniku poprzedniego kroku, na wyjściu natomiast otrzymujemy  
 
 
 \newpage
@@ -985,6 +1052,35 @@ union __declspec(align(4)) FeatureInstance
 	} fields;
 };
 \end{lstlisting}
+
+\item InstanceTable - klasa przetrzymująca informacje o indeksie startowym w tablicach przechowywujących posortowane instancje relacji sąsiedztwa oraz ich ilości. 
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod klasy InstanceTable}]
+	class InstanceTable
+	{
+	public:
+		unsigned int count;
+		unsigned int startIdx;
+	};
+\end{lstlisting}
+\end{minipage}
+
+\item ITMPack - struktura przechowująca informacje potrzebne do szybkiego dostępu do wszystkich instancji relacji o zadanych typach (na przykład wszystkich instancji relacji o typach \{A,B\}).
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod struktury ITMPack}]
+
+	struct ITMPack
+	{
+		InstanceTableMapPtr map;
+		thrust::device_vector<unsigned int> begins;
+		thrust::device_vector<unsigned int> counts;
+		thrust::device_vector<FeatureInstanceTuple> uniques;
+		unsigned int count;
+	};
+\end{lstlisting}
+\end{minipage}
 
 \item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}). Zawiera wskaźnik do korzenia drzewa \raggedright \inline{std::unique_ptr<CinsNode> root}) oraz wektor \inline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
 

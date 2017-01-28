@@ -762,6 +762,65 @@ Wyliczone kliki są umieszczane w obiektach \textit{ParallelCliqueContainer} i \
 Tablica $ insTable $ ma strukturę zwykłego wektora wskaźników, z biblioteki STD, na równoległe wektory (ang. \textit{concurrent vector}) z biblioteki PPL, które zawierają z kolei znów zwykłe wektory. Taka postać zapewnia bezkonfliktowe przetwarzanie równoległe, a jednocześnie dzięki minimalnej fragmentacji zaalokowanej pamięci, maksymalizuje szybkość wykonania algorytmu. Jednocześnie tablica wynikowa jest reprezentowana przez wektor typu połączeniowego (ang. \textit{combinable}) - na końcu przetwarzania lokalne kopie tej tablicy są scalane do jednej finalnej tablicy, będącej ostatecznym wynikiem pracy algorytmu. 
 
 \section{Implementacja GPU}
+W tym rozdziale zostaną opisane poszczególne kroki implementacji algorytmu wyszukiwania maksymalnych prewalentnych kolokacji przy wykorzystaniu procesorów CUDA. 
+
+Przedstawiona tu implementacja jest silnie zależna od założonej wersji \textit{compute capability} równej 3.0. W wersji tej nie jest dostępna pamięć współdzielona (\textit{Unified Memory}\cite{cuda_um}) oraz \textit{Dynamic Parallelism}\cite{cuda_dp}.
+
+\subsubsection{Przygotowanie danych w pamięci GPU}
+
+Z powodu rozdzielnego modelu pamięci (co zmienia się wraz z wprowadzeniem \textit{unified memory}) dane które zostały wczytane z zewnętrznego źródła (zbiór instancji zawierających typ, identyfikator, położenie w przestrzeni dwuwymiarowej) (//TODO napisać gdzieś o możliwościach rozszerzenia algorytmu) muszą zostać przekazane do pamięci dostępnej dla procesorów CUDA. Operacja przenoszenia danych pomiędzy przestrzeniami pamięci jest dość kosztowna i silnie zależy od wybranych rozwiązań sprzętowych.
+
+\subsubsection{Generowanie tabeli instancji o rozmiarze 2}
+
+Na wejściu tego kroku oczekujemy wczytanej instancji danych oraz parametru \textit{distanceTreshold} zawierającego wartość maksymalnej odległości pomiędzy instancjami. Na wyjściu otrzymujemy dwie tablice przechowujące pary instancji dla których przy założonym zachodzi rela
+
+Algorytm wybrany do rozwiązania tego zadania to algorytm \textit{Planesweep} przystosowany do uruchamiania w architekturze masowo równoległej. Sam algorytm podzielić możemy na dwie części, wyznaczanie ilości sąsiadów dla każdej instancji, a następnie alokacja i wpisanie wartości do dwóch tabel \textit{InstanceFirst} oraz \textit{InstanceSecond} które służą do przechowywania par instancji będących w relacji sąsiedztwa, gdzie pierwsza tabela zawiera elementy będące pierwsze w parze, a druga pozostałe. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami. Kolejność wyznaczana jest przez następujący operator
+
+\begin{algorithm}[H]
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{operator\<}
+\Input{$a,b - instancje typu FeatureInstance $}
+\Output{$ bool $}
+ \Return $ a.field < b.field $ \; 
+\caption{Operator mniejszości dla instancji typu FeatureInstance}
+\end{algorithm}
+ 
+Pierwszą czynnością jest posortowanie zbioru danych wejściowych względem osi odciętych. Dzięki temu ograniczymy obszar przeszukiwań sąsiadów instancji. 
+
+TODO planesweep count
+
+TODO planesweep fill
+
+Ostatnią czynnością jest posortowanie par instancji przy użyciu następującego operatora. Przyczyna takiego uporządkowania zostanie wyjaśniona w kolejnych punktach opisu algorytmu.
+
+
+\begin{algorithm}[H]
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{operator\<}
+\Input{$a,b - pary instancji typu FeatureInstance $}
+\Output{$ bool $}
+  \uIf{$ a<0>.fields.featureId < b<0>.fields.featureId $}{
+   \Return $ True $ \;
+  }\uElseIf { $ a<0>.fields.featureId == b<0>.fields.featureId  $ } {
+      \uIf{$ a<1>.fields.featureId < b<1>.fields.featureId $}{
+   		\Return $ True $ \;
+	  }\uElseIf {$ a<1>.fields.featureId == b<1>.fields.featureId $} {
+	  	\uIf{$ a<0>.fields.instanceId < b<0>.fields.instanceId $}{
+   			\Return $ True $ \;
+	  	}\uElseIf {$ a<0>.fields.instanceId == b<0>.fields.instanceId $} {
+	  		\Return $ a<1>.fields.instanceId == b<1>.fields.instanceId $ \;
+	  	}	
+	  }
+  }
+  
+  \Return $ False $ \;
+  
+\caption{Operator mniejszości dla par instancji typu FeatureInstance}
+\end{algorithm}
 
 \section{Testy efektywnościowe}
 
@@ -809,6 +868,8 @@ generating all maximal cliques and computational experiments. Theoretical Comput
 \bibitem{mikromiekki}Comparing the Concurrency Runtime to Other Concurrency Models, Microsoft, 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
 \bibitem{stak}Microsoft Parallel Patterns Library (PPL) vs. OpenMP, Stack Overflow, 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
 \end{thebibliography}
+\bibitem{cuda_um}https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
+\bibitem{cuda_dp}https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
 
 \newpage
 
@@ -891,6 +952,21 @@ struct DataFeed
 };
 \end{lstlisting}
 \end{minipage}
+
+\item FeatureInstance - \lstinline{Unia} składająca się z pola typu \lstinline{unsigned int} oraz struktury zawierającej dwa pola typu \lstinline{unsigned short} służąca do przechowywania identyfikatora typu oraz unikalnego względem typu identyfikatora instancji.
+
+\begin{lstlisting}
+union __declspec(align(4)) FeatureInstance
+{
+	unsigned int field;
+
+	struct __inner
+	{
+		unsigned short instanceId;
+		unsigned short featureId;
+	} fields;
+};
+\end{lstlisting}
 
 \item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}). Zawiera wskaźnik do korzenia drzewa \raggedright \inline{std::unique_ptr<CinsNode> root}) oraz wektor \inline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
 

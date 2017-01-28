@@ -3,6 +3,6 @@ Cuda na kiju _CUDA on the stick_ - a fast and space-saving method for maximal co
 
 ## Contents
 
-1. Implentation on CUDA devices
+1. Implementation on CUDA devices
 2. Sequential & parallel implementation on CPU's
 3. Performance tests

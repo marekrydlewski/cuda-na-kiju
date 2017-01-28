@@ -1018,8 +1018,8 @@ bool CliquesContainer::checkSubcliqueExistence(
 
 \item SimulatedRealDataProvider - Klasa wykorzystująca gotowe, przygotowane wcześniej dane wczytywane z plików mające symulować dane rzeczywiste.
 
-\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang, 
-textit{hash function} dla pary \inline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \inline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \inline{hash_combine} z biblioteki \textit{boost}:
+\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang. 
+\textit{hash function}) dla pary \inline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \inline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \inline{hash_combine} z biblioteki \textit{boost}:
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Kod struktury pair\_hash}]
 struct pair_hash {

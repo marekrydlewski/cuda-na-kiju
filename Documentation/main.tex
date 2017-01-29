@@ -921,8 +921,13 @@ Tak uzupełniona struktura \textit{ITMPack} jest wynikiem tego kroku.
 
 \subsubsection{Generowanie prewalentnych relacji sąsiedztwa pomiędzy typami połączeń}
 
-W tym kroku na podstawie wygenerowanych instancji relacji sąsiedztwa wyznaczane są prewalentne pary typów czyli takie których współczynnik powszechności jest nie mniejszy niż zadany próg powszechności.
-Na wejściu wymagane jest podanie wyniku poprzedniego kroku, na wyjściu natomiast otrzymujemy  
+W tym kroku wyznaczane są prewalentne pary typów czyli takie których współczynnik powszechności jest nie mniejszy niż zadany próg powszechności.
+
+Na wejściu wymagane jest podanie informacji o liczności poszczególnych typów, wygenerowanych instancji relacji sąsiedztwa oraz struktury \textit{ITMPack} 
+Na wyjściu otrzymujemy listę prewalentnych par typów na podstawie których w kolejnym kroku utworzony zostanie graf do generowania kandydatów klik maksymalnych.
+
+Na początku tego kroku tworzymy dwie tablice, \textit{countsA} oraz \textit{countsB}, każda z nich rozmiaru tablicy \textit{ITMPack}.\textit{uniques}.
+W celu uzupełnienia tablicy \textit{countsA} dla każdego elementu tablicy \textit{ITMPack}.\textit{uniques} pobieramy 
 
 
 \newpage

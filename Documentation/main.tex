@@ -833,8 +833,9 @@ Testy wykonano na komputerze z następującą konfiguracją:
 \subsubsection{Przebieg testów}
 
 Dla uśrednienia czasów wykonań poszczególnych testów i wyeliminowania zakłóceń każdy test został powtórzony dwudziestokrotnie. W tabeli poniżej przedstawiono wartości i zakresy parametrów algorytmu, dla których wykonano poszczególne grupy testów.
-\newline
-\newline
+
+\begin{table}[h!]
+\centering
 \begin{tabular}{|c|c|c|}
 \hline
 \textbf{Zmienny parametr} & \textbf{Próg min. powszechności} & \textbf{Próg maks. odległości} \\
@@ -844,8 +845,8 @@ Próg min. powszechności & 0.05 - 0.4 & 5 \\
 Próg maks. odległości & 5 & 3 - 8 \\
 \hline
 \end{tabular}
-\newline
-\newline
+\caption{Wartości parametrów dla poszczególnych grup testów}
+\end{table}
 
 Testy zostały zautomatyzowane i uruchomione za pomocą skryptu napisanego w języku Powershell.
 

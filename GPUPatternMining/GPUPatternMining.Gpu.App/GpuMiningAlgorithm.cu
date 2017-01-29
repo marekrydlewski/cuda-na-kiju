@@ -227,63 +227,78 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 		if (currentCliqueSize < 2)
 			continue;
 
-		Entities::GpuCliques gpuCliques;// = Entities::moveCliquesCandidatesToGpu(toProcess);
+		unsigned int candidatesPerIteration = 5;
+		unsigned int currentStart = 0;
+		unsigned int currentEnd = toProcess.size() % candidatesPerIteration;
 
-		ben.run_cumulative("build instance tree (prepare data)", 1, [&]()
+		if (currentEnd == 0)
+			currentEnd = candidatesPerIteration;
+
+		while (currentEnd <= toProcess.size())
 		{
-			gpuCliques = Entities::moveCliquesCandidatesToGpu(toProcess);
-		});
+			std::vector<Entities::CliqueCandidate> temp(toProcess.begin() + currentStart, toProcess.begin() + currentEnd);
 
-		InstanceTree::InstanceTreeResultPtr instanceTreeResult;// = instanceTree->getInstancesResult(gpuCliques);
 
-		ben.run_cumulative("build instance tree", 1, [&]()
-		{
-			instanceTreeResult = instanceTree->getInstancesResult(gpuCliques);
-		});
+			Entities::GpuCliques gpuCliques;// = Entities::moveCliquesCandidatesToGpu(toProcess);
 
-		std::shared_ptr<thrust::device_vector<float>> mask;
-		
-		ben.run_cumulative("calculate prevalence for instances", 1, [&]()
-		{
-			mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
-				gpuCliques
-				, instanceTreeResult
-			);
-		});
-
-		thrust::host_vector<float> hPrevalences = *mask;
-		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-		
-		{
-			// for removing new repeating candidates
-			CliquesContainer pendingCliques;
-
-			for (int i = 0; i < hPrevalences.size(); ++i)
+			ben.run_cumulative("build instance tree (prepare data)", 1, [&]()
 			{
-				//for (unsigned short us : toProcess[i])
-				//	printf("%hu ", us);
-				//printf(" prev%f\n", hPrevalences[i]);
+				gpuCliques = Entities::moveCliquesCandidatesToGpu(toProcess);
+			});
 
-				if (hPrevalences[i] >= minimalPrevalence)
+			InstanceTree::InstanceTreeResultPtr instanceTreeResult;// = instanceTree->getInstancesResult(gpuCliques);
+
+			ben.run_cumulative("build instance tree", 1, [&]()
+			{
+				instanceTreeResult = instanceTree->getInstancesResult(gpuCliques);
+			});
+
+			std::shared_ptr<thrust::device_vector<float>> mask;
+
+			ben.run_cumulative("calculate prevalence for instances", 1, [&]()
+			{
+				mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
+					gpuCliques
+					, instanceTreeResult
+				);
+			});
+
+			thrust::host_vector<float> hPrevalences = *mask;
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
+			{
+				// for removing new repeating candidates
+				CliquesContainer pendingCliques;
+
+				for (int i = 0; i < hPrevalences.size(); ++i)
 				{
-					prevalentCliques.insertClique(toProcess[i]);
+					//for (unsigned short us : toProcess[i])
+					//	printf("%hu ", us);
+					//printf(" prev%f\n", hPrevalences[i]);
 
-					result.push_back(toProcess[i]);
-				}
-				else if (currentCliqueSize > 2)
-				{
-					auto smallerCliques = getAllCliquesSmallerByOne(toProcess[i]);
-
-					for (auto cand : smallerCliques)
+					if (hPrevalences[i] >= minimalPrevalence)
 					{
-						if (pendingCliques.checkCliqueExistence(cand) || prevalentCliques.checkCliqueExistence(cand))
-							continue;
+						prevalentCliques.insertClique(toProcess[i]);
 
-						candidates[currentCliqueSize - 1].push_back(cand);
-						pendingCliques.insertClique(cand);
+						result.push_back(toProcess[i]);
+					}
+					else if (currentCliqueSize > 2)
+					{
+						auto smallerCliques = getAllCliquesSmallerByOne(toProcess[i]);
+
+						for (auto cand : smallerCliques)
+						{
+							if (pendingCliques.checkCliqueExistence(cand) || prevalentCliques.checkCliqueExistence(cand))
+								continue;
+
+							candidates[currentCliqueSize - 1].push_back(cand);
+							pendingCliques.insertClique(cand);
+						}
 					}
 				}
 			}
+
+			currentEnd += candidatesPerIteration;
 		}
 	}
 

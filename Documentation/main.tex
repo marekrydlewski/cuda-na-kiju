@@ -946,11 +946,21 @@ Tak uzupełniona struktura \textit{ITMPack} jest wynikiem tego kroku.
 
 W tym kroku wyznaczane są prewalentne pary typów czyli takie których współczynnik powszechności jest nie mniejszy niż zadany próg powszechności.
 
-Na wejściu wymagane jest podanie informacji o liczności poszczególnych typów, wygenerowanych instancji relacji sąsiedztwa oraz struktury \textit{ITMPack} 
+Na wejściu wymagane jest podanie informacji o liczności poszczególnych typów, wygenerowanych instancji relacji sąsiedztwa oraz struktury \textit{ITMPack}.
 Na wyjściu otrzymujemy listę prewalentnych par typów na podstawie których w kolejnym kroku utworzony zostanie graf do generowania kandydatów klik maksymalnych.
 
-Na początku tego kroku tworzymy dwie tablice, \textit{countsA} oraz \textit{countsB}, każda z nich rozmiaru tablicy \textit{ITMPack}.\textit{uniques}.
-W celu uzupełnienia tablicy \textit{countsA} dla każdego elementu tablicy \textit{ITMPack}.\textit{uniques} pobieramy 
+Na początku tego kroku tworzymy następujące tablice
+\begin{itemize}
+	\item \textit{Counts\textsubscript{A}} - zawiera liczbę unikalnych wystąpień instancji typu pierwszego elementu relacji na odpowiadającej pozycji w tablicy \textit{ITMPack}.\textit{uniques}
+	
+	\item \textit{Counts\textsubscript{B}} - zawiera liczbę unikalnych wystąpień instancji typu drugiego elementu relacji na odpowiadającej pozycji w tablicy \textit{ITMPack}.\textit{uniques}
+	
+	\item \textit{TypesCounts\textsubscript{A}} - zawiera całkowitą liczbę instancji typu pierwszego elementu relacji na odpowiadającej pozycji w tablicy \textit{ITMPack}.\textit{uniques}
+	
+	\item \textit{TypesCounts\textsubscript{B}} - zawiera całkowitą liczbę instancji typu drugiego elementu relacji na odpowiadającej pozycji w tablicy \textit{ITMPack}.\textit{uniques}
+\end{itemize}
+
+
 
 
 \newpage

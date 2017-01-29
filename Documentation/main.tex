@@ -852,6 +852,12 @@ Testy zostały zautomatyzowane i uruchomione za pomocą skryptu napisanego w ję
 
 \subsection{Wyniki}
 
+\subsubsection{Zmienny rozmiar danych}
+
+Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacji algorytmu w zależności od ilości punktów (odnośnik do wykresu :v).
+
+Dodatkowo na wykresie (odnośnik) przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz.
+
 \subsection{Wnioski}
 
 

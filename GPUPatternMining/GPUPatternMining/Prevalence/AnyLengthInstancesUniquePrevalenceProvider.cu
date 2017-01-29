@@ -46,14 +46,6 @@ std::shared_ptr<thrust::device_vector<float>> AnyLengthInstancesUniquePrevalence
 		, begins.begin()
 	);
 
-	thrust::device_vector<unsigned int> idxs(existingCandidatesCount);
-	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-
-	thrust::sequence(
-		thrust::device
-		, idxs.begin()
-		, idxs.end()
-	);
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	thrust::device_vector<FeatureInstance> levelTempStorage(instancesCount);

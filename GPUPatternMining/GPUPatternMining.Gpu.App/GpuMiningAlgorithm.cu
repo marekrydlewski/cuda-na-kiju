@@ -203,21 +203,25 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 
 	for (auto cands = candidates.rbegin(); cands  != candidates.rend(); ++cands)
 	{
+		Entities::GpuCliques gpuCliques;
 		std::vector<std::vector<unsigned short>> toProcess;
-		
+
+		ben.run_cumulative("duplicated candidates removal", 1, [&]()
 		{
-			// for removing candidates repeating with earlier candidates
-			CliquesContainer pendingCliques;
-
-			for (auto cand : cands->second)
 			{
-				if (prevalentCliques.checkCliqueExistence(cand) || pendingCliques.checkCliqueExistence(cand))
-					continue;
+				// for removing candidates repeating with earlier candidates
+				CliquesContainer pendingCliques;
 
-				pendingCliques.insertClique(cand);
-				toProcess.push_back(cand);
+				for (auto cand : cands->second)
+				{
+					if (prevalentCliques.checkCliqueExistence(cand) || pendingCliques.checkCliqueExistence(cand))
+						continue;
+
+					pendingCliques.insertClique(cand);
+					toProcess.push_back(cand);
+				}
 			}
-		}
+		});
 
 		if (toProcess.empty())
 			continue;
@@ -227,30 +231,34 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 		if (currentCliqueSize < 2)
 			continue;
 
-		Entities::GpuCliques gpuCliques;// = Entities::moveCliquesCandidatesToGpu(toProcess);
+		// = Entities::moveCliquesCandidatesToGpu(toProcess);
 
-		ben.run_cumulative("contruct instances", 1, [&]()
+		ben.run_cumulative("build instance tree (prepare data)", 1, [&]()
 		{
 			gpuCliques = Entities::moveCliquesCandidatesToGpu(toProcess);
 		});
 
 		InstanceTree::InstanceTreeResultPtr instanceTreeResult;// = instanceTree->getInstancesResult(gpuCliques);
 
-		ben.run_cumulative("calculate prevalence for instances", 1, [&]()
+		ben.run_cumulative("build instance tree", 1, [&]()
 		{
 			instanceTreeResult = instanceTree->getInstancesResult(gpuCliques);
 		});
 
-		ben.print("gpu algorithm", std::cout);
+		std::shared_ptr<thrust::device_vector<float>> mask;
 
-		auto mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
-			gpuCliques
-			, instanceTreeResult
-		);
+		ben.run_cumulative("calculate candidates prevalence", 1, [&]()
+		{
+			mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
+				gpuCliques
+				, instanceTreeResult
+			);
+		});
 
 		thrust::host_vector<float> hPrevalences = *mask;
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 		
+		ben.run_cumulative("duplicated candidates removal", 1, [&]()
 		{
 			// for removing new repeating candidates
 			CliquesContainer pendingCliques;
@@ -281,7 +289,7 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 					}
 				}
 			}
-		}
+		});
 	}
 
 	return result;

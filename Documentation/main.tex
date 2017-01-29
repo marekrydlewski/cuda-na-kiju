@@ -613,9 +613,11 @@ Uporządkowanie według miary degeneracji wierzchołków grafu G to takie uporz�
 
 Wierzchołki w zewnętrznej rekurencji są uporządkowane według stopnia degeneracji (linia 2). W ciele rekurencji (linie 3-5) liczba wierzchołków czekających na weryfikację nie przekroczy $ k $. Tym sposobem ograniczono liczbę zewnętrznych rekurencji. Dla grafów o małym stopniu degeneracji obserwuje się duży wzrost wydajności \cite{degenerat}.
 
+Autorzy pracy \cite{wang} udowodnili, że zbiór wynikowy kandydatów na kolokacje zawsze będzie zawierał wszystkie maksymalne kliki spełniające próg powszechności. Jest to jeden z warunków poprawności algorytmu generowania maksymalnych kandydatów na kolokacje.
+
 \subsection{Proces odcinania}
 
-W ostatnim kroku w oparciu o tzw. \textit{prunning framework} \cite{framework} nastepuje otrzymywanie końcowych maksymalnych kolokacji spośród kandydatów wyznaczonym w poprzednim procesie. Na początku dla każdego z nich uruchamiany jest algorytm wyszukiwania klik instancji. Do jego zrozumienia niezbędne jest wprowadzenie poniższych definicji.
+W ostatnim kroku w oparciu o tzw. \textit{prunning framework} \cite{wang} nastepuje otrzymywanie końcowych maksymalnych kolokacji spośród kandydatów wyznaczonym w poprzednim procesie. Na początku dla każdego z nich uruchamiany jest algorytm wyszukiwania klik instancji. Do jego zrozumienia niezbędne jest wprowadzenie poniższych definicji.
 
 \begin{defin}[Uporządkowana klika instancji]
 Dana jest tabela instancji kolokacji o rozmiarze 2 ($ InsTable_{2}) $ oraz kandydat na maksymalną kolokację $ C_{m} $. Jego uporządkowana klika instancji $ InsC_{m} $ jest grupą instancji przestrzennych spełniających następujące warunki:
@@ -762,7 +764,7 @@ W przypadku, kiedy miara nie jest mniejsza niż przyjęty na początku próg pow
 
 \subsection{Wersja wielowątkowa}
 
-Jak już wcześniej wspomniano, rozwiązanie równoległe zostało oparte o multiplatformową, wysokopoziomową bibliotekę \textit{Parallel Patterns Library} firmy \textit{Microsoft}. Została ona pierwszy raz zaprezentowane szerzej publiczności wraz z wydaniem środowiska \textit{Visual Studio 2010} i docelowo ma być konkurencją dla popularnej biblioteki \textit{OpenMP}. 
+Jak już wcześniej wspomniano, rozwiązanie równoległe zostało oparte o multiplatformową, wysokopoziomową bibliotekę \textit{Parallel Patterns Library} firmy \textit{Microsoft}. Została ona pierwszy raz zaprezentowane szerszej publiczności wraz z wydaniem środowiska \textit{Visual Studio 2010} i docelowo ma być konkurencją dla popularnej biblioteki \textit{OpenMP}. 
 
 Cechą charakterystyczną tej biblioteki jest podobieństwo składni do tej z biblioteki standardowej C++ (ang. \textit{C++ Standard Library}). Wykorzystuje też wszystkie właściwości języka C++, jakie przynosi standard C++11 i późniejsze (w tym funkcje \textit{lambda}).
 
@@ -776,37 +778,63 @@ Powyższe wady środowiska \textit{OpenMP} były powodem, dla których ostateczn
 
 \subsubsection{Generowanie sąsiadów na podstawie progu odległości}
 
-Generowanie kandydatów na kolokacje o rozmiarze 2 podobnie jak w wersji sekwencyjnej następuje na podstawie \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}). Również w tym przypadku do owego algorytmu wprowadzono niezbędne modyfikacje.
+Różnice w równoległej implementacji generowania sąsiadów w stosunku do wersji sekwencyjnej (patrz Rozdział~\ref{subsec:cpu-step-1}) wynikają w dużej mierze z zastosowania alternatywnych struktur dostępnych w ramach biblioteki \textit{Parallel Pattern Library}. 
 
-W pierwszym kroku algorytmu wektor będący zbiorem wejściowym, korzystając z dobrodziejstw biblioteki PPL jest sortowany algorytmem \textit{sortowania buforowanego} (ang. \textit{buffered sort}). Tak jak w wersji sekwencyjnej jako kryterium sortowania zostaje zastosowana relacja między arbitralnie wybranym wymiarem przestrzeni. Sortowanie buforowane z biblioteki PPL to połączenie równoległych wersji sortowania szybkiego i sortowania przez scalanie (ang. \textit{merge sort}), nie jest to jednak sortowanie w miejscu (ang. \textit{in-place}) i wymaga dodatkowej alokacji pamięci o rozmiarze O(n). Ogólna złożoność algorytmu wynosi O((n/p)*log(n)), gdzie przez \textit{p} oznacza się liczbę procesorów.
+Dla przykładu, zbiór wejściowy jest sortowany za pomocą wbudowanego w bibliotekę PPL algorytmu \textit{równoległego sortowania buforowanego} (ang. \textit{parallel buffered sort}). Jest to odmiana standardowego sortowania szybkiego wykorzystujące równoległe scalanie (ang. \textit{parallel merge}) w celu zastąpienia pierwotnego kroku dzielenia w algorytmie sortowania szybkiego, którego nie da się zrównoleglić \cite{buffered-sort}. Dla wielu procesorów pozwala osiągnąć większą wydajność niż standardowy \textit{quick sort} (jego złożoność wynosi $ O((n/p)*\log{n}) $ dla $ p $ procesorów). Niestety, ze względu na brak wsparcia dla sortowania w miejscu (ang. \textit{in-place sort}), podejście to wymaga dodatkowej alokacji pamięci o rozmiarze $ O(n) $. 
 
-Analogicznie jak w wersji sekwencyjnej \ref{cpu-1-seq}, algorytm nie potrzebuje wiedzy o rzeczywistej odległości między dwoma punktami w przestrzeni, a jedynie informację o relacji między tą odległością a zadanym progiem odległości. Dlatego tak samo, wyliczany jest \textit{efektywny próg odległości}, będącym progiem odległości podniesionym do potęgi drugiej.
+W procesie filtrowania obiektów na podstawie wyliczonego progu odległości, podobnie jak w wersji sekwencyjnej, tworzona jest tablica asocjacyjna $ insTable $ -  jednak w podejściu równoległym jest ona typu \textit{Combinable}. Dzięki temu każdy wątek posiada swoją prywatną kopię tablicy $ insTable $, w której umieszcza przetwarzane przez siebie pary instancji, które nie przekraczają wyliczonego progu efektywnej odległości. Po zakończeniu przetwarzania przez wszystkie wątki lokalne kopie struktury $ insTable $ są łączone w całość poprzez zastosowanie operacji redukcji oraz sumowania wektorów parami, co eliminuje problem współbieżnego dostępu do struktury w środowisku równoległym. Podobnie sytuacja wygląda w przypadku struktury $ typeIncidenceCounter $.
 
-Kolejnym krokiem jest filtrowanie obiektów w oparciu o wyliczony efektywny próg odległości. Tak samo jak w wersji sekwencyjnej tworzona jest tablica asocjacyjna $ insTable $. Aby skorzystać z przyśpieszenia oferowanego przez przetwarzanie równoległe, przy wykorzystaniu biblioteki PPL tworzony jest obiekt typu \textit{combinable}. Każdy wątek posiada prywatną lokalną kopię tablicy $ insTable $ w której umieszcza lub nie kolejne pary instancji.  Analogicznie, pętla wewnętrzna jest przerywana, jeżeli wartość bezwzględna różnicy posortowanych współrzędnych poszczególnych obiektów będzie większa niż zadany próg odległości. W związku tym niezbędne okazało się skorzystanie z dynamicznego planisty \textit{auto partitioner}, który na bieżąco przydziela dane wejściowe poszczególnym wątkom niezbędne do dalszego przetwarzania. Po wyjściu z pętli wątki są synchronizowane i następuję scalenie tablicy $ instTable $.
+W algorytmie filtrowania został wykorzystany także dynamiczny planista (\textit{auto partitioner}). W przypadku przerwania pętli wewnętrznej algorytmu, planista dynamicznie przydziela bezczynnym wątkom kolejne dane wejściowe niezbędne do dalszego przetwarzania. Po wyjściu z pętli następuje synchronizacja wątków, a tablica $ insTable $ ulega scaleniu.
 
-Podobna sytuacja występuje przy tworzeniu wektora $ typeIncidenceCounter $, również i tutaj każdy wątek posiada swoją własną kopię wektora. Na końcu przetwarzania oryginalne wektory są redukowanego do jednego wynikowego wektora poprzez zastosowanie prostej operacji redukcji i sumowania wektorów parami, a dokładniej ich wartości indeksów.
-
-Tablica $ insTable $ ma taką samą strukturę jak w wersji sekwencyjnej.
+Poza powyższymi usprawnieniami, ogólny mechanizm oraz struktury zastosowane w kroku pierwszym pozostały właściwie niezmienione w stosunku do wersji sekwencyjnej. 
 
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
 
-Krok ten, tak samo jak w wersji sekwencyjnej stanowi zmodyfikowany algorytm obliczania miar powszechności znanego z algorytmu \textit{Co-location Miner} (patrz Rozdział~\ref{subsec:clm}).
+Jedyną różnicą na tym etapie algorytmu w stosunku do odmiany sekwencyjnej jest dodatkowy krok określenia zakresu pracy dla każdego z wątków biorących udział w liczeniu wystąpień par instancji. Odpowidzialna za to jest funkcja $ countUniqueInstances $.
 
-W początkowym stadium algorytmu, analogicznie do wersji sekwencyjnej wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zliczenie wszystkich wystąpień par instancji unikając liczenia duplikatów w sytuacji gdy ta sam instancja przestrzenna należy do wielu par tego samego typu. Korzystając z informacji o rozmiarze tablicy $ insTable $ przed rozpoczęciem przetwarzania obliczany jest zakres pracy który musi wykonać każdy z wątków. W związku z tym konieczne było skorzystanie z statycznego planisty (ang. \textit{static-partitioner}) z biblioteki PPL, który naśladuje zachowanie klasycznej funkcji \textit{\#pragma omp parallel for} znanej z biblioteki OpenMP. W ten sposób oszczędza się czas gdyż wątki nie muszą dynamicznie przydzielać sobie pracy do wykonania.
+W porównaniu do poprzedniego etapu, wykorzystywany jest statyczny planista (ang. \textit{static-partitioner}) będący odpowiednikiem funkcji \textit{omp parallel for} z biblioteki \textit{OpenMP}. Dzięki temu każdemu wątkowi przydzielana jest stała ilość par instancji do przetworzenia. Liczba ta jest wyznaczana na podstawie rozmiaru tablicy $ insTable $. Daje to pewną oszczędność czasu, gdyż wątki nie tracą czasu na dynamiczne przydzielanie pracy do wykonania.
 
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
 
-Identycznie jak w wersji sekwencyjnej, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Obliczanie miary degeneracji \cite{matusiak} i algorytm Brona-Kerboscha \cite{kerbosz} w kontekście wersji sekwencyjnej pozostaje bez zmian. 
+%Identycznie jak w wersji sekwencyjnej, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Obliczanie miary degeneracji \cite{matusiak} i algorytm Brona-Kerboscha \cite{kerbosz} w kontekście wersji sekwencyjnej pozostaje bez zmian. 
 
+%jeśli chodzi o równoległy, to jest dość skomplikowana sprawa, najbezpieczniej napisać że przyśpieszenie uzyskuje się poprzez zrównoleglenie pętli
+%BK vertex ordering odpala równolegle BK pivoting
+%i że takie podejście może wygenrowac duplikaty
+%ale i tak jest szybciej bo wincyj rdzeniufff
+%i rzutujemy to na seta i dealujemy z tym
+%i na końcu jest jeszcze combine_each lokalnych max cliques
+
+Zasadniczą zmianą na tym etapie algorytmu jest wprowadzenie równoległej wersji algorytmu \ref{alg:bk3} liczenia maksymalnych klik metodą Brona-Kerboscha \cite{kerbosz}. Korzysta on ponownie z dynamicznego planisty w celu dynamicznego rozdzielenia pracy dla poszczególnych wątków, ponieważ nieznany jest czas wykonywania algorytmu.
+
+Każdy z wątków uruchamia dla swojej puli wierzchołków standardową wersję algorytmu Brona-Kerboscha wykorzystującą tzw. \textit{pivot}. Podejście to może powodować występowanie duplikatów - dlatego też po zakończeniu działani algorytmów zbiór wynikowy rzutowany jest na kontener \textit{std:set}, likwidując tym samym potencjalnie występujące w zbiorze duplikaty. 
+
+Tradycyjnie na końcu lokalne listy maksymalnych klik są scalane w jedną strukturę wynikową za pomocą instrukcji \textit{Combinable::combine\_each}.
+\begin{algorithm}
+
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\Input{$G=(E,V)$}
+$R \leftarrow \emptyset; X \leftarrow \emptyset; P \leftarrow V(G)$\;
+\ForEach{$v^{*}_{i}$ in lista $v^{*}_{1}, v^{*}_{2},..., v^{*}_{\lambda}$  uporządkowanych wg. degeneracji}{
+$BK\_Pivot( R \cup \{ v^{*}_{i}\}, P \cap N(v^{*}_{i}), X \cup N(v^{*}_{i})$\;
+$ P \leftarrow P \backslash \{v^{*}_{i}\} $\;
+$ X \leftarrow X \cup \{ v^{*}_{i}\} $\;
+}
+\caption{Równoległy algorytm Brona-Kerboscha}
+\label{alg:bk3}
+\end{algorithm}
+
+ 
 \subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
 
-Podobnie jak w wersji sekwencyjnej, po uprzednim posortowaniu względem długości, maksymalne kliki wygenerowane z algorytmu Brona Kerbosha \cite{kerbosz} są umieszczane w specjalnej strukturze $ cliquesToProcess $ będącej trójwymiarowym wektorem, którego indeks stanowi rozmiar kolokacji. 
+W porównaniu do wersji sekwencyjnej, konstrukcja skondensowanego drzewa instancji oraz liczenie miary powszechności jest dokonywany w sposób równoległy. Wymagało to zaprojektowania równoległych odpowiedników kontenerów znanych z odmiany sekwencyjnej, czyli \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer} zapewniających bezpieczeństwo przetwarzania rownoległego. Niezbędne było także zastosowanie (podobnie jak w kroku pierwszym) dynamicznego planisty (ang. \textit{auto scheduler}) przydzielającego dynamicznie kolejne kliki do przetworzenia do poszczególnych wątków. Niemożliwe było zastosowanie statycznego planisty z uwagi na fakt, że na tym etapie nie można przewidzieć dokładnego czasu konstrukcji skondensowanego drzewa instancji.
 
-Jednakowo, następuje iteracyjne przetwarzanie każdej z klik. W kolejnych iteracjach budowane jest skondensowane drzewo instancji, a następnie następuje sprawdzenie powszechności dla otrzymanych instancji. Tak jak w wersji sekwencyjnej w przypadku niepowodzenia następuje rozbicie klik na podkliki o rozmiarze o 1 mniejszym i przekazanie ich do struktury $ cliquesToProcess $. 
+Oddzielną kwestią jest struktura tablicy $ insTable $. Podobnie jak w wersji sekwencyjnej zawiera trzy wymiary. Wykorzystano wektor pochodzący z standardowej biblioteki C++, którego elementy są wskaźnikami na wektory równoległe (ang. \textit{concurrent vector}) pochodzące z biblioteki \textit{PPL} - same z kolei zawierają wskaźniki na wektory klasyczne. To nieco pokrętne rozwiązanie zapewnia bezproblemowe przetwarzanie równoległe, a także - ze względu na minimalizację ryzyka fragmentacji zaalokowanej pamięci - przyspiesza działanie algorytmu.
 
-Wyliczone kliki są umieszczane w obiektach \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer}. W odróżnieniu od swoich odpowiedników sekwencyjnych zapewniają bezpieczeństwo przetwarzania wielowątkowego. Konstruowanie skondensowanych drzew instancji jak i liczenie miary powszechności następuje w sposób równoległy co przekłada się na skrócenie czasu obliczeń. Z uwagi iż nie można przewidzieć dokładnego czasu konstruowania skondensowanego drzewa instancji, zdecydowano na zastosowanie dynamicznego planisty (ang. \textit{auto scheduler}), który w czasie wykonywania programu przydziela kolejne kliki odpowiednim wątkom. 
+Podobnie jak w innych krokach, również tutaj wykorzystywany jest wektor typu \textit{Combinable}. Umieszczany jest w niej ostateczny wynik przetwarzania będący scaleniem lokalnych kopii tablic posiadanych przez każdy wątek, biorący udział w wyznaczaniu ostatecznych kandydatów na kololacje.
 
-Tablica $ insTable $ ma strukturę zwykłego wektora wskaźników, z biblioteki STD, na równoległe wektory (ang. \textit{concurrent vector}) z biblioteki PPL, które zawierają z kolei znów zwykłe wektory. Taka postać zapewnia bezkonfliktowe przetwarzanie równoległe, a jednocześnie dzięki minimalnej fragmentacji zaalokowanej pamięci, maksymalizuje szybkość wykonania algorytmu. Jednocześnie tablica wynikowa jest reprezentowana przez wektor typu połączeniowego (ang. \textit{combinable}) - na końcu przetwarzania lokalne kopie tej tablicy są scalane do jednej finalnej tablicy, będącej ostatecznym wynikiem pracy algorytmu. 
+\newpage
 
 \section{Implementacja GPU}
 \label{sec:gpu}
@@ -974,11 +1002,12 @@ Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 
 \bibitem{pivot}Tomita, E., Tanaka, A., \& Takahashi, H. (2006). The worst-case time complexity for
 generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
 \bibitem{pivot2}Cazals, F.; Karande, C. (2008), "A note on the problem of reporting maximal cliques" , Theoretical Computer Science, 407 (1): 564–568.
-\bibitem{framework}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
+\bibitem{wang}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
 \bibitem{matusiak}Matula, D. W.; Beck, L. L. (1983), "Smallest-last ordering and clustering and graph coloring algorithms", Journal of the ACM, 30 (3): 417–427, doi:10.1145/2402.322385, MR 0709826.
 \bibitem{mikromiekki}Comparing the Concurrency Runtime to Other Concurrency Models, Microsoft, 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
 \bibitem{stak}Microsoft Parallel Patterns Library (PPL) vs. OpenMP, Stack Overflow, 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
 \bibitem{cuda_um}https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
+\bibitem{buffered-sort}. Sorting in PPL, Parallel Programming in Native Code, vinodsu (Microsoft Developer Network Blogs), 14-01-2011 [dostęp: 10-01-2017]. Dostępny w internecie: https://blogs.msdn.microsoft.com/nativeconcurrency/2011/01/14/sorting-in-ppl/
 \bibitem{cuda_dp}https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
 
 \end{thebibliography}

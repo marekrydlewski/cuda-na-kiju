@@ -229,24 +229,27 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 
 		Entities::GpuCliques gpuCliques;// = Entities::moveCliquesCandidatesToGpu(toProcess);
 
-		ben.run_cumulative("contruct instances", 1, [&]()
+		ben.run_cumulative("build instance tree (prepare data)", 1, [&]()
 		{
 			gpuCliques = Entities::moveCliquesCandidatesToGpu(toProcess);
 		});
 
 		InstanceTree::InstanceTreeResultPtr instanceTreeResult;// = instanceTree->getInstancesResult(gpuCliques);
 
-		ben.run_cumulative("calculate prevalence for instances", 1, [&]()
+		ben.run_cumulative("build instance tree", 1, [&]()
 		{
 			instanceTreeResult = instanceTree->getInstancesResult(gpuCliques);
 		});
 
-		ben.print("gpu algorithm", std::cout);
-
-		auto mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
-			gpuCliques
-			, instanceTreeResult
-		);
+		std::shared_ptr<thrust::device_vector<float>> mask;
+		
+		ben.run_cumulative("calculate prevalence for instances", 1, [&]()
+		{
+			mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
+				gpuCliques
+				, instanceTreeResult
+			);
+		});
 
 		thrust::host_vector<float> hPrevalences = *mask;
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());

@@ -806,17 +806,48 @@ Podobnie jak w innych krokach, również tutaj wykorzystywany jest wektor typu \
 
 Rozdział ten poświęcony jest omówieniu przebiegu i wyników testów wydajnościowych przedstawionych powyżej implementacji algorytmu zaproponowanego w pracy \cite{chinczyki}.
 
-\subsection{Przebieg testów}
+\subsection{Informacje wstępne}
 
-Blablaba mierzyliśmy wydajność w zależności od rozmiaru danych, zmiennego progu odległości i powszechności.
+Wydajność poszczególnych implementacji została przetestowana pod kątem zmienności trzech czynników: całkowitego rozmiaru danych wejściowych, progu maksymalnej odległości między punktami do którego zachodzi relacja sąsiedztwa oraz progu minimalnej powszechności.
 
 \subsubsection{Dane wejściowe}
 
-Dane wygenerowaliśmy przy pomocy generatora, do testów od rozmiaru danych utworzyliśmy 8 (7?) instancji od których rozmiary w przedziale około 3000-200000 punktów. Staraliśmy się zachować przy tym podobny rozkład cech itp itd. Do testów odległości wygenerowaliśmy 4 instancje - rzadka i gęsta oraz rzadka i gęsta z "hotspotami". Powszechność - rzadka i gęsta. Wszystko 1000x1000 punktów.
+Dane wygenerowano przy pomocy generatora (\textit{więcej o tym?}). Wszystkie wymienione dalej zestawy składają się z punktów dla których określone są 3 wartości: współrzędna x, współrzędna y oraz etykieta cechy jaką reprezentuje dany punkt. Dodatkowo punkty zostały rozmieszczone na przestrzeni 1000x1000. Dla celów pomiarowych związanych ze zmiennością rozmiaru danych wejściowych utworzone zostało 8 zestawów danych, w których liczba punktów rośnie od ok. 3000 punktów do ok. 200000, natomiast w przypadku pozostałych testów posłużono się czterema instancjami, które można opisać jako:
+\begin{itemize}
+\item dane o niskim zagęszczeniu i równomiernym rozkładzie - około 30000 punktów rozmieszczonych losowo
+\item dane o wysokim zagęszczeniu i równomiernym rozkładzie - około 65000 punktów rozmieszczonych losowo
+\item dane o niskim zagęszczeniu ze skupiskami - około 30000 punktów z dwoma skupiskami (obszarami, na których zagęszczenie punktów jest wyższe niż poza nimi)
+\item dane o wysokim zagęszczeniu ze skupiskami - około 80000 punktów z dwoma skupiskami.
+\end{itemize}
 
 \subsubsection{Sprzęt}
 
-2 TITANY FULL IMBA + opis sprzętu
+Testy wykonano na komputerze z następującą konfiguracją:
+\begin{itemize}
+\item Intel Core i7-930@2.80 GHz
+\item 24 GB RAM
+\item nVidia GeForce GTX Titan x 2
+\item Windows Server 2012 R2
+\end{itemize}
+
+\subsubsection{Przebieg testów}
+
+Dla uśrednienia czasów wykonań poszczególnych testów i wyeliminowania zakłóceń każdy test został powtórzony dwudziestokrotnie. W tabeli poniżej przedstawiono wartości i zakresy parametrów algorytmu, dla których wykonano poszczególne grupy testów.
+\newline
+\newline
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Zmienny parametr} & \textbf{Próg min. powszechności} & \textbf{Próg maks. odległości} \\
+\hline
+Rozmiar instancji & 0.2 & 3 \\
+Próg min. powszechności & 0.05 - 0.4 & 5 \\
+Próg maks. odległości & 5 & 3 - 8 \\
+\hline
+\end{tabular}
+\newline
+\newline
+
+Testy zostały zautomatyzowane i uruchomione za pomocą skryptu napisanego w języku Powershell.
 
 \subsection{Wyniki}
 

@@ -234,6 +234,8 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 		if (currentEnd == 0)
 			currentEnd = candidatesPerIteration;
 
+		CliquesContainer pendingCliques;
+
 		while (currentEnd <= toProcess.size())
 		{
 			std::vector<Entities::CliqueCandidate> temp(toProcess.begin() + currentStart, toProcess.begin() + currentEnd);
@@ -268,8 +270,7 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 
 			{
 				// for removing new repeating candidates
-				CliquesContainer pendingCliques;
-
+				
 				for (int i = 0; i < hPrevalences.size(); ++i)
 				{
 					//for (unsigned short us : toProcess[i])

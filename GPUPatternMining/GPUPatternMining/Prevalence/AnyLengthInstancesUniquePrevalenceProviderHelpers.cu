@@ -95,14 +95,14 @@ UIntDeviceVectorPtr getTypesCountOnGpuForCliquesCandidates(
 __host__ __device__
 void MinimalCandidatePrevalenceCounter::operator()(unsigned int idx) const
 {
-	float currentMinimalPrevalence = 1.f;
+	results[cliqueIds[idx]] = 1.f;
 
-	for (unsigned int currentLevel = 0; currentLevel < levelsCount; ++currentLevel)
+	for (unsigned int currentLevel = 0; currentLevel < levelsCount[idx]; ++currentLevel)
 	{
 		thrust::sort(
 			thrust::device
-			, (data + (instancesCount * currentLevel) + begins[idx])
-			, (data + (instancesCount * currentLevel) + begins[idx] + counts[idx])
+			, (data + (instancesCount[idx] * currentLevel) + begins[idx])
+			, (data + (instancesCount[idx] * currentLevel) + begins[idx] + counts[idx])
 		);
 
 		float currentResult = thrust::distance
@@ -111,16 +111,14 @@ void MinimalCandidatePrevalenceCounter::operator()(unsigned int idx) const
 			, thrust::unique_copy
 			(
 				thrust::device
-				, data + (instancesCount * currentLevel) + begins[idx]
-				, data + (instancesCount * currentLevel) + begins[idx] + counts[idx]
+				, data + (instancesCount[idx] * currentLevel) + begins[idx]
+				, data + (instancesCount[idx] * currentLevel) + begins[idx] + counts[idx]
 				, levelUniquesTempStorage + begins[idx]
 			)
-		) / static_cast<float>((typeCount[candidatesCount * currentLevel + cliqueIds[idx]]));
+		) / static_cast<float>((typeCount[candidatesCount[idx] * currentLevel + cliqueIds[idx]]));
 		
-		if (currentResult < currentMinimalPrevalence)
-			currentMinimalPrevalence = currentResult;
+		if (currentResult < results[cliqueIds[idx]])
+			results[cliqueIds[idx]] = currentResult;
 	}
-
-	results[cliqueIds[idx]] = currentMinimalPrevalence;
 }
 // --------------------------------------------------------------------------------------------------

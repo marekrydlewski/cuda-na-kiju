@@ -63,6 +63,13 @@ std::shared_ptr<thrust::device_vector<float>> AnyLengthInstancesUniquePrevalence
 		cliquesCandidates, typesCountsMap->map
 	);
 
+
+	thrust::device_vector<unsigned int> levelsCount(existingCandidatesCount, cliquesCandidates.currentCliquesSize);
+	thrust::device_vector<unsigned int> instancesCountVector(existingCandidatesCount, instancesCount);
+	thrust::device_vector<unsigned int> candidatesCountVector(existingCandidatesCount, cliquesCandidates.candidatesCount);
+
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+
 	MinimalCandidatePrevalenceCounter prevalenceCounter;
 	{
 		prevalenceCounter.data = instanceTreeResult->instances.data();
@@ -73,29 +80,18 @@ std::shared_ptr<thrust::device_vector<float>> AnyLengthInstancesUniquePrevalence
 		prevalenceCounter.levelUniquesTempStorage = levelTempStorage.data();
 
 		prevalenceCounter.results = result->data();
-		prevalenceCounter.levelsCount = cliquesCandidates.currentCliquesSize;
-		prevalenceCounter.instancesCount = instancesCount;
-		prevalenceCounter.candidatesCount = cliquesCandidates.candidatesCount;
+		prevalenceCounter.levelsCount = levelsCount.data();
+		prevalenceCounter.instancesCount = instancesCountVector.data();
+		prevalenceCounter.candidatesCount = candidatesCountVector.data();
 	}
 
-	unsigned int countPerIteration = 10;
-	unsigned int currentStart = 0;
-	unsigned int currentEnd = existingCandidatesCount % countPerIteration;
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
-	currentEnd = std::min(currentEnd + countPerIteration, existingCandidatesCount);
-
-	while (currentEnd <= existingCandidatesCount)
+	for (int i = 0; i < existingCandidatesCount; ++i)
 	{
-		thrust::for_each(
-			thrust::device
-			, idxs.begin() + currentStart
-			, idxs.begin() + currentEnd
-			, prevalenceCounter);
-		currentStart += countPerIteration;
-		currentEnd += countPerIteration;
-
+		prevalenceCounter(i);
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 	}
-	
+
 	return result;
 }

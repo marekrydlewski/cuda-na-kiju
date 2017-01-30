@@ -9,6 +9,9 @@
 \usepackage[linesnumbered]{algorithm2e}
 \usepackage{textcomp}
 \usepackage{listings,chngcntr}
+\usepackage{float}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
 \usepackage{tikz}
 
 \usetikzlibrary{shapes,positioning,intersections,quotes}
@@ -312,21 +315,22 @@ zbiorem ich instancji. Niech $ >_{F} $ oznacza dowolną relację porządku zdefi
 Mające daną zwrotną i symetryczną relację sąsiedztwa R, sąsiedztwem lokalizacji l nazywamy zbiór lokalizacji $L = \{l_{1},l_{2}, . . . , l_{n}\}$, gdzie $l_{i}$ jest sąsiadem l, tzn. zachodzi $R(l, l_{i}) $ $ \forall i \in 1,...,n$.
 \end{defin}
 
-\begin{center}
+\begin{figure}
+\centering
 \begin{tikzpicture}[scale=2.5, transform shape]
 \draw[lightgray] (0,-0) grid[xstep=0.5, ystep=0.5]  (3,3);
 \draw[draw=black!30,latex-] (0,3) +(0,0.5cm) node[above right] {$y$} -- (0,0) -- +(0, 0cm);
 \draw[draw=black!30,-latex] (0,0) +(0cm,0) -- (3,0) -- +(0.5cm,0) node[below right] {$x$};
 \draw [gray, dashed] (1.0,2) circle (0.9cm);
-%\draw [gray, dashed] (2.5,0.5) circle (0.9cm);
+\draw [gray, dashed] (1.3,1.4) circle (0.9cm);
 
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]335: $ l_1 $ }] at (.3,.7) {};
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]25: $ l_2 $}] at (1.0,2) {};
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]155:$ l_3 $}] at (1.3,1.4) {};
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]155:$ l_4 $}] at (2.7,0.5) {};
 \end{tikzpicture}
-\end{center}
-
+\caption{Relacja sąsiedztwa - lokalizacje \textit{l}\textsubscript{2} oraz \textit{l}\textsubscript{3} sąsiadują ze sobą.}
+\end{figure}
 
 \subsubsection{Miary kolokacji}
 
@@ -807,7 +811,7 @@ $ X \leftarrow X \cup \{ v^{*}_{i}\} $\;
  
 \subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
 
-W porównaniu do wersji sekwencyjnej, konstrukcja skondensowanego drzewa instancji oraz liczenie miary powszechności jest dokonywany w sposób równoległy. Wymagało to zaprojektowania równoległych odpowiedników kontenerów znanych z odmiany sekwencyjnej, czyli \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer} zapewniających bezpieczeństwo przetwarzania rownoległego. Niezbędne było także zastosowanie (podobnie jak w kroku pierwszym) dynamicznego planisty (ang. \textit{auto scheduler}) przydzielającego dynamicznie kolejne kliki do przetworzenia do poszczególnych wątków. Niemożliwe było zastosowanie statycznego planisty z uwagi na fakt, że na tym etapie nie można przewidzieć dokładnego czasu konstrukcji skondensowanego drzewa instancji.
+W porównaniu do wersji sekwencyjnej, konstrukcja skondensowanego drzewa instancji oraz liczenie miary powszechności jest dokonywany w sposób równoległy. Wymagało to zaprojektowania równoległych odpowiedników kontenerów znanych z odmiany sekwencyjnej, czyli \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer} zapewniających bezpieczeństwo przetwarzania równoległego. Niezbędne było także zastosowanie (podobnie jak w kroku pierwszym) dynamicznego planisty (ang. \textit{auto scheduler}) przydzielającego dynamicznie kolejne kliki do przetworzenia do poszczególnych wątków. Niemożliwe było zastosowanie statycznego planisty z uwagi na fakt, że na tym etapie nie można przewidzieć dokładnego czasu konstrukcji skondensowanego drzewa instancji.
 
 Oddzielną kwestią jest struktura tablicy $ insTable $. Podobnie jak w wersji sekwencyjnej zawiera trzy wymiary. Wykorzystano wektor pochodzący z standardowej biblioteki C++, którego elementy są wskaźnikami na wektory równoległe (ang. \textit{concurrent vector}) pochodzące z biblioteki \textit{PPL} - same z kolei zawierają wskaźniki na wektory klasyczne. To nieco pokrętne rozwiązanie zapewnia bezproblemowe przetwarzanie równoległe, a także - ze względu na minimalizację fragmentacji zaalokowanej pamięci - przyspiesza działanie algorytmu.
 
@@ -817,6 +821,134 @@ Podobnie jak w innych krokach, również tutaj wykorzystywany jest wektor typu \
 
 \section{Implementacja GPU}
 \label{sec:gpu}
+
+Niniejszy rozdział poświęcony jest implementacji algorytmu \textit{SGCT} w wersji na procesory graficzne. Jak już wcześniej opisano w Rozdziale~\ref{sec:cuda}, w tym celu zostało wykorzystane środowisko programistyczne \textit{CUDA Toolkit} w wersji \textit{8.0}.
+
+Poniższa implementacja została opracowana dla urządzeń spełniających wersję 3.0 potencjału obliczeniowego CUDA (ang.\textit{ CUDA Compute Capability}). W związku z tym, nie wykorzystuje ona niektórych możliwości dostarczanych przez nowsze karty graficzne firmy NVIDIA, np. zunifikowanej pamięci współdzielonej (ang. \textit{Unified Memory} \cite{cuda_um}) czy technologii \textit{Dynamic Parallelism} \cite{cuda_dp} - pozwoliło to jednak na przeprowadzenie testów na większej ilości kart graficznych.
+
+%\subsection{Przygotowanie danych w pamięci GPU}
+
+%Z powodu rozdzielnego modelu pamięci (co zmienia się wraz z wprowadzeniem \textit{unified memory}) dane które zostały %wczytane z zewnętrznego źródła (zbiór instancji zawierających typ, identyfikator, położenie w przestrzeni dwuwymiarowej) %%%(//TODO napisać gdzieś o możliwościach rozszerzenia algorytmu) muszą zostać przekazane do pamięci dostępnej dla procesorów %CUDA. Operacja przenoszenia danych pomiędzy przestrzeniami pamięci jest dość kosztowna i silnie zależy od wybranych %rozwiązań sprzętowych.
+
+\subsection{Generowanie tabeli instancji o rozmiarze 2}
+
+Tak jak w przypadku implementacji na procesory CPU, generowanie kandydatów na kolokacje o rozmiarze 2 wykorzystuje algorytm \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}), przeznaczony do uruchamiania w architekturze masowo-równoległej. 
+
+Na początku niezbędne jest wczytanie danych z zewnętrznego źródła do struktur znajdujących się w pamięci karty graficznej - wynika to z zastosowanego w projekcie \textit{Compute Capability}, który wymusza rozdzielny model pamięci. Operacja ta należy do dość kosztownych, a do tego w dużym stopniu zależy od zastosowanego sprzętu.
+
+Wczytany zbiór wejściowy zostaje potem posortowany względem osi odciętych w kolejności rosnącej. Takie rozwiązanie pozwala na ograniczenie obszaru przeszukiwania sąsiadów instancji. Do tego celu zostały zastosowane funkcje sortujące wbudowane w bibliotekę \textit{Thrust}.
+
+Następnie zostaje uruchomiony właściwy \textit{algorytm zamiatania} (ang. \textit{plane sweep}). Na początku zostaje uruchomiony kernel $ countNeighbours $ wyznaczający liczbę sąsiadów dla każdej instancji. W dużym skrócie polega on na obliczeniu odległości euklidesowej pomiędzy instancjami $ a_{i} $ oraz $ a_{k} $. Jeśli jest ona nie większa od założonej maksymalnej odległości pomiędzy instancjami \textit{distanceTreshold}, stwierdza się pomiędzy nimi relację sąsiedztwa. 
+
+Na potrzeby tego kroku zostaje zarezerwowane $ n_{dt} \cdot 32 $ wątków, co daje jeden \textit{warp} na instancję. Każdy z nich wykonuje maksymalnie $\lceil i / 32\rceil - 1$ iteracji, w każdej \textit{j-tej} iteracji sprawdzana jest natomiast grupa 32 instancji z zakresu $ K=\{i - j~\cdot~32; i - (j + 1) \cdot 32\} $. Dodatkowo należy zaalokować tablicę $ T_{counts} $ o rozmiarze $ n_{dt} $, w której na pozycji $ i $ zostanie wpisana ilość sąsiadów instancji $ a_{i} $.
+
+Każdy wątek wchodzący w skład \textit{warp}'u sumuje w tablicy pamięci współdzielonej liczbę znalezionych we wszystkich iteracjach sąsiadów. Suma ta jest przechowywana przez każdy wątek w osobnej komórce - pozwala to uniknąć stosowania kosztownego mechanizmu synchronizacji zapisu pomiędzy wątkami w \textit{warpie}. Po każdej iteracji następuje sprawdzenie, czy którykolwiek z wątków \textit{warp}'a napotkał instancję, która odległa jest na samej osi odciętych o więcej niż próg odległości \textit{distanceTreshold} - jeżeli tak, to można przerwać pętlę, gdyż kolejne instancje w posortowanym zbiorze na pewno nie spełnią progu odległości.
+
+Po zakończeniu iterowania każdy \textit{warp} wykonuje szybką redukcję części tablicy współdzielonej należącej do jego wątków, a wynik wpisuje do tablicy \textit{$ T_{counts} $} na pozycji $i$-tej. Dodatkowo, po zakończeniu działania kernela  \textit{countNeighbours} również \textit{T\textsubscript{counts}} ulega redukcji - uzyskując tym sposobem całkowitą ilość znalezionych relacji sąsiedztwa sposród wszystkich instancji.
+
+% (otrzymując całkowitą ilość znalezionych relacji sąsiedztwa wśród wszystkich instancji, oznaczmy tę wartość jako %\textit{nC}.
+
+\begin{figure}[H]
+\centering
+\includegraphics{planesweep}
+\caption{Poglądowy rysunek przedstawiający iterowanie warpa po instancjach}
+\end{figure}
+
+Pozostało jedynie wykonać kernel \textit{findNeighbours}, odpowiedzialny za alokację oraz wpisanie znalezionych sąsiadów do tabel \textit{InstanceFirst} oraz \textit{InstanceSecond}. Służą one do przechowywania elementów par instancji będących w relacji sąsiedztwa. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami w obu tablicach. Kolejność w obrębie pary wyznaczana jest przez poniższy algorytm~\ref{alg:FeatureInstance_operator} będący przeciążeniem operatora mniejszości ($ < $):
+
+\begin{algorithm}
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{operator\<}
+\Input{$a,b - instancje\ typu\ FeatureInstance $}
+\Output{$ bool $}
+ \Return $ a.field < b.field $ \; 
+\caption{Operator mniejszości dla instancji typu FeatureInstance}
+\label{alg:FeatureInstance_operator}
+\end{algorithm}
+ 
+Przed uruchomieniem kernela niezbędne jest zaalokowanie tablic $ Pairs_{A} $ oraz $ Pairs_{B}$ o długości odpowiadającej wyznaczonej w wyniku redukcji tablicy $ T_{counts} $ liczbie odnalezionych relacji sąsiedztwa. Dodatkowo należy zaalokować tablicę $ Begins $ wielkości $ n_{dt} $ - przechowa ona wynik operacji sumy ekskluzywnej (ang. \textit{exclusive sum}) tablicy $ T_{counts} $. Struktura ta będzie wykorzystana w trakcie wyznaczania pozycji zapisu relacji w tablicach wynikowych.
+
+Konfiguracja uruchomieniowa kernela \textit{findNeighbours} jest identyczna z konfiguracją użytą dla \textit{countNeighbours}. Sama funkcja różni się zresztą od poprzedniczki tylko i wyłącznie w miejscu stwierdzenia relacji sąsiedztwa - kernel \textit{findNeighbours} zamiast zliczać relacje sąsiedztwa wpisuje do tablic $ Pairs_{A} $ i $ Pairs_{B}$ instancje, pomiędzy którymi stwierdzono to sąsiedztwo. 
+
+Pozycja zapisu w tablicach wynikowych wyznaczana jest przy pomocy operatora mniejszości (Algorytm~\ref{alg:FeatureInstance_operator}) dla obiektów typu \textit{FeatureInstance} w oparciu o:
+
+\begin{itemize}
+\item wartości w tablicy $ Begins $ na pozycji $i$,
+\item ilości relacji sąsiedztwa znalezionych przez \textit{warp} w poprzednich iteracjach,
+\item ilości relacji sąsiedztwa znalezionych w obecnej iteracji przez wątki \textit{warpa} o mniejszym identyfikatorze. 
+\end{itemize}
+
+Warto zauważyć, że nigdzie nie jest zapisywana informacja o współrzędnych instancji - nie będą one potrzebne w dalszym toku pracy algorytmu.
+
+\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
+
+Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu szybszy dostęp do instancji, które należą do relacji o określonej cesze. 
+
+Na początku pary instancji z poprzedniego etapu algorytmu zostają posortowane za pomocą algorytmu~\ref{alg:FeatureInstancePair_operator} będącego przeciążeniem operatora mniejszości dla par instancji typu \textit{FeatureInstance}. W wyniku jego działania instancje zostaną posortowane według typów relacji - wszystkie relacje o tych samych typach zajmą w wejściowych tablicach ciągły obszar. Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}.
+
+\begin{figure}[H]
+\begin{algorithm}[H]
+$operator<(FeatureInstance\ lhs,FeatureInstance\ rhs) $\\
+\{\\
+  \uIf{$ a[0].fields.featureId\ <\ b[0].fields.featureId $}{
+   \Return $ True $ \;
+  }\uElseIf { $ a[0].fields.featureId\ ==\ b[0].fields.featureId  $ } {
+      \uIf{$ a[1].fields.featureId\ <\ b[1].fields.featureId $}{
+   		\Return $ True $ \;
+	  }\uElseIf {$ a[1].fields.featureId\ ==\ b[1].fields.featureId $} {
+	  	\uIf{$ a[0].fields.instanceId\ <\ b[0].fields.instanceId $}{
+   			\Return $ True $ \;
+	  	}\uElseIf {$ a[0].fields.instanceId\ ==\ b[0].fields.instanceId $} {
+	  		\Return $ a[1].fields.instanceId\ ==\ b[1].fields.instanceId $ \;
+	  	}	
+	  }
+  }
+  
+  \Return $ False $ \;
+\}
+  
+\caption{Operator mniejszości dla par instancji typu FeatureInstance}
+\label{alg:FeatureInstancePair_operator}
+\end{algorithm}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics{sortAttr_insTable}
+\caption{Przykładowa zawartość tablic \textit{Pairs}\textsubscript{A} oraz \textit{Pairs}\textsubscript{A}}
+\label{fig:pairs_content}
+\end{figure}
+
+Dzięki tej właściwości można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Problemem w tym przypadku okazał się fakt, że instancje na tym etapie są nierozróżnialne pod względem wartości identyfikatorów instancji. W związku z tym niezbędne okazało się zaimplementowane algorytmu~\ref{alg:FeatureInstancePair_operator} przeciążającego operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
+
+\begin{figure}[H]
+\begin{algorithm}[H]
+$operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
+\{\\
+\Return $lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
+$\ \&\&\ lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
+\}
+\caption{Operator równości dla par instancji typu FeatureInstanceTuple }
+\label{alg:FeatureInstanceTuple_operator}
+\end{algorithm}
+\end{figure}
+
+Wynikiem działania funkcji \textit{reduce\_by\_key} są trzy tablice o jednakowym rozmiarze $ c_{r} $:
+\begin{itemize}
+\item \textit{Uniques} - zawiera pary typów, dla których istnieje przynajmniej jedna para instancji;
+\item \textit{Counts} - zawiera liczności instancji relacji dla par typów instancji,
+\item \textit{Begins} - zawiera indeksy tabeli instancji relacji, oznaczające początki obszarów ciągłych odpowiadającym danym parom typów instancji.
+\end{itemize}
+
+Na podstawie tych danych uzupełniana jest mapa struktury \textit{ITMPack}. W tym celu uruchamiany jest kernel uruchamiany z ilością wątków równym $ c_{r} $. Dla każdego $ i $-tego elementu tablic tworzy on strukturę \textit{InstanceTable}, uzupełniając ją \textit{i}-tymi wartościami z \textit{Counts} oraz \textit{Begins}, a następnie wstawia go do tablicy pod kluczem utworzonym z $i$-tego elementu tablicy \textit{Uniques} w postaci połączonej pary typów. 
+
+\subsection{Generowanie prewalentnych relacji sąsiedztwa pomiędzy typami połączeń}
+
+Mając gotową strukturę $ ITMPack $, można przystąpić do wyznaczenia par instancji, których współczynnik powszechności jest nie mniejszy niż zadany na początku próg powszechności. 
+
+W tym celu niezbędne jest utworzenie struktur pomocniczych $ Counts_{A} $ i $ Counts_{B} $ przechowujących liczbę unikalnych wystąpień instancji odpowiednio pierwszego i drugiego typu elementu relacji na odpowiadającej pozycji tablicy $ ITMPack.uniques $. Tworzone są również podobne struktury przechowujące całkowitą liczbę instancji - noszą one odpowiednio nazwy $ TypesCounts_{A} $ (dla pierwszego elementu relacji) i $ TypesCounts_{B} $ dla drugiego elementu. 
 
 \section{Testy efektywnościowe}
 \label{sec:tests}
@@ -866,6 +998,8 @@ generating all maximal cliques and computational experiments. Theoretical Comput
 \bibitem{mikromiekki}Comparing the Concurrency Runtime to Other Concurrency Models, Microsoft, 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
 \bibitem{stak}Microsoft Parallel Patterns Library (PPL) vs. OpenMP, Stack Overflow, 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
 \bibitem{buffered-sort}. Sorting in PPL, Parallel Programming in Native Code, vinodsu (Microsoft Developer Network Blogs), 14-01-2011 [dostęp: 10-01-2017]. Dostępny w internecie: https://blogs.msdn.microsoft.com/nativeconcurrency/2011/01/14/sorting-in-ppl/
+\bibitem{cuda_um}https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
+\bibitem{cuda_dp}https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
 \end{thebibliography}
 
 \newpage

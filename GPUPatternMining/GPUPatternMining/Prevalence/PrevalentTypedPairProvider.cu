@@ -125,42 +125,11 @@ namespace Prevalence
 				bPrev.results = bResults.data();
 			}
 
-			thrust::device_vector<unsigned int> idxsa(uniquesCount);
-			thrust::sequence(idxsa.begin(), idxsa.end());
-
-			thrust::device_vector<unsigned int> idxsb(uniquesCount);
-			thrust::sequence(idxsb.begin(), idxsb.end());
-
-			unsigned int countPerIteration = 10;
-			unsigned int currentStart = 0;
-			unsigned int currentEnd = uniquesCount % countPerIteration;
-
-			currentEnd = std::min(currentEnd + countPerIteration, uniquesCount);
-
-			while (currentEnd <= uniquesCount)
+			for (unsigned int i = 0; i < uniquesCount; ++i)
 			{
-				{
-					
-					thrust::for_each(
-						thrust::device
-						, idxsa.begin() + currentStart
-						, idxsa.begin() + currentEnd
-						, aPrev);
-					CUDA_CHECK_RETURN(cudaDeviceSynchronize());				
-				}
-					
-				{
-
-					thrust::for_each(
-						thrust::device
-						, idxsb.begin() + currentStart
-						, idxsb.begin() + currentEnd
-						, bPrev);
-					CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-				}
-
-				currentStart += countPerIteration;
-				currentEnd += countPerIteration;
+				aPrev(i);
+				bPrev(i);
+				CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 			}
 
 			thrust::device_vector<bool> flags(uniquesCount);
@@ -168,6 +137,8 @@ namespace Prevalence
 
 			dim3 grid;
 			findSmallest2D(uniquesCount, 256, grid.x, grid.y);
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			Prevalence::UniqueFilter::setPrevalentFlag <<< grid, 256 >>> (
 				minimalPrevalence
@@ -189,6 +160,8 @@ namespace Prevalence
 
 			thrust::device_vector<FeatureTypePair> transformed(uniquesCount);
 			auto f_trans = FeatureInstancesTupleToFeatureTypePair();
+
+			CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 			thrust::transform(
 				thrust::device

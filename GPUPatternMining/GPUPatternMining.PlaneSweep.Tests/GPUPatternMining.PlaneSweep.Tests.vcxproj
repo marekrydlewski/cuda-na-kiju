@@ -122,6 +122,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\PlaneSweep\PlaneSweepFoxtrot.cu;%(AdditionalDeps)</AdditionalDeps>
+      <AdditionalOptions> -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -144,6 +145,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\PlaneSweep\PlaneSweepFoxtrot.cu;%(AdditionalDeps)</AdditionalDeps>
+      <AdditionalOptions> -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -169,6 +171,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\PlaneSweep\PlaneSweepFoxtrot.cu;%(AdditionalDeps)</AdditionalDeps>
+      <AdditionalOptions> -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -195,6 +198,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\PlaneSweep\PlaneSweepFoxtrot.cu;%(AdditionalDeps)</AdditionalDeps>
+      <AdditionalOptions> -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -50,9 +50,9 @@ struct MinimalCandidatePrevalenceCounter
 	thrust::device_ptr<FeatureInstance> levelUniquesTempStorage;
 
 	thrust::device_ptr<float> results;
-	unsigned int levelsCount;
-	unsigned int instancesCount;
-	unsigned int candidatesCount;
+	thrust::device_ptr<unsigned int> levelsCount;
+	thrust::device_ptr<unsigned int> instancesCount;
+	thrust::device_ptr<unsigned int> candidatesCount;
 
 	__host__ __device__
 	void operator()(unsigned int idx) const;

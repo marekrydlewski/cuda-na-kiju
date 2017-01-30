@@ -9,15 +9,12 @@
 \usepackage[linesnumbered]{algorithm2e}
 \usepackage{textcomp}
 \usepackage{listings,chngcntr}
-<<<<<<< HEAD
 \usepackage{float}
 \usepackage{graphicx}
 \graphicspath{ {images/} }
-=======
 \usepackage{tikz}
 
 \usetikzlibrary{shapes,positioning,intersections,quotes}
->>>>>>> 19f5748bf37e2272ebc17c4f5404008e01fa2e65
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
@@ -318,21 +315,22 @@ zbiorem ich instancji. Niech $ >_{F} $ oznacza dowolną relację porządku zdefi
 Mające daną zwrotną i symetryczną relację sąsiedztwa R, sąsiedztwem lokalizacji l nazywamy zbiór lokalizacji $L = \{l_{1},l_{2}, . . . , l_{n}\}$, gdzie $l_{i}$ jest sąsiadem l, tzn. zachodzi $R(l, l_{i}) $ $ \forall i \in 1,...,n$.
 \end{defin}
 
-\begin{center}
+\begin{figure}
+\centering
 \begin{tikzpicture}[scale=2.5, transform shape]
 \draw[lightgray] (0,-0) grid[xstep=0.5, ystep=0.5]  (3,3);
 \draw[draw=black!30,latex-] (0,3) +(0,0.5cm) node[above right] {$y$} -- (0,0) -- +(0, 0cm);
 \draw[draw=black!30,-latex] (0,0) +(0cm,0) -- (3,0) -- +(0.5cm,0) node[below right] {$x$};
 \draw [gray, dashed] (1.0,2) circle (0.9cm);
-%\draw [gray, dashed] (2.5,0.5) circle (0.9cm);
+\draw [gray, dashed] (1.3,1.4) circle (0.9cm);
 
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]335: $ l_1 $ }] at (.3,.7) {};
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]25: $ l_2 $}] at (1.0,2) {};
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]155:$ l_3 $}] at (1.3,1.4) {};
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]155:$ l_4 $}] at (2.7,0.5) {};
 \end{tikzpicture}
-\end{center}
-
+\caption{Relacja sąsiedztwa - lokalizacje \textit{l}\textsubscript{2} oraz \textit{l}\textsubscript{3} sąsiadują ze sobą.}
+\end{figure}
 
 \subsubsection{Miary kolokacji}
 

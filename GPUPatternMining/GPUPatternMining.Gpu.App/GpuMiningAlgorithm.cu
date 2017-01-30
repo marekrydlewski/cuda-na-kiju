@@ -227,7 +227,7 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 		if (currentCliqueSize < 2)
 			continue;
 
-		unsigned int candidatesPerIteration = 5;
+		unsigned int candidatesPerIteration = 200;
 		unsigned int currentStart = 0;
 		unsigned int currentEnd = toProcess.size() % candidatesPerIteration;
 
@@ -238,14 +238,14 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 
 		while (currentEnd <= toProcess.size())
 		{
-			std::vector<Entities::CliqueCandidate> temp(toProcess.begin() + currentStart, toProcess.begin() + currentEnd);
+			std::vector<Entities::CliqueCandidate> currentProcessChunk(toProcess.begin() + currentStart, toProcess.begin() + currentEnd);
 
 
 			Entities::GpuCliques gpuCliques;// = Entities::moveCliquesCandidatesToGpu(toProcess);
 
 			ben.run_cumulative("build instance tree (prepare data)", 1, [&]()
 			{
-				gpuCliques = Entities::moveCliquesCandidatesToGpu(toProcess);
+				gpuCliques = Entities::moveCliquesCandidatesToGpu(currentProcessChunk);
 			});
 
 			InstanceTree::InstanceTreeResultPtr instanceTreeResult;// = instanceTree->getInstancesResult(gpuCliques);
@@ -279,13 +279,13 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 
 					if (hPrevalences[i] >= minimalPrevalence)
 					{
-						prevalentCliques.insertClique(toProcess[i]);
+						prevalentCliques.insertClique(currentProcessChunk[i]);
 
-						result.push_back(toProcess[i]);
+						result.push_back(currentProcessChunk[i]);
 					}
 					else if (currentCliqueSize > 2)
 					{
-						auto smallerCliques = getAllCliquesSmallerByOne(toProcess[i]);
+						auto smallerCliques = getAllCliquesSmallerByOne(currentProcessChunk[i]);
 
 						for (auto cand : smallerCliques)
 						{
@@ -299,6 +299,7 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 				}
 			}
 
+			currentStart += candidatesPerIteration;
 			currentEnd += candidatesPerIteration;
 		}
 	}

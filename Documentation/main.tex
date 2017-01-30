@@ -9,9 +9,15 @@
 \usepackage[linesnumbered]{algorithm2e}
 \usepackage{textcomp}
 \usepackage{listings,chngcntr}
+<<<<<<< HEAD
 \usepackage{float}
 \usepackage{graphicx}
 \graphicspath{ {images/} }
+=======
+\usepackage{tikz}
+
+\usetikzlibrary{shapes,positioning,intersections,quotes}
+>>>>>>> 19f5748bf37e2272ebc17c4f5404008e01fa2e65
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
@@ -291,7 +297,7 @@ Niniejszy rozdział zawiera opisy i definicje pojęć niezbędnych do zrozumieni
 
 Kluczową kwestią w procesie odkrywania kolokacji jest odpowiednia klasyfikacja obiektów występujących w bazie danych. Każdy zbiór danych przestrzennych, oprócz informacji o lokalizacji obiektu i opisujących go danych nieprzestrzennych powinien zawierać także właściwość pozwalającą na sklasyfikowanie danego obiektu do określonej klasy. Takie przypisanie nazywane jest cechą przestrzenną (ang. spatial feature) lub rzadziej klasą obiektu (ang. object class).
 
-Jako typowy przykład cechy przestrzennej można podać etykietę przypisaną do obiektu na mapie (np. kosciół, szkoła, strzelnica). Pozwala ona na jednoznaczne określenie własności przestrzeni w punkcie, gdzie znajduje się obiekt.
+Jako typowy przykład cechy przestrzennej można podać etykietę przypisaną do obiektu na mapie (np. kościół, szkoła, strzelnica). Pozwala ona na jednoznaczne określenie własności przestrzeni w punkcie, gdzie znajduje się obiekt.
 
 \subsubsection{Podstawowe definicje}
 
@@ -312,7 +318,21 @@ zbiorem ich instancji. Niech $ >_{F} $ oznacza dowolną relację porządku zdefi
 Mające daną zwrotną i symetryczną relację sąsiedztwa R, sąsiedztwem lokalizacji l nazywamy zbiór lokalizacji $L = \{l_{1},l_{2}, . . . , l_{n}\}$, gdzie $l_{i}$ jest sąsiadem l, tzn. zachodzi $R(l, l_{i}) $ $ \forall i \in 1,...,n$.
 \end{defin}
 
-Przykład TODO (oprzeć na przykładzie chińczyków?) nk te przykłady
+\begin{center}
+\begin{tikzpicture}[scale=2.5, transform shape]
+\draw[lightgray] (0,-0) grid[xstep=0.5, ystep=0.5]  (3,3);
+\draw[draw=black!30,latex-] (0,3) +(0,0.5cm) node[above right] {$y$} -- (0,0) -- +(0, 0cm);
+\draw[draw=black!30,-latex] (0,0) +(0cm,0) -- (3,0) -- +(0.5cm,0) node[below right] {$x$};
+\draw [gray, dashed] (1.0,2) circle (0.9cm);
+%\draw [gray, dashed] (2.5,0.5) circle (0.9cm);
+
+\node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]335: $ l_1 $ }] at (.3,.7) {};
+\node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]25: $ l_2 $}] at (1.0,2) {};
+\node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]155:$ l_3 $}] at (1.3,1.4) {};
+\node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]155:$ l_4 $}] at (2.7,0.5) {};
+\end{tikzpicture}
+\end{center}
+
 
 \subsubsection{Miary kolokacji}
 

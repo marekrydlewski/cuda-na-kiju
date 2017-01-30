@@ -948,10 +948,79 @@ Na podstawie tych danych uzupełniana jest mapa struktury \textit{ITMPack}. W ty
 
 Mając gotową strukturę $ ITMPack $, można przystąpić do wyznaczenia par instancji, których współczynnik powszechności jest nie mniejszy niż zadany na początku próg powszechności. 
 
-W tym celu niezbędne jest utworzenie struktur pomocniczych $ Counts_{A} $ i $ Counts_{B} $ przechowujących liczbę unikalnych wystąpień instancji odpowiednio pierwszego i drugiego typu elementu relacji na odpowiadającej pozycji tablicy $ ITMPack.uniques $. Tworzone są również podobne struktury przechowujące całkowitą liczbę instancji - noszą one odpowiednio nazwy $ TypesCounts_{A} $ (dla pierwszego elementu relacji) i $ TypesCounts_{B} $ dla drugiego elementu. 
+W tym celu niezbędne jest utworzenie struktur pomocniczych $ Counts_{A} $ i $ Counts_{B} $ przechowujących liczbę unikalnych wystąpień instancji odpowiednio pierwszego i drugiego typu elementu relacji na odpowiadającej pozycji tablicy $ ITMPack.uniques $. Dla każdej z tych tabel obliczana jest liczność unikalnych instancji dla typów równych odpowiednio pierwszym i drugim elementom relacji z tablicy \linebreak $ ITMPack.uniques $. Liczność ta wyznaczana jest na podstawie tabel $ Pairs_{A} $ i $ Pairs_{B} $ w zakresach wyznaczonych z wartości zawierających się w tabelach $ ITMPack.begins $ oraz $ ITMPack.counts $. Tworzone są również podobne struktury przechowujące całkowitą liczbę instancji - noszą one odpowiednio nazwy $ TypesCounts_{A} $ dla pierwszego i $ TypesCounts_{B} $ dla drugiego elementu relacji.
+
+Oprócz tego budowana jest tablica $ Mask $ wielkości $ N_{ItmUq} $ stanowiąca tzw. \textit{maskę prewalentności}. Początkowo zawiera ona wyłącznie wartości typu $ False $. Wartości tej tablicy wyznaczane są na podstawie dzielenia elementu tablicy $ Counts $ przez odpowiadający mu odpowiednik z tablicy $ TypesCounts $. Jeżeli minimum z ilorazów wyliczonych dla obu typów ($ A $ i $ B $) jest nie mniejsze niż zadany wcześniej próg minimalnej powszechności, na odpowiedniej pozycji w tablicy $ Mask $ umieszczana jest wartość $ True $.
+
+Posiadając zbudowaną maskę prewalentności można już wygenerować pary instancji. Uruchamiany jest zatem kernel przez $ N_{ItmUq} $ wątków. Każdy z nich sprawdza, czy na swojej pozycji w tabeli $ Mask $ znajduje się wartość $ True $ - jeżeli tak, z struktury $ WritePos $ przechowującą sumę ekskluzywną (ang. \textit{exclusive sum}) tabeli $ Mask $ pobiera $i$-tą wartość. Następnie następuje utworzenie struktury \linebreak $ FeatureTypePair $ w oparciu o relację z $ i $-tej pozycji w tabeli $ ITMPack.uniques$. Zostanie ona zapisana w tabeli $ PrevalentPairs $ przechowującej finalne pary instancji pod indeksem równym wartości pobranej z tabeli $ WritePos $.
+
+% czekam na Ciebie Kosiak ;> %
+
+\newpage
 
 \section{Testy efektywnościowe}
 \label{sec:tests}
+
+Rozdział ten w całości poświęcony jest omówieniu przebiegu testów, a także prezentacji i podsumowania wyników testów wydajnościowych opracowanych implementacji algorytmu \textit{SGCT}. 
+
+\subsection{Informacje wstępne}
+
+Wydajność poszczególnych implementacji została przetestowana pod kątem zmienności następujących czynników: całkowitego rozmiaru danych wejściowych, progu maksymalnej odległości między punktami, do którego zachodzi relacja sąsiedztwa oraz progu minimalnej powszechności.
+
+\subsubsection{Dane wejściowe}
+
+Dane wygenerowano przy pomocy generatora opracowanego przez P. Boińskiego \cite{guwnostraszne}, napisanego w języku \textit{Java}. Próbki testowe składają się z punktów, dla których określone są trzy wartości: współrzędna $ x $, współrzędna $ y $ oraz etykieta cechy, jaką reprezentuje dany punkt. Dodatkowo, punkty zostały rozmieszczone na przestrzeni $ 1000 \times 1000$. 
+
+Dla celów pomiarowych związanych ze zmiennością rozmiaru danych wejściowych utworzone zostało osiem zestawów danych, w których liczba punktów wynosi od ok. 3000 do 200000 punktów. W przypadku pozostałych testów posłużono się czterema instancjami, które można opisać jako:
+\begin{itemize}
+\item \textit{dane o niskim zagęszczeniu i równomiernym rozkładzie} - około 30000 punktów rozmieszczonych losowo
+\item \textit{dane o wysokim zagęszczeniu i równomiernym rozkładzie} - około 65000 punktów rozmieszczonych losowo
+\item \textit{dane o niskim zagęszczeniu ze skupiskami} - około 30000 punktów z dwoma skupiskami (obszarami, na których zagęszczenie punktów jest wyższe niż poza nimi)
+\item \textit{dane o wysokim zagęszczeniu ze skupiskami} - około 80000 punktów z dwoma skupiskami.
+\end{itemize}
+
+\subsubsection{Sprzęt}
+
+Poniższe testy przeprowadzane były na następującej konfiguracji sprzętowej. 
+
+\begin{itemize}
+\item CPU - \textit{Intel Core i7-930} o częstotliwości taktowania \textit{2.80 GHz}
+\item Pamięć operacyjna - \textit{24 GB RAM DDR3}
+\item GPU - dwie karty graficzne \textit{nVidia GeForce GTX Titan} połączone w systemie \textit{SLI}
+\item System operacyjny - \textit{Windows Server 2012 R2}
+\end{itemize}
+
+\subsubsection{Przebieg testów}
+
+Dla uśrednienia czasów wykonań poszczególnych testów i wyeliminowania zakłóceń każdy test został powtórzony dwudziestokrotnie. Wartości i zakresy parametrów algorytmu, dla których wykonano poszczególne grupy testów, przestawia Tabela \ref{tab:params}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Zmienny parametr} & \textbf{Próg min. powszechności} & \textbf{Próg maks. odległości} \\
+\hline
+Rozmiar instancji & 0.2 & 3 \\
+Próg min. powszechności & 0.05 - 0.4 & 5 \\
+Próg maks. odległości & 5 & 3 - 8 \\
+\hline
+\end{tabular}
+\caption{Wartości parametrów dla poszczególnych grup testów}
+\label{tab:params}
+\end{table}
+
+Testy zostały zautomatyzowane i uruchomione za pomocą skryptu napisanego w języku \textit{PowerShell}.
+
+\subsection{Wyniki}
+
+\subsubsection{Zmienny rozmiar danych}
+
+Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacji algorytmu w zależności od ilości punktów (odnośnik do wykresu :v).
+
+Dodatkowo na wykresie (odnośnik) przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz.
+
+\subsection{Wnioski}
+
 
 \section{Zakończenie}
 \label{sec:fin}

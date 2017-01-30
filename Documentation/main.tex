@@ -964,8 +964,14 @@ Rozpoczynamy od obliczenia osobno dla każdej z tablic \textit{Counts\textsubscr
 
 Następnie alokujemy tablice \textit{Mask} wielkości \textit{N\textsubscript{ItmUq}} zawierającą wartości "False". Następnie każdy element z wypełnionej przed chwilą tablicy  dzielimy przez odpowiadającą mu wartość z tablicy \textit{TypesCounts\textsubscript{A}}, dla wartości z tablic \textit{B} wykonujemy analogiczne działanie, na końcu sprawdzamy czy minimalna z tych wartości jest nie mniejsza niż zadany próg prewalentności i jeśli tak wpisujemy na odpowiedniej pozycji wartość "True".
 
-Posiadając zbudowaną maskę prewalentności tworzymy dwie tabele, pierwsza wielkości \textit{N\textsubscript{ItmUq}}o nazwie \textit{WritePos}, druga wielkości liczby wartości True w tabeli \textit{Mask} o nazwie \textit{PrevalentPairs} zawierającą obiekty typu \textit{FeatureTypePair}. Tabela \textit{WritePos} przechowuje lewostronną sumę ekskluzywną tabeli \textit{Mask} (wartość "True" traktowana jest jako 1, "False" jako 0). Następnie uruchamiamy \textit{N\textsubscript{ItmUq}} wątków na GPU, każdy i-ty wątek sprawdza czy na pozycji i w tabeli \textit{Mask} znajduje się wartość "True" jeśli tak to pobiera i-tą wartość z tabeli \textit{WritePos} będącej indeksem tabeli \textit{PrevalentPairs} pod którym zapisuje strukturę \textit{FeatureTypePair} utworzoną z relacji na i-tej pozycji w tabeli \textit{ITMPack}.\textit{uniques}.
- 	
+Posiadając zbudowaną maskę prewalentności tworzymy dwie tabele, pierwsza wielkości \textit{N\textsubscript{ItmUq}}o nazwie \textit{WritePos}, druga wielkości liczby wartości True w tabeli \textit{Mask} o nazwie \textit{PrevalentPairs} zawierającą obiekty typu \textit{FeatureTypePair}. Tabela \textit{WritePos} przechowuje lewostronną sumę ekskluzywną tabeli \textit{Mask} (wartość "True" traktowana jest jako 1, "False" jako 0). Następnie uruchamiamy \textit{N\textsubscript{ItmUq}} wątków na GPU, każdy i-ty wątek sprawdza czy na pozycji i w tabeli \textit{Mask} znajduje się wartość "True" jeśli tak to pobiera i-tą wartość z tabeli \textit{WritePos} będącej indeksem tabeli \textit{PrevalentTypePairs} pod którym zapisuje strukturę \textit{FeatureTypePair} utworzoną z relacji na i-tej pozycji w tabeli \textit{ITMPack}.\textit{uniques}.
+ 
+\subsection{Generowanie kandydatów na kolokacje maksymalne}
+ 
+
+przepisać dział 3, jedyne co zaznaczyć to że prewalentne połączenia pomiędzy typami pobieramy z tabeli {PrevalentTypePairs} a wynik umieszczony zostanie w tabeli \textit{CliquesCandidates}.
+ 
+ 
 \newpage
 \section{Testy efektywnościowe}
 \label{sec:tests}

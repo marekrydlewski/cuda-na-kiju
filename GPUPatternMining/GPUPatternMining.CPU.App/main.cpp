@@ -36,14 +36,14 @@ int main(int argc, char* argv[])
 	CPUMiningAlgorithmParallel cpuAlgParallel;
 	bmk::benchmark<std::chrono::milliseconds> bmSeq, bmParallel;
 
-	bmSeq.run_p("load data", 1, [&]() { cpuAlgSeq.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
-	bmSeq.run_p("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(distance); });
-	bmSeq.run_p("filter by prevalence", 1, [&]() { cpuAlgSeq.filterByPrevalence(prevalence); });
-	bmSeq.run_p("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
-	bmSeq.run_p("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
+	//bmSeq.run_p("load data", 1, [&]() { cpuAlgSeq.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data)); });
+	//bmSeq.run_p("filter by distance", 1, [&]() { cpuAlgSeq.filterByDistance(distance); });
+	//bmSeq.run_p("filter by prevalence", 1, [&]() { cpuAlgSeq.filterByPrevalence(prevalence); });
+	//bmSeq.run_p("construct max cliques", 1, [&]() { cpuAlgSeq.constructMaximalCliques(); });
+	//bmSeq.run_p("filter max cliques", 1, [&]() { solutionSeq = cpuAlgSeq.filterMaximalCliques(prevalence); });
 
-	bmSeq.print("sequential algorithm", std::cout);
-	bmSeq.serializeCsv((fileName + "Seq-" + "prev" + std::to_string(prevalence) + "dist" + std::to_string(distance) + "-" + ordNumber + ".csv").c_str());
+	//bmSeq.print("sequential algorithm", std::cout);
+	//bmSeq.serializeCsv((fileName + "Seq-" + "prev" + std::to_string(prevalence) + "dist" + std::to_string(distance) + "-" + ordNumber + ".csv").c_str());
 
 
 	//bmSeq.serialize("CPU seq algorithm", "CPUseq.txt");

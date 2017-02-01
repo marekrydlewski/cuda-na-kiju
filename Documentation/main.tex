@@ -1218,6 +1218,110 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
 \label{chart:maxdist-nonsparse}
 \end{figure}
 
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Próg maksymalnej odległości},
+            ylabel={Czas (ms)},
+            xtick=data,
+            ymin=0, ymax=3000,
+            xmin=2, xmax=5,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (2,65.95)(2.5,130.35)(3,221.1)(3.5,386.55)(4,490.8)(4.5,505.3)(5,483.1)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,32.95)(2.5,62.2)(3,95.15)(3.5,151.05)(4,182.2)(4.5,205.3)(5,217.35)
+         };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,1527.4)(2.5,1639.75)(3,1926.4)(3.5,2353.5)(4,2532.4)(4.5,2181.65)(5,1937.9)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od progu maksymalnej odległości dla danych rzadkich ze skupiskami}
+\label{chart:maxdist-sparse-hotspots}
+\end{figure}
+
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Próg maksymalnej odległości},
+            ylabel={Czas (ms)},
+            xtick=data,
+            ymin=0, ymax=500000,
+            xmin=2, xmax=5,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (2,2707.25)(2.5,10790.95)(3,30445.7)(3.5,54134.4)(4,65445.65)(4.5,23831.25)(5,410738.6)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,817.3)(2.5,2596.55)(3,6764.9)(3.5,12306.4)(4,21553.95)(4.5,11650.45)(5,140731.4)
+         };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,14687.95)(2.5,25544.8)(3,20642.55)(3.5,24312.45)(4,15273.4)(4.5,10056.6)(5,35529.55)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od progu maksymalnej odległości dla danych gęstych ze skupiskami}
+\label{chart:maxdist-nonsparse-hotspots}
+\end{figure}
+
 \subsection{Wnioski}
 
 

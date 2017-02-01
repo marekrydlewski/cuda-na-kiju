@@ -13,6 +13,7 @@
 \usepackage{graphicx}
 \graphicspath{ {images/} }
 \usepackage{tikz}
+\usepackage{pgfplots}
 
 \usetikzlibrary{shapes,positioning,intersections,quotes}
 
@@ -1015,9 +1016,103 @@ Testy zostały zautomatyzowane i uruchomione za pomocą skryptu napisanego w ję
 
 \subsubsection{Zmienny rozmiar danych}
 
-Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacji algorytmu w zależności od ilości punktów (odnośnik do wykresu :v).
+Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacji algorytmu w zależności od ilości punktów (Rysunek \ref{chart:datasize}).
 
-Dodatkowo na wykresie (odnośnik) przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz.
+\begin{figure}[ht]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Rozmiar danych},
+            ylabel={Czas (ms)},
+            ymin=0, ymax=75000,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (1701,31.9)(3624,149.15)(7526,405.75)(15289,634)(32655,2909.5)(66866,5946.55)(145686,15295.55)(204708,74280.85)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,33.15)(3624,158.5)(7526,380.9)(15289,394.65)(32655,948.55)(66866,3255.6)(145686,6032.25)(204708,27712.3)
+         };
+        
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+           (1701,1268.6)(3624,1267.6)(7526,3125.75)(15289,6147.45)(32655,7439.5)(66866,12204.6)(145686,8255.75)(204708,25806.1)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od rozmiaru danych wejściowych}
+\label{chart:datasize}
+\end{figure}
+
+Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. Ze względu na czytelność wykresu czasy dla implementacji na GPU zostały pominięte - były one zbyt wysokie.
+
+\begin{figure}[ht]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Rozmiar danych},
+            ylabel={Czas (ms)},
+            ymin=0, ymax=45,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (1701,2.05)(3624,6.2)(7526,18)(15289,40.9)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,4.3)(3624,6.35)(7526,14.1)(15289,19.05)
+         };
+             
+\legend{Sequential, Parallel}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu znalezienia relacji sąsiedztwa w różnych implementacjach od rozmiaru danych wejściowych}
+\label{chart:planesweep-datasize}
+\end{figure}
+
+\subsubsection{Zmienny próg minimalnej powszechności}
+
+
 
 \subsection{Wnioski}
 

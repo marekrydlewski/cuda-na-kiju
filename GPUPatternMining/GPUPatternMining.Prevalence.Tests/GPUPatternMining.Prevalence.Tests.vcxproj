@@ -115,6 +115,7 @@
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\Prevalence\BitmapPairPrevalence.h;%(AdditionalDeps)</AdditionalDeps>
+      <AdditionalOptions> -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
     <Link>
       <AdditionalDependencies>cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -130,6 +131,7 @@
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\Prevalence\BitmapPairPrevalence.h;%(AdditionalDeps)</AdditionalDeps>
+      <AdditionalOptions> -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
     <Link>
       <AdditionalDependencies>cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -152,6 +154,7 @@
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\Prevalence\BitmapPairPrevalence.h;%(AdditionalDeps)</AdditionalDeps>
+      <AdditionalOptions> -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,6 +175,7 @@
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <AdditionalDeps>$(SolutionDir)GPUPatternMining\Prevalence\BitmapPairPrevalence.h;%(AdditionalDeps)</AdditionalDeps>
+      <AdditionalOptions> -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

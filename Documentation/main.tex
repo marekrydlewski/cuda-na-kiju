@@ -1002,7 +1002,7 @@ Dla uśrednienia czasów wykonań poszczególnych testów i wyeliminowania zakł
 \textbf{Zmienny parametr} & \textbf{Próg min. powszechności} & \textbf{Próg maks. odległości} \\
 \hline
 Rozmiar instancji & 0.2 & 3 \\
-Próg min. powszechności & 0.05 - 0.4 & 5 \\
+Próg min. powszechności & 0.2 - 0.4 & 5 \\
 Próg maks. odległości & 0.2 & 2 - 5 \\
 \hline
 \end{tabular}
@@ -1110,7 +1110,7 @@ Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykona�
 \label{chart:planesweep-datasize}
 \end{figure}
 
-\subsubsection{Zmienny próg minimalnej powszechności}
+\subsubsection{Zmienny próg maksymalnej odległości}
 
 Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algorytmu w różnych implementacjach ze względu na zmienny próg maksymalnej odległości.
 
@@ -1320,6 +1320,62 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
 \end{tikzpicture}
 \caption{Wykres zależności czasu wykonania implementacji algorytmu od progu maksymalnej odległości dla danych gęstych ze skupiskami}
 \label{chart:maxdist-nonsparse-hotspots}
+\end{figure}
+
+\subsubsection{Zmienny próg minimalnej powszechności}
+
+Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytmu w różnych implementacjach ze względu na zmienny próg minimalnej powszechności.
+
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Próg maksymalnej odległości},
+            ylabel={Czas (ms)},
+            xtick=data,
+            ymin=0, ymax=35000,
+            xmin=0.2, xmax=0.4,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (0.2,11616.7)(0.25,31008.85)(0.3,1237.55)(0.35,1202.5)(0.4,4862.3)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (0.2,3678.6)(0.25,8034.6)(0.3,1063.35)(0.35,1081.9)(0.4,1579.35)
+         };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (0.2,6082.4)(0.25,17783.9)(0.3,2247.6)(0.35,2229.7)(0.4,5129.7)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od progu minimalnej powszechności}
+\label{chart:minprev-sparse}
 \end{figure}
 
 \subsection{Wnioski}

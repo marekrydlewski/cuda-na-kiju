@@ -1068,7 +1068,7 @@ Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacj
 \label{chart:datasize}
 \end{figure}
 
-Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna. Ze względu na czytelność wykresu czasy dla implementacji na GPU zostały pominięte - były one zbyt wysokie.
+Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU oraz GPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna.
 
 \begin{figure}[H]
 \begin{tikzpicture}
@@ -1102,8 +1102,19 @@ Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykona�
           coordinates {
          (1701,4.3)(3624,6.35)(7526,14.1)(15289,19.05)
          };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          dashed,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,7.25)(3624,8.4)(7526,10)(15289,16)
+         };
              
-\legend{Sequential, Parallel}
+\legend{Sequential, Parallel, GPU}
 \end{axis}
 \end{tikzpicture}
 \caption{Wykres zależności czasu znalezienia relacji sąsiedztwa w różnych implementacjach od rozmiaru danych wejściowych}
@@ -1175,7 +1186,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             xtick=data,
             ymin=0, ymax=135000,
             xmin=2, xmax=6,
-            restrict y to domain=0:2500000,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1186,7 +1196,8 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
           color=red,
           ultra thick,
           mark=*,
-          smooth
+          smooth,
+          tension=0.21
           ]
           coordinates {
           (2,1926.2)(2.5,4471.5)(3,21437.6)(3.5,44259.7)(4,81484.45)(4.5,131340.8)(5,38768)(5.5,63127.05)(6,2012318)
@@ -1196,7 +1207,8 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
           color=blue,
           ultra thick,
           mark=*,
-          smooth
+          smooth,
+          tension=0.3
           ]
           coordinates {
          (2,529.05)(2.5,1170)(3,4561.8)(3.5,9276.9)(4,18455.7)(4.5,31357.05)(5,19851.95)(5.5,36743.55)(6,807206.6)
@@ -1331,7 +1343,7 @@ Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytm
 \begin{tikzpicture}
 \begin{axis}[
             legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
-            xlabel={Próg maksymalnej odległości},
+            xlabel={Próg minimalnej powszechności},
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=35000,
@@ -1346,7 +1358,8 @@ Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytm
           color=red,
           ultra thick,
           mark=*,
-          smooth
+          smooth,
+          tension=0.2
           ]
           coordinates {
           (0.1,14785.55)(0.15,3050)(0.2,11616.7)(0.25,31008.85)(0.3,1237.55)(0.35,1202.5)(0.4,4862.3)(0.45,419.4)(0.5,414.35)

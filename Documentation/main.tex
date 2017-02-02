@@ -882,11 +882,9 @@ Pozycja zapisu w tablicach wynikowych wyznaczana jest przy pomocy operatora mnie
 
 Warto zauważyć, że nigdzie nie jest zapisywana informacja o współrzędnych instancji - nie będą one potrzebne w dalszym toku pracy algorytmu.
 
-\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
+\subsection{Uporządkowanie zbioru par}
 
-Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu szybszy dostęp do instancji, które należą do relacji o określonej cesze. 
-
-Na początku pary instancji z poprzedniego etapu algorytmu zostają posortowane za pomocą algorytmu~\ref{alg:FeatureInstancePair_operator} będącego przeciążeniem operatora mniejszości dla par instancji typu \textit{FeatureInstance}. W wyniku jego działania instancje zostaną posortowane według typów relacji - wszystkie relacje o tych samych typach zajmą w wejściowych tablicach ciągły obszar. Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}.
+W celu usprawnienia dostępu i umożliwienia stworzenia opisywanych w następnych krokach struktur $ ITMPack $ oraz $ ITNMPack $ na zbiór par nałożony zostaje porządek wyznaczony przez następujący operator mniejszości
 
 \begin{figure}[H]
 \begin{algorithm}[H]
@@ -908,12 +906,14 @@ $operator<(FeatureInstance\ lhs,FeatureInstance\ rhs) $\\
   
   \Return $ False $ \;
 \}
-  
+
 \caption{Operator mniejszości dla par instancji typu FeatureInstance}
 \label{alg:FeatureInstancePair_operator}
 \end{algorithm}
 \end{figure}
 
+W wyniku jego działania instancje zostaną posortowane według typów relacji - wszystkie relacje o tych samych typach zajmą w wejściowych tablicach ciągły obszar. Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}.
+  
 \begin{figure}[H]
 \centering
 \includegraphics{sortAttr_insTable}
@@ -921,14 +921,18 @@ $operator<(FeatureInstance\ lhs,FeatureInstance\ rhs) $\\
 \label{fig:pairs_content}
 \end{figure}
 
-Dzięki tej właściwości można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Problemem w tym przypadku okazał się fakt, że instancje na tym etapie są nierozróżnialne pod względem wartości identyfikatorów instancji. W związku z tym niezbędne okazało się zaimplementowane algorytmu~\ref{alg:FeatureInstancePair_operator} przeciążającego operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
+\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
+
+Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
+
+Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania zbioru par polegającej na zajmowaniu przez relacje o danych typach ciągłego obszaru można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Jako, że instancje w obecnym kroku rozróżnialne są tylko na podstawie typów zaimplementowany został algorytm~\ref{alg:FeatureInstancePair_operator} przeciążający operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji tylko względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
 
 \begin{figure}[H]
 \begin{algorithm}[H]
 $operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
 \{\\
 \Return $lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
-$\ \&\&\ lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
+$\ \&\&\ lhs.get[1].fields.featureId\ ==\ rhs.get[1].fields.featureId$\\
 \}
 \caption{Operator równości dla par instancji typu FeatureInstanceTuple }
 \label{alg:FeatureInstanceTuple_operator}
@@ -954,8 +958,6 @@ Oprócz tego budowana jest tablica $ Mask $ wielkości $ N_{ItmUq} $ stanowiąca
 
 Posiadając zbudowaną maskę prewalentności można już wygenerować pary instancji. Uruchamiany jest zatem kernel przez $ N_{ItmUq} $ wątków. Każdy z nich sprawdza, czy na swojej pozycji w tabeli $ Mask $ znajduje się wartość $ True $ - jeżeli tak, z struktury $ WritePos $ przechowującą sumę ekskluzywną (ang. \textit{exclusive sum}) tabeli $ Mask $ pobiera $i$-tą wartość. Następnie następuje utworzenie struktury \linebreak $ FeatureTypePair $ w oparciu o relację z $ i $-tej pozycji w tabeli $ ITMPack.uniques$. Zostanie ona zapisana w tabeli $ PrevalentPairs $ przechowującej finalne pary instancji pod indeksem równym wartości pobranej z tabeli $ WritePos $.
 
-% czekam na Ciebie Kosiak ;> %
-
 \subsection{Generowanie kandydatów na kolokacje maksymalne}
 
 W wersji GPU algorytmu do generowania kandydatów maksymalnych wykorzystany został mechanizm użyty w wersji CPU. Kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
@@ -964,10 +966,57 @@ Po wygenerowaniu grafu liczona jest jego miara degeneracji (patrz Definicja~\ref
 
 Dalsze kroki algorytmu wykonywane są dla poszczególnych wierzchołków uporządkowanych według miary degeneracji. Podobnie jak w oryginalnym algorytmie z pracy \cite{pivot} tworzone są grupy wierzchołków o niższych i wyższych indeksach, a następnie uruchamiana jest funkcja $ BK\_Pivot $, w której następuje wyszukiwanie maksymalnych klik w oparciu o algorytm Brona-Kerboscha \cite{kerbosz}. 
 
-Aby ograniczyć czas wyszukiwania maksymalnych klik, zostały zastosowane tzw. \textit{wektory sortowane} zamiast zazwyczaj używanych zbiorów (\textit{std::set}) z biblioteki C++. Posiadają one większą wydajność, a do tego pozwalają na skorzystanie z funkcjonalności zarezerwowanej wyłącznie dla zbiorów.
+Różnicą względem algorytmu CPU jest to, że zbiór wynikowy kandydatów grupujemy względem ich długości, co umożliwia nam w następnym kroku szybki dostęp do kandydatów o jednakowej długości. Zbiór ten oznaczany jako \textit{uniqueCandidates} jest obiektem typu mapa wektorów kandydatów, gdzie kluczem jest długość kandydata.
 
 
+\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji zadanej instancji z instancjami zadanego typu }
 
+Drugą, nieopisaną jeszcze własnością wprowadzonego uporządkowania par jest fakt, iż dla wszystkie instancje każdej relacji o określonej instancji pierwszego elementu oraz określonym typie drugiego elementu zajmują ciągłą przestrzeń w zbiorach $ Pairs_{A} $ oraz $ Pairs_{B} $. Pozwala to na zbudowanie struktury $ ITNMPack $ dającej szybki dostęp do wszystkich sąsiadów danego typu dla określonej instancji.
+
+Procedura tworzenia tej struktury przebiega bardzo podobnie do procedury tworzenia struktury $ ITMPack $. Rzeczą różną jest natomiast wykorzystany operator równości par instancji\ref{alg:FeatureInstanceTuple_operatorITNMPack} widoczny poniżej
+
+\begin{figure}[H]
+\begin{algorithm}[H]
+$operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
+\{\\
+\Return $lhs.get[0].field ==\ rhs.get[0].field$\\
+$\ \&\&\ lhs.get[1].fields.featureId\ ==\ rhs.get[1].fields.featureId$\\
+\}
+\caption{Operator równości dla par instancji typu FeatureInstanceTuple }
+\label{alg:FeatureInstanceTuple_operatorITNMPack}
+\end{algorithm}
+\end{figure}
+
+Operator \ref{alg:FeatureInstanceTuple_operatorITNMPack} ustanawia pary instancji jako równe sobie tylko w przypadku gdy ich pierwsze elementy są równe względem identyfikatora oraz typu (jest to ta sama instancja), a drugie elementy są jednego typu.
+
+Wynikiem działania funkcji \textit{reduce\_by\_key} z operatorem \ref{alg:FeatureInstanceTuple_operatorITNMPack} są trzy tablice o jednakowym rozmiarze $ c_{r} $:
+\begin{itemize}
+\item \textit{Uniques} - zawiera wszystkie występujące unikalne (z poziomu operatora \ref{alg:FeatureInstanceTuple_operatorITNMPack}) relacje,
+\item \textit{Counts} - zawiera liczności instancji unikalnych relacji,
+\item \textit{Begins} - zawiera indeksy tabeli instancji relacji, oznaczające początki obszarów ciągłych odpowiadającym elementom z tablicy \textit{Uniques}.
+\end{itemize}
+
+Z elementów tabeli \textit{Uniques} tego kroku tworzone są klucze złożone z identyfikatorów instancji oraz typu pierwszego elementu pary instancji połączonych z identyfikatorem typu drugiego elementu pary. Z połączenia odpowiadających sobie wartości w 
+
+\subsection{Wyodrębnienie ze zbioru kandydatów kolokacji maksymalnych kandydatów spełniających kryterium prewalentności}
+
+Ostatni krok implementacji algorytmu można podzielić na cztery mniejsze kroki
+
+\begin{enumerate}
+	\item pobranie ze zbioru \textit{uniqueCandidates} zbioru najdłuższych, nieprzetworzonych kandydatów oraz wprowadzenie ich do pamięci GPU. Zbiór ten oznaczmy jako \textit{toProcess}
+	\item wygenerowanie drzewa instancji oraz na podstawie tego drzewa zmaterializowanie wszystkich unikalnych instancji aktualnie przetwarzanych kandydatów
+	\item obliczenie prewalentności przetwarzanych kandydatów 
+	\item w zależności od wartości współczynnika prewalentności zaliczenie kandydata do zbioru kolokacji maksymalnych, lub rozbicie go na \textit{n} krótszych o 1 unikalnych kandydatów 
+\end{enumerate}
+
+kroki te są powtarzane w cyklu do momentu w którym w zbiorze \textit{candidates} nie ma już nieprzetworzonych kandydatów. Dodatkowo ze względu na ograniczenia pamięciowe przestrzeni GPU zbiór \textit{toProcess} dzielimy na podzbiory (których wielkość zależy od ilości pamięci), kroki II oraz III są następnie wykonywane dla każdego takiego podzbioru osobno.
+
+Kandydaci są przetwarzani grupami, jedna grupa to jedna iteracja, w każdej iteracji przetwarzani kandydaci mają długość o jeden mniejszą niż w poprzedniej iteracji. Kolejność ta jest ważna, ponieważ zapewnia nam, że aktualnie przetwarzany kandydat nie jest częścią większej kliki. 
+
+Na początku każdej iteracji pobieramy wektor kandydatów znajdujący się pod kluczem równym aktualnej długości przetwarzanych kandydatów. Wektor ten następnie umieszczamy w pamięci GPU.
+
+Celem kroku drugiego jest materializacja kandydatów co posłuży do obliczenia powszechności ich występowania. Do tego celu użyte zostało drzewo instancji. Każdy \textit{i}-ty poziom drzewa instancji odpowiada \textit{i}-temu elementowi kandydata.
+Pierwsze dwa poziomy budowane są na podstawie 
 
 \newpage
 
@@ -1348,6 +1397,72 @@ struct vector_hash {
 \item Timer - Generyczna klasa umożliwiająca pomiar czasu dla dowolnej funkcji lub funktora z dowolną liczbą argumentów. Zapewnia ustawienie dowolnego typu zegara i dokładności pomiaru. Odpowiada za sprawdzenie czasu wykonywania poszczególnych kroków algorytmu.
 
 \item Benchmark - Klasa umożliwiająca przeprowadzenie parametryzowanych testów wydajnościowych całego algorytmu, zapewniając m.in. serializację do pliku. Wyeksportowane dane mogą zostać zwizualizowane za pomocą wykresów do których tworzenia wykorzystano odpowiedni skrypt w języku Python.
+
+\item FeatureInstance - \lstinline{Unia} składająca się z pola typu \lstinline{unsigned int} oraz struktury zawierającej dwa pola typu \lstinline{unsigned short} służąca do przechowywania identyfikatora typu oraz unikalnego względem typu identyfikatora instancji.
+
+\begin{figure}[H]
+\begin{lstlisting}
+union __declspec(align(4)) FeatureInstance
+{
+	unsigned int field;
+
+	struct __inner
+	{
+		unsigned short instanceId;
+		unsigned short featureId;
+	} fields;
+};
+\end{lstlisting}
+\end{figure}
+
+\item InstanceTable - klasa przetrzymująca informacje o indeksie startowym w tablicach przechowywujących posortowane instancje relacji sąsiedztwa oraz ich ilości. 
+
+\begin{figure}[H]
+\begin{lstlisting}[caption={Kod klasy InstanceTable}]
+	class InstanceTable
+	{
+	public:
+		unsigned int count;
+		unsigned int startIdx;
+	};
+\end{lstlisting}
+\end{figure}
+
+\item ITMPack - struktura przechowująca informacje potrzebne do szybkiego dostępu do wszystkich instancji relacji o zadanych typach (na przykład wszystkich instancji relacji o typach \{A,B\}).
+
+\begin{figure}[H]
+\begin{lstlisting}[caption={Kod struktury ITMPack}]
+
+	struct ITMPack
+	{
+		InstanceTableMapPtr map;
+		thrust::device_vector<unsigned int> begins;
+		thrust::device_vector<unsigned int> counts;
+		thrust::device_vector<FeatureInstanceTuple> uniques;
+		unsigned int count;
+	};
+\end{lstlisting}
+\end{figure}
+
+tabele \textit{uniques}, \textit{begins}, \textit{counts} zawierają odpowiednio pary typów będących w relacji, indeks pierwszej instancji pary w tabelach \textit{Pairs}\textsubscript{A} oraz \textit{Pairs}\textsubscript{B} oraz liczność grupy instancji relacji. Pole map zapewnia dostęp do hash mapy o kluczu będącym parą typów umożliwiającej (w przestrzeni obliczeniowej GPU) na szybki dostęp do informacji o początku i liczności grupy instancji relacji sąsiedztwa danego typu co pozwala wyznaczyć jej zakres.
+
+\item FeatureTypePair - struktura przechowująca parę typów instancji, pozwalająca na szybkie pobranie obu wartości
+
+\begin{figure}[H]
+\begin{lstlisting}[caption={Kod struktury ITMPack}]
+
+union __declspec(align(4)) FeatureTypePair
+{
+	unsigned int combined;
+
+	struct
+	{
+		unsigned short b;
+		unsigned short a;
+	} types;
+};
+\end{lstlisting}
+\end{figure}
 
 \end{itemize}
 

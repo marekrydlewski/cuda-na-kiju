@@ -706,6 +706,7 @@ Na początku wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zli
 Następnie w oparciu o wektor wynikowy tej funkcji oraz utworzony wcześniej wektor $ typeIncidenceCounter$ (patrz Rozdział~\ref{subsec:cpu-step-1}) dla każdego kandydata w tabeli $ insTable $ wyliczany jest współczynnik uczestnictwa. W przypadku, gdy obliczona miara powszechności jest mniejsza od zadanego progu minimalnej powszechności, kandydat jest usuwany z struktury $ insTable $, a użyta przez niego pamięć zostaje zwolniona na poczet dalszych obliczeń.
 
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
+\label{subsec:kerbosz}
 
 Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
 
@@ -882,11 +883,10 @@ Pozycja zapisu w tablicach wynikowych wyznaczana jest przy pomocy operatora mnie
 
 Warto zauważyć, że nigdzie nie jest zapisywana informacja o współrzędnych instancji - nie będą one potrzebne w dalszym toku pracy algorytmu.
 
-\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
+\subsection{Uporządkowanie zbioru par}
+\label{subsec:pair_ordering}
 
-Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu szybszy dostęp do instancji, które należą do relacji o określonej cesze. 
-
-Na początku pary instancji z poprzedniego etapu algorytmu zostają posortowane za pomocą algorytmu~\ref{alg:FeatureInstancePair_operator} będącego przeciążeniem operatora mniejszości dla par instancji typu \textit{FeatureInstance}. W wyniku jego działania instancje zostaną posortowane według typów relacji - wszystkie relacje o tych samych typach zajmą w wejściowych tablicach ciągły obszar. Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}.
+Struktury pomocnicze wykorzystywane w następnych krokach algorytmu wymagają, aby zbiór par został odpowiednio uporządkowany. W związku z tym, na zbiór par nałożony zostaje porządek wyznaczony przez Algorytm~\ref{alg:FeatureInstancePair-operator} będącym operatorem mniejszości zaimplementowanym dla par instancji typu $ FeatureInstance $.
 
 \begin{figure}[H]
 \begin{algorithm}[H]
@@ -908,12 +908,19 @@ $operator<(FeatureInstance\ lhs,FeatureInstance\ rhs) $\\
   
   \Return $ False $ \;
 \}
-  
-\caption{Operator mniejszości dla par instancji typu FeatureInstance}
-\label{alg:FeatureInstancePair_operator}
+
+\caption{Operator mniejszości dla par instancji typu $ FeatureInstance $}
+\label{alg:FeatureInstancePair-operator}
 \end{algorithm}
 \end{figure}
 
+Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}. Tak posortowany zbiór posiada następujące właściwości:
+\begin{itemize}
+\item wszystkie relacje o tych samych typach zajmą w wejściowych tablicach ciągły obszar,
+\item wszystkie instancje każdej relacji o określonej instancji pierwszego elementu oraz określonym typie drugiego elementu zajmą ciągłą przestrzeń w zbiorach $ Pairs_{A} $ oraz $ Pairs_{B} $.
+\end{itemize}
+
+  
 \begin{figure}[H]
 \centering
 \includegraphics{sortAttr_insTable}
@@ -921,7 +928,11 @@ $operator<(FeatureInstance\ lhs,FeatureInstance\ rhs) $\\
 \label{fig:pairs_content}
 \end{figure}
 
-Dzięki tej właściwości można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Problemem w tym przypadku okazał się fakt, że instancje na tym etapie są nierozróżnialne pod względem wartości identyfikatorów instancji. W związku z tym niezbędne okazało się zaimplementowane algorytmu~\ref{alg:FeatureInstancePair_operator} przeciążającego operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
+\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
+
+Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
+
+Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania zbioru par polegającej na zajmowaniu przez relacje o danych typach ciągłego obszaru można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Jako, że instancje w obecnym kroku rozróżnialne są tylko na podstawie typów zaimplementowany został algorytm~\ref{alg:FeatureInstanceTuple-operator} przeciążający operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji tylko względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
 
 \begin{figure}[H]
 \begin{algorithm}[H]
@@ -931,7 +942,7 @@ $operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
 $\ \&\&\ lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
 \}
 \caption{Operator równości dla par instancji typu FeatureInstanceTuple }
-\label{alg:FeatureInstanceTuple_operator}
+\label{alg:FeatureInstanceTuple-operator}
 \end{algorithm}
 \end{figure}
 
@@ -954,7 +965,40 @@ Oprócz tego budowana jest tablica $ Mask $ wielkości $ N_{ItmUq} $ stanowiąca
 
 Posiadając zbudowaną maskę prewalentności można już wygenerować pary instancji. Uruchamiany jest zatem kernel przez $ N_{ItmUq} $ wątków. Każdy z nich sprawdza, czy na swojej pozycji w tabeli $ Mask $ znajduje się wartość $ True $ - jeżeli tak, z struktury $ WritePos $ przechowującą sumę ekskluzywną (ang. \textit{exclusive sum}) tabeli $ Mask $ pobiera $i$-tą wartość. Następnie następuje utworzenie struktury \linebreak $ FeatureTypePair $ w oparciu o relację z $ i $-tej pozycji w tabeli $ ITMPack.uniques$. Zostanie ona zapisana w tabeli $ PrevalentPairs $ przechowującej finalne pary instancji pod indeksem równym wartości pobranej z tabeli $ WritePos $.
 
-% czekam na Ciebie Kosiak ;> %
+\subsection{Generowanie kandydatów na kolokacje maksymalne}
+
+W wersji GPU algorytmu do generowania kandydatów maksymalnych wykorzystany został mechanizm użyty w wersji CPU (patrz Rozdział~\ref{subsec:kerbosz}) -  w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}) oraz algorytm Brona-Kerboscha \cite{kerbosz}.
+
+Różnicą względem algorytmu CPU jest to, że zbiór wynikowy kandydatów jest grupowany względem ich długości. Umożliwia to szybki dostęp do kandydatów o jednakowej długości w następnym kroku. Zbiór ten oznaczany jako $ uniqueCandidates $ stanowi mapę wektorów kandydatów, gdzie kluczem jest długość kandydata.
+
+\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji zadanej instancji z instancjami zadanego typu}
+
+Na tym etapie tworzona jest struktura $ ITNMPack $ dającej szybki dostęp do wszystkich sąsiadów danego typu dla określonej instancji. Wykorzystuje ona drugą właściwości zbioru uporządkowanego w Rozdziale~\ref{subsec:pair_ordering}.
+
+Procedura tworzenia tej struktury przebiega bardzo podobnie do procedury tworzenia struktury $ ITMPack $ - główna różnica tkwi w odmiennej implementacji operatora równości dla par instancji $ FeatureInstanceTuple $, przedstawionej w Algorytmie~\ref{alg:FeatureInstanceTuple_operatorITNMPack}. Ustanawia on pary instancji jako równe sobie tylko w przypadku, gdy ich pierwsze elementy są równe względem identyfikatora oraz typu (jest to ta sama instancja), a drugie elementy są tego samego typu.
+
+\begin{figure}[H]
+\begin{algorithm}[H]
+$operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
+\{\\
+\Return $lhs.get[0].field ==\ rhs.get[0].field$\\
+$\ \&\&\ lhs.get[1].fields.featureId\ ==\ rhs.get[1].fields.featureId$\\
+\}
+\caption{Operator równości dla par instancji typu FeatureInstanceTuple }
+\label{alg:FeatureInstanceTuple_operatorITNMPack}
+\end{algorithm}
+\end{figure}
+
+Wynikiem działania funkcji \textit{reduce\_by\_key} z operatorem \ref{alg:FeatureInstanceTuple_operatorITNMPack} są trzy tablice o jednakowym rozmiarze $ c_{r} $:
+\begin{itemize}
+\item \textit{Uniques} - zawiera wszystkie występujące unikalne (z poziomu operatora \ref{alg:FeatureInstanceTuple_operatorITNMPack}) relacje,
+\item \textit{Counts} - zawiera liczności instancji unikalnych relacji,
+\item \textit{Begins} - zawiera indeksy tabeli instancji relacji, oznaczające początki obszarów ciągłych odpowiadającym elementom z tablicy \textit{Uniques}.
+\end{itemize}
+
+Z elementów tabeli \textit{Uniques} tego kroku tworzone są klucze złożone z identyfikatorów instancji oraz typu pierwszego elementu pary instancji połączonych z identyfikatorem typu drugiego elementu pary. Z połączenia odpowiadających sobie wartości w 
+
+\subsection{Wyodrębnienie ze zbioru kandydatów kolokacji maksymalnych kandydatów spełniających kryterium prewalentności}
 
 \newpage
 
@@ -1029,46 +1073,46 @@ Dodatkowo na wykresie (odnośnik) przedstawiono czasy wykonań części algorytm
 
 \begin{thebibliography}{}
 % Autorzy, Tytuł, Gdzie ?, Rok wydania, Strony
-\bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
-\bibitem{trad} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery.
-Taylor \& Francis, Inc., Bristol, PA, USA, 2001
-\bibitem{huang} S. Shekhar and Y. Huang. Discovering Spatial Co-location Patterns: A Summary of Results. In SSTD 2001, pages 236–256, 2001.
+\bibitem{kdd}Fayyad U., Piatetsky-Shapiro G., Smyth P. From Data Mining to Knowledge Discovery in Databases. W: AI Magazine nr 17, 1996, strony 37-54.
+\bibitem{trad} Miller H. J., Han J. Geographic Data Mining and Knowledge Discovery.
+Bristol, USA, 2001.
+\bibitem{huang} Shekhar S., Huang Y. Discovering Spatial Co-location Patterns: A Summary of Results. W: SSTD, 2001, strony 236–256.
 \bibitem{boinski} Boiński P., Przetwarzanie zbiorów przestrzennych zapytań eksploracyjnych w środowiskach z ograniczonym rozmiarem pamięci operacyjnej, Poznań, 2015.
-\bibitem{chinczyki}Yao X., Peng L., Yang L., Chi T. A fast space-saving algorithm for maximal co-location pattern mining. W: Expert Systems with Applications Volume 63, 30 November 2016, strony 310–323.
+\bibitem{chinczyki}Yao X., Peng L., Yang L., Chi T. A fast space-saving algorithm for maximal co-location pattern mining. W: Expert Systems with Applications nr 63, 2016, strony 310–323.
 \bibitem{cuda_by_examples}Sanders J., Kandrot E., CUDA by Example: An Introduction to General-Purpose GPU Programming, Addison-Wesley, 2011.
 \bibitem{professional_cuda}Cheng J., Grossman M., McKerche T. Professional CUDA C Programming, Wrox, 2014.
-\bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
-\bibitem{joinless}Jin Soung Yoo and Shashi Shekhar. A Joinless Approach for Mining Spatial Colocation Patterns. IEEE Transactions on Knowledge and Data Engineering, 18(10):13231337, 2006.
-\bibitem{cpi}Lizhen Wang, Yuzhen Bao, Joan Lu, and Jim Yip. A New Join-less Approach for Co-location Pattern Mining. In Qiang Wu, Xiangjian He, Quang Vinh Nguyen, Wenjing Jia, and Mao Lin Huang, editors, Proceedings of the 8th IEEE International
-Conference on Computer and Information Technology (CIT 2008), pages 197–202, Sydney, July 2008. IEEE.
-\bibitem{icpi}Lizhen Wang, Yuzhen Bao, and Joan Lu. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. The Open Information Systems Journal, 3(2):69–80,2009.
-\bibitem{fieldmodel}Christopher Jones and Mark Hall. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. In Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), 2008.
-\bibitem{9sec}Max J. Egenhofer and Robert Franzosa. Point-set topological spatial relations. International Journal of Geographic Information Systems, 5(2):161–174, 1991.
-\bibitem{9sec2} Eliseo Clementini, Paolino Di Felice, and Peter van Oosterom. A small set of formal topological relationships suitable for end-user interaction. In Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993), pages 277-295, London, UK, UK, 1993. Springer-Verlag.
-\bibitem{klasykchuj1} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery. Taylor \& Francis, Inc., Bristol, PA, USA, 2001.
-\bibitem{klasykchuj2}John F. Roddick and Myra Spiliopoulou. A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research. ACM SIGKDD Exploration Newsletter, 1(1):34–38, 1999.
-\bibitem{klasyfikacja}Martin Ester, Hans-Peter Kriegel, and Jörg Sander. Spatial Data Mining: A Database Approach. In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997), pages 47–66, London, UK, UK, 1997. Springer-Verlag.
-\bibitem{id3} John R. Quinlan. Induction of Decision Trees. Machine Learning, 1(1):81–106, March 1986.
-\bibitem{toptrendy}Martin Ester, Alexander Frommelt, Hans-Peter Kriegel, and Jörg Sander. Algorithms for characterization and trend detection in spatial databases. In Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998), pages 44–50, 1998.
-\bibitem{przypadeg}Shashi Shekhar and Sanjay Chawla. Spatial Databases: A Tour. Prentice Hall, 2003
-\bibitem{kurwa} Richard E. Bellman. Adaptive control processes - A guided tour. Princeton University Press, Princeton, New Jersey, U.S.A., 1961.
-\bibitem{asoc} Rakesh Agrawal and Ramakrishnan Srikant. Fast Algorithms for Mining Association Rules in Large Databases. In Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), pages 487–499, San Francisco, 1994. Morgan Kaufmann Publishers Inc.
-\bibitem{asoc2} Krzysztof Koperski and Jiawei Han. Discovery of Spatial Association Rules in Geographic Information Databases. In Max J. Egenhofer and John R. Herring, editors, Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995), volume 951 of Lecture Notes in Computer Science, pages 47–66. Springer Berlin Heidelberg, 1995
-\bibitem{classsets}Yasuhiko Morimoto. Mining Frequent Neighboring Class Sets in Spatial Databases. In Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), pages 353–358, New York, NY, USA, 2001. ACM.
-\bibitem{spatial}L. Arge, O. Procopiuc, S. Ramaswamy, T. Suel, and J. Vitter. Scalable Sweeping-
-Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 1998.
-\bibitem{degenerat}Eppstein, D. , Löffler, M. , i Strash, D. (2010). Listing all maximal cliques in sparsegraphs in near-optimal time. In O. Cheong, K. Y. Chwa, \& K. Park (Eds.), 21st international symposium on algorithms and computation (pp. 403–414). Berlin, Germany: Springer-Verlag.
-\bibitem{kerbosz}Bron, C., \& Kerbosch, J. (1973). Algorithm 457: Finding all cliques of an undirected graph. Communications of the ACM, 16 , 575–577.
-\bibitem{pivot}Tomita, E., Tanaka, A., \& Takahashi, H. (2006). The worst-case time complexity for
-generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
-\bibitem{pivot2}Cazals, F.; Karande, C. (2008), "A note on the problem of reporting maximal cliques" , Theoretical Computer Science, 407 (1): 564–568.
-\bibitem{wang}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
-\bibitem{matusiak}Matula, D. W.; Beck, L. L. (1983), "Smallest-last ordering and clustering and graph coloring algorithms", Journal of the ACM, 30 (3): 417–427, doi:10.1145/2402.322385, MR 0709826.
+\bibitem{multihuang}Shekhar S., Huang Y. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. W: Technical Report 02-019, USA, 2002.
+\bibitem{joinless}Yoo J. S., Shekhar S. A Joinless Approach for Mining Spatial Colocation Patterns. W: IEEE Transactions on Knowledge and Data Engineering, USA, 2006.
+\bibitem{cpi}Wang L., Bao Y., Lu J., Yip J. A New Join-less Approach for Co-location Pattern Mining. W: Proceedings of the 8th IEEE International
+Conference on Computer and Information Technology (CIT 2008), Sydney, 2008, strony 197–202.
+\bibitem{icpi}Wang L., Bao Y., Lu J. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. W: The Open Information Systems Journal nr 3, 2009, strony 69–80.
+\bibitem{fieldmodel}Jones C., Hall M. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. W: Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), Maroko, 2008.
+\bibitem{9sec}Egenhofer M. J., Franzosa R. Point-set topological spatial relations. W: International Journal of Geographic Information Systems nr 5, 1991, strony 161–174.
+\bibitem{9sec2}Clementini E., Di Felice P., van Oosterom P. A small set of formal topological relationships suitable for end-user interaction. W: Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993), Wielka Brytania, 1993, strony 277-295.
+\bibitem{klasykchuj1}Miller H. J., Han J. Geographic Data Mining and Knowledge Discovery, USA, 2001.
+\bibitem{klasykchuj2}Roddick J. F., Spiliopoulou M. A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research. W: ACM SIGKDD Exploration Newsletter nr 1, USA, 1999, strony 34–38.
+\bibitem{klasyfikacja}Ester M., Kriegel H. P., Sander J. Spatial Data Mining: A Database Approach. W: In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997), Wielka Brytania, 1997, strony 47–66.
+\bibitem{id3}Quinlan J. R. Induction of Decision Trees. W: Machine Learning nr 1, USA, 1986, strony 81–106.
+\bibitem{toptrendy}Ester M., Frommelt A., Kriegel H. P., Sander J. Algorithms for characterization and trend detection in spatial databases. W: Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998), USA, 1998, strony 44–50.
+\bibitem{przypadeg}Shekhar S., Chawla S. Spatial Databases: A Tour, USA, 2003.
+\bibitem{kurwa}Bellman R. E. Adaptive Control Processes - A Guided Tour, USA, 1961.
+\bibitem{asoc}Agrawal R., Srikant R.. Fast Algorithms for Mining Association Rules in Large Databases. W: Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), USA, 1994, strony 487–499.
+\bibitem{asoc2}Koperski K., Han J. Discovery of Spatial Association Rules in Geographic Information Databases. W: Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995) nr 951, USA, 1995, strony 47–66.
+\bibitem{classsets}Morimoto Y. Mining Frequent Neighboring Class Sets in Spatial Databases. W: Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), USA, 2001, strony 353–358.
+\bibitem{spatial}Arge L., Procopiuc O., Ramaswamy S., Suel T., Vitter J. Scalable Sweeping-
+Based Spatial Join. W: Proceedings of the International Conference on Very Large Databases (VLDB 1998), USA, 1998.
+\bibitem{degenerat}Eppstein D., Löffler M., Strash D. Listing all maximal cliques in sparsegraphs in near-optimal time. W: 21st International Symposium On Algorithms And Computation, Niemcy, 2010, strony 403–414.
+\bibitem{kerbosz}Bron C., Kerbosch J. Algorithm 457: Finding all cliques of an undirected graph. W: Communications of the ACM nr 16, USA, 1973, strony 575–577.
+\bibitem{pivot}Tomita E., Tanaka A., Takahashi H. The worst-case time complexity for
+generating all maximal cliques and computational experiments. W: Theoretical Computer Science nr 363, USA, 2006, strony 28–42.
+\bibitem{pivot2}Cazals F., Karande C. A note on the problem of reporting maximal cliques. W: Theoretical Computer Science nr 407, USA, 2008, strony 564–568.
+\bibitem{wang}Wang L., Zhou L., Lu J., Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. W: Information Sciences nr 179, USA, 2009, strony 3370–3382.
+\bibitem{matusiak}Matula D. W., Beck L. L. Smallest-last ordering and clustering and graph coloring algorithms. W: Journal of the ACM, nr 30, USA, 1983, strony 417–427.
 \bibitem{mikromiekki}Comparing the Concurrency Runtime to Other Concurrency Models, Microsoft, 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
 \bibitem{stak}Microsoft Parallel Patterns Library (PPL) vs. OpenMP, Stack Overflow, 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
-\bibitem{buffered-sort}. Sorting in PPL, Parallel Programming in Native Code, vinodsu (Microsoft Developer Network Blogs), 14-01-2011 [dostęp: 10-01-2017]. Dostępny w internecie: https://blogs.msdn.microsoft.com/nativeconcurrency/2011/01/14/sorting-in-ppl/
-\bibitem{cuda_um}https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
-\bibitem{cuda_dp}https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
+\bibitem{buffered-sort}Sorting in PPL, Parallel Programming in Native Code, vinodsu (Microsoft Developer Network Blogs), 14-01-2011 [dostęp: 10-01-2017]. Dostępny w Internecie: https://blogs.msdn.microsoft.com/nativeconcurrency/2011/01/14/sorting-in-ppl/
+\bibitem{cuda_um}Unified Memory in CUDA 6, Harris M. (NVIDIA Developer Blogs), 18-11-2013 [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
+\bibitem{cuda_dp}CUDA Dynamic Parallelism API and Principles, Adinetz A. (NVIDIA Developer Blogs) [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
 \end{thebibliography}
 
 \newpage

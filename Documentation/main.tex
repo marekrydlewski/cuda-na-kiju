@@ -1135,7 +1135,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=20000,
-            xmin=2, xmax=6,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1187,7 +1186,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=135000,
-            xmin=2, xmax=6,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1233,6 +1231,13 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
 \label{chart:maxdist-nonsparse}
 \end{figure}
 
+Na powyższych wykresach można zaobserwować wzrost czasu wykonania do pewnej wartości progu maksymalnej odległości po przekroczeniu której czasy maleć, aby po chwili znowu wrócić do tendencji wzrostowej. Wartość ta jest zbliżona dla obu implementacji na CPU a dla GPU jest ona mniejsza. 
+\newline
+
+Dla rzadkiego zbioru danych implementacja GPU jest generalnie wolniejsza od implementacji na CPU, szczególnie od implementacji równoległej co można zauważyć głównie dla niższych wartości progu maksymalnej odległości.
+\newline
+
+W przypadku gęstego zbioru danych implementacja na GPU sprawuje się lepiej, od pewnego punktu prześcigając obie implementacje na CPU.
 \begin{figure}[H]
 \begin{tikzpicture}
 \begin{axis}[
@@ -1241,7 +1246,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=4100,
-            xmin=2, xmax=6,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1285,6 +1289,7 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
 \label{chart:maxdist-sparse-hotspots}
 \end{figure}
 
+Dla rzadkich danych których część jest zgrupowana w skupiska implementacja na GPU wypada nadzwyczaj słabo w porównaniu do implementacji na CPU.
 \begin{figure}[H]
 \begin{tikzpicture}
 \begin{axis}[
@@ -1293,7 +1298,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=500000,
-            xmin=2, xmax=5,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1337,6 +1341,8 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
 \label{chart:maxdist-nonsparse-hotspots}
 \end{figure}
 
+W przypadku gdy dane są gęste oraz zgrupowane w skupiska wydajność poszczególnych implementacji jest analogiczna jak dla danych gęstych w których nie występują skupiska. Wynika to z tego, że przy dużym zagęszczeniu danych skupienie ich części w pewnych sektorach nie powoduje znacznego zmniejszenia gęstości poza nimi, więc ogólny rozkład danych w dalszym ciągu jest dość równomierny.
+
 \subsubsection{Zmienny próg minimalnej powszechności}
 
 Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytmu w różnych implementacjach ze względu na zmienny próg minimalnej powszechności.
@@ -1349,7 +1355,6 @@ Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytm
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=35000,
-            xmin=0.1, xmax=0.5,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1394,8 +1399,12 @@ Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytm
 \label{chart:minprev-sparse}
 \end{figure}
 
+Zmienność progu minimalnej powszechności nie ma większego wpływu na zależności pomiędzy czasami wykonań poszczególnych implementacji - implementacja GPU pozostaje wolniejsza niż implementacja równoległa na CPU oraz szybsza niż implementacja sekwencyjna. Zmienia się to jedynie w przypadku wysokich progów powszechności (powyżej 0.3) - implementacja GPU jest wtedy wolniejsza również od implementacji sekwencyjnej. Wynika to z tego, że przy takim progu minimalnej powszechności odfiltrowana zostaje większość danych wejściowych, przez co implementacje CPU zostają "bezrobotne", lecz implementacja GPU w dalszym ciągu musi wykonać wszelkie działania związane z kopiowaniem danych na kartę graficzną oraz przygotowaniem równoległego wykonania algorytmu.
+
 \subsection{Wnioski}
 
+Mimo tego, że implementacja GPU w ogólności przypadków wygląda na wolniejszą niż implementacja równoległa na CPU, zdaje się być również bardziej efektywna dla danych o dużej gęstości i dużym rozmiarze.
+ Implementacja sekwencyjna na CPU niemal w każdym przypadku wykazuje się niższą efektywnością niż pozostałe implementacje.
 
 \section{Zakończenie}
 \label{sec:fin}

@@ -1064,9 +1064,11 @@ Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacj
 \legend{Sequential, Parallel, GPU}
 \end{axis}
 \end{tikzpicture}
-\caption{Wykres zależności czasu wykonania implementacji algorytmu od rozmiaru danych wejściowych}
+\caption{Wykres zależności czasu wykonania różnych implementacji algorytmu od rozmiaru danych wejściowych}
 \label{chart:datasize}
 \end{figure}
+Na powyższym wykresie widać, że powyżej pewnego rozmiaru danych wyjściowych następuje gwałtowny wzrost czasu wykonania algorytmu. Dla małych rozmiarów danych implementacja na procesorach kart graficznych wypada zdecydowanie gorzej niż nawet implementacja sekwencyjna przygotowana pod CPU - wynika to z kosztu przygotowania danych i konieczności inicjalizacji obliczeń równoległych, które przy dużych rozmiarach danych zostają zrekompensowane przez szybsze obliczenia, co również można zaobserwować na powyższym wykresie.
+\newline
 
 Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU oraz GPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna.
 

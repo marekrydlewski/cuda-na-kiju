@@ -592,7 +592,30 @@ $ T \leftarrow T \cup \{v_{i}\}$\;
 \label{alg:chinczyki_step3}
 \end{algorithm}
 
-Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9). Jak wykazano w pracy \cite{pivot2} wybranie wierzchołka zmniejszającego liczbę rekurencyjnych wywołań algortytmu znacząco zmniejsza ogólny czas wykonania. Wybiera on wierzchołek będący osią podziału zbioru (tzw. \textit{pivot}) w oparciu o rozmiar unii sąsiadów tego wierzchołka i wierzchołków kandydatów. Każda maksymalna klika musi zawierać albo wierzchołek $ u $, albo niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, tylko wierzchołek $ u $ i jego nie-sąsiedzi muszą być przetestowani (linia 10).
+Pierwsza z modyfikacji oryginalnego algorytmu dodaje mechanizm \textit{pivoting selection} opisany pierwotnie w pracy \cite{pivot} (linia 9, zobacz także Algorytm~\ref{tomita_tanaka}). Jak wykazano w pracy \cite{pivot2} wybranie wierzchołka zmniejszającego liczbę rekurencyjnych wywołań algortytmu znacząco zmniejsza ogólny czas wykonania. Wybiera on wierzchołek będący osią podziału zbioru (tzw. \textit{pivot}) w oparciu o rozmiar unii sąsiadów tego wierzchołka i wierzchołków kandydatów. Każda maksymalna klika musi zawierać albo wierzchołek $ u $, albo niesąsiadujące z nim wierzchołki - jeżeli nie zawiera, zostanie on dodany (linie 11-13). W związku z tym, tylko wierzchołek $ u $ i jego nie-sąsiedzi muszą być przetestowani (linia 10).
+
+\begin{algorithm}
+
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{TomitaMaximalPivot}
+\Input{$G=(E,V)$}
+\Output{$ u $}
+\myproc{\proc{SUBG, CAND}}{
+$ MaxCard \leftarrow 0; u \leftarrow \emptyset $\;
+\ForEach{$ s \in SUBG $}{
+$ N \leftarrow $ uporządkowani sąsiedzi $ s $\;
+$ CAND' \leftarrow CAND \cup N $\;
+\If{$|CAND'| \geq MaxCard $}{
+$ u \leftarrow s $\;
+$ MaxCard \leftarrow |CAND'| $\;
+}
+}
+}
+\caption{Algorytm wybierania osi podziału metodą Tomity i Tanaki (2006)}
+\label{alg:tomita_tanaka}
+\end{algorithm}
 
 Druga modyfikacja opiera się o pojęcie rozproszenia grafu. Opisuje się je miarą \textit{degeneracji grafu} \cite{matusiak}:
 \begin{defin}[Degeneracja grafu]

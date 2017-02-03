@@ -35,9 +35,12 @@ public:
 
 	void filterCandidatesByPrevalencePrepareData();
 
-	std::list<std::vector<unsigned short>> filterCandidatesByPrevalence(
-		float minimalPrevalence
-		, bmk::benchmark<std::chrono::milliseconds>& ben);
+	std::list<std::vector<unsigned short>> filterCandidatesByPrevalence(float minimalPrevalence);
+
+	void setBenchamrk(bmk::benchmark<std::chrono::milliseconds>& ben)
+	{
+		this->ben = &ben;
+	}
 
 private:
 
@@ -68,4 +71,6 @@ private:
 	std::shared_ptr<GPUUIntKeyProcessor> keyProc;
 	TypesCountsMapResultPtr typesCountsMap;
 	std::shared_ptr<AnyLengthInstancesUniquePrevalenceProvider> anyLengthPrevalenceProvider;
+
+	bmk::benchmark<std::chrono::milliseconds>* ben;
 };

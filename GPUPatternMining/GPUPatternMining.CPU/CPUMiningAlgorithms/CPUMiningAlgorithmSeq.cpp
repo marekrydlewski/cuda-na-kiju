@@ -25,6 +25,8 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 
 	float effectiveThreshold = std::pow(threshold, 2);
 
+	unsigned int filteredByDistanceCount = 0;
+
 	for (auto it1 = source.begin(); (it1 != source.end()); ++it1)
 	{
 		++this->typeIncidenceCounter[(*it1).type];
@@ -35,6 +37,7 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 			{
 				if (checkDistance(*it1, *it2, effectiveThreshold))
 				{
+					++filteredByDistanceCount;
 					//smaller value always first
 					auto it1_h = it1;
 					auto it2_h = it2;
@@ -51,6 +54,8 @@ void CPUMiningAlgorithmSeq::filterByDistance(float threshold)
 			}
 		}
 	}
+
+	ben->addMeasurementValue("distanceFiltered", filteredByDistanceCount);
 }
 
 void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)
@@ -80,6 +85,14 @@ void CPUMiningAlgorithmSeq::filterByPrevalence(float prevalence)
 			}
 		}
 	}
+
+	unsigned int sum = 0;
+	for (auto &x : insTable)
+	{
+		sum += x.second.size();
+	};
+
+	ben->addMeasurementValue("prevalent connections count", sum);
 }
 
 void CPUMiningAlgorithmSeq::createSize2ColocationsGraph()
@@ -123,6 +136,8 @@ void CPUMiningAlgorithmSeq::constructMaximalCliques()
 	std::set<std::vector<unsigned short>> tmp(maximalCliques.begin(), maximalCliques.end());
 	std::vector<std::vector<unsigned short>> tmpVec(tmp.begin(), tmp.end());
 	maximalCliques.swap(tmpVec);
+
+	ben->addMeasurementValue("maximal cliques count", maximalCliques.size());
 }
 
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCliques(float prevalence)

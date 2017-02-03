@@ -79,7 +79,7 @@ void GpuMiningAlgorithm::filterByDistance(float threshold)
 		, planeSweepResult
 	);
 
-	printf("distance connections count %u\n", planeSweepResult->pairsA.size());
+	ben->addMeasurementValue("distanceFiltered", planeSweepResult->pairsA.size());
 
 	filterByDistanceGpuData.reset();
 }
@@ -111,7 +111,7 @@ void GpuMiningAlgorithm::filterPrevalentTypedConnections(float minimalPrevalence
 		, planeSweepResult
 	);
 
-	printf("prevalent connections count %u\n", prevalentTypesConnections.size());
+	ben->addMeasurementValue("prevalent connections count", prevalentTypesConnections.size());
 }
 
 void GpuMiningAlgorithm::constructMaximalCliquesPrepareData()
@@ -158,7 +158,9 @@ void GpuMiningAlgorithm::constructMaximalCliques()
 		}
 	}
 
-	printf("Maximal cliques count %u\n", count);
+	ben->addMeasurementValue("Maximal cliques count", count);
+
+	//sprintf("Maximal cliques count %u\n", count);
 }
 
 void GpuMiningAlgorithm::filterCandidatesByPrevalencePrepareData()
@@ -197,7 +199,7 @@ std::vector<std::vector<unsigned short>> getAllCliquesSmallerByOne(std::vector<u
 	return smallCliques;
 }
 
-std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence, bmk::benchmark<std::chrono::milliseconds>& ben)
+std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPrevalence(float minimalPrevalence)
 {
 	std::list<std::vector<unsigned short>> result;
 
@@ -243,21 +245,21 @@ std::list<std::vector<unsigned short>> GpuMiningAlgorithm::filterCandidatesByPre
 
 			Entities::GpuCliques gpuCliques;// = Entities::moveCliquesCandidatesToGpu(toProcess);
 
-			ben.run_cumulative("build instance tree (prepare data)", 1, [&]()
+			ben->run_cumulative("build instance tree (prepare data)", 1, [&]()
 			{
 				gpuCliques = Entities::moveCliquesCandidatesToGpu(currentProcessChunk);
 			});
 
 			InstanceTree::InstanceTreeResultPtr instanceTreeResult;// = instanceTree->getInstancesResult(gpuCliques);
 
-			ben.run_cumulative("build instance tree", 1, [&]()
+			ben->run_cumulative("build instance tree", 1, [&]()
 			{
 				instanceTreeResult = instanceTree->getInstancesResult(gpuCliques);
 			});
 
 			std::shared_ptr<thrust::device_vector<float>> mask;
 
-			ben.run_cumulative("calculate prevalence for instances", 1, [&]()
+			ben->run_cumulative("calculate prevalence for instances", 1, [&]()
 			{
 				mask = anyLengthPrevalenceProvider->getPrevalenceFromCandidatesInstances(
 					gpuCliques

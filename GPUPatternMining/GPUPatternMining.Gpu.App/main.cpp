@@ -23,6 +23,8 @@ int main(int argc, char* argv[])
 
 	GpuMiningAlgorithm alg;
 
+	alg.setBenchamrk(bmkGpu);
+
 	bmkGpu.run("load data", 1, [&]()
 	{
 		alg.loadData(std::get<0>(data), std::get<1>(data), std::get<2>(data));
@@ -67,7 +69,7 @@ int main(int argc, char* argv[])
 
 	bmkGpu.run("filter candidates by prevalence", 1, [&]()
 	{
-		solution = alg.filterCandidatesByPrevalence(prevalence, bmkGpu);
+		solution = alg.filterCandidatesByPrevalence(prevalence);
 	});
 
 	bmkGpu.print("gpu algorithm", std::cout);

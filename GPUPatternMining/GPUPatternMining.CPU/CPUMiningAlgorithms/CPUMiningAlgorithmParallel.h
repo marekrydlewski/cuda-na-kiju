@@ -14,6 +14,7 @@
 #include <ppl.h>
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
+#include "../../GPUPatternMining.Contract/Benchmark.h"
 
 
 class CPUMiningAlgorithmParallel :
@@ -41,6 +42,11 @@ public:
 	std::vector<std::vector<unsigned short>> getMaximalCliques()
 	{
 		return maximalCliques;
+	}
+
+	void setBenchamrk(bmk::benchmark<std::chrono::milliseconds>& ben)
+	{
+		this->ben = &ben;
 	}
 
 protected:
@@ -85,4 +91,6 @@ protected:
 		std::vector<std::unique_ptr<concurrency::concurrent_vector<std::vector<unsigned short>>>>& cliquesToProcess);
 
 	std::vector<unsigned short> inline getWorkloadForInsTable(unsigned int);
+	
+	bmk::benchmark<std::chrono::milliseconds>* ben;
 };

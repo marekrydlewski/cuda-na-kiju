@@ -10,6 +10,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include "../../GPUPatternMining.Contract/Benchmark.h"
 
 class CPUMiningAlgorithmSeq :
 	public CPUMiningAlgorithmBase
@@ -38,6 +39,12 @@ public:
 	{
 		return maximalCliques;
 	}
+
+	void setBenchamrk(bmk::benchmark<std::chrono::milliseconds>& ben)
+	{
+		this->ben = &ben;
+	}
+
 
 protected:
 
@@ -77,5 +84,6 @@ protected:
 		float prevalence,
 		std::vector<std::vector<std::vector<unsigned short>>>& cliquesToProcess);
 
+	bmk::benchmark<std::chrono::milliseconds>* ben;
 };
 

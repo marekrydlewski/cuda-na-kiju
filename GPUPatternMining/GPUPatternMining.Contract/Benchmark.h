@@ -481,6 +481,11 @@ namespace bmk
 			os.close();
 		}
 
+		void addMeasurementValue(std::string name, float val)
+		{
+			additionalMeasurements.insert(std::pair<std::string, float>(name, val));
+		}
+
 		void serializeCsv(const char* filename,
 			std::ios_base::openmode mode = ofstream::out) const
 		{
@@ -492,7 +497,12 @@ namespace bmk
 				Pair.second->printCsv(os);
 				os << "\n";
 			}
+
+			for (auto& pr : additionalMeasurements)
+				os << pr.first << ";" << pr.second << "\n";
 		}
+
+		std::map<std::string, float> additionalMeasurements;
 	};
 
 } // ~ namespace bmk

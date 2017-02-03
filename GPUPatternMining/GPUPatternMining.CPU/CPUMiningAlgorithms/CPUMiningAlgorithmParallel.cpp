@@ -65,6 +65,8 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 		}
 	}, concurrency::auto_partitioner());
 
+	unsigned int filteredByDistanceCount = 0;
+
 	combinableInsTable.combine_each([&](auto& local)
 	{
 		for (auto it1 = local.begin(); (it1 != local.end()); ++it1)
@@ -73,6 +75,8 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			{
 				for (auto it3 = (*it2).second.begin(); (it3 != (*it2).second.end()); ++it3)
 				{
+					++filteredByDistanceCount;
+
 					if (insTable[(*it1).first][(*it2).first][(*it3).first] == nullptr)
 					{
 						insTable[(*it1).first][(*it2).first][(*it3).first] = (*it3).second;
@@ -97,6 +101,8 @@ void CPUMiningAlgorithmParallel::filterByDistance(float threshold)
 			typeIncidenceCounter.begin(),
 			std::plus<int>());
 	});
+
+	ben->addMeasurementValue("distanceFiltered", filteredByDistanceCount);
 }
 
 void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
@@ -145,6 +151,16 @@ void CPUMiningAlgorithmParallel::filterByPrevalence(float prevalence)
 			}
 		}
 	}, concurrency::static_partitioner());
+
+
+
+	unsigned int sum = 0;
+	for(auto &x: insTable)
+	{
+		sum += x.second.size();
+	};
+
+	ben->addMeasurementValue("prevalent connections count", sum);
 }
 
 void CPUMiningAlgorithmParallel::createSize2ColocationsGraph()
@@ -201,6 +217,8 @@ void CPUMiningAlgorithmParallel::constructMaximalCliques()
 	std::set<std::vector<unsigned short>> tmp(maximalCliques.begin(), maximalCliques.end());
 	std::vector<std::vector<unsigned short>> tmpVec(tmp.begin(), tmp.end());
 	maximalCliques.swap(tmpVec);
+
+	ben->addMeasurementValue("maximal cliques count", maximalCliques.size());
 }
 
 std::vector<std::vector<unsigned short>> CPUMiningAlgorithmParallel::filterMaximalCliques(float prevalence)

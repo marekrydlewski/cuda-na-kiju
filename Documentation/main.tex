@@ -852,8 +852,8 @@ Po zakończeniu iterowania każdy \textit{warp} wykonuje szybką redukcję czę�
 
 \begin{figure}[H]
 \centering
-\includegraphics{planesweep}
-\caption{Poglądowy rysunek przedstawiający iterowanie warpa po instancjach}
+\includegraphics[width=\textwidth]{planesweep.eps}
+\caption{Poglądowy rysunek przedstawiający iterowanie warpów po instancjach}
 \end{figure}
 
 Pozostało jedynie wykonać kernel \textit{findNeighbours}, odpowiedzialny za alokację oraz wpisanie znalezionych sąsiadów do tabel \textit{InstanceFirst} oraz \textit{InstanceSecond}. Służą one do przechowywania elementów par instancji będących w relacji sąsiedztwa. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami w obu tablicach. Kolejność w obrębie pary wyznaczana jest przez poniższy algorytm~\ref{alg:FeatureInstance_operator} będący przeciążeniem operatora mniejszości ($ < $):

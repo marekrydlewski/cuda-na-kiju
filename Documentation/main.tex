@@ -922,6 +922,7 @@ W wyniku jego działania instancje zostaną posortowane według typów relacji -
 \end{figure}
 
 \subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
+\label{subsection:itmPackStructAct}
 
 Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
 
@@ -996,27 +997,26 @@ Wynikiem działania funkcji \textit{reduce\_by\_key} z operatorem \ref{alg:Featu
 \item \textit{Begins} - zawiera indeksy tabeli instancji relacji, oznaczające początki obszarów ciągłych odpowiadającym elementom z tablicy \textit{Uniques}.
 \end{itemize}
 
-Z elementów tabeli \textit{Uniques} tego kroku tworzone są klucze złożone z identyfikatorów instancji oraz typu pierwszego elementu pary instancji połączonych z identyfikatorem typu drugiego elementu pary. Z połączenia odpowiadających sobie wartości w 
+Dla każdego elementu tabeli \textit{Uniques} tworzony jest klucz składający się z instancji pierwszego elementu oraz typu drugiego. Następnie odpowiadającymi sobie pozycją wartościami z \textit{Counts} oraz \textit{Begins} wypełniana jest struktura \textit{NeighboursListInfoHolder} i umieszczana w $ ITNMPack.map $ przy użyciu wcześniej utworzonego klucza. 
 
 \subsection{Wyodrębnienie ze zbioru kandydatów kolokacji maksymalnych kandydatów spełniających kryterium prewalentności}
 
-Ostatni krok implementacji algorytmu można podzielić na cztery mniejsze kroki
 
-\begin{enumerate}
-	\item pobranie ze zbioru \textit{uniqueCandidates} zbioru najdłuższych, nieprzetworzonych kandydatów oraz wprowadzenie ich do pamięci GPU. Zbiór ten oznaczmy jako \textit{toProcess}
-	\item wygenerowanie drzewa instancji oraz na podstawie tego drzewa zmaterializowanie wszystkich unikalnych instancji aktualnie przetwarzanych kandydatów
-	\item obliczenie prewalentności przetwarzanych kandydatów 
-	\item w zależności od wartości współczynnika prewalentności zaliczenie kandydata do zbioru kolokacji maksymalnych, lub rozbicie go na \textit{n} krótszych o 1 unikalnych kandydatów 
-\end{enumerate}
+W ostatnim kroku wykonane zostanie $ n_{li} $ iteracji Podczas rozpoczęcia wielkość tę możemy jedynie oszacować jako należącą do zbioru $ < |uniqueCandidates|;\ maxLen_{cand}\ -\ 1  > $, gdzie $ maxLen_{cand} $ to długość najdłuższych kandydatów. Nie jest  ona dokładnie znana, ze względu na fakt, iż kandydaci na kolokacje mogą ulec, w przypadku niewystarczającej prewalentności, rozbiciu na krótszych kandydatów co może zwiększyć ilość potrzebnych iteracji.
 
-kroki te są powtarzane w cyklu do momentu w którym w zbiorze \textit{candidates} nie ma już nieprzetworzonych kandydatów. Dodatkowo ze względu na ograniczenia pamięciowe przestrzeni GPU zbiór \textit{toProcess} dzielimy na podzbiory (których wielkość zależy od ilości pamięci), kroki II oraz III są następnie wykonywane dla każdego takiego podzbioru osobno.
+Iteracja rozpoczyna się od pobrania ze zbioru \textit{uniqueCandidates} zbioru kandydatów \textit{toProcess} o długości $ n_{cur} $, długość ta w pierwszej iteracji jest równa $ maxLen_{cand} $. Ze zbioru \textit{toProcess} usuwane są duplikaty oraz kandydaci będący częścią kandydatów uznanych już za prewalentnych (należących do zbiory wynikowego). 
+Wyznaczeni do przetwarzania kandydaci są umieszczani w przestrzeni pamięci GPU, co umożliwia rozpoczęcie budowy drzewa instancji. 
+Każdy \textit{i}-ty poziom drzewa odpowiada instancjom o typie na \textit{i}-tej pozycji odpowiedniego kandydata, drzewo jest budowane dla wielu kandydatów ze zbioru \textit{toProcess} jednocześnie. Sama struktura drzewa jest realizowana poprzez tablice $ group_{i} $, gdzie \textit{i} to poziom drzewa, wielkości ilości węzłów na danym poziomie przechowującą informacje o indeksie powiązanego węzła na poprzednim poziomie. Wyjątkiem są wartości tablicy $ group_{i} $ dla poziomu 0 oraz 1 które wskazują na indeks kandydata do którego należy wychodzące z poziomu 0 poddrzewo. Dodatkowo wartości w $ group_{i} $ dla poziomu 2 wskazują nie tylko na element nadrzędny na poziomie 1, lecz także na element nadrzędny na poziomie 0, właściwość ta wynika z samego sposobu budowy drzewa.
+Pierwsze dwa poziomy drzewa budowane są w jednym kroku, ze względu na fakt, iż w poprzednich krokach algorytmu wyznaczone zostały wszystkie istniejące, spełniające kryteria relacji, pary instancji. Łatwy dostęp do tych instancji zapewnia struktura \textit{ITMPack}. Samo tworzenie poziomów drzewa (nie tylko dwóch pierwszych) można podzielić na dwa kroki: obliczenie ilości par instancji, a następnie przy użyciu jednego wątku na znalezioną parę wpisanie jej na daną pozycje w drzewie. Przy dodawaniu do drzewa dwóch pierwszych poziomów nie sprawdzana jest integralność (czy dodawane instancje są w relacji ze wszystkimi poprzednikami) dodawanych połączeń, ponieważ wynika ona bezpośrednio z relacji pomiędzy instancjami.
+Na potrzeby budowania kolejnych poziomów utrzymywana jest tablica \textit{mask} której wielkość jest nie mniejsza niż ilość instancji na poziomie \textit{i} - 1. Bezpośrednio po utworzeniu  zawiera same wartości "True" co oznacza, iż wszystkie instancje na poziomie \textit{i} - 1 przeszły test integralności.
+Począwszy od poziomu 2 drzewo budowane jest poprzez dodawanie do każdej instancji na \textit{i} - 1 poziomie następników będących jej sąsiadami o typie wyznaczonym przez \textit{i}-tą pozycje na odpowiadającym kandydacie. Wykorzystując strukturę \textit{ITNMPack} analogicznie jak przy budowie poziomu 0 oraz 1 na początku zliczana jest liczba sąsiadów spełniających określone przed chwilą kryteria, zliczanie jednak dotyczy tylko i wyłącznie instancji dla których odpowiadające pole w tablicy \textit{mask}  ma wartość "True", czyli dodana w poprzedniej iteracji instancja jest w relacji ze wszystkimi jej poprzednikami. Na podstawie tej wielkości kolejny poziom jest alokowany, a następnie przepisane zostają do niego instancje.
+Dodane instancje jednak niekoniecznie muszą znajdować się w relacji ze wszystkimi poprzednikami. Integralność sprawdzamy poprzez uruchomienie wątków w ilości równej ilości nowych instancji, które to przechodzą drzewo od liścia do korzenia sprawdzając na każdym poziomie czy nowo dodana instancja jest w relacji z instancją na obecnym poziomie. Do przechodzenia w dół użyta jest informacja zawarta o indeksie poprzednika w \textit{group}. Wynik testu integralności zapisywany jest do tablicy \textit{mask}.
+Drzewo budowane jest do momentu w którym wyznaczymy wszystkie jego poziomy (jeden na element kandydata), lub gdy na pewnym poziomie okażę się, iż nie możemy już dodać żadnej instancji. 
 
-Kandydaci są przetwarzani grupami, jedna grupa to jedna iteracja, w każdej iteracji przetwarzani kandydaci mają długość o jeden mniejszą niż w poprzedniej iteracji. Kolejność ta jest ważna, ponieważ zapewnia nam, że aktualnie przetwarzany kandydat nie jest częścią większej kliki. 
+Po stworzeniu drzewa przy jego użyciu dokonana zostaje materializacja wszystkich instancji kandydatów. Uruchamiane jest w tym celu tyle wątków ile wartości "True" w tablicy \textit{mask} odpowiadającym instancją na ostatnim poziomie.
+Z tak wygenerowanego zbioru wyznaczana jest prewalentność kandydatów. Dla każdego kandydata wyznaczana jest prewalentność zbioru instancji każdego jego typy składowego osobno, wartość ta wyznaczana jest przez wyznaczenie unikalnych elementów w tym zbiorze i podzielenie tej wartości przez całkowitą ilość instancji tego typu. Gdy posiadane są wartości dla wszystkich typów składowych za prewalentność uznawana jest wartość minimalna.
 
-Na początku każdej iteracji pobieramy wektor kandydatów znajdujący się pod kluczem równym aktualnej długości przetwarzanych kandydatów. Wektor ten następnie umieszczamy w pamięci GPU.
-
-Celem kroku drugiego jest materializacja kandydatów co posłuży do obliczenia powszechności ich występowania. Do tego celu użyte zostało drzewo instancji. Każdy \textit{i}-ty poziom drzewa instancji odpowiada \textit{i}-temu elementowi kandydata.
-Pierwsze dwa poziomy budowane są na podstawie 
+Po obliczeniu prewalentności dla wszystkich kandydatów, dla każdego z nich podejmowana jest decyzja o dodaniu do zbioru wynikowego, lub rozbiciu na kandydatów o długości jeden mniejszej (każdy z nowych kandydatów powstaje przez usunięcie jednej ze składowych starego kandydata). Decyzja zależy od ustalonego na starcie algorytmu progu prewalentności. Nowo powstali kandydaci umieszczani są w zbiorze \textit{uniqueCandidates}, a kandydaci uznani za prewalentnych do zbioru wynikowego.
 
 \newpage
 
@@ -1400,7 +1400,8 @@ struct vector_hash {
 
 \item FeatureInstance - \lstinline{Unia} składająca się z pola typu \lstinline{unsigned int} oraz struktury zawierającej dwa pola typu \lstinline{unsigned short} służąca do przechowywania identyfikatora typu oraz unikalnego względem typu identyfikatora instancji.
 
-\begin{figure}[H]
+
+\begin{minipage}{\linewidth}
 \begin{lstlisting}
 union __declspec(align(4)) FeatureInstance
 {
@@ -1413,11 +1414,12 @@ union __declspec(align(4)) FeatureInstance
 	} fields;
 };
 \end{lstlisting}
-\end{figure}
+\end{minipage}
+
 
 \item InstanceTable - klasa przetrzymująca informacje o indeksie startowym w tablicach przechowywujących posortowane instancje relacji sąsiedztwa oraz ich ilości. 
 
-\begin{figure}[H]
+\begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Kod klasy InstanceTable}]
 	class InstanceTable
 	{
@@ -1426,13 +1428,12 @@ union __declspec(align(4)) FeatureInstance
 		unsigned int startIdx;
 	};
 \end{lstlisting}
-\end{figure}
+\end{minipage}
 
 \item ITMPack - struktura przechowująca informacje potrzebne do szybkiego dostępu do wszystkich instancji relacji o zadanych typach (na przykład wszystkich instancji relacji o typach \{A,B\}).
 
-\begin{figure}[H]
+\begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Kod struktury ITMPack}]
-
 	struct ITMPack
 	{
 		InstanceTableMapPtr map;
@@ -1442,15 +1443,29 @@ union __declspec(align(4)) FeatureInstance
 		unsigned int count;
 	};
 \end{lstlisting}
-\end{figure}
+\end{minipage}
 
 tabele \textit{uniques}, \textit{begins}, \textit{counts} zawierają odpowiednio pary typów będących w relacji, indeks pierwszej instancji pary w tabelach \textit{Pairs}\textsubscript{A} oraz \textit{Pairs}\textsubscript{B} oraz liczność grupy instancji relacji. Pole map zapewnia dostęp do hash mapy o kluczu będącym parą typów umożliwiającej (w przestrzeni obliczeniowej GPU) na szybki dostęp do informacji o początku i liczności grupy instancji relacji sąsiedztwa danego typu co pozwala wyznaczyć jej zakres.
 
+\item ITNMPack - struktura przechowująca informacje potrzebne do szybkiego dostępu do wszystkich instancji relacji zawierającej na pierwszej pozycji zadaną instancje, a na drugiej pozycji instancję o zadanym typie.
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod struktury ITNMPack}]
+	struct ITNMPack
+	{
+		TypedNeighboursListMapPtr map;
+		thrust::device_vector<unsigned int> begins;
+		thrust::device_vector<unsigned int> counts;
+		unsigned int count;
+	};
+\end{lstlisting}
+\end{minipage}
+
+
 \item FeatureTypePair - struktura przechowująca parę typów instancji, pozwalająca na szybkie pobranie obu wartości
 
-\begin{figure}[H]
-\begin{lstlisting}[caption={Kod struktury ITMPack}]
-
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod struktury FeatureTypePair}]
 union __declspec(align(4)) FeatureTypePair
 {
 	unsigned int combined;
@@ -1462,7 +1477,22 @@ union __declspec(align(4)) FeatureTypePair
 	} types;
 };
 \end{lstlisting}
-\end{figure}
+\end{minipage}
+
+\item NeighboursListInfoHolder - struktura przechowująca informacje o początku listy sąsiadów i ich ilości
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kod struktury NeighboursListInfoHolder}]
+struct NeighboursListInfoHolder
+{
+	unsigned int count;
+	unsigned int startIdx;
+
+
+\end{itemize}
+\end{lstlisting}
+\end{minipage}
+
 
 \end{itemize}
 

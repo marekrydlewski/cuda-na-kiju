@@ -862,7 +862,6 @@ $ X \leftarrow X \cup \{ v^{*}_{i}\} $\;
 \label{alg:bk3}
 \end{algorithm}
 
- 
 \subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
 
 W porównaniu do wersji sekwencyjnej, konstrukcja skondensowanego drzewa instancji oraz liczenie miary powszechności jest dokonywany w sposób równoległy. Wymagało to zaprojektowania równoległych odpowiedników kontenerów znanych z odmiany sekwencyjnej, czyli \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer} zapewniających bezpieczeństwo przetwarzania równoległego. W tym celu zastosowano mechanizm sekcji krytycznych w procesie inkrementacji liczników, a także kontenery o dostępie równoległym. Oprócz zapewnienia własności bezpieczeństwa przełożyło się to na zwiększenie efektywności przetwarzania.
@@ -936,14 +935,16 @@ Pozostało jedynie wykonać kernel \textit{findNeighbours}, odpowiedzialny za al
 \SetKwInOut{Input}{Wejście}
 \SetKwInOut{Output}{Wyjście}
 \SetKwProg{myproc}{Procedure}{}{}
-\SetKwFunction{proc}{operator\<}
-\Input{$a,b - instancje\ typu\ FeatureInstance $}
-\Output{$ bool $}
- \Return $ a.field < b.field $ \; 
-\caption{Operator mniejszości dla instancji typu FeatureInstance}
+\SetKwFunction{proc}{operator<}
+\Input{$a,b$ - instancje typu \textit{FeatureInstance}}
+\Output{$ out $ - wynik porównania}
+\myproc{\proc{a, b}}{
+$ out \leftarrow a.field < b.field $\;
+}
+\caption{Operator mniejszości dla instancji typu \textit{FeatureInstance}}
 \label{alg:FeatureInstance_operator}
 \end{algorithm}
- 
+
 Przed uruchomieniem kernela niezbędne jest zaalokowanie tablic $ Pairs_{A} $ oraz $ Pairs_{B}$ o długości odpowiadającej wyznaczonej w wyniku redukcji tablicy $ T_{counts} $ liczbie odnalezionych relacji sąsiedztwa. Dodatkowo należy zaalokować tablicę $ Begins $ wielkości $ n_{dt} $ - przechowa ona wynik operacji sumy ekskluzywnej (ang. \textit{exclusive sum}) tablicy $ T_{counts} $. Struktura ta będzie wykorzystana w trakcie wyznaczania pozycji zapisu relacji w tablicach wynikowych.
 
 Konfiguracja uruchomieniowa kernela \textit{findNeighbours} jest identyczna z konfiguracją użytą dla \textit{countNeighbours}. Sama funkcja różni się zresztą od poprzedniczki tylko i wyłącznie w miejscu stwierdzenia relacji sąsiedztwa - kernel \textit{findNeighbours} zamiast zliczać relacje sąsiedztwa wpisuje do tablic $ Pairs_{A} $ i $ Pairs_{B}$ instancje, pomiędzy którymi stwierdzono to sąsiedztwo. 
@@ -965,25 +966,28 @@ Struktury pomocnicze wykorzystywane w następnych krokach algorytmu wymagają, a
 
 \begin{figure}[H]
 \begin{algorithm}[H]
-$operator<(FeatureInstance\ lhs,FeatureInstance\ rhs) $\\
-\{\\
-  \uIf{$ a[0].fields.featureId\ <\ b[0].fields.featureId $}{
-   \Return $ True $ \;
-  }\uElseIf { $ a[0].fields.featureId\ ==\ b[0].fields.featureId  $ } {
-      \uIf{$ a[1].fields.featureId\ <\ b[1].fields.featureId $}{
-   		\Return $ True $ \;
-	  }\uElseIf {$ a[1].fields.featureId\ ==\ b[1].fields.featureId $} {
-	  	\uIf{$ a[0].fields.instanceId\ <\ b[0].fields.instanceId $}{
-   			\Return $ True $ \;
-	  	}\uElseIf {$ a[0].fields.instanceId\ ==\ b[0].fields.instanceId $} {
-	  		\Return $ a[1].fields.instanceId\ ==\ b[1].fields.instanceId $ \;
-	  	}	
-	  }
-  }
-  
-  \Return $ False $ \;
-\}
-
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{operator<}
+\Input{ $ a, b $ - strony operatora typu \textit{FeatureInstance}}
+\Output{ $ out $ - wynik porównania }
+\myproc{\proc{a, b}}{
+\uIf{$ featureId_{a_{0}} < featureId_{b_{0}} $}{
+$ out \leftarrow True $\;
+}
+\uElseIf { $ featureId_{a_{0}} = featureId_{b_{0}} $ } {
+      \uIf{$ featureId_{a_{1}} <\ b[1].fields.featureId $}{
+   		$ out \leftarrow True $\;
+	  }\uElseIf {$ featureId_{a_{1}} = featureId_{b_{1}} $} {
+	  	\uIf{$ instanceId_{a_{0}} < instanceId_{b_{0}} $}{
+   			$ out \leftarrow True $\;
+	  	}\uElseIf {$ instanceId_{a_{0}}  = instanceId_{b_{0}} $} {
+	  		 $ out \leftarrow instanceId_{a_{1}} = instanceId_{b_{1}}$\;
+	  	}
+	}
+}
+}
 \caption{Operator mniejszości dla par instancji typu $ FeatureInstance $}
 \label{alg:FeatureInstancePair-operator}
 \end{algorithm}
@@ -995,7 +999,6 @@ Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}. Tak po
 \item wszystkie instancje każdej relacji o określonej instancji pierwszego elementu oraz określonym typie drugiego elementu zajmą ciągłą przestrzeń w zbiorach $ Pairs_{A} $ oraz $ Pairs_{B} $.
 \end{itemize}
 
-  
 \begin{figure}[H]
 \centering
 \includegraphics{sortAttr_insTable}
@@ -1011,13 +1014,17 @@ Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania z
 
 \begin{figure}[H]
 \begin{algorithm}[H]
-$operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
-\{\\
-\Return $lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
-$\ \&\&\ lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
-\}
-\caption{Operator równości dla par instancji typu FeatureInstanceTuple }
-\label{alg:FeatureInstanceTuple-operator}
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{operator==}
+\Input{ $ a, b$ - strony operatora typu \textit{FeatureInstanceTuple}}
+\Output{ $ out $ - wynik porównania }
+\myproc{\proc{a, b}}{
+$ out \leftarrow (featureId_{a_{0}} = featureId_{b_{0}}) \cup (featureId_{a_{1}} = featureId_{b_{1}})$\;
+}
+\caption{Operator równości dla par instancji typu \textit{FeatureInstanceTuple}}
+\label{alg:FeatureInstanceTuple_operator}
 \end{algorithm}
 \end{figure}
 
@@ -1054,12 +1061,16 @@ Procedura tworzenia tej struktury przebiega bardzo podobnie do procedury tworzen
 
 \begin{figure}[H]
 \begin{algorithm}[H]
-$operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
-\{\\
-\Return $lhs.get[0].field ==\ rhs.get[0].field$\\
-$\ \&\&\ lhs.get[1].fields.featureId\ ==\ rhs.get[1].fields.featureId$\\
-\}
-\caption{Operator równości dla par instancji typu FeatureInstanceTuple }
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{operator==}
+\Input{ $ a, b$ - strony operatora typu \textit{FeatureInstanceTuple}}
+\Output{ $ out $ - wynik porównania }
+\myproc{\proc{a, b}}{
+$ out \leftarrow (field_{a_{0}} = field_{b_{0}}) \cup (featureId_{a_{1}} = featureId_{b_{1}})$\;
+}
+\caption{Operator równości dla par instancji typu \textit{FeatureInstanceTuple}}
 \label{alg:FeatureInstanceTuple_operatorITNMPack}
 \end{algorithm}
 \end{figure}
@@ -1071,9 +1082,36 @@ Wynikiem działania funkcji \textit{reduce\_by\_key} z operatorem \ref{alg:Featu
 \item \textit{Begins} - zawiera indeksy tabeli instancji relacji, oznaczające początki obszarów ciągłych odpowiadającym elementom z tablicy \textit{Uniques}.
 \end{itemize}
 
-Z elementów tabeli \textit{Uniques} tego kroku tworzone są klucze złożone z identyfikatorów instancji oraz typu pierwszego elementu pary instancji połączonych z identyfikatorem typu drugiego elementu pary. Z połączenia odpowiadających sobie wartości w 
+Dla każdego elementu tabeli \textit{Uniques} tworzony jest klucz składający się z instancji pierwszego elementu oraz typu drugiego. Następnie odpowiadającymi sobie pozycją wartościami z \textit{Counts} oraz \textit{Begins} wypełniana jest struktura \textit{NeighboursListInfoHolder} i umieszczana w $ ITNMPack.map $ przy użyciu wcześniej utworzonego klucza. 
 
 \subsection{Wyodrębnienie ze zbioru kandydatów kolokacji maksymalnych kandydatów spełniających kryterium prewalentności}
+
+W ostatnim kroku algorytmu zbiór kandydatów na kolokacje zostaje przefiltrowany pod względem progu powszechności. Ilość iteracji niezbędnych do zakończenia tego etapu nie jest dokładnie znana - można ją jedynie oszacować w oparciu o następujący wzór:
+
+\begin{equation}
+n_{li} \in {[ |uniqueCandidates|;\ maxLen_{cand}\ -\ 1 ]}
+\end{equation}
+
+Problem z oszacowaniem ilości iteracji wynika z faktu, że wartość $ maxLen_{cand} $, oznaczająca długość najdłuższych kandydatów, może ulec zmianie w wyniku rozbicia kandydatów na kolokacje na mniejsze w przypadku, kiedy próg powszechności jest niewystarczający do uzyskania akceptowalnego wyniku. Może to spowodować zwiększenie ilości potrzebnych iteracji, a w konsekwencji - wydłużenie czasu działania algorytmu.
+
+Każda iteracja rozpoczyna się od pobrania ze zbioru \textit{uniqueCandidates} zbioru kandydatów \textit{toProcess} o długości $ n_{cur} $ - długość ta w pierwszej iteracji jest równa wartości $ maxLen_{cand} $. Następnie ze zbioru $ toProcess $ usuwane są duplikaty oraz kandydaci będący częścią kandydatów uznanych już za prewalentnych (należących do zbioru wynikowego). 
+Wyznaczeni do przetwarzania kandydaci są umieszczani w przestrzeni pamięci GPU, co umożliwia rozpoczęcie budowy drzewa instancji, w którym każdy \textit{i}-ty poziom drzewa odpowiada instancjom o typie na \textit{i}-tej pozycji odpowiedniego kandydata. Drzewo to jest budowane dla wielu kandydatów ze zbioru $ toProcess $ jednocześnie.
+
+Struktura drzewa jest realizowana poprzez tablice $ group_{i} $ (gdzie \textit{i} to poziom drzewa),   które przechowują informacje o indeksie powiązanego węzła na poprzednim poziomie. Jej wielkość jest równa ilości węzłów na danym poziomie. Odmiennie zachowują się tablice $ group_{i} $ dla poziomu zerowego oraz pierwszego - wskazują one na indeks kandydata, do którego należy wychodzące z poziomu zerowego poddrzewo. Dodatkowo wartości w $ group_{i} $ dla poziomu drugiego wskazują nie tylko na element nadrzędny na poziomie pierwszym, lecz także na element nadrzędny na poziomie zerowym - właściwość ta wynika z samego sposobu budowy drzewa. Pierwsze dwa poziomy drzewa budowane są w jednym kroku, ze względu na fakt, iż w poprzednich krokach algorytmu wyznaczone zostały wszystkie istniejące, spełniające kryteria relacji, pary instancji. Łatwy dostęp do tych instancji zapewnia struktura \textit{ITMPack}. 
+
+Tworzenie poziomów drzewa można podzielić na dwa kroki. Na początku obliczana jest ilość par instancji, a następnie przy użyciu jednego wątku na znalezioną parę ilość ta wpisywana jest na daną pozycję w drzewie. Przy dodawaniu do drzewa dwóch pierwszych poziomów nie jest sprawdzana integralność dodawanych połączeń (tj. czy dodawane instancje są w relacji ze wszystkimi poprzednikami), ponieważ wynika ona bezpośrednio z relacji pomiędzy instancjami.
+
+Na potrzeby budowania kolejnych poziomów utrzymywana jest tablica \textit{mask}, której wielkość jest nie mniejsza niż ilość instancji na poziomie $ i - 1 $. Bezpośrednio po utworzeniu zawiera wyłącznie wartości typu $ True $, co oznacza, iż wszystkie instancje na poziomie $ i - 1 $ przeszły test integralności.
+
+Począwszy od poziomu drugiego drzewo budowane jest poprzez dodawanie do każdej instancji na $ i - 1 $ poziomie następników będących jej sąsiadami o typie wyznaczonym przez \textit{i}-tą pozycję na odpowiadającym mu kandydacie. Wykorzystując strukturę \textit{ITNMPack} (analogicznie jak przy budowie poziomu zerowego oraz pierwszego), na początku zliczana jest liczba sąsiadów spełniających określone przed chwilą kryteria - zliczanie jednak dotyczy tylko i wyłącznie instancji, dla których odpowiadające pole w tablicy \textit{mask} ma wartość $ True $, co oznacza, że dodana w poprzedniej iteracji instancja jest w relacji ze wszystkimi jej poprzednikami. Na podstawie tej wielkości kolejny poziom jest alokowany, a następnie przepisane zostają do niego instancje.
+
+Dodane instancje niekoniecznie muszą znajdować się w relacji ze wszystkimi poprzednikami - w związku z tym niezbędne jest dodatkowe uruchomienie testu integralności dla dodanych instancji. Następuje zatem uruchomienie wątków w ilości równej liczbie nowych instancji, które to przechodzą drzewo od liścia do korzenia sprawdzając na każdym poziomie, czy nowo dodana instancja jest w relacji z instancją na obecnym poziomie. Do przechodzenia w dół użyta jest informacja zawarta o indeksie poprzednika w \textit{group}, a wynik testu integralności zapisywany jest do tablicy \textit{mask}.
+
+Drzewo budowane jest do momentu, w którym zostaną wyznaczone wszystkie jego poziomy (jeden na element kandydata) lub gdy na pewnym poziomie okaże się, iż nie można już dodać żadnej instancji. Po stworzeniu drzewa przy jego użyciu dokonana zostaje materializacja wszystkich instancji kandydatów. Uruchamiane jest w tym celu tyle wątków, ile wartości $ True $ w tablicy \textit{mask} odpowiadającym instancjom na ostatnim poziomie. 
+
+Następnie można przeprowadzić proces obliczania powszechności zbioru instancji dla każdego z kandydatów w wygenerowanym zbiorze - osobno dla każdego typu składowego. Dokonuje się tego poprzez wyznaczenie unikalnych elementów w tym zbiorze i podzielenie tej wartości przez całkowitą ilość instancji tego typu. Gdy posiadane są wartości dla wszystkich typów składowych, za powszechność uznawana jest wartość minimalna.
+
+Po obliczeniu powszechności dla wszystkich kandydatów, dla każdego z nich podejmowana jest decyzja o dodaniu do zbioru wynikowego lub rozbiciu na kandydatów o długości jeden mniejszej - każdy z nowych kandydatów powstaje przez usunięcie jednej ze składowych starego kandydata. Decyzja ta zależy od ustalonego na starcie algorytmu minimalnego progu powszechności. Nowo powstali kandydaci umieszczani są w zbiorze \textit{uniqueCandidates}, a kandydaci uznani za spełniających próg powszechności - do zbioru wynikowego.
 
 \newpage
 

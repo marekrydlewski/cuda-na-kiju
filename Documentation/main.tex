@@ -173,8 +173,6 @@ Porównanie wydajności zaimplementowanych rozwiązań zostało zawarte w \textb
 
 Ostatni \textbf{Rozdział~\ref{sec:fin}} stanowi podsumowanie całego projektu, uwagi zespołu oraz możliwe dalsze kierunki rozwoju.
 
-W \textbf{Dodatku~\ref{sec:wypociny}} zawarty jest krótki opis klas zaimplementowanych w implementacji dla CPU i GPU.
-
 \subsection{Podział pracy}
 
 Podział zadań w ramach niniejszego projektu wyglądał następująco:
@@ -725,14 +723,41 @@ Struktura $ insTable $ pełni podobną rolę, jak w oryginalnym algorytmie \text
 
 Krok ten stanowi zmodyfikowaną wersję algorytmu obliczania miar powszechności znanego z algorytmu \textit{Co-location Miner} (patrz Rozdział~\ref{subsec:clm}).
 
-Na początku wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zliczenie wszystkich wystąpień par instancji bez duplikatów. Podobnie jak w kroku pierwszym zostały tu użyte mapy nieuporządkowane (\textit{std::unordered\_map}) w celu przyspieszenia przetwarzania. Do budowy mapy została użyta własna funkcja mieszająca powstała na bazie \textit{hash\_combine} z biblioteki \textit{boost}. Ogranicza ona występowanie kolizji w przypadku wstawiania nowych elementów do tablicy z haszowaniem.
+Na początku wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zliczenie wszystkich wystąpień par instancji bez duplikatów. Podobnie jak w kroku pierwszym zostały tu użyte mapy nieuporządkowane (\textit{std::unordered\_map}) w celu przyspieszenia przetwarzania.
+Kluczem w tej mapie mogą być zarówno pary, jak i krotki.
+
+Do tworzenia map nieuporządkowanych zazwyczaj stosuje się sumę modulo 2 jako funkcję mieszania - jednak w praktyce takie rozwiązanie generuje zbyt dużą ilość kolizji. W związku z tym, do budowy mapy została użyta własna funkcja mieszająca (patrz Algorytm~\ref{alg:pairHashFunction}) powstała na bazie \textit{hash\_combine} z biblioteki \textit{boost}. Ogranicza ona występowanie kolizji w przypadku wstawiania nowych elementów do tablicy z haszowaniem. 
+
+\begin{algorithm}
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{hash\_combine}
+\Input{ $p$ - para zawierająca elementy $ first $ oraz $ second $ dające się hashować }
+\Output{ $seed$ - wartość funkcji mieszającej dla pary $p$ }
+\myproc{\proc{seed, key}}{
+$ seed \leftarrow seed \oplus (f_{hash}(key) + $ 0x9e3779b9 $ + (seed << 6) + (seed >> 2))$\;
+}
+$ seed_1 \leftarrow 0 $\;
+$ seed_1 \leftarrow $ hash\_combine $(seed_1, p.first) $\;
+$ seed_1 \leftarrow $ hash\_combine $(seed_1, p.second) $\;
+
+$ seed_2 \leftarrow 0 $\;
+$ seed_2 \leftarrow $ hash\_combine $(seed_2, p.second) $\;
+$ seed_2 \leftarrow $ hash\_combine $(seed_2, p.first) $\;
+
+$ seed \leftarrow minimum(seed_1, seed_2) $\;
+
+\caption{Funkcja mieszająca dla pary $p$}
+\label{alg:pairHashFunction}
+\end{algorithm}
 
 Następnie w oparciu o wektor wynikowy tej funkcji oraz utworzony wcześniej wektor $ typeIncidenceCounter$ (patrz Rozdział~\ref{subsec:cpu-step-1}) dla każdego kandydata w tabeli $ insTable $ wyliczany jest współczynnik uczestnictwa. W przypadku, gdy obliczona miara powszechności jest mniejsza od zadanego progu minimalnej powszechności, kandydat jest usuwany z struktury $ insTable $, a użyta przez niego pamięć zostaje zwolniona na poczet dalszych obliczeń.
 
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
 \label{subsec:kerbosz}
 
-Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
+Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Wykorzystywana jest w tym celu macierz sąsiedztwa (ang. \textit{adjacency matrix}). Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
 
 \begin{algorithm}
 \SetKwInOut{Input}{Wejście}
@@ -775,7 +800,11 @@ Następnie iteracyjnie przetwarzana jest każda klika, począwszy od największe
 
 Wyliczone kliki są umieszczane w obiektach \textit{CliqueContainer} i \textit{LapsedCliqueContainer}. Pełnią one rolę pamięci podręcznej dla powyższych algorytmów. Dzięki temu nie ma potrzeby ponownego przeliczania tych samych klik instancji, co prowadzi do kilkunastokrotnego wzrostu wydajności obliczeń.
 
-Dla klik o długości większej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja~\ref{def:condensed}). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}, zastosowano w nim jednak pewne metody optymalizacyjne - wskaźniki do rodziców w celu ograniczenia przeszukiwań drzewa w dół, użycie wektora zawierającego wskaźniki do liści znajdujących się na ostatnim poziomie drzewa, wskaźniki typu \textit{unique\_ptr} (więcej szczegółów w Dodatku~\ref{sec:wypociny}). Następnie zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności.
+Dla klik o długości większej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja~\ref{def:condensed}). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}.
+
+W celu ograniczenia przeszukiwań drzewa w dół zastosowano dodatkowe wskaźniki do rodziców. Zdefiniowany został także dodatkowy wektor zawierający wskaźniki do liści znajdujących się na ostatnim poziomie drzewa (wyznaczanym na bazie rozmiaru aktualnie budowanej kliki - w przypadku, kiedy drzewa nie da się rozbudować o kolejny poziom, wektor ten pozostaje pusty). Podejście to pozwala na szybki dostęp do końcowych instancji poszczególnych kandydatów na instancje.
+
+Na końcu zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności. Początkowo iteracje następują po poszczególnych cechach kolejnych wektorów.
 
 W przypadku, kiedy miara nie jest mniejsza niż przyjęty na początku próg powszechności, kandydat jest dodawany do zbioru rozwiązań. W przeciwnym wypadku do struktury $ cliquesToProcess $ dodawane są podkliki, które również będą rozważane jako potencjalni kandydaci na kolokacje.
 
@@ -807,7 +836,7 @@ Poza powyższymi usprawnieniami, ogólny mechanizm oraz struktury zastosowane w 
 
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
 
-Jedyną różnicą na tym etapie algorytmu w stosunku do odmiany sekwencyjnej jest dodatkowy krok określenia zakresu pracy dla każdego z wątków biorących udział w liczeniu wystąpień par instancji. Odpowidzialna za to jest funkcja $ getWorkloadForInsTable $.
+Jedyną różnicą na tym etapie algorytmu w stosunku do odmiany sekwencyjnej jest dodatkowy krok określenia zakresu pracy dla każdego z wątków biorących udział w liczeniu wystąpień par instancji. Odpowiedzialna za to jest funkcja $ getWorkloadForInsTable $.
 
 W porównaniu do poprzedniego etapu, wykorzystywany jest statyczny planista (ang. \textit{static-partitioner}) będący odpowiednikiem funkcji \textit{omp parallel for} z biblioteki \textit{OpenMP}. Dzięki temu każdemu wątkowi przydzielana jest stała ilość par instancji do przetworzenia. Liczba ta jest wyznaczana na podstawie rozmiaru tablicy $ insTable $. Daje to pewną oszczędność czasu, gdyż wątki nie tracą czasu na dynamiczne przydzielanie pracy do wykonania.
 
@@ -836,7 +865,29 @@ $ X \leftarrow X \cup \{ v^{*}_{i}\} $\;
  
 \subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
 
-W porównaniu do wersji sekwencyjnej, konstrukcja skondensowanego drzewa instancji oraz liczenie miary powszechności jest dokonywany w sposób równoległy. Wymagało to zaprojektowania równoległych odpowiedników kontenerów znanych z odmiany sekwencyjnej, czyli \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer} zapewniających bezpieczeństwo przetwarzania równoległego. Niezbędne było także zastosowanie (podobnie jak w kroku pierwszym) dynamicznego planisty (ang. \textit{auto scheduler}) przydzielającego dynamicznie kolejne kliki do przetworzenia do poszczególnych wątków. Niemożliwe było zastosowanie statycznego planisty z uwagi na fakt, że na tym etapie nie można przewidzieć dokładnego czasu konstrukcji skondensowanego drzewa instancji.
+W porównaniu do wersji sekwencyjnej, konstrukcja skondensowanego drzewa instancji oraz liczenie miary powszechności jest dokonywany w sposób równoległy. Wymagało to zaprojektowania równoległych odpowiedników kontenerów znanych z odmiany sekwencyjnej, czyli \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer} zapewniających bezpieczeństwo przetwarzania równoległego. W tym celu zastosowano mechanizm sekcji krytycznych w procesie inkrementacji liczników, a także kontenery o dostępie równoległym. Oprócz zapewnienia własności bezpieczeństwa przełożyło się to na zwiększenie efektywności przetwarzania.
+
+Niezbędne było także zastosowanie (podobnie jak w kroku pierwszym) dynamicznego planisty (ang. \textit{auto scheduler}) przydzielającego dynamicznie kolejne kliki do przetworzenia do poszczególnych wątków. Niemożliwe było zastosowanie statycznego planisty z uwagi na fakt, że na tym etapie nie można przewidzieć dokładnego czasu konstrukcji skondensowanego drzewa instancji.
+
+Dla struktury \textit{ParallelCliqueContainer} konieczne okazało się zaimplementowanie funkcji mieszającej dla całych wektorów, ponieważ zbiór równoległy (ang. \textit{concurrent set}) dostępny w bibliotece \textit{PPL} wykorzystuje \textit{hashe} w procesie dodawania elementów (odmiennie niż pierwowzór z biblioteki STD korzystający z operacji porównania). W tym celu skorzystano z funkcji \textit{hash\_combine} (patrz Algorytm~\ref{alg:vector_hash_combine}).
+
+\begin{algorithm}
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\SetKwFunction{proc}{hash\_combine}
+\Input{ $ vec $ - wektor źródłowy }
+\Output{ $seed$ - wartość funkcji mieszającej }
+\myproc{\proc{seed, key}}{
+$ seed \leftarrow seed \oplus (f_{hash}(key)) + $ 0x9e3779b9 $ + (seed << 6) + (seed >> 2))$\;
+}
+$ seed \leftarrow |vec| $\;
+\ForEach{$ i \in vec $}{
+hash\_combine $(seed, i)$\;
+}
+\caption{Algorytm operatora () struktury \textit{vector\_hash}}
+\label{alg:vector_hash_combine}
+\end{algorithm}
 
 Oddzielną kwestią jest struktura tablicy $ insTable $. Podobnie jak w wersji sekwencyjnej zawiera trzy wymiary. Wykorzystano wektor pochodzący z standardowej biblioteki C++, którego elementy są wskaźnikami na wektory równoległe (ang. \textit{concurrent vector}) pochodzące z biblioteki \textit{PPL} - same z kolei zawierają wskaźniki na wektory klasyczne. To nieco pokrętne rozwiązanie zapewnia bezproblemowe przetwarzanie równoległe, a także - ze względu na minimalizację fragmentacji zaalokowanej pamięci - przyspiesza działanie algorytmu.
 
@@ -1540,272 +1591,5 @@ generating all maximal cliques and computational experiments. W: Theoretical Com
 \bibitem{cuda_um}Unified Memory in CUDA 6, Harris M. (NVIDIA Developer Blogs), 18-11-2013 [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
 \bibitem{cuda_dp}CUDA Dynamic Parallelism API and Principles, Adinetz A. (NVIDIA Developer Blogs) [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
 \end{thebibliography}
-
-\newpage
-
-\appendix
-
-\section{Opis klas i struktur pomocniczych}
-\label{sec:wypociny}
-
-\subsection{Opis architektury wersji CPU}
-
-Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
-
-\begin{itemize}
-\item
-Filtrowanie sąsiadów na podstawie progu odległości:
-\begin{lstlisting}
-virtual void filterByDistance(float threshold) = 0;
-\end{lstlisting}
-
-\item
-Filtrowanie sąsiadów na podstawie progu minimalnej powszechności:
-\begin{lstlisting}
-virtual void filterByPrevalence(float prevalence) = 0;
-\end{lstlisting}
-
-\item
-Generowanie kandydatów na kolokacje maksymalne:
-\begin{lstlisting}
-virtual void constructMaximalCliques() = 0;
-\end{lstlisting}
-
-\item
-Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne i ich filtrowanie na podstawie progu minimalnej powszechności:
-\begin{lstlisting}
-virtual std::vector<std::vector<unsigned short>> 
-    filterMaximalCliques(float prevalence) = 0;
-\end{lstlisting}
-\end{itemize}
-
-Klasy CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel zawierają implementację owych metod odpowiednio w wersji sekwencyjnej jak i równoległej.
-
-Oprócz wyżej wspomnianych metod klasa CPUMiningAlgorithmBase zawiera implementację metod pomocniczych odpowiadających za:
-
-\begin{itemize}
-\item Obliczenie odległości między instancjami i porównanie ich z obowiązującym progiem odległości.
-\item Obliczenie wartości funkcji powszechności dla dwóch elementów.
-\item Obliczenie wartości funkcji powszechności dla dowolnej liczby elementów, za równo w wersji sekwencyjnej i równoległej.
-\item Wygenerowanie wszystkich podklik kliki K o rozmiarze \textit{n} takich, że rozmiar każdej podkliki wynosi \textit{n - 1}.
-\end{itemize}
-
-\subsection{Opis struktur \& klas pomocniczych i ich implementacji}
-    
-\begin{itemize}
-\item DataFeed - Instancje struktury DataFeed mają za zadanie przechowywać dane wejściowe.
-
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod struktury DataFeed}]
-struct DataFeed
-{
-    struct Coords
-    {
-        float x;
-        float y;
-        Coords(float x, float y) : x(x), y(y) {}
-    };
-    
-	unsigned short type;
-	unsigned short instanceId;
-	Coords xy;
-    
-	DataFeed(unsigned short type,
-        unsigned short id,
-        float x,
-        float y)
-    		: type(type), instanceId(id), Coords(x,y) {}
-
-	bool operator < (const DataFeed& str) const
-	{
-		return (type == str.type)?(instanceId < str.instanceId):(type < str.type);
-	}
-};
-\end{lstlisting}
-\end{minipage}
-
-\item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}). Zawiera wskaźnik do korzenia drzewa \raggedright \inline{std::unique_ptr<CinsNode> root}) oraz wektor \inline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
-
-\item CinsNode - Klasa zawierająca implementację pojedynczego węzła skondensowanego drzewa instancji \textit{CinsTree}. Obiekty tej klasy zawierają informacje o cesze \inline{unsigned short type} i numerze \inline{unsigned short instanceId} instancji przestrzennej, wektor wskaźników potomków \inline{std::vector<std::unique_ptr<CinsNode>> children} oraz wskaźnik pokazujący na rodzica danego węzła \inline{CinsNode* parent}. Klasa zawiera metody umożliwiające m.in.:
-
-\begin{itemize}
-\item dodanie potomka.
-\item zwrócenie potomka o danej cesze i numerze instancji.
-\item zwrócenie listy wszystkich przodków.
-\end{itemize}
-
-\item Graph - Klasa implementująca graf nieskierowany, bazująca na macierzy sąsiedztwa (ang. \textit{adjacency matrix}). Oprócz podstawowych metod umożliwiających działanie i budowanie grafu, klasa zawiera również metody pozwalające na:
-
-\begin{itemize}
-\item obliczenie maksymalnych klik w grafie za pomocą zmodyfikowanego algorytmu Brona-Kerboscha \cite{chinczyki}.
-\item obliczenie optymalnego \textit{pivotu} \cite{pivot} dla algorytmu Brona-Kerboscha.
-\item obliczenie stopnia degeneracji grafu (ang. \textit{degeneracy}) i uporządkowanie wierzchołków według miary degeneracji (ang.\textit{degeneracy ordering}) \cite{degenerat}.
-\end{itemize}
-
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod metody tomitaMaximalPivot umożliwiającej wyliczenie optymalnego punktu \textit{pivot}}]
-unsigned short Graph::tomitaMaximalPivot(
-	const std::vector<unsigned short>& SUBG,
-    const std::vector<unsigned short>& CAND)
-{
-	unsigned short u, maxCardinality = 0;
-	for (auto s : SUBG)
-	{
-		auto neighbors = getVertexNeighbours(s);
-		std::sort(neighbors.begin(), neighbors.end());
-		
-		std::vector<unsigned short> nCANDunion(neighbors.size() + CAND.size());
-        
-		auto itUnion = std::set_union(
-        	CAND.begin(),
-            CAND.end(),
-            neighbors.begin(),
-            neighbors.end(),
-            nCANDunion.begin());
-            
-		nCANDunion.resize(itUnion - nCANDunion.begin());
-		if (nCANDunion.size() >= maxCardinality)
-		{
-			u = s;
-			maxCardinality = nCANDunion.size();
-		}
-	}
-	return u;
-}
-\end{lstlisting}
-\end{minipage}
-
-\item SubcliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \inline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \inline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
-
-Weryfikację umożliwia algorytm:
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod metody checkCliqueExistence klasy SubcliquesContainer}]
-bool SubcliquesContainer::checkCliqueExistence(
-	std::vector<unsigned short>& clique)
-{
-	assert(clique.size() >= 2);
-
-	std::vector<bool> types(cliquesCounter, false);
-	std::vector<bool> typesNew(cliquesCounter, false);
-
-	for (auto type : typesMap[clique[0]])
-	{
-		types[type] = true;
-	}
-
-	for (auto i = 1; i < clique.size(); ++i)
-	{
-		for (auto id : typesMap[clique[i]])
-		{
-			if (types[id]) typesNew[id] = true;
-		}
-		types = typesNew;
-		std::fill(typesNew.begin(), typesNew.end(), false);
-	}
-
-	if (std::find(types.begin(), types.end(), true) != types.end())
-		return true;
-
-	return false;
-}
-\end{lstlisting}
-\end{minipage}
-	
-\item ParallelSubcliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{SubcliquesContainer} jednakże zapewniająca bezpieczeństwo przetwarzania wielowątkowego. Cel ten osiągnięto za pomocą skorzystania z sekcji krytycznych w przypadku inkrementowania licznika jak i posłużenia się współbieżnymi wektorami \inline{concurrency::concurrent_vector<unsigned short>} z biblioteki PPL, co przełożyło się również na zwiększenie efektywności przetwarzania.
-
-\item CliquesContainer - Klasa zapewniająca dwie funkcjonalności:
-\begin{itemize}
-\item Sprawdzenia czy dokładnie taka klika jest już przechowywana, za co odpowiada funkcja \raggedright \inline{bool checkCliqueExistence(std::vector<unsigned short>& clique)}
-\item Sprawdzenie czy taka klika lub jej dowolna podklika jest już przechowywana, odpowiada za to funkcja:
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod metody checkSublicqueExistence klasy CliquesContainer }]
-bool CliquesContainer::checkSubcliqueExistence(
-	std::vector<unsigned short>& clique)
-{
-	bool isSubclique;
-  	for (auto& c : cliques)
-  	{
-		if (clique.size() < c.size()) continue;
-    	auto it = clique.begin();
-    	isSubclique = true;
-        for (auto id : c)
-        {
-        	it = std::find(it, clique.end(), id);
-        	if (it == clique.end()) {
-        		isSubclique = false;
-        		break;
-        	}
-        }
-   		if (isSubclique) return true;
-  	}
-  	return false;
-}
-\end{lstlisting}
-\end{minipage}
-\end{itemize}
-
-\item ParallelCliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{CliquesContainer} zapewniająca w tym samym czasie bezpieczeństwo przetwarzania wielowątkowego.
-
-\item RandomDataProvider - Klasa zapewniająca losowy generator danych z parametryzowaną liczbą cech, liczbą instancji a także granicami danych przestrzennych.
-
-\item SimulatedRealDataProvider - Klasa wykorzystująca gotowe, przygotowane wcześniej dane wczytywane z plików mające symulować dane rzeczywiste.
-
-\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang. 
-\textit{hash function}) dla pary \inline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \inline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \inline{hash_combine} z biblioteki \textit{boost}:
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod struktury pair\_hash}]
-struct pair_hash {
-	template <class T1, class T2>
-	std::size_t operator () (const std::pair<T1, T2> &p) const {
-		std::size_t seed1(0);
-		::hash_combine(seed1, p.first);
-		::hash_combine(seed1, p.second);
-
-		std::size_t seed2(0);
-		::hash_combine(seed2, p.second);
-		::hash_combine(seed2, p.first);
-
-		return std::min(seed1, seed2);
-	}
-};
-\end{lstlisting}
-\end{minipage}
-
-Funkcja hash\_combine:
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod funkcji hash\_combine}]
-template<typename T>
-void hash_combine(std::size_t &seed, T const &key) {
-	std::hash<T> hasher;
-	seed ^= hasher(key) + 0x9e3779b9 + (seed << 6) + 
-    	(seed >> 2);
-};
-\end{lstlisting}
-\end{minipage}
-
-\item vector\_hash - Struktura umożliwiająca kodowanie mieszające (ang. \textit{hashing}) dla wektorów dowolnych typów dla których istnieje implementacja funkcji hashującej. Również w tym przypadku skorzystano z funkcji \inline{hash_combine}.
-
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod struktury vector\_hash}]
-struct vector_hash {
-	template <class T>
-		std::size_t operator()(std::vector<T> const& vec) const 
-        {
-            std::size_t seed = vec.size();
-            for (auto& i : vec) {
-                ::hash_combine(seed, i);
-            }
-			return seed;
-		}
-};
-\end{lstlisting}
-\end{minipage}
-
-
-\item Timer - Generyczna klasa umożliwiająca pomiar czasu dla dowolnej funkcji lub funktora z dowolną liczbą argumentów. Zapewnia ustawienie dowolnego typu zegara i dokładności pomiaru. Odpowiada za sprawdzenie czasu wykonywania poszczególnych kroków algorytmu.
-
-\item Benchmark - Klasa umożliwiająca przeprowadzenie parametryzowanych testów wydajnościowych całego algorytmu, zapewniając m.in. serializację do pliku. Wyeksportowane dane mogą zostać zwizualizowane za pomocą wykresów do których tworzenia wykorzystano odpowiedni skrypt w języku Python.
-
-\end{itemize}
 
 \end{document}

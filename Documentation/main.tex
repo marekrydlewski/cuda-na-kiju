@@ -1022,9 +1022,14 @@ Wydajność poszczególnych implementacji została przetestowana pod kątem zmie
 
 \subsubsection{Dane wejściowe}
 
+<<<<<<< HEAD
 Dane wygenerowano przy pomocy generatora opracowanego przez P. Boińskiego \cite{guwnostraszne}, napisanego w języku \textit{Java}. Próbki testowe składają się z punktów, dla których określone są trzy wartości: współrzędna $ x $, współrzędna $ y $ oraz etykieta cechy, jaką reprezentuje dany punkt. Dodatkowo, punkty zostały rozmieszczone na przestrzeni $ 1000 \times 1000$.
+=======
+Dane wygenerowano przy pomocy generatora opracowanego przez P. Boińskiego na potrzeby pracy \cite{boinski}, napisanego w języku \textit{Java}. Próbki testowe składają się z punktów, dla których określone są trzy wartości: współrzędna $ x $, współrzędna $ y $ oraz etykieta cechy, jaką reprezentuje dany punkt. Punkty zostały dodatkowo rozmieszczone na przestrzeni $ 1000 \times 1000$. 
+>>>>>>> 8a710a23ac15a25c22d304c7eddab877bc481454
 
 Dla celów pomiarowych związanych ze zmiennością rozmiaru danych wejściowych utworzone zostało osiem zestawów danych, w których liczba punktów wynosi od ok. 3000 do 200000 punktów. W przypadku pozostałych testów posłużono się czterema instancjami, które można opisać jako:
+
 \begin{itemize}
 \item \textit{dane o niskim zagęszczeniu i równomiernym rozkładzie} - około 30000 punktów rozmieszczonych losowo
 \item \textit{dane o wysokim zagęszczeniu i równomiernym rozkładzie} - około 65000 punktów rozmieszczonych losowo
@@ -1068,7 +1073,7 @@ Testy zostały zautomatyzowane i uruchomione za pomocą skryptu napisanego w ję
 
 \subsubsection{Zmienny rozmiar danych}
 
-Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacji algorytmu w zależności od ilości punktów (Rysunek \ref{chart:datasize}).
+Poniższy wykres przedstawia czasy wykonań poszczególnych implementacji algorytmu w zależności od ilości punktów (Rysunek \ref{chart:datasize}).
 
 \begin{figure}[H]
 \begin{tikzpicture}
@@ -1116,11 +1121,14 @@ Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacj
 \legend{Sequential, Parallel, GPU}
 \end{axis}
 \end{tikzpicture}
-\caption{Wykres zależności czasu wykonania implementacji algorytmu od rozmiaru danych wejściowych}
+
+\caption{Wykres zależności czasu wykonania różnych implementacji algorytmu od rozmiaru danych wejściowych}
 \label{chart:datasize}
 \end{figure}
 
-Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna. Ze względu na czytelność wykresu czasy dla implementacji na GPU zostały pominięte - były one zbyt wysokie.
+Z analizy wykresu wynika, że powyżej pewnego rozmiaru danych wyjściowych następuje gwałtowny wzrost czasu wykonania algorytmu. Ciekawostką jest fakt, że dla małych rozmiarów danych implementacja na procesorach kart graficznych wypada zdecydowanie gorzej niż wariant sekwencyjny dla CPU. Wynika to z kosztu przygotowania danych i konieczności inicjalizacji obliczeń równoległych, które przy dużych rozmiarach danych zostają zrekompensowane przez szybsze obliczenia, co również można łatwo zauważyć.
+
+Przeprowadzono również oddzielne testy dla części algorytmu odpowiedzialnej za odkrywanie relacji sąsiedztwa - ich efekt prezentuje Rysunek~\ref{chart:planesweep-datasize}. Na jego podstawie można zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU oraz GPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z faktu, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna.
 
 \begin{figure}[H]
 \begin{tikzpicture}
@@ -1154,8 +1162,19 @@ Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykona�
           coordinates {
          (1701,4.3)(3624,6.35)(7526,14.1)(15289,19.05)
          };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          dashed,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,7.25)(3624,8.4)(7526,10)(15289,16)
+         };
              
-\legend{Sequential, Parallel}
+\legend{Sequential, Parallel, GPU}
 \end{axis}
 \end{tikzpicture}
 \caption{Wykres zależności czasu znalezienia relacji sąsiedztwa w różnych implementacjach od rozmiaru danych wejściowych}
@@ -1164,7 +1183,7 @@ Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykona�
 
 \subsubsection{Zmienny próg maksymalnej odległości}
 
-Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algorytmu w różnych implementacjach ze względu na zmienny próg maksymalnej odległości.
+Wykresy zawarte w tym podrozdziale opisują zmienność czasu działania algorytmu w poszczególnych implementacjach ze względu na zmienny próg maksymalnej odległości.
 
 \begin{figure}[H]
 \begin{tikzpicture}
@@ -1174,7 +1193,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=20000,
-            xmin=2, xmax=6,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1226,8 +1244,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=135000,
-            xmin=2, xmax=6,
-            restrict y to domain=0:2500000,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1238,7 +1254,8 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
           color=red,
           ultra thick,
           mark=*,
-          smooth
+          smooth,
+          tension=0.21
           ]
           coordinates {
           (2,1926.2)(2.5,4471.5)(3,21437.6)(3.5,44259.7)(4,81484.45)(4.5,131340.8)(5,38768)(5.5,63127.05)(6,2012318)
@@ -1248,7 +1265,8 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
           color=blue,
           ultra thick,
           mark=*,
-          smooth
+          smooth,
+          tension=0.3
           ]
           coordinates {
          (2,529.05)(2.5,1170)(3,4561.8)(3.5,9276.9)(4,18455.7)(4.5,31357.05)(5,19851.95)(5.5,36743.55)(6,807206.6)
@@ -1271,6 +1289,10 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
 \label{chart:maxdist-nonsparse}
 \end{figure}
 
+Na powyższych wykresach można zaobserwować wzrost czasu wykonania do pewnej wartości progu maksymalnej odległości po przekroczeniu której czasy maleć, aby po chwili znowu wrócić do tendencji wzrostowej. Wartość ta jest zbliżona dla obu implementacji na CPU, a dla GPU jest ona mniejsza.
+
+Dla rzadkiego zbioru danych (Rysunek~\ref{chart:maxdist-sparse}) implementacja GPU jest generalnie wolniejsza od implementacji na CPU (szczególnie od implementacji równoległej), co można zauważyć głównie dla niższych wartości progu maksymalnej odległości. W przypadku gęstego zbioru danych (Rysunek~\ref{chart:maxdist-nonsparse}) implementacja na GPU sprawuje się lepiej - od pewnego punktu prześciga oba warianty przygotowane pod CPU.
+
 \begin{figure}[H]
 \begin{tikzpicture}
 \begin{axis}[
@@ -1279,7 +1301,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=4100,
-            xmin=2, xmax=6,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1323,6 +1344,7 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
 \label{chart:maxdist-sparse-hotspots}
 \end{figure}
 
+
 \begin{figure}[H]
 \begin{tikzpicture}
 \begin{axis}[
@@ -1331,7 +1353,6 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=500000,
-            xmin=2, xmax=5,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1375,19 +1396,21 @@ Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algoryt
 \label{chart:maxdist-nonsparse-hotspots}
 \end{figure}
 
+Podobne testy zostały wykonane dla danych, w których występują tzw. skupiska. Dla rzadkich danych, których część jest zgrupowana w skupiska (Rysunek~\ref{chart:maxdist-sparse-hotspots}) implementacja na GPU wypada nadzwyczaj słabo w porównaniu do implementacji na CPU. W przypadku danych gęstych (Rysunek~\ref{chart:maxdist-nonsparse-hotspots}) 
+wydajność poszczególnych implementacji jest analogiczna jak dla danych gęstych w których nie występują skupiska. Wynika to z faktu, że przy dużym zagęszczeniu danych skupienie ich części w pewnych sektorach nie powoduje znacznego zmniejszenia gęstości poza nimi, więc ogólny rozkład danych w dalszym ciągu jest dość równomierny.
+
 \subsubsection{Zmienny próg minimalnej powszechności}
 
-Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytmu w różnych implementacjach ze względu na zmienny próg minimalnej powszechności.
+Ostatni test skupia się na porównaniu czasów działania poszczególnych implementacji ze względu na zmienny próg minimalnej powszechności. Efekty tego porównania przedstawia Rysunek~\ref{chart:minprev-sparse}.
 
 \begin{figure}[H]
 \begin{tikzpicture}
 \begin{axis}[
             legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
-            xlabel={Próg maksymalnej odległości},
+            xlabel={Próg minimalnej powszechności},
             ylabel={Czas (ms)},
             xtick=data,
             ymin=0, ymax=35000,
-            xmin=0.1, xmax=0.5,
            ymajorgrids=true,
            grid style=dashed,
            width=0.95\textwidth,
@@ -1398,7 +1421,8 @@ Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytm
           color=red,
           ultra thick,
           mark=*,
-          smooth
+          smooth,
+          tension=0.2
           ]
           coordinates {
           (0.1,14785.55)(0.15,3050)(0.2,11616.7)(0.25,31008.85)(0.3,1237.55)(0.35,1202.5)(0.4,4862.3)(0.45,419.4)(0.5,414.35)
@@ -1431,12 +1455,36 @@ Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytm
 \label{chart:minprev-sparse}
 \end{figure}
 
-\subsection{Wnioski}
+Zmienność progu minimalnej powszechności nie ma większego wpływu na zależności pomiędzy czasami wykonań poszczególnych implementacji - implementacja GPU pozostaje wolniejsza niż implementacja równoległa na CPU oraz szybsza niż implementacja sekwencyjna. Zmienia się to jedynie w przypadku wysokich progów powszechności (powyżej 0.3) - implementacja GPU jest wtedy wolniejsza również od implementacji sekwencyjnej. Wynika to z faktu, że przy takim progu minimalnej powszechności odfiltrowana zostaje większość danych wejściowych - w takim przypadku implementacje dla CPU pozostają bez pracy, natomiast wersja dla procesora GPU w dalszym ciągu musi wykonać wszelkie działania związane z kopiowaniem danych do pamięci karty graficznej oraz niezbędnymi przygotowaniami do równoległego wykonania algorytmu.
 
+\newpage
 
 \section{Zakończenie}
 \label{sec:fin}
 
+W niniejszej pracy poruszono problem odkrywania kolokacji przestrzennych, czyli poszukiwania typów obiektów często występujących blisko siebie. Z pewnością tematyka ta należy do jednych z ciekawszych zagadnień, jeżeli chodzi o eksplorację danych - tym bardziej, że w dobie Internetu oraz swobodnego dzielenia się informacjami dostęp do niezbędnych danych jest wyjątkowo łatwy. Również moc obliczeniowa nie stanowi problemu w dzisiejszych czasach - dzięki współczesnym, skutecznym algorytmom proces odkrywania danych można bez obaw przeprowadzać na współczesnych komputerach osobistych.
+
+Do takich algorytmów z pewnością należy także algorytm \textit{SGCT} \cite{chinczyki} będący głównym tematem niniejszej pracy. Stanowi on godną alternatywę dla klasycznych metod odkrywania kolokacji przestrzennych, pozwalając na efektywne wyszukiwanie kolokacji w systemach z ograniczoną pamięcią. Dzięki zaproponowanym usprawnieniom możliwe było jego zaimplementowanie zarówno w środowisku sekwencyjnym, jak i równoległym - również w wersji na procesory graficzne.
+
+W tym celu została wykorzystana popularna technologia \textit{CUDA} firmy \textit{NVIDIA}. Z pewnością opanowanie tej technologii w stopniu umożliwiającym efektywną realizację algorytmu \textit{SGCT} na procesory graficzne wymagało wielkiego wysiłku - tym bardziej, że w porównaniu do implementacji dla procesorów CPU środowisko \textit{CUDA} nie oferuje wielu rozszerzeń ułatwiających pracę nad tworzeniem wielowątkowych aplikacji i wiele rzeczy dostępnych "od ręki" na CPU wymagało oddzielnego opracowania specjalnie pod wariant GPU.
+
+Na podstawie przeprowadzonych testów można zaryzykować stwierdzenie, że wysiłek ten był opłacalny. Dla większych danych o dużej gęstości implementacja dla GPU znacząco zyskuje w stosunku do wariantu równoległego dla CPU opracowanego w oparciu o bibliotekę \textit{Parallel Pattern Library} firmy Microsoft. Przy mniejszych danych różnice nie są jednak takie oczywiste.
+Całkowitą porażką okazała się sekwencyjny algorytm opracowany dla procesora CPU, który niemal w każdym przypadku wykazuje się niższą efektywnością niż pozostałe implementacje. Dobitnie to pokazuje, jakie efekty można uzyskać przy zastosowaniu modelu równoległego w procesie implementacji algorytmów - nie tylko tych dotyczących eksploracji danych.
+
+W trakcie pracy udało się zauważyć możliwe dalsze kierunku rozwoju opracowania zaprezentowanych w niniejszej pracy implementacji w celu uzyskania większej wydajności.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+Powyższe rozważania nie mają jednak wpływu na końcowy wniosek płynący z tej pracy: obliczenia na kartach graficznych są przyszłością działu eksploracji danych, a także jakichkolwiek algorytmów wymagających sporej mocy obliczeniowej. Oczywiście stanie się tak tylko pod warunkiem, że powstające algorytmy będą w stanie wykorzystać potencjał drzemiący w równoległości, co często nie jest proste i wymaga dodatkowej pracy nad przemyśleniem działania algorytmu pod kątem potencjalnego zrównoleglenia. Niewątpliwie jednak końcowe efekty są tego warte.
+ 
 \newpage
 
 \begin{thebibliography}{}

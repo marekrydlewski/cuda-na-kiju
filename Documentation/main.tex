@@ -1121,8 +1121,8 @@ Dla uśrednienia czasów wykonań poszczególnych testów i wyeliminowania zakł
 \textbf{Zmienny parametr} & \textbf{Próg min. powszechności} & \textbf{Próg maks. odległości} \\
 \hline
 Rozmiar instancji & 0.2 & 3 \\
-Próg min. powszechności & 0.05 - 0.4 & 5 \\
-Próg maks. odległości & 5 & 3 - 8 \\
+Próg min. powszechności & 0.1 - 0.5 & 5 \\
+Próg maks. odległości & 5 & 2 - 6 \\
 \hline
 \end{tabular}
 \caption{Wartości parametrów dla poszczególnych grup testów}
@@ -1189,8 +1189,9 @@ Poniższy wykres przedstawia czasy wykonań poszczególnych implementacji algory
 
 Z analizy wykresu wynika, że powyżej pewnego rozmiaru danych wyjściowych następuje gwałtowny wzrost czasu wykonania algorytmu. Ciekawostką jest fakt, że dla małych rozmiarów danych implementacja na procesorach kart graficznych wypada zdecydowanie gorzej niż wariant sekwencyjny dla CPU. Wynika to z kosztu przygotowania danych i konieczności inicjalizacji obliczeń równoległych, które przy dużych rozmiarach danych zostają zrekompensowane przez szybsze obliczenia, co również można łatwo zauważyć.
 
-Przeprowadzono również oddzielne testy dla części algorytmu odpowiedzialnej za odkrywanie relacji sąsiedztwa - ich efekt prezentuje Rysunek~\ref{chart:planesweep-datasize}. Na jego podstawie można zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU oraz GPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z faktu, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna.
+Przeprowadzono również oddzielne testy dla części algorytmu odpowiedzialnej za odkrywanie relacji sąsiedztwa - ich efekt prezentuje Rysunek~\ref{chart:planesweep-datasize}. Na jego podstawie można zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU oraz GPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z faktu, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna. 
 
+Wykres czasów dla implementacji na GPU zaznaczono na wykresie linią przerywaną ze względu na to, że przedstawia on czasy wykonania samych obliczeń nie uwzględniając dodatkowego nakładu pracy związanego z przygotowaniem danych do obliczeń. Na Rysunku \ref{chart:gpu-planesweep-data-preparation} porównano czasy wykonań części odpowiedzialnej za odkrywanie relacji sąsiedztwa w.w. implementacji z uwzględnieniem przygotowania danych oraz bez tego. Widać tam jak duży może być nakład pracy związany z przygotowaniem danych który umożliwi przetwarzanie na GPU.
 \begin{figure}[H]
 \begin{tikzpicture}
 \begin{axis}[
@@ -1242,9 +1243,50 @@ Przeprowadzono również oddzielne testy dla części algorytmu odpowiedzialnej 
 \label{chart:planesweep-datasize}
 \end{figure}
 
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Rozmiar danych},
+            ylabel={Czas (ms)},
+            ymin=0,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+
+\addplot[
+          color=brown,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,769.55)(3624,726.1)(7526,725.55)(15289,711.5)
+         };
+         
+\addplot[
+          color=purple,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,7.25)(3624,8.4)(7526,10)(15289,16)
+         };
+             
+\legend{Z przygotowaniem danych, Bez przygotowania danych}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu znalezienia relacji sąsiedztwa od rozmiaru danych dla implementacji na GPU uwzględniający przygotowanie danych}
+\label{chart:gpu-planesweep-data-preparation}
+\end{figure}
+
 \subsubsection{Zmienny próg maksymalnej odległości}
 
-Wykresy zawarte w tym podrozdziale opisują zmienność czasu działania algorytmu w poszczególnych implementacjach ze względu na zmienny próg maksymalnej odległości.
+Wykresy zawarte w tym podrozdziale opisują zmienność czasu działania algorytmu w poszczególnych implementacjach ze względu na zmienny próg maksymalnej odległości. Zmienność ta przekłada się bezpośrednio na ilość znalezionych relacji sąsiedztwa w początkowych krokach algorytmu, gdzie większa ilość takich relacji zwiększa ilość obliczeń w dalszych etapach.
 
 \begin{figure}[H]
 \begin{tikzpicture}
@@ -1462,7 +1504,7 @@ wydajność poszczególnych implementacji jest analogiczna jak dla danych gęsty
 
 \subsubsection{Zmienny próg minimalnej powszechności}
 
-Ostatni test skupia się na porównaniu czasów działania poszczególnych implementacji ze względu na zmienny próg minimalnej powszechności. Efekty tego porównania przedstawia Rysunek~\ref{chart:minprev-sparse}.
+Ostatni test skupia się na porównaniu czasów działania poszczególnych implementacji ze względu na zmienny próg minimalnej powszechności. Efekty tego porównania przedstawia Rysunek~\ref{chart:minprev-sparse}. Zmiany tego parametru przekładają się na to, ile par punktów połączonych relacją sąsiedztwa zostanie uwzględnione w dalszych obliczeniach oraz na ilość wynikowych kolokacji.
 
 \begin{figure}[H]
 \begin{tikzpicture}

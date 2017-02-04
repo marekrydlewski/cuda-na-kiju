@@ -883,7 +883,7 @@ $ seed \leftarrow seed \oplus (f_{hash}(key)) + $ 0x9e3779b9 $ + (seed << 6) + (
 }
 $ seed \leftarrow |vec| $\;
 \ForEach{$ i \in vec $}{
-hash\_combine $(seed, i)$\;
+$ seed \leftarrow $ \textit{hash\_combine} $(seed, i)$\;
 }
 \caption{Algorytm operatora () struktury \textit{vector\_hash}}
 \label{alg:vector_hash_combine}

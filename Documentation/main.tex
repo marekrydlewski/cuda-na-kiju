@@ -1,7 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
-\usepackage{indentfirst} 
+\usepackage{indentfirst}
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage[dvipsnames]{xcolor}
@@ -13,13 +13,14 @@
 \usepackage{graphicx}
 \graphicspath{ {images/} }
 \usepackage{tikz}
+\usepackage{pgfplots}
 
 \usetikzlibrary{shapes,positioning,intersections,quotes}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
 \renewcommand*{\algorithmcfname}{Algorytm}
- 
+
 \newcommand{\sectionbreak}{\clearpage}
  \geometry{
  a4paper,
@@ -32,7 +33,7 @@
 \definecolor{lbcolor}{gray}{0.96}
 \lstset{
   backgroundcolor=\color{lbcolor},
-  tabsize=4,    
+  tabsize=4,
   %   rulecolor=,
   language=[GNU]C++,
   basicstyle=\scriptsize,
@@ -145,7 +146,7 @@ Zakres pracy obejmuje następujące zadania szczegółowe:
 \item \textbf{Zapoznanie się z literaturą.} Zapoznanie się z podstawowymi pojęciami dotyczącymi odkrywania danych w bazach danych przestrzennych oraz wyszukiwania wzorców kolokacji przestrzennych jest niezbędne do stworzenia działającej implementacji powyższego algorytmu. Dodatkowo należy zwrócić uwagę na dodatkowe zagadnienia związane z teorią grafów.
 \item \textbf{Opracowanie wersji równoległej algorytmu eksploracji danych.} Konieczne jest przemyślenie wykorzystania algorytmów pomocniczych dla poszczególnych kroków całego rozwiązania oraz zaproponowanie możliwie najkorzystniejszego rozwiązania biorąc pod uwagę dostępną pamięć operacyjną, czas przetwarzania i przesyłania danych między pamięcią operacyjną a pamięcią karty graficznej.
 \item \textbf{Implementacja wersji sekwencyjnej i równoległej ww. algorytmu.} Rozwiązanie podane w punkcie drugim powinno zostać zaimplementowane w technologii NVIDIA CUDA dla wersji GPU oraz biblioteki PPL w przypadku odmiany dla CPU.
-\item \textbf{Przeprowadzenie eksperymentów wydajnościowych.} Analiza wyników testów wydajnościowych implementacji z punktu 3 jest głównym celem tej pracy. Należy zbadać efektywność obu rozwiązań pod względem czasu wykonywania oraz zapotrzebowania na dostępną pamięć. 
+\item \textbf{Przeprowadzenie eksperymentów wydajnościowych.} Analiza wyników testów wydajnościowych implementacji z punktu 3 jest głównym celem tej pracy. Należy zbadać efektywność obu rozwiązań pod względem czasu wykonywania oraz zapotrzebowania na dostępną pamięć.
 \end{enumerate}
 
 \subsection{Charakterystyka źródeł}
@@ -168,7 +169,7 @@ Implementacja CPU (w wersji sekwencyjnej, jak i równoległej) jest głównym te
 
 \textbf{Rozdział~\ref{sec:gpu}} zawiera omówienie implementacji algorytmu dla procesorów graficznych (GPU).
 
-Porównanie wydajności zaimplementowanych rozwiązań zostało zawarte w \textbf{Rozdziale~\ref{sec:tests}}. 
+Porównanie wydajności zaimplementowanych rozwiązań zostało zawarte w \textbf{Rozdziale~\ref{sec:tests}}.
 
 Ostatni \textbf{Rozdział~\ref{sec:fin}} stanowi podsumowanie całego projektu, uwagi zespołu oraz możliwe dalsze kierunki rozwoju.
 
@@ -225,9 +226,9 @@ W modelu pól relacje determinowane są przez operacje pól (ang. \textit{field 
 
 W systemach typu GIS stosuje się głównie relacje topologiczne. Mają one postać predykatów przestrzennych dla operacji filtrowania i połączenia przestrzennego w językach zapytań działających na danych przestrzennych. Najczęściej wykorzystuje się je w tzw. \textit{modelu dziewięciu przecięć} \cite{9sec}, za pomocą którego określa się możliwe relacje zachodzącą dla pary obiektów.
 
-Dla każdego obiektu wyznacza się jego wnętrze, granicę i zewnętrze. Następnie, dokonuje się operacji przecięcia dla danej pary obiektów dla każdej z możliwych kombinacji elementów tego obiektu (np. granica pierwszego obiektu z wnętrzem drugiego). Takich relacji w dwuwymiarowej relacji można wyznaczyć osiem, należą do nich np. rozłączność, styczność, częściowe i całkowite pokrycie itd. 
+Dla każdego obiektu wyznacza się jego wnętrze, granicę i zewnętrze. Następnie, dokonuje się operacji przecięcia dla danej pary obiektów dla każdej z możliwych kombinacji elementów tego obiektu (np. granica pierwszego obiektu z wnętrzem drugiego). Takich relacji w dwuwymiarowej relacji można wyznaczyć osiem, należą do nich np. rozłączność, styczność, częściowe i całkowite pokrycie itd.
 
-Istnieje również rozszerzenie modelu dziewięciu przecięć, zwanym DE-9IM (ang. \textit{Dimensionally Extended nine-Intersection Model}, \cite{9sec2}), które rozróżnia rodzaj obiektu uzyskanego w wyniku przecięcia (mogą być puste, bezwymiarowe, jednowymiarowe i dwuwymiarowe). 
+Istnieje również rozszerzenie modelu dziewięciu przecięć, zwanym DE-9IM (ang. \textit{Dimensionally Extended nine-Intersection Model}, \cite{9sec2}), które rozróżnia rodzaj obiektu uzyskanego w wyniku przecięcia (mogą być puste, bezwymiarowe, jednowymiarowe i dwuwymiarowe).
 
 \subsection{Metody eksploracji danych przestrzennych}
 
@@ -235,9 +236,9 @@ Specyfika danych przestrzennych, a w szczególności fakt, że własności obiek
 
 \subsubsection{Grupowanie przestrzenne}
 
-Metoda grupowania przestrzennego (ang. \textit{spatial clustering}) zakłada istnienie przestrzeni $m$-wymiarowej, w której znajdują się punkty odpowiadające obiektom. Przestrzeń ta ma rozkład niejednorodny, a każdy z obiektów jest opisany przez $m$ atrybutów. Celem grupowania jest poszukiwanie gęstych obszarów punktów używając w tym celu metryki Euklidesowej jako funkcji podobieństwa (bliskości). 
+Metoda grupowania przestrzennego (ang. \textit{spatial clustering}) zakłada istnienie przestrzeni $m$-wymiarowej, w której znajdują się punkty odpowiadające obiektom. Przestrzeń ta ma rozkład niejednorodny, a każdy z obiektów jest opisany przez $m$ atrybutów. Celem grupowania jest poszukiwanie gęstych obszarów punktów używając w tym celu metryki Euklidesowej jako funkcji podobieństwa (bliskości).
 
-Grupowanie przestrzenne w największym stopniu spośród wszystkich metod eksploracji danych przestrzennych jest podobna do swojego klasycznego odpowiednika - wiele algorytmów grupowania opracowanych dla klasycznych zbiorów danych zadziała również dla danych przestrzennych. 
+Grupowanie przestrzenne w największym stopniu spośród wszystkich metod eksploracji danych przestrzennych jest podobna do swojego klasycznego odpowiednika - wiele algorytmów grupowania opracowanych dla klasycznych zbiorów danych zadziała również dla danych przestrzennych.
 
 \subsubsection{Klasyfikacja przestrzenna}
 
@@ -255,7 +256,7 @@ Trendy dzieli się na globalne i lokalne. Pierwsze wskazują na zwiększanie (b�
 
 \subsubsection{Przypadki osobliwe w danych przestrzennych}
 
-Czasem w danych przestrzennych można znaleźć obiekty, których atrybuty nieprzestrzenne są niespójne z innymi obserwacjami dokonanymi w ich otoczeniu. Noszą one miano \textit{przypadków osobliwych} \cite{przypadeg}. 
+Czasem w danych przestrzennych można znaleźć obiekty, których atrybuty nieprzestrzenne są niespójne z innymi obserwacjami dokonanymi w ich otoczeniu. Noszą one miano \textit{przypadków osobliwych} \cite{przypadeg}.
 
 Wyszukiwanie takich zjawisk jest trudne, szczególnie gdy istnieje więcej atrybutów nieprzestrzennych - odwzorowanie ich w $n$-wymiarowej przestrzeni może skutkować \textit{przekleństwem wielowymiarowości} (ang. \textit{curse of dimensionality}) \cite{kurwa}, utrudnionym rozróżnianiem obiektów podobnych do siebie.
 
@@ -263,9 +264,9 @@ Wyszukiwanie takich zjawisk jest trudne, szczególnie gdy istnieje więcej atryb
 
 Problem odkrywania asocjacji został pierwszy raz zdefiniowany w pracy \cite{asoc} i w ogólności polega na analizie dostępnych transakcji (zbiorów obiektów, np. koszyka zakupów) oraz wykryciu występujących w nich regularności występowania elementów (typu: klient, który kupując bułki wybrał także masło).
 
-Najczęściej reguły charakteryzuje się miarą \textit{wsparcia} (ang. \textit{support}) i \textit{ufności} (ang. \textit{confidence}). Pierwsza z nich wyraża stosunek występowania transakcji zawierającą lewą i prawą stronę reguły do ilości wszystkich transakcji. Ufność z kolei wskazuje na procentowy udział transakcji zawierających lewą i prawą stronę reguły we wszystkich transakcjach, które zawierają jego lewą stronę (jest to tzw. prawdopodobieństwo warunkowe). W celu ograniczenia ilości wykrytych wzorców wprowadzono także pojęcie \textit{zbioru częstego} (ang. \textit{frequent itemsets}) - zbioru elementów, dla których wyznaczone wsparcie przekracza pewien ustalony przez użytkownika próg minimalnego wsparcia. 
+Najczęściej reguły charakteryzuje się miarą \textit{wsparcia} (ang. \textit{support}) i \textit{ufności} (ang. \textit{confidence}). Pierwsza z nich wyraża stosunek występowania transakcji zawierającą lewą i prawą stronę reguły do ilości wszystkich transakcji. Ufność z kolei wskazuje na procentowy udział transakcji zawierających lewą i prawą stronę reguły we wszystkich transakcjach, które zawierają jego lewą stronę (jest to tzw. prawdopodobieństwo warunkowe). W celu ograniczenia ilości wykrytych wzorców wprowadzono także pojęcie \textit{zbioru częstego} (ang. \textit{frequent itemsets}) - zbioru elementów, dla których wyznaczone wsparcie przekracza pewien ustalony przez użytkownika próg minimalnego wsparcia.
 
-Z pracy \cite{asoc} pochodzi także popularny algorytm wykorzystywany w wielu metodach odkrywania asocjacji i kolokacji, czyli metoda \textit{Apriori}. Wykorzystuje on ważną cechę miary wsparcia, jaką jest \textit{antymonotoniczność}. Wynika z niej, że zbiór może być zbiorem częstym tylko w przypadku, kiedy jego podzbiory są również zbiorami częstymi. 
+Z pracy \cite{asoc} pochodzi także popularny algorytm wykorzystywany w wielu metodach odkrywania asocjacji i kolokacji, czyli metoda \textit{Apriori}. Wykorzystuje on ważną cechę miary wsparcia, jaką jest \textit{antymonotoniczność}. Wynika z niej, że zbiór może być zbiorem częstym tylko w przypadku, kiedy jego podzbiory są również zbiorami częstymi.
 
 Na początku algorytmu generowane są jednoelementowe zbiory częste. Następnie iteracyjnie wykonywane są następujące kroki:
 \begin{itemize}
@@ -274,15 +275,15 @@ Na początku algorytmu generowane są jednoelementowe zbiory częste. Następnie
 \item dodanie kandydatów do zbioru wynikowego.
 \end{itemize}
 
-Generowanie kandydatów polega na łączeniu wszystkich par zbiorów częstych o identycznych elementach początkowych, a następnie usuwaniu tych, które nie są zbiorami częstymi w oparciu o własność antymonotoniczności. Algorytm kończy się, gdy zbiór kandydatów będzie pusty.  
+Generowanie kandydatów polega na łączeniu wszystkich par zbiorów częstych o identycznych elementach początkowych, a następnie usuwaniu tych, które nie są zbiorami częstymi w oparciu o własność antymonotoniczności. Algorytm kończy się, gdy zbiór kandydatów będzie pusty.
 
-W celu dostosowania metody odkrywania asocjacji do danych przestrzennych wprowadzono pojęcie \textit{przestrzennej reguły asocjacyjnej} \cite{asoc2}. Zakłada ona istnienie predykatów przestrzennych (mogących wyrażać informacje o odległości czy kierunku), które mogą występować zarówno w części warunkującej (poprzedniku), jak w warunkowanej (następniku). Następnie podczas procesu odkrywania przestrzennych reguł asocjacyjnych dane umieszczone w ciągłej przestrzeni są zamieniane na zbiór transakcji. Metoda ta jest zaliczana do modelu zorientowanego na cechę referencyjną \cite{boinski}. Istnieje też inne podejście, zwane \textit{odkrywaniem zbiorów częstych klas sąsiadów}, opisane w pracy \cite{classsets}. 
+W celu dostosowania metody odkrywania asocjacji do danych przestrzennych wprowadzono pojęcie \textit{przestrzennej reguły asocjacyjnej} \cite{asoc2}. Zakłada ona istnienie predykatów przestrzennych (mogących wyrażać informacje o odległości czy kierunku), które mogą występować zarówno w części warunkującej (poprzedniku), jak w warunkowanej (następniku). Następnie podczas procesu odkrywania przestrzennych reguł asocjacyjnych dane umieszczone w ciągłej przestrzeni są zamieniane na zbiór transakcji. Metoda ta jest zaliczana do modelu zorientowanego na cechę referencyjną \cite{boinski}. Istnieje też inne podejście, zwane \textit{odkrywaniem zbiorów częstych klas sąsiadów}, opisane w pracy \cite{classsets}.
 
 \subsubsection{Kolokacje przestrzenne}
 
-Przedstawiony w pracy \cite{huang} problem \textit{odkrywania przestrzennych reguł kolokacyjnych} powstał w odpowiedzi na niedoskonałości asocjacji (w szczególności konieczność wyboru cechy referencyjnej) i zakłada istnienie równorzędnych cech przestrzennych. 
+Przedstawiony w pracy \cite{huang} problem \textit{odkrywania przestrzennych reguł kolokacyjnych} powstał w odpowiedzi na niedoskonałości asocjacji (w szczególności konieczność wyboru cechy referencyjnej) i zakłada istnienie równorzędnych cech przestrzennych.
 
-Praca wprowadza pojęcie \textit{wzorca kolokacji przestrzennej} (zwanego także kolokacją przestrzenną lub krócej - kolokacją), zbioru cech przestrzennych, których instancje często występują we wzajemnym sąsiedztwie \cite{boinski}. Stanowi on swego rodzaju odpowiednik zbiorów częstych w asocjacjach przestrzennych. Również miara wsparcia została zastąpiona przez \textit{miarę powszechności} (ang. prevalence), które eliminują wymaganie wiedzy o transakcjach. 
+Praca wprowadza pojęcie \textit{wzorca kolokacji przestrzennej} (zwanego także kolokacją przestrzenną lub krócej - kolokacją), zbioru cech przestrzennych, których instancje często występują we wzajemnym sąsiedztwie \cite{boinski}. Stanowi on swego rodzaju odpowiednik zbiorów częstych w asocjacjach przestrzennych. Również miara wsparcia została zastąpiona przez \textit{miarę powszechności} (ang. prevalence), które eliminują wymaganie wiedzy o transakcjach.
 
 Kolokacje przestrzenne są przykładem modelu zorientowanego na zdarzenie (ang. \textit{event-centric model}).
 
@@ -299,7 +300,7 @@ Jako typowy przykład cechy przestrzennej można podać etykietę przypisaną do
 \subsubsection{Podstawowe definicje}
 
 \begin{defin}[Relacja sąsiedztwa]
-Dany jest graf $ G \in (E, V) $. Relacja sąsiedztwa R to relacja istniejąca pomiędzy wierzchołkami w grafie, taka, że jeżeli para (u, v) stanowi krawędź grafu G, to wierzchołek v jest sąsiedni do wierzchołka u. 
+Dany jest graf $ G \in (E, V) $. Relacja sąsiedztwa R to relacja istniejąca pomiędzy wierzchołkami w grafie, taka, że jeżeli para (u, v) stanowi krawędź grafu G, to wierzchołek v jest sąsiedni do wierzchołka u.
 \end{defin}
 
 \begin{defin}[Instancja cechy przestrzennej]
@@ -351,7 +352,7 @@ Indeks uczestnictwa najczęściej określany jest w literaturze mianem miary pow
 \label{def:prevalence}
 \end{defin}
 
-\begin{defin}[Maksymalny wzorzec kolokacji przestrzennej]Niech będzie dana wartość min\_prev oznaczająca pewien minimalny próg powszechności. Jeżeli $ c = \{f_{1},...,f_{m} \} $ jest kolokacją powszechną (tzn. $ pi(c) \ge min\_prev $) i nie istnieje żaden nadzbiór c taki, że powszechność dla tego nadzbioru jest równa co najmniej min\_prev, kolokacja c nazywana jest kolokacją maksymalną.  
+\begin{defin}[Maksymalny wzorzec kolokacji przestrzennej]Niech będzie dana wartość min\_prev oznaczająca pewien minimalny próg powszechności. Jeżeli $ c = \{f_{1},...,f_{m} \} $ jest kolokacją powszechną (tzn. $ pi(c) \ge min\_prev $) i nie istnieje żaden nadzbiór c taki, że powszechność dla tego nadzbioru jest równa co najmniej min\_prev, kolokacja c nazywana jest kolokacją maksymalną.
 \end{defin}
 
 \subsubsection{Problem}
@@ -381,7 +382,7 @@ znajdź wszystkie poprawne reguły kolokacyjne z powszechnością nie mniejszą 
 
 \subsection{Przegląd algorytmów odkrywania wzorców kolokacji przestrzennych}
 
-W tym podrozdziale zostaną zaprezentowane skrótowo najważniejsze algorytmy odkrywania kolokacji przestrzennych. 
+W tym podrozdziale zostaną zaprezentowane skrótowo najważniejsze algorytmy odkrywania kolokacji przestrzennych.
 
 \subsubsection{Co-location Miner}
 \label{subsec:clm}
@@ -394,7 +395,7 @@ Wraz z wprowadzeniem pojęcia kolokacji autorzy pracy \cite{huang} zaprezentowal
 \item usuwanie kandydatów, których powszechność wynosi mniej niż przyjęty próg minimalnej powszechności.
 \end{itemize}
 
-Pozostali kandydaci trafiają do zbioru wynikowego, a następnie na ich podstawie są tworzone reguły kolokacyjne. Same reguły również podlegają filtracji - usuwane są te reguły, których prawdopodobieństwo warunkowe jest poniżej określonego progu. 
+Pozostali kandydaci trafiają do zbioru wynikowego, a następnie na ich podstawie są tworzone reguły kolokacyjne. Same reguły również podlegają filtracji - usuwane są te reguły, których prawdopodobieństwo warunkowe jest poniżej określonego progu.
 
 W następnej iteracji algorytm wykonuje dokładnie te same kroki, przy czym generowani kandydaci są o długości o jeden większej. Całość kończy się, gdy nie jest możliwe już wygenerowanie nowych kandydatów.
 
@@ -416,7 +417,7 @@ Wygenerowane instancje muszą zostać dodatkowo zweryfikowane (poprawne instancj
 
 \subsubsection{iCPI-tree}
 
-Drzewo iCPI (\textit{improved Co-location Pattern Instance}, \cite{icpi}) stanowi zmodyfikowaną odmianę drzewa CPI zawartego w pracy \cite{cpi}. Struktura ta zawiera informacje o wszystkich zachodzących relacjach sąsiedztwa. 
+Drzewo iCPI (\textit{improved Co-location Pattern Instance}, \cite{icpi}) stanowi zmodyfikowaną odmianę drzewa CPI zawartego w pracy \cite{cpi}. Struktura ta zawiera informacje o wszystkich zachodzących relacjach sąsiedztwa.
 
 \textit{iCPI-tree} posiada następującą strukturę:
 
@@ -430,7 +431,7 @@ Drzewo iCPI (\textit{improved Co-location Pattern Instance}, \cite{icpi}) stanow
 
 Sąsiedzi uporządkowani są według rosnącej cechy przestrzennej, a w przypadku instancji tej samej cechy - zgodnie z rosnącym identyfikatorem. Takie uporządkowanie nosi nazwę \textit{uporządkowanego zbioru sąsiadów}.
 
-Powyższa struktura drzewiasta jest wykorzystana w algorytmie w celu generowania instancji coraz dłuższych kandydatów w kolejnych iteracjach. Dokonuje się tego poprzez systematyczną ich rozbudowę o kolejne elementy. Na początku wszystkie instancje są jednoelementowe, a w kolejnych iteracjach są one rozbudowywane poprzez wyszukiwanie sąsiadów z odpowiednią cechą i weryfikowane (należy sprawdzić, czy nowo dodany obiekt do instancji jest sąsiadem każdego z obiektów należących do tej instancji). 
+Powyższa struktura drzewiasta jest wykorzystana w algorytmie w celu generowania instancji coraz dłuższych kandydatów w kolejnych iteracjach. Dokonuje się tego poprzez systematyczną ich rozbudowę o kolejne elementy. Na początku wszystkie instancje są jednoelementowe, a w kolejnych iteracjach są one rozbudowywane poprzez wyszukiwanie sąsiadów z odpowiednią cechą i weryfikowane (należy sprawdzić, czy nowo dodany obiekt do instancji jest sąsiadem każdego z obiektów należących do tej instancji).
 
 Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie według powszechności) są podobne jak w metodach \textit{Co-location Miner} i \textit{joinless}.
 
@@ -441,9 +442,9 @@ Pozostałe kroki algorytmu (generowanie kandydatów i reguł, filtrowanie wedłu
 
 Dziedzina informatyki, jaką są obliczenia ogólnego przeznaczenia na układach GPU (ang. \textit{general-purpose computing on graphics processing units}, w skrócie \textit{GPGPU}) należy do stosunkowo świeżych technik programowania - jej właściwy początek można datować na okolice 2007 roku. Jeszcze do niedawna wśród programistów panowało przekonanie, że karty graficzne powinny być odpowiedzialne tylko za rysowanie obrazu, a cała odpowiedzialność za niezbędne obliczenia powinna padać na CPU, jako "serce" komputera. Były to czasy, kiedy pojęcie równoległego wykonywania zadań nie było szeroko rozpowszechnione - rdzenie procesora były jedynie nowinką, a cały rozwój procesorów CPU szedł w zwiększanie częstotliwości taktowania.
 
-Szybko się okazało, że nie da się tego robić w nieskończoność. Podnoszenie częstotliwości spowodowało, że procesory zaczęły pobierać spore ilości energii, a także wydzielać ogromne ilości ciepła, którego nie dało się okiełznać bez korzystania z specjalnego chłodzenia. Rozwiązaniem okazało się skorzystanie z wielordzeniowości - wielu procesorów połączonych ze sobą specjalnymi magistralami, zamkniętymi w jednej obudowie. Wymagało to także zmiany podejścia do programowania. Równoległość daje olbrzymie możliwości, o ile potrafi się z nich skorzystać w odpowiedni sposób - bez tego programista nie uzyska zauważalnego wzrostu szybkości obliczeń, jakie dają współczesne układy wielordzeniowe. 
+Szybko się okazało, że nie da się tego robić w nieskończoność. Podnoszenie częstotliwości spowodowało, że procesory zaczęły pobierać spore ilości energii, a także wydzielać ogromne ilości ciepła, którego nie dało się okiełznać bez korzystania z specjalnego chłodzenia. Rozwiązaniem okazało się skorzystanie z wielordzeniowości - wielu procesorów połączonych ze sobą specjalnymi magistralami, zamkniętymi w jednej obudowie. Wymagało to także zmiany podejścia do programowania. Równoległość daje olbrzymie możliwości, o ile potrafi się z nich skorzystać w odpowiedni sposób - bez tego programista nie uzyska zauważalnego wzrostu szybkości obliczeń, jakie dają współczesne układy wielordzeniowe.
 
-Wielu osobom w trakcie tej "równoległej rewolucji" umknął pewien fakt - kiedy swoje triumfy świecił procesor \textit{Pentium 4} firmy \textit{Intel} o częstotliwości taktowania rzędu 3 GHz, na rynku istniały już rozwiązania równoległe, na których można było uzyskać znacznie lepsze wyniki. Były to oczywiście karty graficzne, które od dawna działały w sposób równoległy. 
+Wielu osobom w trakcie tej "równoległej rewolucji" umknął pewien fakt - kiedy swoje triumfy świecił procesor \textit{Pentium 4} firmy \textit{Intel} o częstotliwości taktowania rzędu 3 GHz, na rynku istniały już rozwiązania równoległe, na których można było uzyskać znacznie lepsze wyniki. Były to oczywiście karty graficzne, które od dawna działały w sposób równoległy.
 
 Dopóki nie powstały pierwsze specyfikacje bibliotek wspierających obliczenia na kartach graficznych, programiści próbowali wykorzystywać potencjał brzmiący w procesorach graficznych w oparciu o rendering 3D. Było to dosyć karkołomne zadanie i nie każdy algorytm można było rozwiązać w ten sposób. Karty graficzne musiały odczekać jeszcze parę lat, aby dało się wykorzystać w pełni ich możliwości obliczeniowe.
 
@@ -471,11 +472,11 @@ Oprócz tego multiprocesor wyposażony jest w układy sterujące wywołaniem ins
 
 \subsection{Programowanie wielowątkowe w języku CUDA C}
 
-Środowisko programistyczne \textit{CUDA Toolkit} umożliwia programowanie w języku \textit{CUDA C} - stanowi on podzbiór języka C++ i jest z nim w dużym stopniu kompatybilny. Kod w języku \textit{CUDA C} da się łączyć z standardowym kodem C++ kompilowanym pod procesory CPU - w tym przypadku fragmenty kodu wywoływane po stronie karty graficznej są kompilowane przez specjalny kompilator \textit{NVCC} dołączany do środowiska CUDA. 
+Środowisko programistyczne \textit{CUDA Toolkit} umożliwia programowanie w języku \textit{CUDA C} - stanowi on podzbiór języka C++ i jest z nim w dużym stopniu kompatybilny. Kod w języku \textit{CUDA C} da się łączyć z standardowym kodem C++ kompilowanym pod procesory CPU - w tym przypadku fragmenty kodu wywoływane po stronie karty graficznej są kompilowane przez specjalny kompilator \textit{NVCC} dołączany do środowiska CUDA.
 
-Funkcje wywoływane przez hosta, a wykonywane przez procesor graficzny w sposób równoległy przez wiele wątków są nazywane funkcjami jądra (ang. kernel). Wszystkie wątki uruchomione poprzez wywołanie jądra wykonują identyczny kod. Oczywiście da się je odróżnić poprzez unikalny identyfikator dostępny w specjalnej zmiennej. Zgodnie z modelem przetwarzania SIMD, na jednym multiprocesorze uruchomione wątki są grupowane w tzw. \textit{warpy} (ang. \textit{warps}) - zbiory 32 wątków wykonujących tą samą instrukcję. 
+Funkcje wywoływane przez hosta, a wykonywane przez procesor graficzny w sposób równoległy przez wiele wątków są nazywane funkcjami jądra (ang. kernel). Wszystkie wątki uruchomione poprzez wywołanie jądra wykonują identyczny kod. Oczywiście da się je odróżnić poprzez unikalny identyfikator dostępny w specjalnej zmiennej. Zgodnie z modelem przetwarzania SIMD, na jednym multiprocesorze uruchomione wątki są grupowane w tzw. \textit{warpy} (ang. \textit{warps}) - zbiory 32 wątków wykonujących tą samą instrukcję.
 
-Wątki można organizować w większe grupy. Podstawową grupą wątków jest \textit{blok}, w ramach którego można uformować wątki w jednym, dwóch, a nawet trzech wymiarach. Bloki grupowane są z kolei w siatkę obliczeniową (ang. \textit{computation grid}), która również może składać się z trzech wymiarów. Przy wywołaniu kernela programista określa liczbę równoległych bloków oraz ilość wątków na blok, za pomocą których urządzenie będzie przetwarzać równolegle kernel. Odpowiednie ustawienie tych wartości jest kluczowe dla wydajności przetwarzania - zbyt mała/wielka ilość przyznanych bloków może spowodować odwrotny skutek do zamierzonego. Maksymalne ilości wątków na blok i bloków na siatkę określa miara \textit{potencjału obliczeniowego CUDA}. 
+Wątki można organizować w większe grupy. Podstawową grupą wątków jest \textit{blok}, w ramach którego można uformować wątki w jednym, dwóch, a nawet trzech wymiarach. Bloki grupowane są z kolei w siatkę obliczeniową (ang. \textit{computation grid}), która również może składać się z trzech wymiarów. Przy wywołaniu kernela programista określa liczbę równoległych bloków oraz ilość wątków na blok, za pomocą których urządzenie będzie przetwarzać równolegle kernel. Odpowiednie ustawienie tych wartości jest kluczowe dla wydajności przetwarzania - zbyt mała/wielka ilość przyznanych bloków może spowodować odwrotny skutek do zamierzonego. Maksymalne ilości wątków na blok i bloków na siatkę określa miara \textit{potencjału obliczeniowego CUDA}.
 
 \subsection{Model pamięci}
 
@@ -512,15 +513,15 @@ Oprócz tego, biblioteka \textit{Thrust} oferuje następujące operacje:
 \section{Algorytm \textit{SGCT}}
 \label{sec:china}
 
-Niniejszy rozdział ma za zadanie przybliżenie algorytmu będącego tematem tej pracy - metody odkrywania maksymalnych kolokacji przestrzennych w oparciu o graf rzadki i skondensowane drzewo instancji (ang. \textit{sparse-graph and condensed tree-based maximal co-location algorithm}) przedstawionej w pracy \cite{chinczyki}. 
+Niniejszy rozdział ma za zadanie przybliżenie algorytmu będącego tematem tej pracy - metody odkrywania maksymalnych kolokacji przestrzennych w oparciu o graf rzadki i skondensowane drzewo instancji (ang. \textit{sparse-graph and condensed tree-based maximal co-location algorithm}) przedstawionej w pracy \cite{chinczyki}.
 
 Poszczególne kroki pierwotnego algorytmu \textit{SGCT} zostaną opisane w kolejnych podrozdziałach. Szczegóły implementacji wraz z zaproponowanymi usprawieniami znajdują się w Rozdziale 4.
 
 \subsection{Generowanie tabeli instancji kolokacji o rozmiarze 2}
 
-Pierwszy krok algorytmu jest podobny do metody \textit{Co-location Miner} i polega na wygenerowaniu 2-elementowych kandydatów na kolokacje. 
+Pierwszy krok algorytmu jest podobny do metody \textit{Co-location Miner} i polega na wygenerowaniu 2-elementowych kandydatów na kolokacje.
 
-Kolokacje o rozmiarze 2 tworzone są na podstawie wygenerowanych w oparciu o cechy przestrzenne jednoelementowych kolokacji. Nie jest do tego wykorzystywana jednak metoda \textit{Apriori}, ponieważ udowodniono w pracy \cite{huang}, że dla kandydatów dwuelementowych lepszą wydajność można uzyskać w oparciu o algorytm \textit{spatial join}. Wykorzytany został zatem algorytm \textit{sweeping-based spatial join} \cite{spatial} z dodatkową modyfikacją, usuwającą pary instancji o tej samej cesze przestrzennej. 
+Kolokacje o rozmiarze 2 tworzone są na podstawie wygenerowanych w oparciu o cechy przestrzenne jednoelementowych kolokacji. Nie jest do tego wykorzystywana jednak metoda \textit{Apriori}, ponieważ udowodniono w pracy \cite{huang}, że dla kandydatów dwuelementowych lepszą wydajność można uzyskać w oparciu o algorytm \textit{spatial join}. Wykorzytany został zatem algorytm \textit{sweeping-based spatial join} \cite{spatial} z dodatkową modyfikacją, usuwającą pary instancji o tej samej cesze przestrzennej.
 
 \begin{sample}Przykładowe zapytanie tworzące kandydatów na kolokacje o rozmiarze 2 przestawia się następująco:
 
@@ -541,7 +542,7 @@ Na podstawie wygenerowanych kolokacji oraz tzw. \textit{progu odległości} (ang
 
 Również krok obliczania powszechności dla kandydatów nie różni się od tego znanego z \textit{Co-location Miner}.
 
-Dla każdego kandydata w tabeli wyliczany jest współczynnik uczestnictwa (ang. \textit{participation index}). Dokonuje się tego poprzez wybieranie wszystkich unikalnych instancji cech przestrzennych, która są ujęte w danej kolokacji. Następnie zgodnie z definicją miary powszechności z tabeli instancji są usuwani kandydaci, dla których obliczona miara powszechności jest mniejsza niż zadany próg minimalnej powszechności $ min\_prev $ \cite{huang}. 
+Dla każdego kandydata w tabeli wyliczany jest współczynnik uczestnictwa (ang. \textit{participation index}). Dokonuje się tego poprzez wybieranie wszystkich unikalnych instancji cech przestrzennych, która są ujęte w danej kolokacji. Następnie zgodnie z definicją miary powszechności z tabeli instancji są usuwani kandydaci, dla których obliczona miara powszechności jest mniejsza niż zadany próg minimalnej powszechności $ min\_prev $ \cite{huang}.
 
 \subsection{Generowanie kandydatów na kolokacje maksymalne}
 
@@ -623,7 +624,7 @@ Dana jest tabela instancji kolokacji o rozmiarze 2 ($ InsTable_{2}) $ oraz kandy
 \label{def:condensed}
 \end{defin}
 
-Algorytm~\ref{alg:chinczyki_step41} ma charakter iteracyjny, w którym zmienna $ i $ jest zmienną sterującą pętli. Na początku zostaje zainicjalizowane drzewo $ CInsTree $ i tworzony jest jego korzeń. Następnie uruchamiany jest proces konstrukcji drzewa, podzielony na dwa etapy. Pierwszy etap wykonywany jest tylko w pierwszej iteracji algorytmu - kolejne iteracje będą wykonywać krok drugi. 
+Algorytm~\ref{alg:chinczyki_step41} ma charakter iteracyjny, w którym zmienna $ i $ jest zmienną sterującą pętli. Na początku zostaje zainicjalizowane drzewo $ CInsTree $ i tworzony jest jego korzeń. Następnie uruchamiany jest proces konstrukcji drzewa, podzielony na dwa etapy. Pierwszy etap wykonywany jest tylko w pierwszej iteracji algorytmu - kolejne iteracje będą wykonywać krok drugi.
 
 \begin{algorithm}
 \SetKwInOut{Input}{Wejście}
@@ -659,13 +660,13 @@ $ i \leftarrow 1; CInsTree \leftarrow \emptyset$; utwórz korzeń drzewa $ CInsT
 				\lIf{$ flag = 0 $}{dodaj węzeł podrzędny $ ei_{t}$ do $ CInsTree_{i}(ins_{k})$}
 			}
 		}
-	}			
+	}
 }
 \caption{Konstrukcja skondensowanego drzewa instancji $ C_{m} $}
 \label{alg:chinczyki_step41}
 \end{algorithm}
 
-W pierwszym kroku (linie 3-11) dla każdej pary instancji pierwszych dwóch cech przestrzennych $ C_{m} $ nastepuje sprawdzenie, czy pierwszy element aktualnie przetwarzanej pary instancji istnieje na danym poziomie drzewa $ CInsTree $ (oznaczonego jako $CInsTree_{1}$). Jeżeli tak, następuje dodanie drugiego elementu jako węzeł podrzędny odpowiadającego mu węzła na poziomie pierwszym. W przeciwnym wypadku, na podstawie obecnej pary instancji tworzone jest poddrzewo, które następnie jest dołączane do korzenia $ CInsTree $. 
+W pierwszym kroku (linie 3-11) dla każdej pary instancji pierwszych dwóch cech przestrzennych $ C_{m} $ nastepuje sprawdzenie, czy pierwszy element aktualnie przetwarzanej pary instancji istnieje na danym poziomie drzewa $ CInsTree $ (oznaczonego jako $CInsTree_{1}$). Jeżeli tak, następuje dodanie drugiego elementu jako węzeł podrzędny odpowiadającego mu węzła na poziomie pierwszym. W przeciwnym wypadku, na podstawie obecnej pary instancji tworzone jest poddrzewo, które następnie jest dołączane do korzenia $ CInsTree $.
 
 Drugi etap rozpoczyna się konstrukcją listy $ El$ zawierającej instancje cechy $ C_{m}(i+1) $. Dokonuje się tego dla każdego węzła instancji na poziomie $i$-tym drzewa $CInsTree$ popzez skanowanie $ InsTable_{2}(C_{m}(i),C_{m}(i+1))$, gdzie $ c_{m}(i)$ jest i-tą cechą $ C_{m} $. Nastepnie dla każdego elementu tej listy nastepuje sprawdzenie, czy zarówno para instancji składająca się z tego elementu, jak i każdy przodek aktualnego węzła instancji $ CInsTree$ znajduje się w tablicy kolokacji o długości 2 - $InsTable_{2}$. Jeżeli tak, dodaje się ten element jako węzeł podrzędny aktualnego węzła instancji.
 
@@ -678,9 +679,9 @@ Po zakończeniu algorytmu pozostaje jeszcze wyliczenie indeksów powszechności 
 \section{Implementacja CPU}
 \label{sec:cpu}
 
-W tym rozdziale zostaną opisane implementacje rozwiązania problemu \cite{chinczyki} wykorzystujące wyłącznie potencjał procesorów CPU (ang. \textit{Central Procession Unit}), bez udziału karty graficznej w obliczeniach. W szczególności zostaną zaprezentowane techniki optymalizacyjne dedykowane dla poszczególnych podejść do rozwiązania problemu. 
+W tym rozdziale zostaną opisane implementacje rozwiązania problemu \cite{chinczyki} wykorzystujące wyłącznie potencjał procesorów CPU (ang. \textit{Central Procession Unit}), bez udziału karty graficznej w obliczeniach. W szczególności zostaną zaprezentowane techniki optymalizacyjne dedykowane dla poszczególnych podejść do rozwiązania problemu.
 
-Do celów porównawczych zostały zrealizowane dwa rozwiązania: sekwencyjne (bez żadnego wsparcia dla równoległości) oraz równoległe (z wykorzystaniem biblioteki \textit{Parallel Patterns Library} firmy \textit{Microsoft}). 
+Do celów porównawczych zostały zrealizowane dwa rozwiązania: sekwencyjne (bez żadnego wsparcia dla równoległości) oraz równoległe (z wykorzystaniem biblioteki \textit{Parallel Patterns Library} firmy \textit{Microsoft}).
 
 \subsection{Wersja sekwencyjna}
 
@@ -691,31 +692,64 @@ Podobnie jak w pierwotnej wersji algorytmu, generowanie kandydatów na kolokacje
 
 Na początku wektor będący zbiorem wejściowym jest traktowany algorytmem \textit{sortowania szybkiego} (ang. \textit{quick sort}) dostępnym w bibliotece standardowej C++. Jako kryterium sortowania zostaje wybrana relacja między arbitralnie wybranym wymiarem przestrzeni.
 
-Następnie następuje wyznaczenie progu odległości, na podstawie którego będą dobierani kandydaci na kolokacje. Warto zwrócić w tym miejscu uwagę na fakt, że algorytmowi nie jest potrzebna wiedza o rzeczywistej odległości między dwoma punktami w przestrzeni, a jedynie relacja między tą odległością a zadanym progiem odległości. Daje to możliwość uniknięcia niepotrzebnych obliczeń (pierwiastkowania) przy wyznaczaniu odlegości między punktami. Dlatego też, zamiast bezpośrednio działać w oparciu o zadany próg odległości, wyliczany jest \textit{efektywny próg odległości}, będącym progiem odległości podniesionym do potęgi drugiej. 
+Następnie następuje wyznaczenie progu odległości, na podstawie którego będą dobierani kandydaci na kolokacje. Warto zwrócić w tym miejscu uwagę na fakt, że algorytmowi nie jest potrzebna wiedza o rzeczywistej odległości między dwoma punktami w przestrzeni, a jedynie relacja między tą odległością a zadanym progiem odległości. Daje to możliwość uniknięcia niepotrzebnych obliczeń (pierwiastkowania) przy wyznaczaniu odlegości między punktami. Dlatego też, zamiast bezpośrednio działać w oparciu o zadany próg odległości, wyliczany jest \textit{efektywny próg odległości}, będącym progiem odległości podniesionym do potęgi drugiej.
 
 Pozostało już jedynie filtrowanie obiektów w oparciu o wyliczony efektywny próg odległości. Dla każdego obiektu ze zbioru wejściowego następuje przeszukiwanie we wszystkich kierunkach obiektów sąsiadujących z nim, a następnie sprawdzana jest odległość między nimi. Gdy jest ona mniejsza niż ustalony wcześniej próg odległości obiekt umieszczany jest w specjalnej strukturze $ insTable $. Jednocześnie tworzony jest wektor $ typeIncidenceCounter$, w którym zliczane są wystąpienia kolejnych cech instancji przestrzennych (informacja o tym przyda się przy wyznaczaniu miary powszechności). Dodatkowo, pętla wewnętrzna jest przerywana, jeżeli wartość bezwzględna różnicy posortowanych współrzędnych poszczególnych obiektów będzie większa niż zadany próg odległości. Ma to na celu ograniczenie zbędnych porównań w przypadku, kiedy istnieje pewność, że żadne kolejne punkty nie spełnią progu odległości - a zatem nie wejdą do zbioru $ insTable $.
- 
+
 Struktura $ insTable $ pełni podobną rolę, jak w oryginalnym algorytmie \textit{SGCT}, nie jest ona jednak dwuwymiarową tablicą z haszowaniem. Zamiast tego zastosowano trójwymiarową mapę wskaźników na wektor liczb, w której wymiarami są kolejno: typ elementu $ A $, typ elementu $ B $ oraz numer instancji przestrzennej $ A $.  W wektorze przechowywane są kolejne numery instancji przestrzennej \textit{B}. W celu efektywnego odczytywania sąsiadów o danej cesze konkretnej instancji, dane w wektorze są umieszczane w taki sposób, że zawsze spełniają relację \textit{numer cechy A} $ > $ \textit{numer cechy B}. Dodatkowo, zamiast standardowej mapy (\textit{std::map}) została wykorzystana mapa nieuporządkowana - gwarantuje ona większą wydajność przeglądania (kosztem większego zużycia pamięci).
 
 \subsubsection{Filtrowanie sąsiadów w oparciu o próg minimalnej powszechności}
 
 Krok ten stanowi zmodyfikowaną wersję algorytmu obliczania miar powszechności znanego z algorytmu \textit{Co-location Miner} (patrz Rozdział~\ref{subsec:clm}).
 
-Na początku wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zliczenie wszystkich wystąpień par instancji bez duplikatów. Podobnie jak w kroku pierwszym zostały tu użyte mapy nieuporządkowane (\textit{std::unordered\_map}) w celu przyspieszenia przetwarzania. Do budowy mapy została użyta własna funkcja mieszająca powstała na bazie \textit{hash\_combine} z biblioteki \textit{boost}. Ogranicza ona występowanie kolizji w przypadku wstawiania nowych elementów do tablicy z haszowaniem.
+Na początku wykonywana jest funkcja $ countUniqueInstances$. Ma ona na celu zliczenie wszystkich wystąpień par instancji bez duplikatów. Podobnie jak w kroku pierwszym zostały tu użyte mapy nieuporządkowane (\textit{std::unordered\_map}) w celu przyspieszenia przetwarzania. Do budowy mapy, której kluczem są pary lub krotki konieczne jest zastosowanie funkcji mieszającej. Ogranicza ona występowanie kolizji w przypadku wstawiania nowych elementów do tablicy z haszowaniem. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Ze względu na to, że jednak funkcja ta generuje niezadowalająco dużą ilość kolizji, funkcja mieszająca powstała na bazie \textit{hash\_combine} z biblioteki \textit{boost}.
+
+\begin{algorithm}
+\SetKwInOut{Input}{Wejście}
+\SetKwInOut{Output}{Wyjście}
+\SetKwProg{myproc}{Procedure}{}{}
+\Input{ $p$ - para zawierająca elementy $ first $ oraz $ second $ dające się hashować }
+\Output{ $seed$ - wartość funkcji mieszającej dla pary $p$ }
+$ seed_1 \leftarrow 0 $\;
+$ seed_1 \leftarrow hash_combine(seed_1, p.first) $
+$ seed_1 \leftarrow hash_combine(seed_1, p.second) $
+
+$ seed_2 \leftarrow 0 $\;
+$ seed_2 \leftarrow hash_combine(seed_2, p.second) $
+$ seed_2 \leftarrow hash_combine(seed_2, p.first) $
+
+$ seed \leftarrow minimum(seed_1, seed_2) $
+
+\caption{Funkcja hashująca dla pary $p$}
+\label{alg:pairHashFunction}
+\end{algorithm}
+
+% do przerobienia na algo
+% Funkcja hash\_combine:
+% \begin{minipage}{\linewidth}
+% \begin{lstlisting}[caption={Kod funkcji hash\_combine}]
+% template<typename T>
+% void hash_combine(std::size_t &seed, T const &key) {
+% 	std::hash<T> hasher;
+% 	seed ^= hasher(key) + 0x9e3779b9 + (seed << 6) +
+%     	(seed >> 2);
+% };
+% \end{lstlisting}
+% \end{minipage}
+
 
 Następnie w oparciu o wektor wynikowy tej funkcji oraz utworzony wcześniej wektor $ typeIncidenceCounter$ (patrz Rozdział~\ref{subsec:cpu-step-1}) dla każdego kandydata w tabeli $ insTable $ wyliczany jest współczynnik uczestnictwa. W przypadku, gdy obliczona miara powszechności jest mniejsza od zadanego progu minimalnej powszechności, kandydat jest usuwany z struktury $ insTable $, a użyta przez niego pamięć zostaje zwolniona na poczet dalszych obliczeń.
 
 \subsubsection{Generowanie kandydatów na kolokacje maksymalne}
-\label{subsec:kerbosz}
 
-Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Tworzony jest na bazie struktury $ insTable $ za pomocą funkcji \textit{createSize2ColocationsGraph}. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera. 
+Tak jak w przypadku oryginalnego algorytmu, kandydaci na kolokacje maksymalne są generowani w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}). Graf ten tworzony za pomocą funkcji \textit{createSize2ColocationsGraph}, wykorzystuje macierz sąsiedztwa (ang. \textit{adjacency matrix}) i jest oparty na bazie struktury $ insTable $. Krawędź między elementami pary instancji jest tworzona tylko i wyłącznie wtedy, kiedy numer instancji przestrzennej $ A $ jest większy od zera.
 
 \begin{algorithm}
 \SetKwInOut{Input}{Wejście}
 \SetKwInOut{Output}{Wyjście}
 \Input{$G=(E,V)$}
 \Output{$k$ (miara degeneracji), $L$ (lista wierzchołków uporządkowanych według miary degeneracji)}
-$L \leftarrow \emptyset$\; 
+$L \leftarrow \emptyset$\;
 $D \leftarrow \emptyset$\;
 \ForEach{$v_{i} \in G $}{
 $D(d_{v}) \leftarrow $ liczba sąsiadów $ v \notin L $ (początkowo równa stopniowi wierzchołka)\;
@@ -739,7 +773,7 @@ $ D(d^{'}_{w}) \leftarrow D(d^{'}_{w}) \cup w $\;
 
 Po wygenerowaniu grafu liczona jest jego miara degeneracji (patrz Definicja~\ref{def:degeneracy}). W tym celu został wykorzystany Algorytm~\ref{alg:matusiak} zaprezentowany przez Matulę i Becka w pracy \cite{matusiak}. Działa on w czasie wielomianowym, co pozwala na odciążenie CPU. Funkcja zwraca zarówno miarę degeneracji, jak uporządkowany według niej wektor wierzchołków występujących w grafie.
 
-Dalsze kroki algorytmu wykonywane są dla poszczególnych wierzchołków uporządkowanych według miary degeneracji. Podobnie jak w oryginalnym algorytmie z pracy \cite{pivot} tworzone są grupy wierzchołków o niższych i wyższych indeksach, a następnie uruchamiana jest funkcja $ BK\_Pivot $, w której następuje wyszukiwanie maksymalnych klik w oparciu o algorytm Brona-Kerboscha \cite{kerbosz}. 
+Dalsze kroki algorytmu wykonywane są dla poszczególnych wierzchołków uporządkowanych według miary degeneracji. Podobnie jak w oryginalnym algorytmie z pracy \cite{pivot} tworzone są grupy wierzchołków o niższych i wyższych indeksach, a następnie uruchamiana jest funkcja $ BK\_Pivot $, w której następuje wyszukiwanie maksymalnych klik w oparciu o algorytm Brona-Kerboscha \cite{kerbosz}.
 
 Aby ograniczyć czas wyszukiwania maksymalnych klik, zostały zastosowane tzw. \textit{wektory sortowane} zamiast zazwyczaj używanych zbiorów (\textit{std::set}) z biblioteki C++. Posiadają one większą wydajność, a do tego pozwalają na skorzystanie z funkcjonalności zarezerwowanej wyłącznie dla zbiorów.
 
@@ -747,21 +781,21 @@ Aby ograniczyć czas wyszukiwania maksymalnych klik, zostały zastosowane tzw. \
 
 Na początku wszystkie rozważane maksymalne kliki z poprzedniego kroku są umieszczane w specjalnej strukturze $ cliquesToProcess $ będącej trójwymiarowym wektorem, gdzie pierwsza współrzędna stanowi rozmiar kolokacji, a druga o pozycji kliki w kolejce w poszczególnych wierszach. Trzecią współrzędną są oczywiście kolejne elementy danej kliki.
 
-Następnie iteracyjnie przetwarzana jest każda klika, począwszy od największej. Zrezygnowano w tym miejscu z podejścia rekurencyjnego, gdyż prowadziłoby to do niepotrzebnego utrzymywania ogromnego stosu wywołań (ang. \textit{call stack}). W każdej iteracji sprawdzana jest miara powszechności dla kliki instancji - odpowiedzialna jest za to funkcja $ isCliquePrevalent $. 
+Następnie iteracyjnie przetwarzana jest każda klika, począwszy od największej. Zrezygnowano w tym miejscu z podejścia rekurencyjnego, gdyż prowadziłoby to do niepotrzebnego utrzymywania ogromnego stosu wywołań (ang. \textit{call stack}). W każdej iteracji sprawdzana jest miara powszechności dla kliki instancji - odpowiedzialna jest za to funkcja $ isCliquePrevalent $.
 
 Wyliczone kliki są umieszczane w obiektach \textit{CliqueContainer} i \textit{LapsedCliqueContainer}. Pełnią one rolę pamięci podręcznej dla powyższych algorytmów. Dzięki temu nie ma potrzeby ponownego przeliczania tych samych klik instancji, co prowadzi do kilkunastokrotnego wzrostu wydajności obliczeń.
 
-Dla klik o długości większej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja~\ref{def:condensed}). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}, zastosowano w nim jednak pewne metody optymalizacyjne - wskaźniki do rodziców w celu ograniczenia przeszukiwań drzewa w dół, użycie wektora zawierającego wskaźniki do liści znajdujących się na ostatnim poziomie drzewa, wskaźniki typu \textit{unique\_ptr} (więcej szczegółów w Dodatku~\ref{sec:wypociny}). Następnie zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności.
+Dla klik o długości większej niż 2 tworzone jest skondensowane drzewo instancji (patrz Definicja~\ref{def:condensed}). Implementacja konstrukcji takiego drzewa zasadniczo nie różni się od pierwotnego algorytmu zaprezentowanego w pracy \cite{chinczyki}, zastosowano w nim jednak pewne metody optymalizacyjne - wskaźniki do rodziców w celu ograniczenia przeszukiwań drzewa w dół, użycie wektora zawierającego wskaźniki do liści znajdujących się na ostatnim poziomie drzewa wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta.. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.  Następnie zliczane są wystąpienia instancji w klikach za pomocą odwróconej pętli i na ich podstawie wyliczana jest miara powszechności (najpierw iterujemy po poszczególnych cechach kolejnych wektorów).
 
 W przypadku, kiedy miara nie jest mniejsza niż przyjęty na początku próg powszechności, kandydat jest dodawany do zbioru rozwiązań. W przeciwnym wypadku do struktury $ cliquesToProcess $ dodawane są podkliki, które również będą rozważane jako potencjalni kandydaci na kolokacje.
 
 \subsection{Wersja wielowątkowa}
 
-Jak już wcześniej wspomniano, rozwiązanie równoległe zostało oparte o multiplatformową, wysokopoziomową bibliotekę \textit{Parallel Patterns Library} firmy \textit{Microsoft}. Została ona pierwszy raz zaprezentowane szerszej publiczności wraz z wydaniem środowiska \textit{Visual Studio 2010} i docelowo ma być konkurencją dla popularnej biblioteki \textit{OpenMP}. 
+Jak już wcześniej wspomniano, rozwiązanie równoległe zostało oparte o multiplatformową, wysokopoziomową bibliotekę \textit{Parallel Patterns Library} firmy \textit{Microsoft}. Została ona pierwszy raz zaprezentowane szerszej publiczności wraz z wydaniem środowiska \textit{Visual Studio 2010} i docelowo ma być konkurencją dla popularnej biblioteki \textit{OpenMP}.
 
 Cechą charakterystyczną tej biblioteki jest podobieństwo składni do tej z biblioteki standardowej C++ (ang. \textit{C++ Standard Library}). Wykorzystuje też wszystkie właściwości języka C++, jakie przynosi standard C++11 i późniejsze (w tym funkcje \textit{lambda}).
 
-Biblioteka \textit{PPL} wprowadza zbiór obiektów zwanych \textit{kontenerami o dostępie równoległym} (ang. \textit{concurrent containers}). Są to odpowiedniki kontenerów z biblioteki standardowej C++, które cechują się równoległymi wersjami funkcji operujących na kontenerach (np. operacji wstawiania czy usuwania). W zdecydowanej większości przypadków ich użycie nie różni się od wersji sekwencyjnych dostępnych w bibliotece STD - wymagane jest jedynie umieszczenie ich w odpowiednim bloku, np. \textit{parallel\_for}. 
+Biblioteka \textit{PPL} wprowadza zbiór obiektów zwanych \textit{kontenerami o dostępie równoległym} (ang. \textit{concurrent containers}). Są to odpowiedniki kontenerów z biblioteki standardowej C++, które cechują się równoległymi wersjami funkcji operujących na kontenerach (np. operacji wstawiania czy usuwania). W zdecydowanej większości przypadków ich użycie nie różni się od wersji sekwencyjnych dostępnych w bibliotece STD - wymagane jest jedynie umieszczenie ich w odpowiednim bloku, np. \textit{parallel\_for}.
 
 W przypadku, kiedy istnieje potrzeba dostarczenia kopii kontenera dla każdego z wątków (np. żeby nie blokować dostępu innym wątkom do współdzielonego obiektu), istnieje także klasa kontenerów typu \textit{combinable}. Kiedy równoległe przetwarzanie zostanie zakończone, prywatne kopie wygenerowane dla każdego z wątków są wtedy przezroczyście łączone w całość. Oczywiście \textit{PPL} zawiera także tradycyjne metody zapewnienia równoległości w programie, takie jak zadania (ang. \textit{tasks}) oraz klasyczne mutexy.
 
@@ -771,19 +805,19 @@ Powyższe wady środowiska \textit{OpenMP} były powodem, dla których ostateczn
 
 \subsubsection{Generowanie sąsiadów na podstawie progu odległości}
 
-Różnice w równoległej implementacji generowania sąsiadów w stosunku do wersji sekwencyjnej (patrz Rozdział~\ref{subsec:cpu-step-1}) wynikają w dużej mierze z zastosowania alternatywnych struktur dostępnych w ramach biblioteki \textit{Parallel Pattern Library}. 
+Różnice w równoległej implementacji generowania sąsiadów w stosunku do wersji sekwencyjnej (patrz Rozdział~\ref{subsec:cpu-step-1}) wynikają w dużej mierze z zastosowania alternatywnych struktur dostępnych w ramach biblioteki \textit{Parallel Pattern Library}.
 
-Dla przykładu, zbiór wejściowy jest sortowany za pomocą wbudowanego w bibliotekę PPL algorytmu \textit{równoległego sortowania buforowanego} (ang. \textit{parallel buffered sort}). Jest to odmiana standardowego sortowania szybkiego wykorzystujące równoległe scalanie (ang. \textit{parallel merge}) w celu zastąpienia pierwotnego kroku dzielenia w algorytmie sortowania szybkiego, którego nie da się zrównoleglić \cite{buffered-sort} - i podobnie jak \textit{quick sort}, po posortowaniu elementy o tej samej wartości mogą nie występować w tej samej kolejności (przykład tzw. \textit{sortowania niestabilnego}). Dla wielu procesorów pozwala osiągnąć większą wydajność niż standardowy \textit{quick sort} (jego złożoność wynosi $ O((n/p)*\log{n}) $ dla $ p $ procesorów). Podejście to wymaga niestety dodatkowej alokacji pamięci o rozmiarze $ O(n) $. 
+Dla przykładu, zbiór wejściowy jest sortowany za pomocą wbudowanego w bibliotekę PPL algorytmu \textit{równoległego sortowania buforowanego} (ang. \textit{parallel buffered sort}). Jest to odmiana standardowego sortowania szybkiego wykorzystujące równoległe scalanie (ang. \textit{parallel merge}) w celu zastąpienia pierwotnego kroku dzielenia w algorytmie sortowania szybkiego, którego nie da się zrównoleglić \cite{buffered-sort} - i podobnie jak \textit{quick sort}, po posortowaniu elementy o tej samej wartości mogą nie występować w tej samej kolejności (przykład tzw. \textit{sortowania niestabilnego}). Dla wielu procesorów pozwala osiągnąć większą wydajność niż standardowy \textit{quick sort} (jego złożoność wynosi $ O((n/p)*\log{n}) $ dla $ p $ procesorów). Podejście to wymaga niestety dodatkowej alokacji pamięci o rozmiarze $ O(n) $.
 
 W procesie filtrowania obiektów na podstawie wyliczonego progu odległości, podobnie jak w wersji sekwencyjnej, tworzona jest tablica asocjacyjna $ insTable $ -  jednak w podejściu równoległym jest ona typu \textit{combinable}. Dzięki temu każdy wątek posiada swoją prywatną kopię tablicy $ insTable $, w której umieszcza przetwarzane przez siebie pary instancji, które nie przekraczają wyliczonego progu efektywnej odległości. Po zakończeniu przetwarzania przez wszystkie wątki lokalne kopie struktury $ insTable $ są łączone w całość poprzez zastosowanie operacji redukcji oraz sumowania wektorów parami, co eliminuje problem współbieżnego dostępu do struktury w środowisku równoległym. Podobnie sytuacja wygląda w przypadku struktury $ typeIncidenceCounter $.
 
 W algorytmie filtrowania został wykorzystany także dynamiczny planista (\textit{auto partitioner}). W przypadku przerwania pętli wewnętrznej algorytmu, planista dynamicznie przydziela bezczynnym wątkom kolejne dane wejściowe niezbędne do dalszego przetwarzania. Po wyjściu z pętli następuje synchronizacja wątków, a tablica $ insTable $ ulega scaleniu.
 
-Poza powyższymi usprawnieniami, ogólny mechanizm oraz struktury zastosowane w kroku pierwszym pozostały właściwie niezmienione w stosunku do wersji sekwencyjnej. 
+Poza powyższymi usprawnieniami, ogólny mechanizm oraz struktury zastosowane w kroku pierwszym pozostały właściwie niezmienione w stosunku do wersji sekwencyjnej.
 
 \subsubsection{Filtrowanie sąsiadów na podstawie progu minimalnej powszechności}
 
-Jedyną różnicą na tym etapie algorytmu w stosunku do odmiany sekwencyjnej jest dodatkowy krok określenia zakresu pracy dla każdego z wątków biorących udział w liczeniu wystąpień par instancji. Odpowidzialna za to jest funkcja $ getWorkloadForInsTable $.
+Jedyną różnicą na tym etapie algorytmu w stosunku do odmiany sekwencyjnej jest dodatkowy krok określenia zakresu pracy dla każdego z wątków biorących udział w liczeniu wystąpień par instancji. Odpowiedzialna za to jest funkcja $ getWorkloadForInsTable $.
 
 W porównaniu do poprzedniego etapu, wykorzystywany jest statyczny planista (ang. \textit{static-partitioner}) będący odpowiednikiem funkcji \textit{omp parallel for} z biblioteki \textit{OpenMP}. Dzięki temu każdemu wątkowi przydzielana jest stała ilość par instancji do przetworzenia. Liczba ta jest wyznaczana na podstawie rozmiaru tablicy $ insTable $. Daje to pewną oszczędność czasu, gdyż wątki nie tracą czasu na dynamiczne przydzielanie pracy do wykonania.
 
@@ -791,7 +825,7 @@ W porównaniu do poprzedniego etapu, wykorzystywany jest statyczny planista (ang
 
 Zasadniczą zmianą na tym etapie algorytmu jest wprowadzenie równoległej wersji algorytmu \ref{alg:bk3} liczenia maksymalnych klik metodą Brona-Kerboscha \cite{kerbosz}. Korzysta on ponownie z dynamicznego planisty w celu dynamicznego rozdzielenia pracy dla poszczególnych wątków, ponieważ nieznany jest czas wykonywania algorytmu.
 
-Każdy z wątków uruchamia dla swojej puli wierzchołków standardową wersję algorytmu Brona-Kerboscha wykorzystującą tzw. \textit{pivot}. Podejście to może powodować występowanie duplikatów - dlatego też po zakończeniu działani algorytmów zbiór wynikowy rzutowany jest na kontener \textit{std:set}, likwidując tym samym potencjalnie występujące w zbiorze duplikaty. 
+Każdy z wątków uruchamia dla swojej puli wierzchołków standardową wersję algorytmu Brona-Kerboscha wykorzystującą tzw. \textit{pivot}. Podejście to może powodować występowanie duplikatów - dlatego też po zakończeniu działani algorytmów zbiór wynikowy rzutowany jest na kontener \textit{std:set}, likwidując tym samym potencjalnie występujące w zbiorze duplikaty.
 
 Tradycyjnie na końcu lokalne listy maksymalnych klik są scalane w jedną strukturę wynikową za pomocą instrukcji \textit{combinable::combine\_each}.
 \begin{algorithm}
@@ -809,10 +843,28 @@ $ X \leftarrow X \cup \{ v^{*}_{i}\} $\;
 \label{alg:bk3}
 \end{algorithm}
 
- 
+
 \subsubsection{Generowanie skondensowanych drzew instancji oraz filtrowanie kandydatów na podstawie progu powszechności}
 
-W porównaniu do wersji sekwencyjnej, konstrukcja skondensowanego drzewa instancji oraz liczenie miary powszechności jest dokonywany w sposób równoległy. Wymagało to zaprojektowania równoległych odpowiedników kontenerów znanych z odmiany sekwencyjnej, czyli \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer} zapewniających bezpieczeństwo przetwarzania równoległego. Niezbędne było także zastosowanie (podobnie jak w kroku pierwszym) dynamicznego planisty (ang. \textit{auto scheduler}) przydzielającego dynamicznie kolejne kliki do przetworzenia do poszczególnych wątków. Niemożliwe było zastosowanie statycznego planisty z uwagi na fakt, że na tym etapie nie można przewidzieć dokładnego czasu konstrukcji skondensowanego drzewa instancji.
+W porównaniu do wersji sekwencyjnej, konstrukcja skondensowanego drzewa instancji oraz liczenie miary powszechności jest dokonywany w sposób równoległy. Wymagało to zaprojektowania równoległych odpowiedników kontenerów znanych z odmiany sekwencyjnej, czyli \textit{ParallelCliqueContainer} i \textit{ParallelLapsedCliqueContainer} zapewniających bezpieczeństwo przetwarzania równoległego. Cel ten osiągnięto za pomocą skorzystania z sekcji krytycznych w przypadku inkrementowania liczników jak i posłużenia się współbieżnymi strukturami danych z biblioteki PPL, co przełożyło się również na zwiększenie efektywności przetwarzania. Niezbędne było także zastosowanie (podobnie jak w kroku pierwszym) dynamicznego planisty (ang. \textit{auto scheduler}) przydzielającego dynamicznie kolejne kliki do przetworzenia do poszczególnych wątków. Niemożliwym było zastosowanie statycznego planisty z uwagi na fakt, że na tym etapie nie można przewidzieć dokładnego czasu konstrukcji skondensowanego drzewa instancji. Dla \textit{ParallelCliqueContainera} konieczne okazało się zaimplementowanie funkcji mieszającej dla całych wektorów - struktura równoległego zbioru (ang. \textit{concurrent set}) w odróżnieniu od swojego odpowiednika z biblioteki STD wykorzystuje hashe zamiast korzystać z relacji porównania wkładanych do niego elementów. Również w tym przypadku skorzystano z funkcji \inline{hash_combine}. %tutaj przypis do algo hash combine
+
+%przepisać na algo
+% \begin{minipage}{\linewidth}
+% \begin{lstlisting}[caption={Kod struktury vector\_hash}]
+% struct vector_hash {
+% 	template <class T>
+% 		std::size_t operator()(std::vector<T> const& vec) const
+%         {
+%             std::size_t seed = vec.size();
+%             for (auto& i : vec) {
+%                 ::hash_combine(seed, i);
+%             }
+% 			return seed;
+% 		}
+% };
+% \end{lstlisting}
+% \end{minipage}
+
 
 Oddzielną kwestią jest struktura tablicy $ insTable $. Podobnie jak w wersji sekwencyjnej zawiera trzy wymiary. Wykorzystano wektor pochodzący z standardowej biblioteki C++, którego elementy są wskaźnikami na wektory równoległe (ang. \textit{concurrent vector}) pochodzące z biblioteki \textit{PPL} - same z kolei zawierają wskaźniki na wektory klasyczne. To nieco pokrętne rozwiązanie zapewnia bezproblemowe przetwarzanie równoległe, a także - ze względu na minimalizację fragmentacji zaalokowanej pamięci - przyspiesza działanie algorytmu.
 
@@ -833,13 +885,13 @@ Poniższa implementacja została opracowana dla urządzeń spełniających wersj
 
 \subsection{Generowanie tabeli instancji o rozmiarze 2}
 
-Tak jak w przypadku implementacji na procesory CPU, generowanie kandydatów na kolokacje o rozmiarze 2 wykorzystuje algorytm \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}), przeznaczony do uruchamiania w architekturze masowo-równoległej. 
+Tak jak w przypadku implementacji na procesory CPU, generowanie kandydatów na kolokacje o rozmiarze 2 wykorzystuje algorytm \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}), przeznaczony do uruchamiania w architekturze masowo-równoległej.
 
 Na początku niezbędne jest wczytanie danych z zewnętrznego źródła do struktur znajdujących się w pamięci karty graficznej - wynika to z zastosowanego w projekcie \textit{Compute Capability}, który wymusza rozdzielny model pamięci. Operacja ta należy do dość kosztownych, a do tego w dużym stopniu zależy od zastosowanego sprzętu.
 
 Wczytany zbiór wejściowy zostaje potem posortowany względem osi odciętych w kolejności rosnącej. Takie rozwiązanie pozwala na ograniczenie obszaru przeszukiwania sąsiadów instancji. Do tego celu zostały zastosowane funkcje sortujące wbudowane w bibliotekę \textit{Thrust}.
 
-Następnie zostaje uruchomiony właściwy \textit{algorytm zamiatania} (ang. \textit{plane sweep}). Na początku zostaje uruchomiony kernel $ countNeighbours $ wyznaczający liczbę sąsiadów dla każdej instancji. W dużym skrócie polega on na obliczeniu odległości euklidesowej pomiędzy instancjami $ a_{i} $ oraz $ a_{k} $. Jeśli jest ona nie większa od założonej maksymalnej odległości pomiędzy instancjami \textit{distanceTreshold}, stwierdza się pomiędzy nimi relację sąsiedztwa. 
+Następnie zostaje uruchomiony właściwy \textit{algorytm zamiatania} (ang. \textit{plane sweep}). Na początku zostaje uruchomiony kernel $ countNeighbours $ wyznaczający liczbę sąsiadów dla każdej instancji. W dużym skrócie polega on na obliczeniu odległości euklidesowej pomiędzy instancjami $ a_{i} $ oraz $ a_{k} $. Jeśli jest ona nie większa od założonej maksymalnej odległości pomiędzy instancjami \textit{distanceTreshold}, stwierdza się pomiędzy nimi relację sąsiedztwa.
 
 Na potrzeby tego kroku zostaje zarezerwowane $ n_{dt} \cdot 32 $ wątków, co daje jeden \textit{warp} na instancję. Każdy z nich wykonuje maksymalnie $\lceil i / 32\rceil - 1$ iteracji, w każdej \textit{j-tej} iteracji sprawdzana jest natomiast grupa 32 instancji z zakresu $ K=\{i - j~\cdot~32; i - (j + 1) \cdot 32\} $. Dodatkowo należy zaalokować tablicę $ T_{counts} $ o rozmiarze $ n_{dt} $, w której na pozycji $ i $ zostanie wpisana ilość sąsiadów instancji $ a_{i} $.
 
@@ -864,29 +916,30 @@ Pozostało jedynie wykonać kernel \textit{findNeighbours}, odpowiedzialny za al
 \SetKwFunction{proc}{operator\<}
 \Input{$a,b - instancje\ typu\ FeatureInstance $}
 \Output{$ bool $}
- \Return $ a.field < b.field $ \; 
+ \Return $ a.field < b.field $ \;
 \caption{Operator mniejszości dla instancji typu FeatureInstance}
 \label{alg:FeatureInstance_operator}
 \end{algorithm}
- 
+
 Przed uruchomieniem kernela niezbędne jest zaalokowanie tablic $ Pairs_{A} $ oraz $ Pairs_{B}$ o długości odpowiadającej wyznaczonej w wyniku redukcji tablicy $ T_{counts} $ liczbie odnalezionych relacji sąsiedztwa. Dodatkowo należy zaalokować tablicę $ Begins $ wielkości $ n_{dt} $ - przechowa ona wynik operacji sumy ekskluzywnej (ang. \textit{exclusive sum}) tablicy $ T_{counts} $. Struktura ta będzie wykorzystana w trakcie wyznaczania pozycji zapisu relacji w tablicach wynikowych.
 
-Konfiguracja uruchomieniowa kernela \textit{findNeighbours} jest identyczna z konfiguracją użytą dla \textit{countNeighbours}. Sama funkcja różni się zresztą od poprzedniczki tylko i wyłącznie w miejscu stwierdzenia relacji sąsiedztwa - kernel \textit{findNeighbours} zamiast zliczać relacje sąsiedztwa wpisuje do tablic $ Pairs_{A} $ i $ Pairs_{B}$ instancje, pomiędzy którymi stwierdzono to sąsiedztwo. 
+Konfiguracja uruchomieniowa kernela \textit{findNeighbours} jest identyczna z konfiguracją użytą dla \textit{countNeighbours}. Sama funkcja różni się zresztą od poprzedniczki tylko i wyłącznie w miejscu stwierdzenia relacji sąsiedztwa - kernel \textit{findNeighbours} zamiast zliczać relacje sąsiedztwa wpisuje do tablic $ Pairs_{A} $ i $ Pairs_{B}$ instancje, pomiędzy którymi stwierdzono to sąsiedztwo.
 
 Pozycja zapisu w tablicach wynikowych wyznaczana jest przy pomocy operatora mniejszości (Algorytm~\ref{alg:FeatureInstance_operator}) dla obiektów typu \textit{FeatureInstance} w oparciu o:
 
 \begin{itemize}
 \item wartości w tablicy $ Begins $ na pozycji $i$,
 \item ilości relacji sąsiedztwa znalezionych przez \textit{warp} w poprzednich iteracjach,
-\item ilości relacji sąsiedztwa znalezionych w obecnej iteracji przez wątki \textit{warpa} o mniejszym identyfikatorze. 
+\item ilości relacji sąsiedztwa znalezionych w obecnej iteracji przez wątki \textit{warpa} o mniejszym identyfikatorze.
 \end{itemize}
 
 Warto zauważyć, że nigdzie nie jest zapisywana informacja o współrzędnych instancji - nie będą one potrzebne w dalszym toku pracy algorytmu.
 
-\subsection{Uporządkowanie zbioru par}
-\label{subsec:pair_ordering}
+\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
 
-Struktury pomocnicze wykorzystywane w następnych krokach algorytmu wymagają, aby zbiór par został odpowiednio uporządkowany. W związku z tym, na zbiór par nałożony zostaje porządek wyznaczony przez Algorytm~\ref{alg:FeatureInstancePair-operator} będącym operatorem mniejszości zaimplementowanym dla par instancji typu $ FeatureInstance $.
+Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu szybszy dostęp do instancji, które należą do relacji o określonej cesze.
+
+Na początku pary instancji z poprzedniego etapu algorytmu zostają posortowane za pomocą algorytmu~\ref{alg:FeatureInstancePair_operator} będącego przeciążeniem operatora mniejszości dla par instancji typu \textit{FeatureInstance}. W wyniku jego działania instancje zostaną posortowane według typów relacji - wszystkie relacje o tych samych typach zajmą w wejściowych tablicach ciągły obszar. Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}.
 
 \begin{figure}[H]
 \begin{algorithm}[H]
@@ -902,25 +955,18 @@ $operator<(FeatureInstance\ lhs,FeatureInstance\ rhs) $\\
    			\Return $ True $ \;
 	  	}\uElseIf {$ a[0].fields.instanceId\ ==\ b[0].fields.instanceId $} {
 	  		\Return $ a[1].fields.instanceId\ ==\ b[1].fields.instanceId $ \;
-	  	}	
+	  	}
 	  }
   }
-  
+
   \Return $ False $ \;
 \}
 
-\caption{Operator mniejszości dla par instancji typu $ FeatureInstance $}
-\label{alg:FeatureInstancePair-operator}
+\caption{Operator mniejszości dla par instancji typu FeatureInstance}
+\label{alg:FeatureInstancePair_operator}
 \end{algorithm}
 \end{figure}
 
-Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}. Tak posortowany zbiór posiada następujące właściwości:
-\begin{itemize}
-\item wszystkie relacje o tych samych typach zajmą w wejściowych tablicach ciągły obszar,
-\item wszystkie instancje każdej relacji o określonej instancji pierwszego elementu oraz określonym typie drugiego elementu zajmą ciągłą przestrzeń w zbiorach $ Pairs_{A} $ oraz $ Pairs_{B} $.
-\end{itemize}
-
-  
 \begin{figure}[H]
 \centering
 \includegraphics{sortAttr_insTable}
@@ -928,11 +974,7 @@ Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}. Tak po
 \label{fig:pairs_content}
 \end{figure}
 
-\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
-
-Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
-
-Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania zbioru par polegającej na zajmowaniu przez relacje o danych typach ciągłego obszaru można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Jako, że instancje w obecnym kroku rozróżnialne są tylko na podstawie typów zaimplementowany został algorytm~\ref{alg:FeatureInstanceTuple-operator} przeciążający operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji tylko względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
+Dzięki tej właściwości można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Problemem w tym przypadku okazał się fakt, że instancje na tym etapie są nierozróżnialne pod względem wartości identyfikatorów instancji. W związku z tym niezbędne okazało się zaimplementowane algorytmu~\ref{alg:FeatureInstancePair_operator} przeciążającego operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
 
 \begin{figure}[H]
 \begin{algorithm}[H]
@@ -942,7 +984,7 @@ $operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
 $\ \&\&\ lhs.get[0].fields.featureId\ ==\ rhs.get[0].fields.featureId$\\
 \}
 \caption{Operator równości dla par instancji typu FeatureInstanceTuple }
-\label{alg:FeatureInstanceTuple-operator}
+\label{alg:FeatureInstanceTuple_operator}
 \end{algorithm}
 \end{figure}
 
@@ -953,11 +995,11 @@ Wynikiem działania funkcji \textit{reduce\_by\_key} są trzy tablice o jednakow
 \item \textit{Begins} - zawiera indeksy tabeli instancji relacji, oznaczające początki obszarów ciągłych odpowiadającym danym parom typów instancji.
 \end{itemize}
 
-Na podstawie tych danych uzupełniana jest mapa struktury \textit{ITMPack}. W tym celu uruchamiany jest kernel uruchamiany z ilością wątków równym $ c_{r} $. Dla każdego $ i $-tego elementu tablic tworzy on strukturę \textit{InstanceTable}, uzupełniając ją \textit{i}-tymi wartościami z \textit{Counts} oraz \textit{Begins}, a następnie wstawia go do tablicy pod kluczem utworzonym z $i$-tego elementu tablicy \textit{Uniques} w postaci połączonej pary typów. 
+Na podstawie tych danych uzupełniana jest mapa struktury \textit{ITMPack}. W tym celu uruchamiany jest kernel uruchamiany z ilością wątków równym $ c_{r} $. Dla każdego $ i $-tego elementu tablic tworzy on strukturę \textit{InstanceTable}, uzupełniając ją \textit{i}-tymi wartościami z \textit{Counts} oraz \textit{Begins}, a następnie wstawia go do tablicy pod kluczem utworzonym z $i$-tego elementu tablicy \textit{Uniques} w postaci połączonej pary typów.
 
 \subsection{Generowanie prewalentnych relacji sąsiedztwa pomiędzy typami połączeń}
 
-Mając gotową strukturę $ ITMPack $, można przystąpić do wyznaczenia par instancji, których współczynnik powszechności jest nie mniejszy niż zadany na początku próg powszechności. 
+Mając gotową strukturę $ ITMPack $, można przystąpić do wyznaczenia par instancji, których współczynnik powszechności jest nie mniejszy niż zadany na początku próg powszechności.
 
 W tym celu niezbędne jest utworzenie struktur pomocniczych $ Counts_{A} $ i $ Counts_{B} $ przechowujących liczbę unikalnych wystąpień instancji odpowiednio pierwszego i drugiego typu elementu relacji na odpowiadającej pozycji tablicy $ ITMPack.uniques $. Dla każdej z tych tabel obliczana jest liczność unikalnych instancji dla typów równych odpowiednio pierwszym i drugim elementom relacji z tablicy \linebreak $ ITMPack.uniques $. Liczność ta wyznaczana jest na podstawie tabel $ Pairs_{A} $ i $ Pairs_{B} $ w zakresach wyznaczonych z wartości zawierających się w tabelach $ ITMPack.begins $ oraz $ ITMPack.counts $. Tworzone są również podobne struktury przechowujące całkowitą liczbę instancji - noszą one odpowiednio nazwy $ TypesCounts_{A} $ dla pierwszego i $ TypesCounts_{B} $ dla drugiego elementu relacji.
 
@@ -965,47 +1007,14 @@ Oprócz tego budowana jest tablica $ Mask $ wielkości $ N_{ItmUq} $ stanowiąca
 
 Posiadając zbudowaną maskę prewalentności można już wygenerować pary instancji. Uruchamiany jest zatem kernel przez $ N_{ItmUq} $ wątków. Każdy z nich sprawdza, czy na swojej pozycji w tabeli $ Mask $ znajduje się wartość $ True $ - jeżeli tak, z struktury $ WritePos $ przechowującą sumę ekskluzywną (ang. \textit{exclusive sum}) tabeli $ Mask $ pobiera $i$-tą wartość. Następnie następuje utworzenie struktury \linebreak $ FeatureTypePair $ w oparciu o relację z $ i $-tej pozycji w tabeli $ ITMPack.uniques$. Zostanie ona zapisana w tabeli $ PrevalentPairs $ przechowującej finalne pary instancji pod indeksem równym wartości pobranej z tabeli $ WritePos $.
 
-\subsection{Generowanie kandydatów na kolokacje maksymalne}
-
-W wersji GPU algorytmu do generowania kandydatów maksymalnych wykorzystany został mechanizm użyty w wersji CPU (patrz Rozdział~\ref{subsec:kerbosz}) -  w oparciu o \textit{graf kolokacji o rozmiarze 2} (patrz Definicja~\ref{def:size2-col-graph}) oraz algorytm Brona-Kerboscha \cite{kerbosz}.
-
-Różnicą względem algorytmu CPU jest to, że zbiór wynikowy kandydatów jest grupowany względem ich długości. Umożliwia to szybki dostęp do kandydatów o jednakowej długości w następnym kroku. Zbiór ten oznaczany jako $ uniqueCandidates $ stanowi mapę wektorów kandydatów, gdzie kluczem jest długość kandydata.
-
-\subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji zadanej instancji z instancjami zadanego typu}
-
-Na tym etapie tworzona jest struktura $ ITNMPack $ dającej szybki dostęp do wszystkich sąsiadów danego typu dla określonej instancji. Wykorzystuje ona drugą właściwości zbioru uporządkowanego w Rozdziale~\ref{subsec:pair_ordering}.
-
-Procedura tworzenia tej struktury przebiega bardzo podobnie do procedury tworzenia struktury $ ITMPack $ - główna różnica tkwi w odmiennej implementacji operatora równości dla par instancji $ FeatureInstanceTuple $, przedstawionej w Algorytmie~\ref{alg:FeatureInstanceTuple_operatorITNMPack}. Ustanawia on pary instancji jako równe sobie tylko w przypadku, gdy ich pierwsze elementy są równe względem identyfikatora oraz typu (jest to ta sama instancja), a drugie elementy są tego samego typu.
-
-\begin{figure}[H]
-\begin{algorithm}[H]
-$operator==(FeatureInstanceTuple\ lhs,FeatureInstanceTuple\ rhs) $\\
-\{\\
-\Return $lhs.get[0].field ==\ rhs.get[0].field$\\
-$\ \&\&\ lhs.get[1].fields.featureId\ ==\ rhs.get[1].fields.featureId$\\
-\}
-\caption{Operator równości dla par instancji typu FeatureInstanceTuple }
-\label{alg:FeatureInstanceTuple_operatorITNMPack}
-\end{algorithm}
-\end{figure}
-
-Wynikiem działania funkcji \textit{reduce\_by\_key} z operatorem \ref{alg:FeatureInstanceTuple_operatorITNMPack} są trzy tablice o jednakowym rozmiarze $ c_{r} $:
-\begin{itemize}
-\item \textit{Uniques} - zawiera wszystkie występujące unikalne (z poziomu operatora \ref{alg:FeatureInstanceTuple_operatorITNMPack}) relacje,
-\item \textit{Counts} - zawiera liczności instancji unikalnych relacji,
-\item \textit{Begins} - zawiera indeksy tabeli instancji relacji, oznaczające początki obszarów ciągłych odpowiadającym elementom z tablicy \textit{Uniques}.
-\end{itemize}
-
-Z elementów tabeli \textit{Uniques} tego kroku tworzone są klucze złożone z identyfikatorów instancji oraz typu pierwszego elementu pary instancji połączonych z identyfikatorem typu drugiego elementu pary. Z połączenia odpowiadających sobie wartości w 
-
-\subsection{Wyodrębnienie ze zbioru kandydatów kolokacji maksymalnych kandydatów spełniających kryterium prewalentności}
+% czekam na Ciebie Kosiak ;> %
 
 \newpage
 
 \section{Testy efektywnościowe}
 \label{sec:tests}
 
-Rozdział ten w całości poświęcony jest omówieniu przebiegu testów, a także prezentacji i podsumowania wyników testów wydajnościowych opracowanych implementacji algorytmu \textit{SGCT}. 
+Rozdział ten w całości poświęcony jest omówieniu przebiegu testów, a także prezentacji i podsumowania wyników testów wydajnościowych opracowanych implementacji algorytmu \textit{SGCT}.
 
 \subsection{Informacje wstępne}
 
@@ -1013,7 +1022,7 @@ Wydajność poszczególnych implementacji została przetestowana pod kątem zmie
 
 \subsubsection{Dane wejściowe}
 
-Dane wygenerowano przy pomocy generatora opracowanego przez P. Boińskiego \cite{guwnostraszne}, napisanego w języku \textit{Java}. Próbki testowe składają się z punktów, dla których określone są trzy wartości: współrzędna $ x $, współrzędna $ y $ oraz etykieta cechy, jaką reprezentuje dany punkt. Dodatkowo, punkty zostały rozmieszczone na przestrzeni $ 1000 \times 1000$. 
+Dane wygenerowano przy pomocy generatora opracowanego przez P. Boińskiego \cite{guwnostraszne}, napisanego w języku \textit{Java}. Próbki testowe składają się z punktów, dla których określone są trzy wartości: współrzędna $ x $, współrzędna $ y $ oraz etykieta cechy, jaką reprezentuje dany punkt. Dodatkowo, punkty zostały rozmieszczone na przestrzeni $ 1000 \times 1000$.
 
 Dla celów pomiarowych związanych ze zmiennością rozmiaru danych wejściowych utworzone zostało osiem zestawów danych, w których liczba punktów wynosi od ok. 3000 do 200000 punktów. W przypadku pozostałych testów posłużono się czterema instancjami, które można opisać jako:
 \begin{itemize}
@@ -1025,7 +1034,7 @@ Dla celów pomiarowych związanych ze zmiennością rozmiaru danych wejściowych
 
 \subsubsection{Sprzęt}
 
-Poniższe testy przeprowadzane były na następującej konfiguracji sprzętowej. 
+Poniższe testy przeprowadzane były na następującej konfiguracji sprzętowej.
 
 \begin{itemize}
 \item CPU - \textit{Intel Core i7-930} o częstotliwości taktowania \textit{2.80 GHz}
@@ -1045,8 +1054,8 @@ Dla uśrednienia czasów wykonań poszczególnych testów i wyeliminowania zakł
 \textbf{Zmienny parametr} & \textbf{Próg min. powszechności} & \textbf{Próg maks. odległości} \\
 \hline
 Rozmiar instancji & 0.2 & 3 \\
-Próg min. powszechności & 0.05 - 0.4 & 5 \\
-Próg maks. odległości & 5 & 3 - 8 \\
+Próg min. powszechności & 0.1 - 0.5 & 5 \\
+Próg maks. odległości & 0.2 & 2 - 5 \\
 \hline
 \end{tabular}
 \caption{Wartości parametrów dla poszczególnych grup testów}
@@ -1059,9 +1068,368 @@ Testy zostały zautomatyzowane i uruchomione za pomocą skryptu napisanego w ję
 
 \subsubsection{Zmienny rozmiar danych}
 
-Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacji algorytmu w zależności od ilości punktów (odnośnik do wykresu :v).
+Na poniższym wykresie przedstawiono czasy wykonań poszczególnych implementacji algorytmu w zależności od ilości punktów (Rysunek \ref{chart:datasize}).
 
-Dodatkowo na wykresie (odnośnik) przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz.
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Rozmiar danych},
+            ylabel={Czas (ms)},
+            ymin=0, ymax=75000,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (1701,31.9)(3624,149.15)(7526,405.75)(15289,634)(32655,2909.5)(66866,5946.55)(145686,15295.55)(204708,74280.85)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,33.15)(3624,158.5)(7526,380.9)(15289,394.65)(32655,948.55)(66866,3255.6)(145686,6032.25)(204708,27712.3)
+         };
+        
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+           (1701,1268.6)(3624,1267.6)(7526,3125.75)(15289,6147.45)(32655,7439.5)(66866,12204.6)(145686,8255.75)(204708,25806.1)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od rozmiaru danych wejściowych}
+\label{chart:datasize}
+\end{figure}
+
+Dodatkowo na rysunku \ref{chart:planesweep-datasize} przedstawiono czasy wykonań części algorytmu odpowiadającej za odkrycie w danych relacji sąsiedztwa. Można tutaj zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z tego, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna. Ze względu na czytelność wykresu czasy dla implementacji na GPU zostały pominięte - były one zbyt wysokie.
+
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Rozmiar danych},
+            ylabel={Czas (ms)},
+            ymin=0, ymax=45,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (1701,2.05)(3624,6.2)(7526,18)(15289,40.9)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,4.3)(3624,6.35)(7526,14.1)(15289,19.05)
+         };
+             
+\legend{Sequential, Parallel}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu znalezienia relacji sąsiedztwa w różnych implementacjach od rozmiaru danych wejściowych}
+\label{chart:planesweep-datasize}
+\end{figure}
+
+\subsubsection{Zmienny próg maksymalnej odległości}
+
+Poniżej przedstawiono wykresy ilustrujące zmienność czasu działania algorytmu w różnych implementacjach ze względu na zmienny próg maksymalnej odległości.
+
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Próg maksymalnej odległości},
+            ylabel={Czas (ms)},
+            xtick=data,
+            ymin=0, ymax=20000,
+            xmin=2, xmax=6,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (2,496.15)(2.5,1016.1)(3,3041.8)(3.5,6970.6)(4,11418.5)(4.5,18406.15)(5,11027.85)(5.5,4195.15)(6,5182.95)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,156.6)(2.5,281.35)(3,875.1)(3.5,1827.2)(4,3029.9)(4.5,5127.6)(5,3588.45)(5.5,2059.45)(6,2473.85)
+         };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,5541.65)(2.5,5576.7)(3,12677.55)(3.5,19142.4)(4,16959.9)(4.5,13742.15)(5,5945)(5.5,3341.3)(6,3281.9)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od progu maksymalnej odległości dla danych rzadkich}
+\label{chart:maxdist-sparse}
+\end{figure}
+
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Próg maksymalnej odległości},
+            ylabel={Czas (ms)},
+            xtick=data,
+            ymin=0, ymax=135000,
+            xmin=2, xmax=6,
+            restrict y to domain=0:2500000,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (2,1926.2)(2.5,4471.5)(3,21437.6)(3.5,44259.7)(4,81484.45)(4.5,131340.8)(5,38768)(5.5,63127.05)(6,2012318)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,529.05)(2.5,1170)(3,4561.8)(3.5,9276.9)(4,18455.7)(4.5,31357.05)(5,19851.95)(5.5,36743.55)(6,807206.6)
+         };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,11745.15)(2.5,13393.2)(3,13242.15)(3.5,16658.65)(4,22906.6)(4.5,20463.1)(5,5230)(5.5,8605.05)(6,109210.4)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od progu maksymalnej odległości dla danych gęstych}
+\label{chart:maxdist-nonsparse}
+\end{figure}
+
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Próg maksymalnej odległości},
+            ylabel={Czas (ms)},
+            xtick=data,
+            ymin=0, ymax=4100,
+            xmin=2, xmax=6,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (2,65.95)(2.5,130.35)(3,221.1)(3.5,386.55)(4,490.8)(4.5,505.3)(5,483.1)(5.5,548.5)(6,704.1)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,32.95)(2.5,62.2)(3,95.15)(3.5,151.05)(4,182.2)(4.5,205.3)(5,217.35)(5.5,244.65)(6,489.35)
+         };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,1527.4)(2.5,1639.75)(3,1926.4)(3.5,2353.5)(4,2532.4)(4.5,2181.65)(5,1937.9)(5.5,2025.85)(6,4024.85)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od progu maksymalnej odległości dla danych rzadkich ze skupiskami}
+\label{chart:maxdist-sparse-hotspots}
+\end{figure}
+
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Próg maksymalnej odległości},
+            ylabel={Czas (ms)},
+            xtick=data,
+            ymin=0, ymax=500000,
+            xmin=2, xmax=5,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (2,2707.25)(2.5,10790.95)(3,30445.7)(3.5,54134.4)(4,65445.65)(4.5,23831.25)(5,410738.6)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,817.3)(2.5,2596.55)(3,6764.9)(3.5,12306.4)(4,21553.95)(4.5,11650.45)(5,140731.4)
+         };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (2,14687.95)(2.5,25544.8)(3,20642.55)(3.5,24312.45)(4,15273.4)(4.5,10056.6)(5,35529.55)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od progu maksymalnej odległości dla danych gęstych ze skupiskami}
+\label{chart:maxdist-nonsparse-hotspots}
+\end{figure}
+
+\subsubsection{Zmienny próg minimalnej powszechności}
+
+Poniżej przedstawiono wykres ilustrujący zmienność czasu działania algorytmu w różnych implementacjach ze względu na zmienny próg minimalnej powszechności.
+
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Próg maksymalnej odległości},
+            ylabel={Czas (ms)},
+            xtick=data,
+            ymin=0, ymax=35000,
+            xmin=0.1, xmax=0.5,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+\addplot[
+          color=red,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+          (0.1,14785.55)(0.15,3050)(0.2,11616.7)(0.25,31008.85)(0.3,1237.55)(0.35,1202.5)(0.4,4862.3)(0.45,419.4)(0.5,414.35)
+         };
+        
+\addplot[
+          color=blue,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (0.1,6558.35)(0.15,1496.4)(0.2,3678.6)(0.25,8034.6)(0.3,1063.35)(0.35,1081.9)(0.4,1579.35)(0.45,316.05)(0.5,289)
+         };
+         
+\addplot[
+          color=green,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (0.1,12485)(0.15,3156.85)(0.2,6082.4)(0.25,17783.9)(0.3,2247.6)(0.35,2229.7)(0.4,5129.7)(0.45,2189.7)(0.5,2276.85)
+         };
+             
+\legend{Sequential, Parallel, GPU}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu wykonania implementacji algorytmu od progu minimalnej powszechności}
+\label{chart:minprev-sparse}
+\end{figure}
 
 \subsection{Wnioski}
 
@@ -1073,46 +1441,46 @@ Dodatkowo na wykresie (odnośnik) przedstawiono czasy wykonań części algorytm
 
 \begin{thebibliography}{}
 % Autorzy, Tytuł, Gdzie ?, Rok wydania, Strony
-\bibitem{kdd}Fayyad U., Piatetsky-Shapiro G., Smyth P. From Data Mining to Knowledge Discovery in Databases. W: AI Magazine nr 17, 1996, strony 37-54.
-\bibitem{trad} Miller H. J., Han J. Geographic Data Mining and Knowledge Discovery.
-Bristol, USA, 2001.
-\bibitem{huang} Shekhar S., Huang Y. Discovering Spatial Co-location Patterns: A Summary of Results. W: SSTD, 2001, strony 236–256.
+\bibitem{kdd}Usama Fayyad, Gregory Piatetsky-Shapiro, and Padhraic Smyth. From Data Mining to Knowledge Discovery in Databases. AI Magazine, 17:37–54, 1996.
+\bibitem{trad} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery.
+Taylor \& Francis, Inc., Bristol, PA, USA, 2001
+\bibitem{huang} S. Shekhar and Y. Huang. Discovering Spatial Co-location Patterns: A Summary of Results. In SSTD 2001, pages 236–256, 2001.
 \bibitem{boinski} Boiński P., Przetwarzanie zbiorów przestrzennych zapytań eksploracyjnych w środowiskach z ograniczonym rozmiarem pamięci operacyjnej, Poznań, 2015.
-\bibitem{chinczyki}Yao X., Peng L., Yang L., Chi T. A fast space-saving algorithm for maximal co-location pattern mining. W: Expert Systems with Applications nr 63, 2016, strony 310–323.
+\bibitem{chinczyki}Yao X., Peng L., Yang L., Chi T. A fast space-saving algorithm for maximal co-location pattern mining. W: Expert Systems with Applications Volume 63, 30 November 2016, strony 310–323.
 \bibitem{cuda_by_examples}Sanders J., Kandrot E., CUDA by Example: An Introduction to General-Purpose GPU Programming, Addison-Wesley, 2011.
 \bibitem{professional_cuda}Cheng J., Grossman M., McKerche T. Professional CUDA C Programming, Wrox, 2014.
-\bibitem{multihuang}Shekhar S., Huang Y. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. W: Technical Report 02-019, USA, 2002.
-\bibitem{joinless}Yoo J. S., Shekhar S. A Joinless Approach for Mining Spatial Colocation Patterns. W: IEEE Transactions on Knowledge and Data Engineering, USA, 2006.
-\bibitem{cpi}Wang L., Bao Y., Lu J., Yip J. A New Join-less Approach for Co-location Pattern Mining. W: Proceedings of the 8th IEEE International
-Conference on Computer and Information Technology (CIT 2008), Sydney, 2008, strony 197–202.
-\bibitem{icpi}Wang L., Bao Y., Lu J. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. W: The Open Information Systems Journal nr 3, 2009, strony 69–80.
-\bibitem{fieldmodel}Jones C., Hall M. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. W: Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), Maroko, 2008.
-\bibitem{9sec}Egenhofer M. J., Franzosa R. Point-set topological spatial relations. W: International Journal of Geographic Information Systems nr 5, 1991, strony 161–174.
-\bibitem{9sec2}Clementini E., Di Felice P., van Oosterom P. A small set of formal topological relationships suitable for end-user interaction. W: Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993), Wielka Brytania, 1993, strony 277-295.
-\bibitem{klasykchuj1}Miller H. J., Han J. Geographic Data Mining and Knowledge Discovery, USA, 2001.
-\bibitem{klasykchuj2}Roddick J. F., Spiliopoulou M. A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research. W: ACM SIGKDD Exploration Newsletter nr 1, USA, 1999, strony 34–38.
-\bibitem{klasyfikacja}Ester M., Kriegel H. P., Sander J. Spatial Data Mining: A Database Approach. W: In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997), Wielka Brytania, 1997, strony 47–66.
-\bibitem{id3}Quinlan J. R. Induction of Decision Trees. W: Machine Learning nr 1, USA, 1986, strony 81–106.
-\bibitem{toptrendy}Ester M., Frommelt A., Kriegel H. P., Sander J. Algorithms for characterization and trend detection in spatial databases. W: Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998), USA, 1998, strony 44–50.
-\bibitem{przypadeg}Shekhar S., Chawla S. Spatial Databases: A Tour, USA, 2003.
-\bibitem{kurwa}Bellman R. E. Adaptive Control Processes - A Guided Tour, USA, 1961.
-\bibitem{asoc}Agrawal R., Srikant R.. Fast Algorithms for Mining Association Rules in Large Databases. W: Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), USA, 1994, strony 487–499.
-\bibitem{asoc2}Koperski K., Han J. Discovery of Spatial Association Rules in Geographic Information Databases. W: Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995) nr 951, USA, 1995, strony 47–66.
-\bibitem{classsets}Morimoto Y. Mining Frequent Neighboring Class Sets in Spatial Databases. W: Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), USA, 2001, strony 353–358.
-\bibitem{spatial}Arge L., Procopiuc O., Ramaswamy S., Suel T., Vitter J. Scalable Sweeping-
-Based Spatial Join. W: Proceedings of the International Conference on Very Large Databases (VLDB 1998), USA, 1998.
-\bibitem{degenerat}Eppstein D., Löffler M., Strash D. Listing all maximal cliques in sparsegraphs in near-optimal time. W: 21st International Symposium On Algorithms And Computation, Niemcy, 2010, strony 403–414.
-\bibitem{kerbosz}Bron C., Kerbosch J. Algorithm 457: Finding all cliques of an undirected graph. W: Communications of the ACM nr 16, USA, 1973, strony 575–577.
-\bibitem{pivot}Tomita E., Tanaka A., Takahashi H. The worst-case time complexity for
-generating all maximal cliques and computational experiments. W: Theoretical Computer Science nr 363, USA, 2006, strony 28–42.
-\bibitem{pivot2}Cazals F., Karande C. A note on the problem of reporting maximal cliques. W: Theoretical Computer Science nr 407, USA, 2008, strony 564–568.
-\bibitem{wang}Wang L., Zhou L., Lu J., Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. W: Information Sciences nr 179, USA, 2009, strony 3370–3382.
-\bibitem{matusiak}Matula D. W., Beck L. L. Smallest-last ordering and clustering and graph coloring algorithms. W: Journal of the ACM, nr 30, USA, 1983, strony 417–427.
+\bibitem{multihuang}Shashi Shekhar and Yan Huang. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. Technical Report 02-019, University of Minnesota, 2002.
+\bibitem{joinless}Jin Soung Yoo and Shashi Shekhar. A Joinless Approach for Mining Spatial Colocation Patterns. IEEE Transactions on Knowledge and Data Engineering, 18(10):13231337, 2006.
+\bibitem{cpi}Lizhen Wang, Yuzhen Bao, Joan Lu, and Jim Yip. A New Join-less Approach for Co-location Pattern Mining. In Qiang Wu, Xiangjian He, Quang Vinh Nguyen, Wenjing Jia, and Mao Lin Huang, editors, Proceedings of the 8th IEEE International
+Conference on Computer and Information Technology (CIT 2008), pages 197–202, Sydney, July 2008. IEEE.
+\bibitem{icpi}Lizhen Wang, Yuzhen Bao, and Joan Lu. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. The Open Information Systems Journal, 3(2):69–80,2009.
+\bibitem{fieldmodel}Christopher Jones and Mark Hall. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. In Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), 2008.
+\bibitem{9sec}Max J. Egenhofer and Robert Franzosa. Point-set topological spatial relations. International Journal of Geographic Information Systems, 5(2):161–174, 1991.
+\bibitem{9sec2} Eliseo Clementini, Paolino Di Felice, and Peter van Oosterom. A small set of formal topological relationships suitable for end-user interaction. In Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993), pages 277-295, London, UK, UK, 1993. Springer-Verlag.
+\bibitem{klasykchuj1} Harvey J. Miller and Jiawei Han. Geographic Data Mining and Knowledge Discovery. Taylor \& Francis, Inc., Bristol, PA, USA, 2001.
+\bibitem{klasykchuj2}John F. Roddick and Myra Spiliopoulou. A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research. ACM SIGKDD Exploration Newsletter, 1(1):34–38, 1999.
+\bibitem{klasyfikacja}Martin Ester, Hans-Peter Kriegel, and Jörg Sander. Spatial Data Mining: A Database Approach. In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997), pages 47–66, London, UK, UK, 1997. Springer-Verlag.
+\bibitem{id3} John R. Quinlan. Induction of Decision Trees. Machine Learning, 1(1):81–106, March 1986.
+\bibitem{toptrendy}Martin Ester, Alexander Frommelt, Hans-Peter Kriegel, and Jörg Sander. Algorithms for characterization and trend detection in spatial databases. In Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998), pages 44–50, 1998.
+\bibitem{przypadeg}Shashi Shekhar and Sanjay Chawla. Spatial Databases: A Tour. Prentice Hall, 2003
+\bibitem{kurwa} Richard E. Bellman. Adaptive control processes - A guided tour. Princeton University Press, Princeton, New Jersey, U.S.A., 1961.
+\bibitem{asoc} Rakesh Agrawal and Ramakrishnan Srikant. Fast Algorithms for Mining Association Rules in Large Databases. In Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), pages 487–499, San Francisco, 1994. Morgan Kaufmann Publishers Inc.
+\bibitem{asoc2} Krzysztof Koperski and Jiawei Han. Discovery of Spatial Association Rules in Geographic Information Databases. In Max J. Egenhofer and John R. Herring, editors, Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995), volume 951 of Lecture Notes in Computer Science, pages 47–66. Springer Berlin Heidelberg, 1995
+\bibitem{classsets}Yasuhiko Morimoto. Mining Frequent Neighboring Class Sets in Spatial Databases. In Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), pages 353–358, New York, NY, USA, 2001. ACM.
+\bibitem{spatial}L. Arge, O. Procopiuc, S. Ramaswamy, T. Suel, and J. Vitter. Scalable Sweeping-
+Based Spatial Join. In Proc. of the Int’l Conference on Very Large Databases, 1998.
+\bibitem{degenerat}Eppstein, D. , Löffler, M. , i Strash, D. (2010). Listing all maximal cliques in sparsegraphs in near-optimal time. In O. Cheong, K. Y. Chwa, \& K. Park (Eds.), 21st international symposium on algorithms and computation (pp. 403–414). Berlin, Germany: Springer-Verlag.
+\bibitem{kerbosz}Bron, C., \& Kerbosch, J. (1973). Algorithm 457: Finding all cliques of an undirected graph. Communications of the ACM, 16 , 575–577.
+\bibitem{pivot}Tomita, E., Tanaka, A., \& Takahashi, H. (2006). The worst-case time complexity for
+generating all maximal cliques and computational experiments. Theoretical Computer Science, 363 , 28–42.
+\bibitem{pivot2}Cazals, F.; Karande, C. (2008), "A note on the problem of reporting maximal cliques" , Theoretical Computer Science, 407 (1): 564–568.
+\bibitem{wang}Wang, L., Zhou, L., Lu, J., \& Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. Information Sciences, 179 , 3370–3382.
+\bibitem{matusiak}Matula, D. W.; Beck, L. L. (1983), "Smallest-last ordering and clustering and graph coloring algorithms", Journal of the ACM, 30 (3): 417–427, doi:10.1145/2402.322385, MR 0709826.
 \bibitem{mikromiekki}Comparing the Concurrency Runtime to Other Concurrency Models, Microsoft, 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
 \bibitem{stak}Microsoft Parallel Patterns Library (PPL) vs. OpenMP, Stack Overflow, 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
-\bibitem{buffered-sort}Sorting in PPL, Parallel Programming in Native Code, vinodsu (Microsoft Developer Network Blogs), 14-01-2011 [dostęp: 10-01-2017]. Dostępny w Internecie: https://blogs.msdn.microsoft.com/nativeconcurrency/2011/01/14/sorting-in-ppl/
-\bibitem{cuda_um}Unified Memory in CUDA 6, Harris M. (NVIDIA Developer Blogs), 18-11-2013 [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
-\bibitem{cuda_dp}CUDA Dynamic Parallelism API and Principles, Adinetz A. (NVIDIA Developer Blogs) [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
+\bibitem{buffered-sort}. Sorting in PPL, Parallel Programming in Native Code, vinodsu (Microsoft Developer Network Blogs), 14-01-2011 [dostęp: 10-01-2017]. Dostępny w internecie: https://blogs.msdn.microsoft.com/nativeconcurrency/2011/01/14/sorting-in-ppl/
+\bibitem{cuda_um}https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
+\bibitem{cuda_dp}https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
 \end{thebibliography}
 
 \newpage
@@ -1120,134 +1488,7 @@ generating all maximal cliques and computational experiments. W: Theoretical Com
 \appendix
 
 \section{Opis klas i struktur pomocniczych}
-\label{sec:wypociny}
-
-\subsection{Opis architektury wersji CPU}
-
-Podczas implementacji stworzono dwie główne klasy: CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel dziedziczące po klasie abstrakcyjnej CpuMiningAlgorithmBase. CpuMiningAlgorithmBase zawiera cztery metody czysto wirtualne (ang. \textit{pure virtual functions}) odpowiadające za główne kroki algorytmu:
-
 \begin{itemize}
-\item
-Filtrowanie sąsiadów na podstawie progu odległości:
-\begin{lstlisting}
-virtual void filterByDistance(float threshold) = 0;
-\end{lstlisting}
-
-\item
-Filtrowanie sąsiadów na podstawie progu minimalnej powszechności:
-\begin{lstlisting}
-virtual void filterByPrevalence(float prevalence) = 0;
-\end{lstlisting}
-
-\item
-Generowanie kandydatów na kolokacje maksymalne:
-\begin{lstlisting}
-virtual void constructMaximalCliques() = 0;
-\end{lstlisting}
-
-\item
-Generowanie skondensowanych drzew instancji kandydatów na kolokacje maksymalne i ich filtrowanie na podstawie progu minimalnej powszechności:
-\begin{lstlisting}
-virtual std::vector<std::vector<unsigned short>> 
-    filterMaximalCliques(float prevalence) = 0;
-\end{lstlisting}
-\end{itemize}
-
-Klasy CpuMiningAlgorithmSeq oraz CpuMiningAlgorithmParallel zawierają implementację owych metod odpowiednio w wersji sekwencyjnej jak i równoległej.
-
-Oprócz wyżej wspomnianych metod klasa CPUMiningAlgorithmBase zawiera implementację metod pomocniczych odpowiadających za:
-
-\begin{itemize}
-\item Obliczenie odległości między instancjami i porównanie ich z obowiązującym progiem odległości.
-\item Obliczenie wartości funkcji powszechności dla dwóch elementów.
-\item Obliczenie wartości funkcji powszechności dla dowolnej liczby elementów, za równo w wersji sekwencyjnej i równoległej.
-\item Wygenerowanie wszystkich podklik kliki K o rozmiarze \textit{n} takich, że rozmiar każdej podkliki wynosi \textit{n - 1}.
-\end{itemize}
-
-\subsection{Opis struktur \& klas pomocniczych i ich implementacji}
-    
-\begin{itemize}
-\item DataFeed - Instancje struktury DataFeed mają za zadanie przechowywać dane wejściowe.
-
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod struktury DataFeed}]
-struct DataFeed
-{
-    struct Coords
-    {
-        float x;
-        float y;
-        Coords(float x, float y) : x(x), y(y) {}
-    };
-    
-	unsigned short type;
-	unsigned short instanceId;
-	Coords xy;
-    
-	DataFeed(unsigned short type,
-        unsigned short id,
-        float x,
-        float y)
-    		: type(type), instanceId(id), Coords(x,y) {}
-
-	bool operator < (const DataFeed& str) const
-	{
-		return (type == str.type)?(instanceId < str.instanceId):(type < str.type);
-	}
-};
-\end{lstlisting}
-\end{minipage}
-
-\item CinsTree - Klasa zawierająca implementację skondensowanego drzewa instancji (ang. \textit{condensed instance tree}). Zawiera wskaźnik do korzenia drzewa \raggedright \inline{std::unique_ptr<CinsNode> root}) oraz wektor \inline{std::vector<CinsNode*> lastLevelChildren} zawierający wskaźniki do liści znajdujących się na ostatnim poziomie (wynikającym z rozmiaru aktualnie budowanej kliki - w przypadku gdy nie udało się rozbudować drzewa o kolejny poziom lista ta jest pusta) owego drzewa. Takie podejście umożliwia szybki dostęp do finalnych instancji poszczególnych kandydatów na kolokacje.
-
-\item CinsNode - Klasa zawierająca implementację pojedynczego węzła skondensowanego drzewa instancji \textit{CinsTree}. Obiekty tej klasy zawierają informacje o cesze \inline{unsigned short type} i numerze \inline{unsigned short instanceId} instancji przestrzennej, wektor wskaźników potomków \inline{std::vector<std::unique_ptr<CinsNode>> children} oraz wskaźnik pokazujący na rodzica danego węzła \inline{CinsNode* parent}. Klasa zawiera metody umożliwiające m.in.:
-
-\begin{itemize}
-\item dodanie potomka.
-\item zwrócenie potomka o danej cesze i numerze instancji.
-\item zwrócenie listy wszystkich przodków.
-\end{itemize}
-
-\item Graph - Klasa implementująca graf nieskierowany, bazująca na macierzy sąsiedztwa (ang. \textit{adjacency matrix}). Oprócz podstawowych metod umożliwiających działanie i budowanie grafu, klasa zawiera również metody pozwalające na:
-
-\begin{itemize}
-\item obliczenie maksymalnych klik w grafie za pomocą zmodyfikowanego algorytmu Brona-Kerboscha \cite{chinczyki}.
-\item obliczenie optymalnego \textit{pivotu} \cite{pivot} dla algorytmu Brona-Kerboscha.
-\item obliczenie stopnia degeneracji grafu (ang. \textit{degeneracy}) i uporządkowanie wierzchołków według miary degeneracji (ang.\textit{degeneracy ordering}) \cite{degenerat}.
-\end{itemize}
-
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod metody tomitaMaximalPivot umożliwiającej wyliczenie optymalnego punktu \textit{pivot}}]
-unsigned short Graph::tomitaMaximalPivot(
-	const std::vector<unsigned short>& SUBG,
-    const std::vector<unsigned short>& CAND)
-{
-	unsigned short u, maxCardinality = 0;
-	for (auto s : SUBG)
-	{
-		auto neighbors = getVertexNeighbours(s);
-		std::sort(neighbors.begin(), neighbors.end());
-		
-		std::vector<unsigned short> nCANDunion(neighbors.size() + CAND.size());
-        
-		auto itUnion = std::set_union(
-        	CAND.begin(),
-            CAND.end(),
-            neighbors.begin(),
-            neighbors.end(),
-            nCANDunion.begin());
-            
-		nCANDunion.resize(itUnion - nCANDunion.begin());
-		if (nCANDunion.size() >= maxCardinality)
-		{
-			u = s;
-			maxCardinality = nCANDunion.size();
-		}
-	}
-	return u;
-}
-\end{lstlisting}
-\end{minipage}
 
 \item SubcliquesContainer - Klasa umożliwiająca przechowywanie przetworzonych już kandydatów na kliki maksymalne. W łatwy i wydajny sposób ułatwia sprawdzenie czy dana klika lub klika będąca nadzbiorem danej kliki została już przetworzona - dzięki temu unika się przeprowadzenia wtórnych obliczeń i ewentualnych duplikatów w rozwiązaniu. Główną ideą jest stworzenie mapy wektorów \inline{std::map<short, std::vector<unsigned short>> typesMap}, której kluczami są numery cech występujące w poszczególnych klikach a wartościami wektory kolejnych wartości licznika \inline{unsigned int cliquesCounter} którego bieżąca wartość służy do oznaczania kolejnych klik.
 
@@ -1284,8 +1525,6 @@ bool SubcliquesContainer::checkCliqueExistence(
 }
 \end{lstlisting}
 \end{minipage}
-	
-\item ParallelSubcliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{SubcliquesContainer} jednakże zapewniająca bezpieczeństwo przetwarzania wielowątkowego. Cel ten osiągnięto za pomocą skorzystania z sekcji krytycznych w przypadku inkrementowania licznika jak i posłużenia się współbieżnymi wektorami \inline{concurrency::concurrent_vector<unsigned short>} z biblioteki PPL, co przełożyło się również na zwiększenie efektywności przetwarzania.
 
 \item CliquesContainer - Klasa zapewniająca dwie funkcjonalności:
 \begin{itemize}
@@ -1318,67 +1557,6 @@ bool CliquesContainer::checkSubcliqueExistence(
 \end{minipage}
 \end{itemize}
 
-\item ParallelCliquesContainer - Klasa odpowiedzialną za tą samą funkcjonalność co klasa \textit{CliquesContainer} zapewniająca w tym samym czasie bezpieczeństwo przetwarzania wielowątkowego.
-
-\item RandomDataProvider - Klasa zapewniająca losowy generator danych z parametryzowaną liczbą cech, liczbą instancji a także granicami danych przestrzennych.
-
-\item SimulatedRealDataProvider - Klasa wykorzystująca gotowe, przygotowane wcześniej dane wczytywane z plików mające symulować dane rzeczywiste.
-
-\item pair\_hash - Struktura zapewniająca generyczną implementację funkcji hashującej (ang. 
-\textit{hash function}) dla pary \inline{std::pair<T1, T2>} - w przypadku typu zdefiniowanego przez użytkownika konieczne jest własnoręczne przeładowania operatora \inline{()}. Aby zapewnić odpowiednią wydajność, należy zadbać o właściwą funkcję hashująca tzn. taką która generuje możliwie mało kolizji. Popularną metodą jest skorzystania z funkcji XOR i zastosowanie jej do dających się pojedynczo hashować elementów pary. Okazało się jednak, że funkcja ta generuje niezadowalająco dużą ilość kolizji, dla tego stworzono bardziej zaawansowany hasher korzystający z funkcji \inline{hash_combine} z biblioteki \textit{boost}:
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod struktury pair\_hash}]
-struct pair_hash {
-	template <class T1, class T2>
-	std::size_t operator () (const std::pair<T1, T2> &p) const {
-		std::size_t seed1(0);
-		::hash_combine(seed1, p.first);
-		::hash_combine(seed1, p.second);
-
-		std::size_t seed2(0);
-		::hash_combine(seed2, p.second);
-		::hash_combine(seed2, p.first);
-
-		return std::min(seed1, seed2);
-	}
-};
-\end{lstlisting}
-\end{minipage}
-
-Funkcja hash\_combine:
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod funkcji hash\_combine}]
-template<typename T>
-void hash_combine(std::size_t &seed, T const &key) {
-	std::hash<T> hasher;
-	seed ^= hasher(key) + 0x9e3779b9 + (seed << 6) + 
-    	(seed >> 2);
-};
-\end{lstlisting}
-\end{minipage}
-
-\item vector\_hash - Struktura umożliwiająca kodowanie mieszające (ang. \textit{hashing}) dla wektorów dowolnych typów dla których istnieje implementacja funkcji hashującej. Również w tym przypadku skorzystano z funkcji \inline{hash_combine}.
-
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption={Kod struktury vector\_hash}]
-struct vector_hash {
-	template <class T>
-		std::size_t operator()(std::vector<T> const& vec) const 
-        {
-            std::size_t seed = vec.size();
-            for (auto& i : vec) {
-                ::hash_combine(seed, i);
-            }
-			return seed;
-		}
-};
-\end{lstlisting}
-\end{minipage}
-
-
-\item Timer - Generyczna klasa umożliwiająca pomiar czasu dla dowolnej funkcji lub funktora z dowolną liczbą argumentów. Zapewnia ustawienie dowolnego typu zegara i dokładności pomiaru. Odpowiada za sprawdzenie czasu wykonywania poszczególnych kroków algorytmu.
-
-\item Benchmark - Klasa umożliwiająca przeprowadzenie parametryzowanych testów wydajnościowych całego algorytmu, zapewniając m.in. serializację do pliku. Wyeksportowane dane mogą zostać zwizualizowane za pomocą wykresów do których tworzenia wykorzystano odpowiedni skrypt w języku Python.
 
 \end{itemize}
 

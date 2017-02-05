@@ -108,18 +108,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resource Files\fastData.txt">
-      <Filter>Resource Files</Filter>
-    </Content>
-    <Content Include="Resource Files\mediumData.txt">
-      <Filter>Resource Files</Filter>
-    </Content>
-    <Content Include="Resource Files\veryFastData.txt">
-      <Filter>Resource Files</Filter>
-    </Content>
-    <Content Include="Resource Files\hugeData.txt">
-      <Filter>Resource Files</Filter>
-    </Content>
     <Content Include="Resource Files\instanceSizeTest1.txt">
       <Filter>Resource Files</Filter>
     </Content>
@@ -157,9 +145,6 @@
       <Filter>Resource Files</Filter>
     </Content>
     <Content Include="Resource Files\minPrevTest1.txt">
-      <Filter>Resource Files</Filter>
-    </Content>
-    <Content Include="Resource Files\minPrevTest2.txt">
       <Filter>Resource Files</Filter>
     </Content>
   </ItemGroup>

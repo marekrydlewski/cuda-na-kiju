@@ -157,7 +157,7 @@ Problem efektywnego przetwarzania zdążył urosnąć do rangi oddzielnego dzia�
 
 Wspominane wyżej techniki w dużej mierze zależą od rodzaju bazy, a ściślej mówiąc - charakteru danych w niej występujących. W przypadku danych zawierających informację o położeniu zazwyczaj mowa jest o  odkrywaniu wiedzy w bazach danych przestrzennych (ang. \textit{spatial data mining}). Takie systemy mogą zawierać atrybut lokalizacji obiektu w danym obszarze, jego opis w formie geometrycznej (np. w postaci wielokątów), a także inne atrybuty nieprzestrzenne. Okazuje się, że tradycyjne metody analizy danych przestrzennych zazwyczaj nie radzą sobie z nimi na tyle efektywnie, by było opłacalne ich użycie w praktyce \cite{trad}, dlatego też zaczęto szukać nowych sposobów na odkrywanie wiedzy w takich bazach.
 
-W pracy \cite{huang} zaproponowano odkrywanie \textit{wzorców kolokacji przestrzennych} (lub krócej: \textit{kolokacji}), czyli zbioru cech przestrzennych występujących w niewielkiej odległości od siebie.  Łatwo to można sobie wyobrazić na przykładzie przyrody, gdzie osobniki (gatunki) o podobnych cechach zazwyczaj trzymają się razem. Rozumowanie to działa również dla bliższych współczesnemu człowiekowi cech przestrzennych, np. punktach o podobnej funkcji - stacje, kina, piekarnie, itd. Wraz z rosnącą popularnością obliczeń na kartach graficznych (w dużej mierze spowodowana wprowadzeniem technologii \textit{CUDA} autorstwa firmy NVIDIA) pojawiło się wiele gotowych rozwiązań, pozwalających na efektywne wyszukiwanie kolokacji nawet w bardzo rozbudowanych bazach danych. Przegląd niektórych z nich można znaleźć w pracy \cite{boinski}.
+W pracy \cite{huang} zaproponowano odkrywanie \textit{wzorców kolokacji przestrzennych} (lub krócej: \textit{kolokacji}), czyli zbioru cech przestrzennych występujących w niewielkiej odległości od siebie.  Łatwo to można sobie wyobrazić na przykładzie przyrody, gdzie osobniki (gatunki) o podobnych cechach zazwyczaj trzymają się razem. Rozumowanie to działa również dla bliższych współczesnemu człowiekowi cech przestrzennych, np. punktach o podobnej funkcji - stacje, kina, piekarnie, itd. Wraz z rosnącą popularnością obliczeń na kartach graficznych (w dużej mierze spowodowana wprowadzeniem technologii \textit{CUDA} autorstwa firmy NVIDIA) pojawiło się kilka gotowych rozwiązań, pozwalających na efektywne wyszukiwanie kolokacji nawet w bardzo rozbudowanych bazach danych. Przegląd niektórych z nich można znaleźć w pracy \cite{boinski}.
 
 Ostatni rok przyniósł kolejną metodę efektywnego przeszukiwania baz danych w~celu odnalezienia kolokacji \cite{chinczyki}. Wykorzystuje ona autorski algorytm wyszukiwania maksymalnych klik w~grafie rzadkim oraz skondensowane drzewa instancji przechowywaczce kliki instancji dla każdego kandydata do kolokacji (patrz Rozdział~\ref{sec:china}) w~celu zmniejszenia czasu obliczeń oraz ograniczenia wymagań co do pamięci operacyjnej. Algorytm ten jest przedmiotem badań niniejszej pracy zbiorowej.
 
@@ -336,7 +336,7 @@ zbiorem ich instancji. Niech $ >_{F} $ oznacza dowolną relację porządku zdefi
 \end{defin}
 
 \begin{defin}[Sąsiedztwo]
-Mające daną zwrotną i symetryczną relację sąsiedztwa R, sąsiedztwem lokalizacji l nazywamy zbiór lokalizacji $L = \{l_{1},l_{2}, . . . , l_{n}\}$, gdzie $l_{i}$ jest sąsiadem l, tzn. zachodzi $R(l, l_{i}) $ $ \forall i \in 1,...,n$.
+Mające daną zwrotną i symetryczną relację sąsiedztwa R, sąsiedztwem lokalizacji l nazywamy zbiór lokalizacji $L = \{l_{1},l_{2}, . . . , l_{n}\}$, gdzie $l_{i}$ jest sąsiadem l, tzn. zachodzi $R(l, l_{i}) $ $ \forall i \in 1,...,n$. Przykładowe sąsiedztwo między obiektami prezentuje Rysunek~\ref{fig:neigh}.
 \end{defin}
 
 \begin{figure}
@@ -353,7 +353,8 @@ Mające daną zwrotną i symetryczną relację sąsiedztwa R, sąsiedztwem lokal
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]155:$ l_3 $}] at (1.3,1.4) {};
 \node [fill, draw, circle, minimum width=3pt, inner sep=0pt, pin={[outer sep=-2pt]155:$ l_4 $}] at (2.7,0.5) {};
 \end{tikzpicture}
-\caption{Relacja sąsiedztwa - lokalizacje \textit{l}\textsubscript{2} oraz \textit{l}\textsubscript{3} sąsiadują ze sobą.}
+\caption{Przykład relacji sąsiedztwa - lokalizacje \textit{l}\textsubscript{2} oraz \textit{l}\textsubscript{3} sąsiadują ze sobą.}
+\label{fig:neigh}
 \end{figure}
 
 \subsubsection{Miary kolokacji}
@@ -383,24 +384,24 @@ Indeks uczestnictwa najczęściej określany jest w literaturze mianem miary pow
 %\begin{defin}[Reguła kolokacyjna]Reguła kolokacyjna to reguła postaci $ c_{1} \rightarrow c_{2}(p, cp)$, gdzie $ c_{1} \subseteq F $, $c_{2} \subseteq F $ i $c _{1} \cup c_{2} = \emptyset $. Potencjalna użyteczność reguły może być mierzona przy pomocy jej powszechności p oraz prawdopodobieństwa warunkowego cp.
 %\end{defin}
 
-\begin{defin}[Prawdopodobieństwo warunkowe]Prawdopodobieństwem warunkowym
-$ cp(c_{1}, c_{2})$ reguły kolokacyjnej $ c_{1} \rightarrow c_{2} $ nazywamy stosunek liczby instancji wzorca c 1 w sąsiedztwie instancji wzorca $ c_{2}$ do liczby wszystkich instancji wzorca $ c_{1} $:
-\begin{equation}
-cp(c_{1}, c_{2}) = \frac{|\pi^{c_{1}}(CI^{c_{1} \cup c_{2}})|}{CI^{c_{1}}}
-\end{equation}
-gdzie $\pi^{c_{1}}(CI^{c_{1} \cup c_{2}})$ oznacza projekcję relacyjną instancji wzorca $CI^{c_{1} \cup c_{2}}$ względem wzorca $ c_{1} $ (z usuwaniem duplikatów).
-\end{defin}
+%\begin{defin}[Prawdopodobieństwo warunkowe]Prawdopodobieństwem warunkowym
+%$ cp(c_{1}, c_{2})$ reguły kolokacyjnej $ c_{1} \rightarrow c_{2} $ nazywamy stosunek liczby instancji wzorca c 1 w sąsiedztwie instancji wzorca $ c_{2}$ do liczby wszystkich instancji wzorca $ c_{1} $:
+%\begin{equation}
+%cp(c_{1}, c_{2}) = \frac{|\pi^{c_{1}}(CI^{c_{1} \cup c_{2}})|}{CI^{c_{1}}}
+%\end{equation}
+%gdzie $\pi^{c_{1}}(CI^{c_{1} \cup c_{2}})$ oznacza projekcję relacyjną instancji wzorca $CI^{c_{1} \cup c_{2}}$ względem wzorca $ c_{1} $ (z usuwaniem duplikatów).
+%\end{defin}
 
-\begin{defin}[Problem odkrywania kolokacji]
-Problem odkrywania kolokacji przestrzennych jest zdefiniowany w następujący sposób.
+\begin{defin}[Problem odkrywania maks. kolokacji]
+Problem odkrywania maksymalnych kolokacji przestrzennych jest zdefiniowany w następujący sposób.
 Mając dane:
 \begin{itemize}
 \item zbiór cech przestrzennych $F = \{ f_{1}, f_{2}, ...,f_{m} \} $
 \item zbiór obiektów $FI = FI^{f_{1}} \cup FI^{f_{2}} \cup ... \cup FI^{f_{m}}$  , gdzie $ FI^{f_{i}},(0 < i \le m) $ jest zbiorem instancji cechy $ f_{i}$, przy czym każda instancja jest opisana przez lokalizację i identyfikator,
 \item symetryczną i zwrotną relację sąsiedztwa $R$,
-\item próg minimalnej powszechności min\_prev oraz próg minimalnego prawdopodobieństwa warunkowego min\_cond,
+\item próg minimalnej powszechności min\_prev.
 \end{itemize}
-znajdź wszystkie poprawne reguły kolokacyjne z powszechnością nie mniejszą niż min\_prev i prawdopodobieństwem warunkowym nie mniejszym niż min\_cond.
+znajdź wszystkie maksymalne kolokacje przestrzenne z powszechnością nie mniejszą niż min\_prev.
 \end{defin}
 
 \subsection{Przegląd algorytmów odkrywania wzorców kolokacji przestrzennych}
@@ -1035,7 +1036,7 @@ Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}. Tak po
 
 Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
 
-Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania zbioru par polegającej na zajmowaniu przez relacje o danych typach ciągłego obszaru można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Jako, że instancje w obecnym kroku rozróżnialne są tylko na podstawie typów zaimplementowany został algorytm~\ref{alg:FeatureInstanceTuple-operator} przeciążający operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji tylko względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
+Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania zbioru par polegającej na zajmowaniu przez relacje o danych typach ciągłego obszaru można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Jako, że instancje w obecnym kroku rozróżnialne są tylko na podstawie typów zaimplementowany został algorytm~\ref{alg:FeatureInstanceTuple_operator} przeciążający operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji tylko względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
 
 \begin{figure}[H]
 \begin{algorithm}[H]

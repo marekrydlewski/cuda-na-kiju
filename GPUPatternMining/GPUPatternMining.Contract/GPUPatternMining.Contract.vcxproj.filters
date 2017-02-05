@@ -30,9 +30,6 @@
     <ClInclude Include="CinsTree.h">
       <Filter>Entity</Filter>
     </ClInclude>
-    <ClInclude Include="RandomDataProvider.h">
-      <Filter>Providers</Filter>
-    </ClInclude>
     <ClInclude Include="IPairColocationsProvider.h">
       <Filter>Providers</Filter>
     </ClInclude>
@@ -40,9 +37,6 @@
       <Filter>Providers</Filter>
     </ClInclude>
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h">
-      <Filter>Providers</Filter>
-    </ClInclude>
-    <ClInclude Include="IDataProvider.h">
       <Filter>Providers</Filter>
     </ClInclude>
     <ClInclude Include="CinsNode.h">
@@ -85,9 +79,6 @@
     </ClCompile>
     <ClCompile Include="CinsTree.cpp">
       <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="RandomDataProvider.cpp">
-      <Filter>Providers</Filter>
     </ClCompile>
     <ClCompile Include="CinsNode.cpp">
       <Filter>Entity</Filter>

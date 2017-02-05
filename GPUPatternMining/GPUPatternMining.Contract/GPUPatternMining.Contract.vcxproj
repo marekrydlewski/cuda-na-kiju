@@ -33,9 +33,7 @@
     <ClInclude Include="IMaximalColocationsCandidatesProvider.h" />
     <ClInclude Include="IPairColocationsFilter.h" />
     <ClInclude Include="IPairColocationsProvider.h" />
-    <ClInclude Include="IDataProvider.h" />
     <ClInclude Include="ParallelSubcliquesContainer.h" />
-    <ClInclude Include="RandomDataProvider.h" />
     <ClInclude Include="SimulatedRealDataProvider.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
@@ -50,7 +48,6 @@
     <ClCompile Include="SubcliquesContainer.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="ParallelSubcliquesContainer.cpp" />
-    <ClCompile Include="RandomDataProvider.cpp" />
     <ClCompile Include="SimulatedRealDataProvider.cpp" />
   </ItemGroup>
   <ItemGroup>

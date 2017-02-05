@@ -16,6 +16,7 @@
 \usepackage{pgfplots}
 \usepackage{epigraph}
 \usepackage{calc}
+\usepackage{ragged2e}
 
 \usetikzlibrary{shapes,positioning,intersections,quotes}
 
@@ -120,18 +121,19 @@
 \end{titlepage}
 
 %acknowledgement
+\newgeometry{left=8cm, textwidth=11.5cm}
 \thispagestyle{empty}
 $\mbox{ }$
 \vfill\vfill
 \hfill
-\begin{flushright}
+\justify
 \begin{em}
  Za opiekę naukową i cenne wskazówki
  serdeczne podziękowania kierujemy
  do naszego promotora dr Witolda Andrzejewskiego
 \end{em}
-\end{flushright}
-\vfill\pagebreak
+\pagebreak
+\restoregeometry
 
 %quote
 \thispagestyle{empty}
@@ -139,7 +141,7 @@ $\mbox{ }$
 \vfill\vfill
 \hfill
 \epigraph{An algorithm must be seen to be believed}{Donald Knuth}
-\vfill\pagebreak
+\pagebreak
 
 \tableofcontents
 \newpage

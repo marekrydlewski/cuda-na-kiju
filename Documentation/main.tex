@@ -1,7 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
-\usepackage{indentfirst} 
+\usepackage{indentfirst}
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage[dvipsnames]{xcolor}
@@ -14,13 +14,25 @@
 \graphicspath{ {images/} }
 \usepackage{tikz}
 \usepackage{pgfplots}
+\usepackage{epigraph}
+\usepackage{calc}
 
 \usetikzlibrary{shapes,positioning,intersections,quotes}
+
+\newcommand{\mytextformat}{\itshape\epigraphsize}
+\newenvironment{mytext}{\mytextformat}{}
+\newenvironment{mysource}{\scshape\hfill}{}
+\renewcommand{\textflush}{mytext} 
+\renewcommand{\sourceflush}{mysource}
+
+\let\originalepigraph\epigraph 
+\renewcommand\epigraph[2]%
+   {\setlength{\epigraphwidth}{\widthof{\mytextformat#1}}\originalepigraph{#1}{#2}}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
 \renewcommand*{\algorithmcfname}{Algorytm}
- 
+
 \newcommand{\sectionbreak}{\clearpage}
  \geometry{
  a4paper,
@@ -33,7 +45,7 @@
 \definecolor{lbcolor}{gray}{0.96}
 \lstset{
   backgroundcolor=\color{lbcolor},
-  tabsize=4,    
+  tabsize=4,
   %   rulecolor=,
   language=[GNU]C++,
   basicstyle=\scriptsize,
@@ -81,6 +93,7 @@
 }
 \def\inline{\lstinline[basicstyle=\ttfamily,keywordstyle={}]}
 
+
 \begin{document}
 \counterwithin{lstlisting}{section}
 \begin{titlepage}
@@ -105,17 +118,29 @@
 	\vfill
 	{\large Poznań, 2017 r.\par}
 \end{titlepage}
-\thispagestyle{empty} % Strona z pustym stylem, bez numeru
+
+%acknowledgement
+\thispagestyle{empty}
 $\mbox{ }$
 \vfill\vfill
 \hfill
 \begin{flushright}
 \begin{em}
-,,Coś się popsuło`` \\
-Zbigniew Stonoga
+ Za opiekę naukową i cenne wskazówki
+ serdeczne podziękowania kierujemy
+ do naszego promotora dr Witolda Andrzejewskiego
 \end{em}
 \end{flushright}
 \vfill\pagebreak
+
+%quote
+\thispagestyle{empty}
+$\mbox{ }$
+\vfill\vfill
+\hfill
+\epigraph{An algorithm must be seen to be believed}{Donald Knuth}
+\vfill\pagebreak
+
 \tableofcontents
 \newpage
 

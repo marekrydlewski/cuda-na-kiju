@@ -1,7 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
-\usepackage{indentfirst} 
+\usepackage{indentfirst}
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage[dvipsnames]{xcolor}
@@ -14,13 +14,25 @@
 \graphicspath{ {images/} }
 \usepackage{tikz}
 \usepackage{pgfplots}
+\usepackage{epigraph}
+\usepackage{calc}
 
 \usetikzlibrary{shapes,positioning,intersections,quotes}
+
+\newcommand{\mytextformat}{\itshape\epigraphsize}
+\newenvironment{mytext}{\mytextformat}{}
+\newenvironment{mysource}{\scshape\hfill}{}
+\renewcommand{\textflush}{mytext} 
+\renewcommand{\sourceflush}{mysource}
+
+\let\originalepigraph\epigraph 
+\renewcommand\epigraph[2]%
+   {\setlength{\epigraphwidth}{\widthof{\mytextformat#1}}\originalepigraph{#1}{#2}}
 
 \newtheorem{defin}{Definicja}
 \newtheorem{sample}{Przykład}
 \renewcommand*{\algorithmcfname}{Algorytm}
- 
+
 \newcommand{\sectionbreak}{\clearpage}
  \geometry{
  a4paper,
@@ -33,7 +45,7 @@
 \definecolor{lbcolor}{gray}{0.96}
 \lstset{
   backgroundcolor=\color{lbcolor},
-  tabsize=4,    
+  tabsize=4,
   %   rulecolor=,
   language=[GNU]C++,
   basicstyle=\scriptsize,
@@ -81,6 +93,7 @@
 }
 \def\inline{\lstinline[basicstyle=\ttfamily,keywordstyle={}]}
 
+
 \begin{document}
 \counterwithin{lstlisting}{section}
 \begin{titlepage}
@@ -105,17 +118,29 @@
 	\vfill
 	{\large Poznań, 2017 r.\par}
 \end{titlepage}
-\thispagestyle{empty} % Strona z pustym stylem, bez numeru
+
+%acknowledgement
+\thispagestyle{empty}
 $\mbox{ }$
 \vfill\vfill
 \hfill
 \begin{flushright}
 \begin{em}
-,,Coś się popsuło`` \\
-Zbigniew Stonoga
+ Za opiekę naukową i cenne wskazówki
+ serdeczne podziękowania kierujemy
+ do naszego promotora dr Witolda Andrzejewskiego
 \end{em}
 \end{flushright}
 \vfill\pagebreak
+
+%quote
+\thispagestyle{empty}
+$\mbox{ }$
+\vfill\vfill
+\hfill
+\epigraph{An algorithm must be seen to be believed}{Donald Knuth}
+\vfill\pagebreak
+
 \tableofcontents
 \newpage
 
@@ -926,8 +951,8 @@ Po zakończeniu iterowania każdy \textit{warp} wykonuje szybką redukcję czę�
 
 \begin{figure}[H]
 \centering
-\includegraphics{planesweep}
-\caption{Poglądowy rysunek przedstawiający iterowanie warpa po instancjach}
+\includegraphics[width=\textwidth]{planesweep.eps}
+\caption{Poglądowy rysunek przedstawiający iterowanie warpów po instancjach}
 \end{figure}
 
 Pozostało jedynie wykonać kernel \textit{findNeighbours}, odpowiedzialny za alokację oraz wpisanie znalezionych sąsiadów do tabel \textit{InstanceFirst} oraz \textit{InstanceSecond}. Służą one do przechowywania elementów par instancji będących w relacji sąsiedztwa. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami w obu tablicach. Kolejność w obrębie pary wyznaczana jest przez poniższy Algorytm~\ref{alg:FeatureInstance_operator} będący przeciążeniem operatora mniejszości ($ < $):
@@ -1002,7 +1027,7 @@ Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}. Tak po
 
 \begin{figure}[H]
 \centering
-\includegraphics{sortAttr_insTable}
+\includegraphics[width=\textwidth]{order_prop1.eps}
 \caption{Przykładowa zawartość tablic \textit{Pairs}\textsubscript{A} oraz \textit{Pairs}\textsubscript{A}}
 \label{fig:pairs_content}
 \end{figure}
@@ -1160,8 +1185,8 @@ Dla uśrednienia czasów wykonań poszczególnych testów i wyeliminowania zakł
 \textbf{Zmienny parametr} & \textbf{Próg min. powszechności} & \textbf{Próg maks. odległości} \\
 \hline
 Rozmiar instancji & 0.2 & 3 \\
-Próg min. powszechności & 0.05 - 0.4 & 5 \\
-Próg maks. odległości & 5 & 3 - 8 \\
+Próg min. powszechności & 0.1 - 0.5 & 5 \\
+Próg maks. odległości & 5 & 2 - 6 \\
 \hline
 \end{tabular}
 \caption{Wartości parametrów dla poszczególnych grup testów}
@@ -1230,6 +1255,7 @@ Z analizy wykresu wynika, że powyżej pewnego rozmiaru danych wyjściowych nast
 
 Przeprowadzono również oddzielne testy dla części algorytmu odpowiedzialnej za odkrywanie relacji sąsiedztwa - ich efekt prezentuje Rysunek~\ref{chart:planesweep-datasize}. Na jego podstawie można zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU oraz GPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z faktu, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W~dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna.
 
+Wykres czasów dla implementacji na GPU zaznaczono na wykresie linią przerywaną ze względu na to, że przedstawia on czasy wykonania samych obliczeń nie uwzględniając dodatkowego nakładu pracy związanego z~przygotowaniem danych do obliczeń. Na Rysunku \ref{chart:gpu-planesweep-data-preparation} porównano czasy wykonań części odpowiedzialnej za odkrywanie relacji sąsiedztwa w.w. implementacji bez oraz z~uwzględnieniem przygotowania danych. Łatwo można na nim zauważyć, jak duży może być nakład pracy związany z przygotowaniem danych który umożliwi przetwarzanie na GPU.
 \begin{figure}[H]
 \begin{tikzpicture}
 \begin{axis}[
@@ -1281,9 +1307,50 @@ Przeprowadzono również oddzielne testy dla części algorytmu odpowiedzialnej 
 \label{chart:planesweep-datasize}
 \end{figure}
 
+\begin{figure}[H]
+\begin{tikzpicture}
+\begin{axis}[
+            legend style={at={(0.5,-0.25)},anchor=north,legend cell align=left},
+            xlabel={Rozmiar danych},
+            ylabel={Czas (ms)},
+            ymin=0,
+           ymajorgrids=true,
+           grid style=dashed,
+           width=0.95\textwidth,
+           height=8cm,
+           point meta={y*100}
+           ]
+
+\addplot[
+          color=brown,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,769.55)(3624,726.1)(7526,725.55)(15289,711.5)
+         };
+         
+\addplot[
+          color=purple,
+          ultra thick,
+          mark=*,
+          smooth
+          ]
+          coordinates {
+         (1701,7.25)(3624,8.4)(7526,10)(15289,16)
+         };
+             
+\legend{Z przygotowaniem danych, Bez przygotowania danych}
+\end{axis}
+\end{tikzpicture}
+\caption{Wykres zależności czasu znalezienia relacji sąsiedztwa od rozmiaru danych dla implementacji na GPU uwzględniający przygotowanie danych}
+\label{chart:gpu-planesweep-data-preparation}
+\end{figure}
+
 \subsubsection{Zmienny próg maksymalnej odległości}
 
-Wykresy zawarte w tym podrozdziale opisują zmienność czasu działania algorytmu w poszczególnych implementacjach ze względu na zmienny próg maksymalnej odległości.
+Wykresy zawarte w tym podrozdziale opisują zmienność czasu działania algorytmu w poszczególnych implementacjach ze względu na zmienny próg maksymalnej odległości. Zmienność ta przekłada się bezpośrednio na ilość znalezionych relacji sąsiedztwa w~początkowych krokach algorytmu, gdzie większa ilość takich relacji zwiększa ilość obliczeń w~dalszych etapach.
 
 \begin{figure}[H]
 \begin{tikzpicture}
@@ -1501,7 +1568,7 @@ wydajność poszczególnych implementacji jest analogiczna jak dla danych gęsty
 
 \subsubsection{Zmienny próg minimalnej powszechności}
 
-Ostatni test skupia się na porównaniu czasów działania poszczególnych implementacji ze względu na zmienny próg minimalnej powszechności. Efekty tego porównania przedstawia Rysunek~\ref{chart:minprev-sparse}.
+Ostatni test skupia się na porównaniu czasów działania poszczególnych implementacji ze względu na zmienny próg minimalnej powszechności. Efekty tego porównania przedstawia Rysunek~\ref{chart:minprev-sparse}. Zmiany tego parametru przekładają się na to, ile par punktów połączonych relacją sąsiedztwa zostanie uwzględnione w~dalszych obliczeniach oraz na ilość wynikowych kolokacji.
 
 \begin{figure}[H]
 \begin{tikzpicture}

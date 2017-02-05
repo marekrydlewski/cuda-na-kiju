@@ -941,7 +941,7 @@ Wczytany zbiór wejściowy zostaje potem posortowany względem osi odciętych w 
 
 Następnie zostaje uruchomiony właściwy \textit{algorytm zamiatania} (ang. \textit{plane sweep}). Na początku zostaje uruchomiony kernel $ countNeighbours $ wyznaczający liczbę sąsiadów dla każdej instancji. W dużym skrócie polega on na obliczeniu odległości euklidesowej pomiędzy instancjami $ a_{i} $ oraz $ a_{k} $. Jeśli jest ona nie większa od założonej maksymalnej odległości pomiędzy instancjami \textit{distanceTreshold}, stwierdza się pomiędzy nimi relację sąsiedztwa. 
 
-Na potrzeby tego kroku zostaje zarezerwowane $ n_{dt} \cdot 32 $ wątków, co daje jeden \textit{warp} na instancję. Każdy z nich wykonuje maksymalnie $\lceil i / 32\rceil - 1$ iteracji, w każdej \textit{j-tej} iteracji sprawdzana jest natomiast grupa 32 instancji z zakresu $ K=\{i - j~\cdot~32; i - (j + 1) \cdot 32\} $. Dodatkowo należy zaalokować tablicę $ T_{counts} $ o rozmiarze $ n_{dt} $, w której na pozycji $ i $ zostanie wpisana ilość sąsiadów instancji $ a_{i} $.
+Na potrzeby tego kroku zostaje zarezerwowane $ n_{dt} \cdot 32 $ wątków, co daje jeden \textit{warp} na instancję. Każdy z nich wykonuje maksymalnie $\lceil i / 32\rceil - 1$ iteracji, w każdej \textit{j-tej} iteracji sprawdzana jest natomiast grupa 32 instancji z zakresu $ K=\{(i - j)~\cdot~32; (i - j + 1) \cdot 32\} $. Dodatkowo należy zaalokować tablicę $ T_{counts} $ o rozmiarze $ n_{dt} $, w której na pozycji $ i $ zostanie wpisana ilość sąsiadów instancji $ a_{i} $.
 
 Każdy wątek wchodzący w skład \textit{warp}'u sumuje w tablicy pamięci współdzielonej liczbę znalezionych we wszystkich iteracjach sąsiadów. Suma ta jest przechowywana przez każdy wątek w osobnej komórce - pozwala to uniknąć stosowania kosztownego mechanizmu synchronizacji zapisu pomiędzy wątkami w \textit{warpie}. Po każdej iteracji następuje sprawdzenie, czy którykolwiek z wątków \textit{warp}'a napotkał instancję, która odległa jest na samej osi odciętych o więcej niż próg odległości \textit{distanceTreshold} - jeżeli tak, to można przerwać pętlę, gdyż kolejne instancje w posortowanym zbiorze na pewno nie spełnią progu odległości.
 
@@ -955,7 +955,7 @@ Po zakończeniu iterowania każdy \textit{warp} wykonuje szybką redukcję czę�
 \caption{Poglądowy rysunek przedstawiający iterowanie warpów po instancjach}
 \end{figure}
 
-Pozostało jedynie wykonać kernel \textit{findNeighbours}, odpowiedzialny za alokację oraz wpisanie znalezionych sąsiadów do tabel \textit{InstanceFirst} oraz \textit{InstanceSecond}. Służą one do przechowywania elementów par instancji będących w relacji sąsiedztwa. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami w obu tablicach. Kolejność w obrębie pary wyznaczana jest przez poniższy Algorytm~\ref{alg:FeatureInstance_operator} będący przeciążeniem operatora mniejszości ($ < $):
+Pozostało jedynie wykonać kernel \textit{findNeighbours}, odpowiedzialny za alokację oraz wpisanie znalezionych sąsiadów do tabel $ Pairs_{A} $ oraz $ Pairs_{B} $. Służą one do przechowywania elementów par instancji będących w relacji sąsiedztwa. Wartości należące do jednej pary znajdują się pod tymi samymi indeksami w obu tablicach. Kolejność w obrębie pary wyznaczana jest przez poniższy Algorytm~\ref{alg:FeatureInstance_operator} będący przeciążeniem operatora mniejszości ($ < $):
 
 \begin{algorithm}
 \SetKwInOut{Input}{Wejście}
@@ -1047,7 +1047,7 @@ Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania z
 \Input{ $ a, b$ - strony operatora typu \textit{FeatureInstanceTuple}}
 \Output{ $ out $ - wynik porównania }
 \myproc{\proc{a, b}}{
-$ out \leftarrow (featureId_{a_{0}} = featureId_{b_{0}}) \cup (featureId_{a_{1}} = featureId_{b_{1}})$\;
+$ out \leftarrow (featureId_{a_{0}} = featureId_{b_{0}}) \wedge (featureId_{a_{1}} = featureId_{b_{1}})$\;
 }
 \caption{Operator równości dla par instancji typu \textit{FeatureInstanceTuple}}
 \label{alg:FeatureInstanceTuple_operator}
@@ -1094,7 +1094,7 @@ Procedura tworzenia tej struktury przebiega bardzo podobnie do procedury tworzen
 \Input{ $ a, b$ - strony operatora typu \textit{FeatureInstanceTuple}}
 \Output{ $ out $ - wynik porównania }
 \myproc{\proc{a, b}}{
-$ out \leftarrow (field_{a_{0}} = field_{b_{0}}) \cup (featureId_{a_{1}} = featureId_{b_{1}})$\;
+$ out \leftarrow (field_{a_{0}} = field_{b_{0}}) \wedge (featureId_{a_{1}} = featureId_{b_{1}})$\;
 }
 \caption{Operator równości dla par instancji typu \textit{FeatureInstanceTuple}}
 \label{alg:FeatureInstanceTuple_operatorITNMPack}
@@ -1131,9 +1131,9 @@ Na potrzeby budowania kolejnych poziomów utrzymywana jest tablica \textit{mask}
 
 Począwszy od poziomu drugiego drzewo budowane jest poprzez dodawanie do każdej instancji na $ i - 1 $ poziomie następników będących jej sąsiadami o typie wyznaczonym przez \textit{i}-tą pozycję na odpowiadającym mu kandydacie. Wykorzystując strukturę \textit{ITNMPack} (analogicznie jak przy budowie poziomu zerowego oraz pierwszego), na początku zliczana jest liczba sąsiadów spełniających określone przed chwilą kryteria - zliczanie jednak dotyczy tylko i wyłącznie instancji, dla których odpowiadające pole w tablicy \textit{mask} ma wartość $ True $, co oznacza, że dodana w poprzedniej iteracji instancja jest w relacji ze wszystkimi jej poprzednikami. Na podstawie tej wielkości kolejny poziom jest alokowany, a następnie przepisane zostają do niego instancje.
 
-Dodane instancje niekoniecznie muszą znajdować się w relacji ze wszystkimi poprzednikami - w związku z tym niezbędne jest dodatkowe uruchomienie testu integralności dla dodanych instancji. Następuje zatem uruchomienie wątków w ilości równej liczbie nowych instancji, które to przechodzą drzewo od liścia do korzenia sprawdzając na każdym poziomie, czy nowo dodana instancja jest w relacji z instancją na obecnym poziomie. Do przechodzenia w dół użyta jest informacja zawarta o~indeksie poprzednika w \textit{group}, a wynik testu integralności zapisywany jest do tablicy \textit{mask}.
+Dodane instancje niekoniecznie muszą znajdować się w relacji ze wszystkimi poprzednikami - w związku z tym niezbędne jest dodatkowe uruchomienie testu integralności dla dodanych instancji. Następuje zatem uruchomienie wątków w ilości równej liczbie nowych instancji, które to przechodzą drzewo od liścia do korzenia sprawdzając na każdym poziomie, czy nowo dodana instancja jest w relacji z instancją na obecnym poziomie. Do przechodzenia w dół użyta jest informacja o~indeksie poprzednika zawarta w \textit{group}, a samo sprawdzanie polega na wyszukaniu na liście sąsiadów wyznaczonej przez \textit{ITNMPack} nowo dodanej instancji. Wynik testu integralności zapisywany jest do tablicy \textit{mask}.
 
-Drzewo budowane jest do momentu, w którym zostaną wyznaczone wszystkie jego poziomy (jeden na element kandydata) lub gdy na pewnym poziomie okaże się, iż nie można już dodać żadnej instancji. Po stworzeniu drzewa przy jego użyciu dokonana zostaje materializacja wszystkich instancji kandydatów. Uruchamiane jest w tym celu tyle wątków, ile wartości $ True $ w tablicy \textit{mask} odpowiadającym instancjom na ostatnim poziomie. 
+Drzewo budowane jest do momentu, w którym zostaną wyznaczone wszystkie jego poziomy (jeden na element kandydata) lub gdy na pewnym poziomie okaże się, iż nie można już dodać żadnej instancji. Po stworzeniu drzewa przy jego użyciu dokonana zostaje materializacja wszystkich instancji kandydatów. Uruchamiane jest w~tym celu tyle wątków, ile wartości $ True $ w tablicy \textit{mask} odpowiadającym instancjom na ostatnim poziomie. 
 
 Następnie można przeprowadzić proces obliczania powszechności zbioru instancji dla każdego z kandydatów w wygenerowanym zbiorze - osobno dla każdego typu składowego. Dokonuje się tego poprzez wyznaczenie unikalnych elementów w tym zbiorze i podzielenie tej wartości przez całkowitą ilość instancji tego typu. Gdy posiadane są wartości dla wszystkich typów składowych, za powszechność uznawana jest wartość minimalna.
 
@@ -1154,7 +1154,7 @@ Wydajność poszczególnych implementacji została przetestowana pod kątem zmie
 
 Dane wygenerowano przy pomocy generatora opracowanego przez P. Boińskiego na potrzeby pracy \cite{boinski}, napisanego w języku \textit{Java}. Próbki testowe składają się z~punktów, dla których określone są trzy wartości: współrzędna $ x $, współrzędna $ y $ oraz etykieta cechy, jaką reprezentuje dany punkt. Punkty zostały dodatkowo rozmieszczone na przestrzeni $ 1000 \times 1000$. 
 
-Dla celów pomiarowych związanych ze zmiennością rozmiaru danych wejściowych utworzone zostało osiem zestawów danych, w których liczba punktów wynosi od ok. 3000 do 200000 punktów. W przypadku pozostałych testów posłużono się czterema instancjami, które można opisać jako:
+Dla celów pomiarowych związanych ze zmiennością rozmiaru danych wejściowych utworzone zostało osiem zestawów danych, w których liczba punktów wynosi od około 3000 do 200000 punktów. W przypadku pozostałych testów posłużono się czterema instancjami, które można opisać jako:
 
 \begin{itemize}
 \item \textit{dane o niskim zagęszczeniu i równomiernym rozkładzie} - około 30000 punktów rozmieszczonych losowo
@@ -1644,7 +1644,9 @@ W implementacji GPU największe przyspieszenie może zostać uzyskane poprzez pr
 
 Kolejne zwiększenie wydajności można uzyskać przez wprowadzenie mechanizmu \textit{dynamic parallelism} \cite{cuda_dp} podczas sprawdzania integralności nowo dodanych poziomów - dodatkowe wątki uruchamiane byłyby podczas sprawdzania czy nowo dodana instancja znajduje się na listach sąsiadów poprzedników.
 
-Czas obliczeń można także skrócić w pewnym stopniu przez zaimplementowanie mechanizmu buforowego dla algorytmu \textit{plane-sweep} zaproponowanego w pracy \cite{plane2} przy implementacji \textit{Whiskey}. Implementacja algorytmu nie korzysta obecnie z rozwiązań sprzętowych złożonych z wielu kart graficznych, jednak kroki takie jak obliczanie miary powszechności oraz budowanie drzewa instancji mogą zostać w łatwy sposób do tego przystosowane. Przystosowanie algorytmu \textit{plane-sweep} do efektywnego wykorzystania mocy wielu GPU jest trochę bardziej skomplikowane, jednak można to rozwiązać poprzez przechowywanie na każdym z GPU pełnego zestawu danych - rozdzielając jedynie grupy instancji do przetworzenia. Wymaga to wprawdzie dodatkowego scalania danych na końcu przetwarzania - nie jest to jednak duże utrudnienie, gdyż na etapie tego kroku nie jest narzucony żaden ich porządek.
+Czas obliczeń można także skrócić w pewnym stopniu przez zaimplementowanie mechanizmu buforowego dla algorytmu \textit{plane-sweep} zaproponowanego w pracy \cite{plane2} przy implementacji \textit{Whiskey}.
+
+Implementacja algorytmu nie korzysta obecnie z rozwiązań sprzętowych złożonych z wielu kart graficznych, jednak kroki takie jak obliczanie miary powszechności oraz budowanie drzewa instancji mogą zostać w łatwy sposób do tego przystosowane. Przystosowanie algorytmu \textit{plane-sweep} do efektywnego wykorzystania mocy wielu GPU jest trochę bardziej skomplikowane, jednak można to rozwiązać poprzez przechowywanie na każdym z GPU pełnego zestawu danych - rozdzielając jedynie grupy instancji do przetworzenia. Wymaga to wprawdzie dodatkowego scalania danych na końcu przetwarzania - nie jest to jednak duże utrudnienie, gdyż na etapie tego kroku nie jest narzucony żaden ich porządek.
 
 Dużą część czasu przetwarzania na GPU zajmuje także transfer danych z przestrzeni pamięci CPU do przestrzeni pamięci GPU. Problem ten zostałby częściowo rozwiązany przez zastosowanie tzw. \textit{unified memory} \cite{cuda_um}, jednak kompleksowym rozwiązaniem jest optymalizacja transferu danych poprzez na przykład zaimplementowanie kontenera nieprzetworzonych kandydatów działającego w przestrzeni GPU. Byłby on prawdopodobnie ze względu na swoją naturę mniej efektywny, jednak nie wymagałby późniejszego transferu kandydatów do przetworzenia z pamięci CPU do GPU.
 

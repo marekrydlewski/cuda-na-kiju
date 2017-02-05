@@ -1614,15 +1614,11 @@ Całkowitą porażką okazała się sekwencyjny algorytm opracowany dla procesor
 
 W trakcie pracy udało się zauważyć możliwe dalsze kierunku rozwoju opracowania zaprezentowanych w niniejszej pracy implementacji w celu uzyskania większej wydajności.
 
-.
-
-.
-
-.
-
-.
-
-.
+W implementacji GPU największe przyspieszenie może zostać uzyskane poprzez przebudowę systemu obliczania prewalentności dla kandydatów maksymalnych klik. Obecnie wykorzystuje on wbudowaną w bibliotekę Thrust funkcję reduce\_by\_key oraz sort. Problem ten można prawdopodobnie rozwiązać jednak poprzez użycie mechanizmu podobnego do tego zastosowanego w planesweepie. Dodatkowo obliczanie prewalentności mogłoby zostać wykonane bezpośrednio na drzewie instancji kandydatów, pozwoliło by to pominąć krok materializacji, jednak do stwierdzenia czy pominięcie materializacji kosztem zwiększenia skomplikowania mechanizmu obliczania prewalentności faktycznie przyspieszy obliczenia potrzebne jest zaimplementowanie i przetestowanie rozwiązania. 
+Kolejne zwiększenie wydajności można uzyskać przez wprowadzenie mechanizmu \textit{dynamic parallelism} podczas sprawdzania integralności nowo dodanych poziomów, dodatkowe wątki uruchamiane były by podczas sprawdzania czy nowo dodana instancja znajduje się na listach sąsiadów poprzedników.
+Czas obliczeń można by także skrócić w pewnym stopniu przez zaimplementowanie mechanizmu buforowego dla algorytmu \textit{planesweep} zaproponowanego w pracy "TODO ref pracy" przy implementacji \textit{Whiskey}.
+Implementacja algorytmu nie korzysta obecnie z rozwiązań sprzętowych złożonych z wielu kart graficznych, jednak kroki takie jak obliczanie prewalentności oraz budowanie drzewa instancji mogą zostać w łatwy sposób do tego przystosowane. Przystosowanie algorytmu \textit{planesweep} do efektywnego wykorzystania mocy wielu GPU jest trochę bardziej skomplikowane, jednak można to rozwiązać poprzez przechowywanie na każdym z GPU pełnego zestawu danych rozdzielając jedynie grupy instancji do przetworzenia. Ten sposób na końcu wymaga scalenia danych, nie jest to jednak duże utrudnienie gdyż na etapie tego kroku nie jest narzucony żaden ich porządek.
+Dużą część czasu przetwarzania na GPU zajmuje także transfer danych z przestrzeni pamięci CPU do przestrzeni pamięci GPU. Problem ten zostałby częściowo rozwiązany przez zastosowanie \textit{ Unified memory }, jednak kompleksowym rozwiązaniem jest optymalizacja transferu danych poprzez na przykład zaimplementowanie kontenera nieprzetworzonych kandydatów działającego w przestrzeni GPU, byłby on prawdopodobnie ze względu na swoją naturę mniej efektywny, jednak nie wymagał by późniejszego transferu kandydatów do przetworzenia z pamięci CPU do GPU.
 
 Powyższe rozważania nie mają jednak wpływu na końcowy wniosek płynący z tej pracy: obliczenia na kartach graficznych są przyszłością działu eksploracji danych, a także jakichkolwiek algorytmów wymagających sporej mocy obliczeniowej. Oczywiście stanie się tak tylko pod warunkiem, że powstające algorytmy będą w stanie wykorzystać potencjał drzemiący w równoległości, co często nie jest proste i wymaga dodatkowej pracy nad przemyśleniem działania algorytmu pod kątem potencjalnego zrównoleglenia. Niewątpliwie jednak końcowe efekty są tego warte.
  

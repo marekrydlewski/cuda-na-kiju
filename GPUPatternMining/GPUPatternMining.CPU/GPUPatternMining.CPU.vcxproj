@@ -131,7 +131,6 @@
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.cpp" />
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.cpp" />
     <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmBase.cpp" />
-    <ClCompile Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeqV2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GPUPatternMining.Contract\GPUPatternMining.Contract.vcxproj">
@@ -142,7 +141,6 @@
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmParallel.h" />
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeq.h" />
     <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmBase.h" />
-    <ClInclude Include="CPUMiningAlgorithms\CPUMiningAlgorithmSeqV2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

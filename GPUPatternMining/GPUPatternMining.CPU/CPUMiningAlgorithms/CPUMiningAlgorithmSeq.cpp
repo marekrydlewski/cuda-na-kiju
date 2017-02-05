@@ -149,7 +149,6 @@ std::vector<std::vector<unsigned short>> CPUMiningAlgorithmSeq::filterMaximalCli
 
 	for (int i = cliquesToProcess.size() - 1; i >= 2; --i)
 	{
-		//no need to 'while' here, getPrevalentMaxCliques edits cliquesToProcess but in other rows
 		for (auto& clique : cliquesToProcess[i])
 		{
 			auto maxCliques = getPrevalentMaxCliques(clique, prevalence, cliquesToProcess);

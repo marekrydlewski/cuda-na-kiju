@@ -130,7 +130,7 @@ $\mbox{ }$
 \begin{em}
  Za opiekę naukową i cenne wskazówki
  serdeczne podziękowania kierujemy
- do naszego promotora dr Witolda Andrzejewskiego
+ do naszego promotora dr inż. Witolda Andrzejewskiego
 \end{em}
 \pagebreak
 \restoregeometry
@@ -1257,7 +1257,7 @@ Z analizy wykresu wynika, że powyżej pewnego rozmiaru danych wyjściowych nast
 
 Przeprowadzono również oddzielne testy dla części algorytmu odpowiedzialnej za odkrywanie relacji sąsiedztwa - ich efekt prezentuje Rysunek~\ref{chart:planesweep-datasize}. Na jego podstawie można zauważyć, że do pewnego rozmiaru danych wejściowych czas wykonania wersji równoległej na CPU oraz GPU jest wyższy niż czas wykonania wersji sekwencyjnej na CPU. Wynika to z faktu, że nakład pracy utworzony przez działania mające na celu zrównoleglenie obliczeń jest na tyle duży, że w ogólnym rozrachunku szybsze jest sekwencyjne wykonanie wszystkich obliczeń niż próba ich równoleglenia. Mimo tego czas odkrywania relacji sąsiedztwa w porównaniu do ogólnego czasu wykonania algorytmu jest na tyle niski, że nie ma to większego wpływu na ogólny obraz. W~dodatku głównym zadaniem algorytmów eksploracyjnych jest przeszukiwanie dużych zestawów danych, więc sytuacja ta, która zachodzi wyłącznie przy bardzo małych ilościach danych jest dopuszczalna.
 
-Wykres czasów dla implementacji na GPU zaznaczono na wykresie linią przerywaną ze względu na to, że przedstawia on czasy wykonania samych obliczeń nie uwzględniając dodatkowego nakładu pracy związanego z~przygotowaniem danych do obliczeń. Na Rysunku \ref{chart:gpu-planesweep-data-preparation} porównano czasy wykonań części odpowiedzialnej za odkrywanie relacji sąsiedztwa w.w. implementacji bez oraz z~uwzględnieniem przygotowania danych. Łatwo można na nim zauważyć, jak duży może być nakład pracy związany z przygotowaniem danych który umożliwi przetwarzanie na GPU.
+Na Rysunku~\ref{chart:planesweep-datasize} przedstawiono jednak dla implementacji na GPU czasy wykonania samych obliczeń nie uwzględniając niezbędnych operacji związanych z przygotowaniem danych do przetwarzania na karcie graficznej. Na Rysunku \ref{chart:gpu-planesweep-data-preparation} porównano czasy wykonań części odpowiedzialnej za odkrywanie relacji sąsiedztwa w.w. implementacji bez oraz z~uwzględnieniem przygotowania danych. Łatwo można na nim zauważyć, jak duży może być nakład pracy związany z przygotowaniem danych który umożliwi przetwarzanie na GPU.
 \begin{figure}[H]
 \begin{tikzpicture}
 \begin{axis}[
@@ -1294,7 +1294,6 @@ Wykres czasów dla implementacji na GPU zaznaczono na wykresie linią przerywan�
 \addplot[
           color=green,
           ultra thick,
-          dashed,
           mark=*,
           smooth
           ]
@@ -1469,6 +1468,7 @@ Dla rzadkiego zbioru danych (Rysunek~\ref{chart:maxdist-sparse}) implementacja G
             xlabel={Próg maksymalnej odległości},
             ylabel={Czas (ms)},
             xtick=data,
+            scaled y ticks=base 10:-3,
             ymin=0, ymax=4100,
            ymajorgrids=true,
            grid style=dashed,

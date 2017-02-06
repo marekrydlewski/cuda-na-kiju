@@ -1,9 +1,9 @@
-\documentclass[12pt]{article}
+\documentclass[12pt,twoside]{article}
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
 \usepackage{indentfirst}
 \usepackage{hyperref}
-\usepackage{geometry}
+\usepackage[twoside]{geometry}
 \usepackage[dvipsnames]{xcolor}
 \usepackage[nottoc]{tocbibind}
 \usepackage[linesnumbered]{algorithm2e}
@@ -119,6 +119,7 @@
 	\vfill
 	{\large Poznań, 2017 r.\par}
 \end{titlepage}
+\thispagestyle{empty}\null\newpage
 
 %acknowledgement
 \newgeometry{left=8cm, textwidth=11.5cm}
@@ -134,6 +135,7 @@ $\mbox{ }$
 \end{em}
 \pagebreak
 \restoregeometry
+\thispagestyle{empty}\null\newpage
 
 %quote
 \thispagestyle{empty}
@@ -142,6 +144,8 @@ $\mbox{ }$
 \hfill
 \epigraph{An algorithm must be seen to be believed}{Donald Knuth}
 \pagebreak
+
+\thispagestyle{empty}\null\newpage
 
 \tableofcontents
 \newpage

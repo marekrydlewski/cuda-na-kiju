@@ -257,7 +257,7 @@ Istnieje również rozszerzenie modelu dziewięciu przecięć, zwanym DE-9IM (an
 
 \subsection{Metody eksploracji danych przestrzennych}
 
-Specyfika danych przestrzennych, a w szczególności fakt, że własności obiektu w danych przestrzennych mogą zależeć od cech jego sąsiadów, powoduje, że stosowanie klasycznych metod eksploracji danych może doprowadzić do nieprawidłowych wyników \cite{klasykchuj1} \cite{klasykchuj2} - stąd też istnieje konieczność korzystania z metod eksploracji dedykowanych dla danych przestrzennych. Wiele z nich jest tak naprawdę rozwinięciem metod opracowanych dla klasycznych zbiorów danych.
+Specyfika danych przestrzennych, a w szczególności fakt, że własności obiektu w danych przestrzennych mogą zależeć od cech jego sąsiadów, powoduje, że stosowanie klasycznych metod eksploracji danych może doprowadzić do nieprawidłowych wyników \cite{trad} \cite{trad2} - stąd też istnieje konieczność korzystania z metod eksploracji dedykowanych dla danych przestrzennych. Wiele z nich jest tak naprawdę rozwinięciem metod opracowanych dla klasycznych zbiorów danych.
 
 \subsubsection{Grupowanie przestrzenne}
 
@@ -283,7 +283,7 @@ Trendy dzieli się na globalne i lokalne. Pierwsze wskazują na zwiększanie (b�
 
 Czasem w danych przestrzennych można znaleźć obiekty, których atrybuty nieprzestrzenne są niespójne z innymi obserwacjami dokonanymi w ich otoczeniu. Noszą one miano \textit{przypadków osobliwych} \cite{przypadeg}. 
 
-Wyszukiwanie takich zjawisk jest trudne, szczególnie gdy istnieje więcej atrybutów nieprzestrzennych - odwzorowanie ich w $n$-wymiarowej przestrzeni może skutkować \textit{przekleństwem wielowymiarowości} (ang. \textit{curse of dimensionality}) \cite{kurwa}, utrudnionym rozróżnianiem obiektów podobnych do siebie.
+Wyszukiwanie takich zjawisk jest trudne, szczególnie gdy istnieje więcej atrybutów nieprzestrzennych - odwzorowanie ich w $n$-wymiarowej przestrzeni może skutkować \textit{przekleństwem wielowymiarowości} (ang. \textit{curse of dimensionality}) \cite{belman}, utrudnionym rozróżnianiem obiektów podobnych do siebie.
 
 \subsubsection{Asocjacje przestrzenne}
 
@@ -382,17 +382,6 @@ Indeks uczestnictwa najczęściej określany jest w literaturze mianem miary pow
 \end{defin}
 
 \subsubsection{Problem}
-
-%\begin{defin}[Reguła kolokacyjna]Reguła kolokacyjna to reguła postaci $ c_{1} \rightarrow c_{2}(p, cp)$, gdzie $ c_{1} \subseteq F $, $c_{2} \subseteq F $ i $c _{1} \cup c_{2} = \emptyset $. Potencjalna użyteczność reguły może być mierzona przy pomocy jej powszechności p oraz prawdopodobieństwa warunkowego cp.
-%\end{defin}
-
-%\begin{defin}[Prawdopodobieństwo warunkowe]Prawdopodobieństwem warunkowym
-%$ cp(c_{1}, c_{2})$ reguły kolokacyjnej $ c_{1} \rightarrow c_{2} $ nazywamy stosunek liczby instancji wzorca c 1 w sąsiedztwie instancji wzorca $ c_{2}$ do liczby wszystkich instancji wzorca $ c_{1} $:
-%\begin{equation}
-%cp(c_{1}, c_{2}) = \frac{|\pi^{c_{1}}(CI^{c_{1} \cup c_{2}})|}{CI^{c_{1}}}
-%\end{equation}
-%gdzie $\pi^{c_{1}}(CI^{c_{1} \cup c_{2}})$ oznacza projekcję relacyjną instancji wzorca $CI^{c_{1} \cup c_{2}}$ względem wzorca $ c_{1} $ (z usuwaniem duplikatów).
-%\end{defin}
 
 \begin{defin}[Problem odkrywania maks. kolokacji]
 Problem odkrywania maksymalnych kolokacji przestrzennych jest zdefiniowany w następujący sposób.
@@ -560,10 +549,6 @@ Kolokacje o rozmiarze 2 tworzone są na podstawie wygenerowanych w oparciu o~cec
 
 Na podstawie wygenerowanych kolokacji oraz tzw. \textit{progu odległości} (ang. \textit{distance threshold}) tworzona jest dwuwymiarowa tablica z haszowaniem (ang. \textit{hash table}). Jest ona indeksowana cechami przestrzennymi. Każdy element tablicy zawiera wskaźnik do listy zawierającej instancje kandydatów o odpowiadających indeksom cechach przestrzennych. Instancja zostanie dodana do tej listy tylko wtedy, gdy odległość między instancjami nie przekracza dopuszczalnego progu odległości między nimi.
 
-%\begin{sample}
-%Zapytanie $InsTable_{2}(A,B)$ zwróci listę kandydatów $(A_{2}, B_{2})$, $(A_{3}, B_{1})$, itd. Nie znajdziemy na tej liście pary $(A_{2}, B_{100000})$, gdyż odległość między tymi instancjami przekracza dopuszczalny próg odległości.
-%\end{sample}
-
 \subsection{Obliczanie miary powszechności}
 
 Również krok obliczania powszechności dla kandydatów nie różni się od tego znanego z \textit{Co-location Miner}.
@@ -664,7 +649,7 @@ W ostatnim kroku w oparciu o tzw. \textit{prunning framework} \cite{wang} nastep
 \begin{defin}[Uporządkowana klika instancji]
 Dana jest tabela instancji kolokacji o rozmiarze 2 ($ InsTable_{2}) $ oraz kandydat na maksymalną kolokację $ C_{m} $. Jego uporządkowana klika instancji $ InsC_{m} $ jest grupą instancji przestrzennych spełniających następujące warunki:
 \begin{itemize}
-\item rozmiar $ InsC_{m} $ jest równy rozmiarowi $ C_{m} $, a cechy w odpowiadających sobie instancjach w $ InsC_{m} $ i $ C_{m} $ są takie same; %a każdej instancji w $ InsC_{m} $ odpowiada cesze w odpowiadającej jej instancji w $ C_{m} $; %
+\item rozmiar $ InsC_{m} $ jest równy rozmiarowi $ C_{m} $, a cechy w odpowiadających sobie instancjach w $ InsC_{m} $ i $ C_{m} $ są takie same; 
 \item instancje każdej pary instancji w $ InsC_{m} $ sąsiadują ze sobą w przestrzeni i~można je znaleźć w tabeli  $ InsTable_{2} $.
 \end{itemize}
 \end{defin}
@@ -927,10 +912,6 @@ Niniejszy rozdział poświęcony jest implementacji algorytmu \textit{SGCT} w we
 
 Poniższa implementacja została opracowana dla urządzeń spełniających wersję 3.0 potencjału obliczeniowego CUDA (ang.\textit{ CUDA Compute Capability}). W związku z tym, nie wykorzystuje ona niektórych możliwości dostarczanych przez nowsze karty graficzne firmy NVIDIA, np. zunifikowanej pamięci współdzielonej (ang. \textit{Unified Memory} \cite{cuda_um}) czy technologii \textit{Dynamic Parallelism} \cite{cuda_dp} - pozwoliło to jednak na przeprowadzenie testów na większej ilości kart graficznych.
 
-%\subsection{Przygotowanie danych w pamięci GPU}
-
-%Z powodu rozdzielnego modelu pamięci (co zmienia się wraz z wprowadzeniem \textit{unified memory}) dane które zostały %wczytane z zewnętrznego źródła (zbiór instancji zawierających typ, identyfikator, położenie w przestrzeni dwuwymiarowej) %%%(//TODO napisać gdzieś o możliwościach rozszerzenia algorytmu) muszą zostać przekazane do pamięci dostępnej dla procesorów %CUDA. Operacja przenoszenia danych pomiędzy przestrzeniami pamięci jest dość kosztowna i silnie zależy od wybranych %rozwiązań sprzętowych.
-
 \subsection{Generowanie tabeli instancji o rozmiarze 2}
 
 Tak jak w przypadku implementacji na procesory CPU, generowanie kandydatów na kolokacje o rozmiarze 2 wykorzystuje algorytm \textit{łączenia przestrzennego w oparciu o zamiatanie} (ang. \textit{sweeping-based spatial join}), przeznaczony do uruchamiania w~architekturze masowo-równoległej. Stanowi on odpowiednik wariantu \textit{Foxtrot} algorytmu \textit{plane-sweep} opisanego w pracy \cite{plane2}. 
@@ -945,9 +926,7 @@ Na potrzeby tego kroku zostaje zarezerwowane $ n_{dt} \cdot 32 $ wątków, co da
 
 Każdy wątek wchodzący w skład \textit{warp}'u sumuje w tablicy pamięci współdzielonej liczbę znalezionych we wszystkich iteracjach sąsiadów. Suma ta jest przechowywana przez każdy wątek w osobnej komórce - pozwala to uniknąć stosowania kosztownego mechanizmu synchronizacji zapisu pomiędzy wątkami w \textit{warpie}. Po każdej iteracji następuje sprawdzenie, czy którykolwiek z wątków \textit{warp}'a napotkał instancję, która odległa jest na samej osi odciętych o więcej niż próg odległości \textit{distanceTreshold} - jeżeli tak, to można przerwać pętlę, gdyż kolejne instancje w posortowanym zbiorze na pewno nie spełnią progu odległości.
 
-Po zakończeniu iterowania każdy \textit{warp} wykonuje szybką redukcję części tablicy współdzielonej należącej do jego wątków, a wynik wpisuje do tablicy \textit{$ T_{counts} $} na pozycji $i$-tej. Dodatkowo, po zakończeniu działania kernela  \textit{countNeighbours} również \textit{T\textsubscript{counts}} ulega redukcji - uzyskując tym sposobem całkowitą ilość znalezionych relacji sąsiedztwa sposród wszystkich instancji.
-
-% (otrzymując całkowitą ilość znalezionych relacji sąsiedztwa wśród wszystkich instancji, oznaczmy tę wartość jako %\textit{nC}.
+Po zakończeniu iterowania każdy \textit{warp} wykonuje szybką redukcję części tablicy współdzielonej należącej do jego wątków, a wynik wpisuje do tablicy \textit{$ T_{counts} $} na pozycji $i$-tej. Dodatkowo, po zakończeniu działania kernela  \textit{countNeighbours} również \textit{T\textsubscript{counts}} ulega redukcji - uzyskując tym sposobem całkowitą ilość znalezionych relacji sąsiedztwa spośród wszystkich instancji.
 
 \begin{figure}[H]
 \centering
@@ -1034,7 +1013,7 @@ Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}. Tak po
 
 \subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
 
-Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
+Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $ oparta na tablicy mieszającej z pracy \cite{hashmap}. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
 
 Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania zbioru par polegającej na zajmowaniu przez relacje o danych typach ciągłego obszaru można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Jako, że instancje w obecnym kroku rozróżnialne są tylko na podstawie typów zaimplementowany został algorytm~\ref{alg:FeatureInstanceTuple_operator} przeciążający operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji tylko względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
 
@@ -1081,7 +1060,7 @@ Różnicą względem algorytmu CPU jest to, że zbiór wynikowy kandydatów jest
 
 \subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji zadanej instancji z instancjami zadanego typu}
 
-Na tym etapie tworzona jest struktura $ ITNMPack $ dającej szybki dostęp do wszystkich sąsiadów danego typu dla określonej instancji. Wykorzystuje ona drugą właściwości zbioru uporządkowanego w Rozdziale~\ref{subsec:pair_ordering}.
+Na tym etapie w oparciu o tablicę mieszającą \cite{hashmap} tworzona jest struktura \linebreak $ ITNMPack $, dająca szybki dostęp do wszystkich sąsiadów danego typu dla określonej instancji. Wykorzystuje ona drugą właściwość zbioru uporządkowanego w Rozdziale~\ref{subsec:pair_ordering}.
 
 Procedura tworzenia tej struktury przebiega bardzo podobnie do procedury tworzenia struktury $ ITMPack $ - główna różnica tkwi w odmiennej implementacji operatora równości dla par instancji $ FeatureInstanceTuple $, przedstawionej w Algorytmie~\ref{alg:FeatureInstanceTuple_operatorITNMPack}. Ustanawia on pary instancji jako równe sobie tylko w przypadku, gdy ich pierwsze elementy są równe względem identyfikatora oraz typu (jest to ta sama instancja), a drugie elementy są tego samego typu.
 
@@ -1657,46 +1636,45 @@ Powyższe rozważania nie mają jednak wpływu na końcowy wniosek płynący z t
 \newpage
 
 \begin{thebibliography}{}
-% Autorzy, Tytuł, Gdzie ?, Rok wydania, Strony
-\bibitem{cuda_dp}Adinetz A., CUDA Dynamic Parallelism API and Principles (NVIDIA Developer Blogs), 20-04-2014 [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
-\bibitem{asoc}Agrawal R., Srikant R.. Fast Algorithms for Mining Association Rules in Large Databases. W: Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), USA, 1994, strony 487–499.
-\bibitem{plane}Andrzejewski W., Boiński P. Parallel GPU-based Plane-Sweep Algorithm for Construction of iCPI-Trees. W: Journal of Database Management nr 26(3), USA, 2015, strony 1-20.
-\bibitem{plane2}Andrzejewski W., Boiński P. ICPI Tree construction parallelization on Graphics Processing Units
-(Technical Report RA-012/2014), Poznań, 2014.
-\bibitem{spatial}Arge L., Procopiuc O., Ramaswamy S., Suel T., Vitter J. Scalable Sweeping- Based Spatial Join. W: Proceedings of the International Conference on Very Large Databases (VLDB 1998), USA, 1998.
-\bibitem{kurwa}Bellman R. E. Adaptive Control Processes - A Guided Tour, USA, 1961.
-\bibitem{boinski}Boiński P., Przetwarzanie zbiorów przestrzennych zapytań eksploracyjnych w środowiskach z ograniczonym rozmiarem pamięci operacyjnej, Poznań, 2015.
-\bibitem{kerbosz}Bron C., Kerbosch J. Algorithm 457: Finding all cliques of an undirected graph. W: Communications of the ACM nr 16, USA, 1973, strony 575–577.
-\bibitem{pivot2}Cazals F., Karande C. A note on the problem of reporting maximal cliques. W: Theoretical Computer Science nr 407, USA, 2008, strony 564–568.
-\bibitem{professional_cuda}Cheng J., Grossman M., McKerche T. Professional CUDA C Programming, Wrox, 2014.
-\bibitem{9sec2}Clementini E., Di Felice P., van Oosterom P. A small set of formal topological relationships suitable for end-user interaction. W: Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993), Wielka Brytania, 1993, strony 277-295.
-\bibitem{9sec}Egenhofer M. J., Franzosa R. Point-set topological spatial relations. W: International Journal of Geographic Information Systems nr 5, 1991, strony 161–174.
-\bibitem{degenerat}Eppstein D., Löffler M., Strash D. Listing all maximal cliques in sparsegraphs in near-optimal time. W: 21st International Symposium On Algorithms And Computation, Niemcy, 2010, strony 403–414.
-\bibitem{toptrendy}Ester M., Frommelt A., Kriegel H. P., Sander J. Algorithms for characterization and trend detection in spatial databases. W: Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998), USA, 1998, strony 44–50.
-\bibitem{klasyfikacja}Ester M., Kriegel H. P., Sander J. Spatial Data Mining: A Database Approach. W: In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997), Wielka Brytania, 1997, strony 47–66.
-\bibitem{kdd}Fayyad U., Piatetsky-Shapiro G., Smyth P. From Data Mining to Knowledge Discovery in Databases. W: AI Magazine nr 17, 1996, strony 37-54.
-\bibitem{cuda_um}Harris M., Unified Memory in CUDA 6 (NVIDIA Developer Blogs), 18-11-2013 [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
-\bibitem{fieldmodel}Jones C., Hall M. A Field Based Representation for Vague Areas Defined by Spatial Prepositions. W: Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008), Maroko, 2008.
-\bibitem{asoc2}Koperski K., Han J. Discovery of Spatial Association Rules in Geographic Information Databases. W: Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995) nr 951, USA, 1995, strony 47–66.
-\bibitem{matusiak}Matula D. W., Beck L. L. Smallest-last ordering and clustering and graph coloring algorithms. W: Journal of the ACM, nr 30, USA, 1983, strony 417–427.
-\bibitem{klasykchuj1}Miller H. J., Han J. Geographic Data Mining and Knowledge Discovery, USA, 2001.
-\bibitem{trad}Miller H. J., Han J. Geographic Data Mining and Knowledge Discovery.Bristol, USA, 2001.
-\bibitem{classsets}Morimoto Y. Mining Frequent Neighboring Class Sets in Spatial Databases. W: Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001), USA, 2001, strony 353–358.
-\bibitem{mikromiekki}Praca zbiorowa, Comparing the Concurrency Runtime to Other Concurrency Models (Microsoft), 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
-\bibitem{stak}Praca zbiorowa, Microsoft Parallel Patterns Library (PPL) vs. OpenMP (Stack Overflow), 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
-\bibitem{id3}Quinlan J. R. Induction of Decision Trees. W: Machine Learning nr 1, USA, 1986, strony 81–106.
-\bibitem{klasykchuj2}Roddick J. F., Spiliopoulou M. A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research. W: ACM SIGKDD Exploration Newsletter nr 1, USA, 1999, strony 34–38.
-\bibitem{cuda_by_examples}Sanders J., Kandrot E., CUDA by Example: An Introduction to General-Purpose GPU Programming, Addison-Wesley, 2011.
-\bibitem{przypadeg}Shekhar S., Chawla S. Spatial Databases: A Tour, USA, 2003.
-\bibitem{huang}Shekhar S., Huang Y. Discovering Spatial Co-location Patterns: A Summary of Results. W: SSTD, 2001, strony 236–256.
-\bibitem{multihuang}Shekhar S., Huang Y. The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset. W: Technical Report 02-019, USA, 2002.
-\bibitem{pivot}Tomita E., Tanaka A., Takahashi H. The worst-case time complexity for generating all maximal cliques and computational experiments. W: Theoretical Computer Science nr 363, USA, 2006, strony 28–42.
-\bibitem{buffered-sort}Vinodsu, Sorting in PPL, Parallel Programming in Native Code (Microsoft Developer Network Blogs), 14-01-2011 [dostęp: 10-01-2017]. Dostępny w Internecie: https://blogs.msdn.microsoft.com/nativeconcurrency/2011/01/14/sorting-in-ppl/
-\bibitem{icpi}Wang L., Bao Y., Lu J. Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree. W: The Open Information Systems Journal nr 3, 2009, strony 69–80.
-\bibitem{cpi}Wang L., Bao Y., Lu J., Yip J. A New Join-less Approach for Co-location Pattern Mining. W: Proceedings of the 8th IEEE International Conference on Computer and Information Technology (CIT 2008), Sydney, 2008, strony 197–202.
-\bibitem{wang}Wang L., Zhou L., Lu J., Yip, J. (2009). An order-clique-based approach for mining maximal co-locations. W: Information Sciences nr 179, USA, 2009, strony 3370–3382.
-\bibitem{chinczyki}Yao X., Peng L., Yang L., Chi T. A fast space-saving algorithm for maximal co-location pattern mining. W: Expert Systems with Applications nr 63, 2016, strony 310–323.
-\bibitem{joinless}Yoo J. S., Shekhar S. A Joinless Approach for Mining Spatial Colocation Patterns. W: IEEE Transactions on Knowledge and Data Engineering, USA, 2006.
+\bibitem{cuda_dp}Adinetz A., \textit{CUDA Dynamic Parallelism API and Principles (NVIDIA Developer Blogs)}, 20-04-2014 [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
+\bibitem{asoc}Agrawal R., Srikant R., \textit{Fast Algorithms for Mining Association Rules in Large Databases.} W: \textit{Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994)}, USA, 1994, strony 487–499.
+\bibitem{hashmap}Alcantara D. A. F., \textit{Efficient Hash Tables on the GPU}, Davis, 2011.
+\bibitem{plane}Andrzejewski W., Boiński P., \textit{Parallel GPU-based Plane-Sweep Algorithm for Construction of iCPI-Trees.} W: Journal of Database Management nr 26(3), USA, 2015, strony 1-20.
+\bibitem{plane2}Andrzejewski W., Boiński P., \textit{ICPI Tree construction parallelization on Graphics Processing Units
+(Technical Report RA-012/2014)}, Poznań, 2014.
+\bibitem{spatial}Arge L., Procopiuc O., Ramaswamy S., Suel T., Vitter J., \textit{Scalable Sweeping-Based Spatial Join.} W: \textit{Proceedings of the International Conference on Very Large Databases (VLDB 1998)}, USA, 1998.
+\bibitem{belman}Bellman R. E., \textit{Adaptive Control Processes - A Guided Tour}, USA, 1961.
+\bibitem{boinski}Boiński P., \textit{Przetwarzanie zbiorów przestrzennych zapytań eksploracyjnych w środowiskach z ograniczonym rozmiarem pamięci operacyjnej}, Poznań, 2015.
+\bibitem{kerbosz}Bron C., Kerbosch J. \textit{Algorithm 457: Finding all cliques of an undirected graph.} W: \textit{Communications of the ACM nr 16}, USA, 1973, strony 575–577.
+\bibitem{pivot2}Cazals F., Karande C., \textit{A note on the problem of reporting maximal cliques.} W:\textit{ Theoretical Computer Science nr 407}, USA, 2008, strony 564–568.
+\bibitem{professional_cuda}Cheng J., Grossman M., McKerche T., \textit{Professional CUDA C Programming}, Wrox, 2014.
+\bibitem{9sec2}Clementini E., Di Felice P., van Oosterom P., \textit{A small set of formal topological relationships suitable for end-user interaction.} W: \textit{Proceedings of the 3rd International Symposium on Advances in Spatial Databases (SSD 1993)}, Wielka Brytania, 1993, strony 277-295.
+\bibitem{9sec}Egenhofer M. J., \textit{Franzosa R. Point-set topological spatial relations.} W: \textit{International Journal of Geographic Information Systems nr 5}, 1991, strony 161–174.
+\bibitem{degenerat}Eppstein D., Löffler M., Strash D., \textit{Listing all maximal cliques in sparsegraphs in near-optimal time}. W: \textit{21st International Symposium On Algorithms And Computation}, Niemcy, 2010, strony 403–414.
+\bibitem{toptrendy}Ester M., Frommelt A., Kriegel H. P., Sander J., \textit{Algorithms for characterization and trend detection in spatial databases.} W: \textit{Proceedings of the 4th International Conference on Knowledge Discovery and Data Mining (KDD 1998)}, USA, 1998, strony 44–50.
+\bibitem{klasyfikacja}Ester M., Kriegel H. P., Sander J.,\textit{ Spatial Data Mining: A Database Approach.} W:\textit{ In Proceedings of the 5th International Symposium on Advances in Spatial Databases (SSD 1997)}, Wielka Brytania, 1997, strony 47–66.
+\bibitem{kdd}Fayyad U., Piatetsky-Shapiro G., Smyth P., \textit{From Data Mining to Knowledge Discovery in Databases.} W: \textit{AI Magazine nr 17}, 1996, strony 37-54.
+\bibitem{cuda_um}Harris M., \textit{Unified Memory in CUDA 6 (NVIDIA Developer Blogs)}, 18-11-2013 [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
+\bibitem{fieldmodel}Jones C., Hall M., \textit{A Field Based Representation for Vague Areas Defined by Spatial Prepositions.} W: \textit{Proceedings of the Workshop on Methodologies and Resources for Processing Spatial Language at 6th Language Resources and Evaluation Conference (LREC 2008)}, Maroko, 2008.
+\bibitem{asoc2}Koperski K., Han J., \textit{Discovery of Spatial Association Rules in Geographic Information Databases.} W: \textit{Proceedings of the 4th International Symposium on Advances in Spatial Databases (SSD 1995) nr 951}, USA, 1995, strony 47–66.
+\bibitem{matusiak}Matula D. W., Beck L. L., \textit{Smallest-last ordering and clustering and graph coloring algorithms.} W: \textit{Journal of the ACM nr 30}, USA, 1983, strony 417–427.
+\bibitem{trad}Miller H. J., Han J., \textit{Geographic Data Mining and Knowledge Discovery}, Bristol, USA, 2001.
+\bibitem{classsets}Morimoto Y., \textit{Mining Frequent Neighboring Class Sets in Spatial Databases.} W: \textit{Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2001)}, USA, 2001, strony 353–358.
+\bibitem{mikromiekki}Praca zbiorowa, \textit{Comparing the Concurrency Runtime to Other Concurrency Models (Microsoft)}, 2015 [dostęp: 10-01-2017]. Dostępny w Internecie: https://msdn.microsoft.com/en-us/library/dd998048.aspx\#openmp
+\bibitem{stak}Praca zbiorowa, \textit{Microsoft Parallel Patterns Library (PPL) vs. OpenMP (Stack Overflow)}, 14-03-2012 [dostęp: 10-01-2017]. Dostępny w Internecie: http://stackoverflow.com/questions/9700088/microsoft-parallel-patterns-library-ppl-vs-openmp
+\bibitem{id3}Quinlan J. R., \textit{Induction of Decision Trees.} W: \textit{Machine Learning nr 1}, USA, 1986, strony 81–106.
+\bibitem{trad2}Roddick J. F., Spiliopoulou M., \textit{A Bibliography of Temporal, Spatial and Spatio-Temporal data Mining Research.} W: \textit{ACM SIGKDD Exploration Newsletter nr 1}, USA, 1999, strony 34–38.
+\bibitem{cuda_by_examples}Sanders J., Kandrot E., \textit{CUDA by Example: An Introduction to General-Purpose GPU Programming}, Addison-Wesley, 2011.
+\bibitem{przypadeg}Shekhar S., Chawla S., \textit{Spatial Databases: A Tour}, USA, 2003.
+\bibitem{huang}Shekhar S., Huang Y., \textit{Discovering Spatial Co-location Patterns: A Summary of Results}. W: \textit{SSTD}, 2001, strony 236–256.
+\bibitem{multihuang}Shekhar S., Huang Y., \textit{The Multi-resolution Co-location Miner: A New Algorithm to Find Co-location Patterns in Spatial Dataset}. W: \textit{Technical Report 02-019}, USA, 2002.
+\bibitem{pivot}Tomita E., Tanaka A., Takahashi H., \textit{The worst-case time complexity for generating all maximal cliques and computational experiments.} W: \textit{Theoretical Computer Science nr 363}, USA, 2006, strony 28–42.
+\bibitem{buffered-sort}Vinodsu, \textit{Sorting in PPL, Parallel Programming in Native Code (Microsoft Developer Network Blogs)}, 14-01-2011 [dostęp: 10-01-2017]. Dostępny w Internecie: https://blogs.msdn.microsoft.com/nativeconcurrency/2011/01/14/sorting-in-ppl/
+\bibitem{icpi}Wang L., Bao Y., Lu J., \textit{Efficient Discovery of Spatial Co-Location Patterns Using the iCPI-tree.} W: \textit{The Open Information Systems Journal nr 3}, 2009, strony 69–80.
+\bibitem{cpi}Wang L., Bao Y., Lu J., Yip J., \textit{A New Join-less Approach for Co-location Pattern Mining.} W: \textit{Proceedings of the 8th IEEE International Conference on Computer and Information Technology (CIT 2008)}, Sydney, 2008, strony 197–202.
+\bibitem{wang}Wang L., Zhou L., Lu J., Yip J., \textit{An order-clique-based approach for mining maximal co-locations.} W: \textit{Information Sciences nr 179}, USA, 2009, strony 3370–3382.
+\bibitem{chinczyki}Yao X., Peng L., Yang L., Chi T.,\textit{ A fast space-saving algorithm for maximal co-location pattern mining.} W: \textit{Expert Systems with Applications nr 63}, 2016, strony 310–323.
+\bibitem{joinless}Yoo J. S., Shekhar S., \textit{A Joinless Approach for Mining Spatial Colocation Patterns.} W: \textit{IEEE Transactions on Knowledge and Data Engineering}, USA, 2006.
 \end{thebibliography}
 
 \end{document}

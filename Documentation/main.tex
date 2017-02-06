@@ -1034,7 +1034,7 @@ Przykładowe uporządkowanie przedstawia Rysunek~\ref{fig:pairs_content}. Tak po
 
 \subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji o zadanych typach}
 
-Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
+Na potrzeby następnych kroków algorytmu zdefiniowana została specjalna struktura $ ITMPack $ oparta na tablicy mieszającej z pracy \cite{hashmap}. Ma ona na celu umożliwienie szybkiego dostępu do instancji, które należą do relacji o określonych cechach. 
 
 Dzięki wspomnianej w poprzednim kroku właściwości obecnego uporządkowania zbioru par polegającej na zajmowaniu przez relacje o danych typach ciągłego obszaru można użyć funkcji \textit{reduce\_by\_key} dostępnej w bibliotece \textit{Thrust}, służącej do szybkiego wyznaczenia liczności unikalnych następujących po sobie elementów. Jako, że instancje w obecnym kroku rozróżnialne są tylko na podstawie typów zaimplementowany został algorytm~\ref{alg:FeatureInstanceTuple_operator} przeciążający operator równości ($ == $) wykorzystujący możliwość rozróżnienia instancji tylko względem identyfikatorów typów. Operator ten działa na strukturach \textit{FeatureInstanceTuple} - stanowią one parę obiektów \textit{FeatureInstance}, łączącą elementy z tablicy $ Pairs_{A} $ z odpowiadającymi im pozycją elementami tablicy $ Pairs_{B} $.
 
@@ -1081,7 +1081,7 @@ Różnicą względem algorytmu CPU jest to, że zbiór wynikowy kandydatów jest
 
 \subsection{Przygotowanie struktury szybkiego dostępu do informacji o instancjach należących do relacji zadanej instancji z instancjami zadanego typu}
 
-Na tym etapie tworzona jest struktura $ ITNMPack $ dającej szybki dostęp do wszystkich sąsiadów danego typu dla określonej instancji. Wykorzystuje ona drugą właściwości zbioru uporządkowanego w Rozdziale~\ref{subsec:pair_ordering}.
+Na tym etapie w oparciu o tablicę mieszającą \cite{hashmap} tworzona jest struktura \linebreak $ ITNMPack $, dająca szybki dostęp do wszystkich sąsiadów danego typu dla określonej instancji. Wykorzystuje ona drugą właściwość zbioru uporządkowanego w Rozdziale~\ref{subsec:pair_ordering}.
 
 Procedura tworzenia tej struktury przebiega bardzo podobnie do procedury tworzenia struktury $ ITMPack $ - główna różnica tkwi w odmiennej implementacji operatora równości dla par instancji $ FeatureInstanceTuple $, przedstawionej w Algorytmie~\ref{alg:FeatureInstanceTuple_operatorITNMPack}. Ustanawia on pary instancji jako równe sobie tylko w przypadku, gdy ich pierwsze elementy są równe względem identyfikatora oraz typu (jest to ta sama instancja), a drugie elementy są tego samego typu.
 
@@ -1660,6 +1660,7 @@ Powyższe rozważania nie mają jednak wpływu na końcowy wniosek płynący z t
 % Autorzy, Tytuł, Gdzie ?, Rok wydania, Strony
 \bibitem{cuda_dp}Adinetz A., CUDA Dynamic Parallelism API and Principles (NVIDIA Developer Blogs), 20-04-2014 [dostęp: 10-01-2017]. Dostępny w Internecie: https://devblogs.nvidia.com/parallelforall/cuda-dynamic-parallelism-api-principles
 \bibitem{asoc}Agrawal R., Srikant R.. Fast Algorithms for Mining Association Rules in Large Databases. W: Proceedings of the 20th International Conference on Very Large Data Bases (VLDB 1994), USA, 1994, strony 487–499.
+\bibitem{hashmap}Alcantara D. A. F. Efficient Hash Tables on the GPU, Davis, 2011.
 \bibitem{plane}Andrzejewski W., Boiński P. Parallel GPU-based Plane-Sweep Algorithm for Construction of iCPI-Trees. W: Journal of Database Management nr 26(3), USA, 2015, strony 1-20.
 \bibitem{plane2}Andrzejewski W., Boiński P. ICPI Tree construction parallelization on Graphics Processing Units
 (Technical Report RA-012/2014), Poznań, 2014.
